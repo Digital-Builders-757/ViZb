@@ -1,0 +1,537 @@
+# ViBE Events Platform -- MVP Status & Development Roadmap
+
+> **What is ViBE?**
+>
+> An events discovery and ticketing platform targeting the Virginia/DMV creative community. Attendees browse events and buy tickets, organizers create events and check in guests at the door, and admins moderate the platform. Think Eventbrite with a streetwear editorial aesthetic.
+
+---
+
+## Current Status: Phase 1 Complete -- Auth + Dashboard Shell
+
+| Field | Value |
+|-------|-------|
+| **Last Audited** | February 5, 2026 |
+| **Audited Environment** | dev (Supabase project via integration, v0 preview) |
+| **Migrations Applied** | 001-009 verified (see migration table below) |
+| **Overall MVP Progress** | 1 of 6 phases complete (~17%) |
+| **Security Audit** | 8/8 checks passed; see Security section + Known Issues |
+| **Open Redirect Protection** | PASS -- `auth/callback` validates redirect targets against allowlist |
+| **Subscribers Privacy** | PASS -- public SELECT disabled (migration 009); insert-only for waitlist |
+
+> **"Passing" means:** Every migration executes cleanly, all RLS policies are verified, route protection has no redirect loops, and the auth callback rejects open-redirect payloads. Audit complete; controls verified; remaining work captured in roadmap + tech debt sections below.
+
+### Migration Map (Quick Reference)
+
+| Number | Script | Purpose |
+|--------|--------|---------|
+| 001 | `001_create_subscribers_table.sql` | Waitlist subscribers |
+| 002 | `002_add_phone_number.sql` | Phone column on subscribers |
+| 003 | `003_create_enums.sql` | 6 enum types |
+| 004 | `004_create_profiles.sql` | Profiles + auto-create trigger |
+| 005 | `005_create_organizations.sql` | Orgs + org members |
+| 006 | `006_rls_security_fixes.sql` | RLS hardening (admin policies) |
+| 007 | `007_column_privileges_hardening.sql` | Column-level privilege lock on `role_admin` |
+| 008 | `008_fix_enum_values.sql` | Enum alignment (status + org_type values) |
+| 009 | `009_fix_subscribers_rls.sql` | Subscribers privacy (admin-only read) |
+| 010 | *`010_create_events.sql`* | Events + event_media *(Phase 2 -- not yet written)* |
+| 011 | *`011_create_tickets.sql`* | Ticket types, orders, tickets *(Phase 3 -- not yet written)* |
+
+---
+
+## Phase Completion Summary
+
+| Phase | Name | Status | Completion |
+|-------|------|--------|------------|
+| Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
+| Phase 2 | Events + Media (Public Feed) | NOT STARTED | 0% |
+| Phase 3 | Ticket Types + Free RSVP | NOT STARTED | 0% |
+| Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
+| Phase 5 | Door Check-In | NOT STARTED | 0% |
+| Phase 6 | Admin Workflows + Polish | NOT STARTED | 0% |
+
+---
+
+## What Exists Today (Verified Against Codebase)
+
+### Landing Page (Pre-Phase 1 -- Live)
+
+- Full marketing homepage at `/` with hero, marquee, editorial grid, events preview, app mockup, waitlist form, footer
+- 3D Three.js animated background (client-side)
+- Waitlist subscription via `subscribers` table (scripts 001-002)
+- ViBE brand system fully implemented: dark mode, zero radius, Space Grotesk + Playfair Display + JetBrains Mono typography
+- Responsive navbar with mobile toggle
+
+### Database (9 Migrations Executed)
+
+| Script | Contents | Status |
+|--------|----------|--------|
+| `001_create_subscribers_table.sql` | Waitlist `subscribers` table | Executed |
+| `002_add_phone_number.sql` | Phone column on subscribers | Executed |
+| `003_create_enums.sql` | 6 enum types: `org_type`, `org_status`, `org_member_role`, `event_status`, `order_status`, `media_kind` | Executed |
+| `004_create_profiles.sql` | `profiles` table + `handle_new_user` trigger + RLS | Executed |
+| `005_create_organizations.sql` | `organizations` + `organization_members` tables + RLS | Executed |
+| `006_rls_security_fixes.sql` | 4 RLS patches (admin self-promotion block, admin read policies) | Executed |
+| `007_column_privileges_hardening.sql` | Column-level UPDATE privileges on profiles (blocks `role_admin` writes at Postgres level) | Executed |
+| `008_fix_enum_values.sql` | Adds missing enum values: `pending_review` to org/event status, `collective`/`brand`/`nonprofit`/`independent` to org_type, `rejected` to event_status | Executed |
+| `009_fix_subscribers_rls.sql` | Locks down subscribers table: replaces public SELECT with admin-only read | Executed |
+
+**Tables that exist:** `subscribers`, `profiles`, `organizations`, `organization_members`
+**Tables NOT yet created:** `events`, `event_media`, `ticket_types`, `orders`, `order_items`, `tickets`
+
+### Authentication System (Phase 1 -- Complete)
+
+| Feature | File(s) | Status |
+|---------|---------|--------|
+| Email + password sign-up | `app/signup/page.tsx` | DONE -- passes display_name via metadata, sends confirmation email |
+| Email + password sign-in | `app/login/page.tsx` | DONE -- client form with error handling, redirect support |
+| Email confirmation callback | `app/auth/callback/route.ts` | DONE -- exchanges code for session, redirects to dashboard |
+| Sign-up success page | `app/auth/sign-up-success/page.tsx` | DONE -- "Check your inbox" branded page |
+| Auth error page | `app/auth/error/page.tsx` | DONE -- generic error with link back to login |
+| Session refresh middleware | `lib/supabase/middleware.ts` | DONE -- follows Supabase SSR reference pattern |
+| Route protection | `middleware.ts` | DONE -- protects `/dashboard`, `/organizer`, `/admin`, `/tickets`, `/profile`; redirects logged-in users away from `/login` and `/signup` |
+| Auth helpers | `lib/auth-helpers.ts` | DONE -- `requireAuth()`, `getProfile()`, `requireAdmin()`, `requireOrgMember()`, `getUserOrganizations()` |
+| Profile auto-creation | `scripts/004_create_profiles.sql` trigger | DONE -- `handle_new_user()` creates profile row on signup |
+| Sign out | `components/dashboard/sidebar.tsx` | DONE -- client-side sign out with redirect |
+
+### Dashboard Shell (Phase 1 -- Complete)
+
+| Feature | File(s) | Status |
+|---------|---------|--------|
+| Dashboard layout | `app/(dashboard)/layout.tsx` | DONE -- server component fetches profile + orgs, renders sidebar |
+| Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
+| Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
+| My Tickets page (temp) | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE -- empty state; **Note:** renders at `/dashboard/tickets` but canonical wallet route is `/tickets`. Will be replaced in Phase 3 when the real wallet is built at `/tickets`. |
+| Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
+| Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |
+
+### Organizer System (Phase 1 -- Shell Complete)
+
+| Feature | File(s) | Status |
+|---------|---------|--------|
+| Create organization form | `app/(dashboard)/organizer/new/page.tsx` | DONE -- name, auto-slug, type dropdown, description |
+| Create organization action | `app/actions/organization.ts` | DONE -- validates inputs, checks slug uniqueness, inserts org + owner membership |
+| Org dashboard (per-org) | `app/(dashboard)/organizer/[slug]/page.tsx` | DONE -- pending review notice, stats (0s), events empty state, create event CTA |
+| Org membership check | `lib/auth-helpers.ts` `requireOrgMember()` | DONE -- verifies org exists + user is member, redirects otherwise |
+
+### Admin System (Phase 1 -- Placeholder Complete)
+
+| Feature | File(s) | Status |
+|---------|---------|--------|
+| Admin gate | `lib/auth-helpers.ts` `requireAdmin()` | DONE -- checks `role_admin`, redirects non-admins to `/dashboard` |
+| Admin overview page | `app/(dashboard)/admin/page.tsx` | DONE -- live counts (users, orgs, pending orgs), placeholder approval queue |
+
+### Known Deviations from Architecture Laws
+
+| Deviation | Law Violated | Risk Level | Mitigation |
+|-----------|-------------|------------|------------|
+| Profile form (`profile-form.tsx`) writes directly via client Supabase instead of server action | Rule 2: mutations in server actions | Low | RLS + column-level privileges prevent escalation; only `display_name`, `avatar_url`, `updated_at` are writable. Fix planned for Phase 1.1 polish. |
+
+### Security (Phase 1 -- Hardened)
+
+| Check | Status | Details |
+|-------|--------|---------|
+| RLS on all tables | PASS | profiles, organizations, organization_members, subscribers all have RLS enabled with policies |
+| Admin self-promotion blocked | PASS | `WITH CHECK` on profiles update prevents changing `role_admin` + column-level REVOKE (migration 007) |
+| Admin read access | PASS | Admins can read all orgs and members via dedicated policies |
+| Admin org updates | PASS | Admins can update orgs for future approval workflows |
+| Column name consistency | PASS | All code uses `org_id` (not `organization_id`) matching actual schema |
+| No service-role key in client | PASS | Admin page uses normal anon client, relies on RLS |
+| Session refresh | PASS | Middleware calls `getUser()` on every request per Supabase SSR pattern |
+| No redirect loops | PASS | Public routes excluded from protection, auth pages redirect logged-in users |
+| Open redirect protection | PASS | `auth/callback` validates redirect param: relative paths only, allowlisted prefixes, blocks `//` and encoded schemes |
+| Subscribers privacy | PASS | Public SELECT disabled (migration 009); only admins can read waitlist emails; public can only insert |
+| Enum value consistency | PASS | All enum values match between DB and app code (migration 008 added missing values) |
+
+#### Verification Steps for Critical Fixes
+
+Each critical fix should be verified with these concrete steps. Run after any migration batch.
+
+| Fix | How to Verify | Expected Result | Evidence |
+|-----|--------------|-----------------|----------|
+| Role escalation hard-lock (007) | Authenticated user calls `supabase.from('profiles').update({ role_admin: true }).eq('id', uid)` | Postgres error: permission denied for column `role_admin` | Network tab shows 403 / error response with `permission denied` |
+| Admin read policies (006) | Admin user calls `supabase.from('organizations').select('*').eq('status', 'pending_review')` | Returns all pending orgs. Same query from non-admin returns empty. | Compare response arrays: admin gets rows, non-admin gets `[]` |
+| Open redirect protection | Navigate to `/auth/callback?code=valid&redirect=https://evil.com` | Redirects to `/dashboard`, not to external URL | Browser URL bar shows `/dashboard`; no external navigation |
+| Open redirect protocol-relative | Navigate to `/auth/callback?code=valid&redirect=//evil.com` | Redirects to `/dashboard`, not to external URL | Browser URL bar shows `/dashboard`; no external navigation |
+| Subscribers privacy (009) | Unauthenticated call to `supabase.from('subscribers').select('*')` | Returns empty array (RLS blocks read) | Response body: `{ "data": [], "error": null }` |
+| Enum consistency (008) | `INSERT INTO organizations (name, slug, type) VALUES ('Test', 'test', 'collective')` | Succeeds (previously would fail with invalid enum value) | Row appears in `organizations` table; clean up test row after |
+| Enum consistency (008) | `INSERT INTO organizations (name, slug, status) VALUES ('Test', 'test2', 'pending_review')` | Succeeds (previously would fail with invalid enum value) | Row appears in `organizations` table; clean up test row after |
+
+#### Post-Migration Regression Checklist
+
+Run this checklist after applying any batch of migrations to confirm no regressions.
+
+**Environment:**
+- **Where to run:** v0 preview URL (dev) or `localhost:3000` if running locally
+- **Test accounts needed:**
+  - Normal user: any fresh signup (e.g., `testuser@example.com`)
+  - Admin user: a user whose `profiles.role_admin` has been set to `true` via SQL (`UPDATE profiles SET role_admin = true WHERE id = '<uid>'`)
+- **Browser:** Desktop Chrome (mobile dashboard is a known limitation until Phase 6)
+
+**Steps:**
+
+- [ ] **Sign up** -- Create new account with email + password. Confirmation email sends. Profile row auto-created via trigger.
+- [ ] **Email confirm + redirect** -- Click confirmation link. Lands on `/dashboard` (not `/login`, not external URL).
+- [ ] **Login** -- Sign in with confirmed credentials. Session persists across hard refresh.
+- [ ] **Profile edit** -- Change display name on `/profile`. Save succeeds. `role_admin` field NOT writable (verify via dev tools network tab).
+- [ ] **Create org** -- Submit org creation form. Org appears in sidebar. Slug collision returns clean error on retry with same name.
+- [ ] **Org dashboard** -- Navigate to `/organizer/[slug]`. Shows pending review notice. Non-member redirected to `/dashboard`.
+- [ ] **Admin page** -- Admin user sees real counts at `/admin`. Non-admin user redirected to `/dashboard`.
+- [ ] **Sidebar nav** -- All sidebar links resolve correctly. Org list updates after org creation. Admin link only visible to admins.
+- [ ] **Sign out** -- Click sign out. Redirected to `/`. Protected routes redirect back to `/login`.
+
+**Expected known failures (not regressions):**
+- Mobile dashboard navigation does not work (sidebar is desktop-only, fixed `w-64`). This is tracked in tech debt for Phase 6.
+- No loading skeletons -- pages may flash while server components load. Tracked for Phase 6.
+- Tickets page at `/dashboard/tickets` shows empty state only -- real wallet at `/tickets` is Phase 3.
+
+> **Note:** This is a manual checklist. Automated E2E tests are post-MVP scope. Until then, run this checklist after every migration batch.
+
+### Documentation (Layer 1 Complete; Layers 2-3 Pending)
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| `VIBE_APP_SPECIFICATION.md` | Full MVP tech spec (schema, auth, payments, routes, roadmap) | DONE -- 1135 lines |
+| `BRAND_SYSTEM.md` | Canonical visual identity with anti-patterns | DONE |
+| `ARCHITECTURE_SOURCE_OF_TRUTH.md` | Module ownership, wiring laws, drift prevention | DONE |
+| `CODING_STANDARDS.md` | Code style, patterns, conventions | DONE |
+| `DOCUMENTATION_INDEX.md` | 3-layer documentation spine | DONE |
+| `DEVELOPER_ONBOARDING.md` | Quick-start guide for developers/AI agents | DONE |
+| `PROJECT_PLAN_PHASE1.md` | Phase 1 implementation plan with security audit results | DONE |
+
+---
+
+## What Does NOT Exist Yet
+
+### Database Tables Still Needed
+
+| Table | Purpose | Migration Needed | Phase |
+|-------|---------|------------------|-------|
+| `events` | Core event listings | `010_create_events.sql` | Phase 2 |
+| `event_media` | Flyers and gallery images | `010_create_events.sql` | Phase 2 |
+| `ticket_types` | Ticket tiers per event | `011_create_tickets.sql` | Phase 3 |
+| `orders` | Purchase records | `011_create_tickets.sql` | Phase 3 |
+| `order_items` | Line items within orders | `011_create_tickets.sql` | Phase 3 |
+| `tickets` | Attendee door-pass records | `011_create_tickets.sql` | Phase 3 |
+
+### Features Not Yet Built
+
+| Feature | Route | Phase | Dependency |
+|---------|-------|-------|------------|
+| Public event feed | `/events` | Phase 2 | `events` table |
+| Event detail page | `/events/[id]` | Phase 2 | `events` + `event_media` tables |
+| Event creation form | `/organizer/[slug]/events/new` | Phase 2 | `events` table + Supabase Storage |
+| Event edit/manage | `/organizer/[slug]/events/[id]` | Phase 2 | `events` table |
+| Flyer upload | Supabase Storage | Phase 2 | `event-flyers` bucket |
+| Admin event approval queue | `/admin/events` | Phase 2 | `events` table |
+| Ticket type management | Part of event form | Phase 3 | `ticket_types` table |
+| Free RSVP flow | Part of event detail | Phase 3 | `orders` + `tickets` tables |
+| Ticket wallet | `/tickets` | Phase 3 | `tickets` table |
+| Individual ticket view | `/tickets/[id]` | Phase 3 | `tickets` table |
+| Stripe Checkout integration | `/api/stripe/create-checkout-session` | Phase 4 | Stripe keys + `orders` table |
+| Stripe webhook handler | `/api/stripe/webhook` | Phase 4 | Stripe webhook secret |
+| Door check-in screen | `/organizer/[slug]/events/[id]/door` | Phase 5 | `tickets` table |
+| Admin org approval queue | `/admin/orgs` | Phase 6 | `organizations` table (exists) |
+| Admin user moderation | `/admin/users` | Phase 6 | `profiles` table (exists) |
+| Platform metrics dashboard | `/admin` (enhanced) | Phase 6 | All tables |
+| Mobile-responsive sidebar | `components/dashboard/sidebar.tsx` | Phase 6 | None (currently desktop-only) |
+
+### Integrations Not Yet Configured
+
+| Integration | Purpose | Phase |
+|-------------|---------|-------|
+| Stripe | Paid ticket purchases | Phase 4 |
+| Supabase Storage | Flyer/image uploads | Phase 2 |
+| Supabase Realtime | Live check-in counters | Phase 5 |
+
+---
+
+## Implementation Roadmap (Phases 2-6)
+
+### Phase 2: Events + Media (Public Feed)
+
+**Goal:** Organizers can create events with flyers. The public can browse published events.
+
+**Database work:**
+- [ ] Write `scripts/010_create_events.sql` -- `events` table, `event_media` table, indexes, RLS policies
+- [ ] Create Supabase Storage bucket: `event-flyers` (with MIME/size policies)
+- [ ] Add storage policies for bucket access control
+
+**Server actions:**
+- [ ] `app/actions/events.ts` -- `createEvent()`, `updateEvent()`, `submitEventForReview()`
+- [ ] `app/actions/admin.ts` -- `publishEvent()`, `rejectEvent()`
+
+**Pages:**
+- [ ] `/events` -- public event feed with flyer-first grid, filterable by city/date/category
+- [ ] `/events/[id]` -- event detail page with flyer hero, description, ticket info, RSVP/buy buttons
+- [ ] `/organizer/[slug]/events/new` -- event creation form with flyer upload, date/time picker, location fields
+- [ ] `/organizer/[slug]/events/[id]` -- event edit page
+- [ ] `/admin/events` -- event approval queue (pending events list with approve/reject actions)
+
+**Components:**
+- [ ] `components/events/event-card.tsx` -- flyer-first card for the event grid
+- [ ] `components/events/event-form.tsx` -- shared form for create/edit
+- [ ] `components/events/flyer-upload.tsx` -- image upload to Supabase Storage
+- [ ] `components/events/event-filters.tsx` -- city, date, category filter bar
+
+**Key decisions:**
+- Events start as `draft`, organizer submits for review (`pending_review`), admin publishes (`published`) or rejects (`rejected`)
+- **Any org can create events** regardless of org status. The gate is on the *event*, not the org. Admin publishes events, not orgs. (Org approval is Phase 6 polish.)
+- Flyer is required -- events are flyer-first
+- Location is text-based (no map integration for MVP)
+- Categories: party, workshop, networking, social (enum)
+
+**Storage policy spec:**
+
+| Setting | Value |
+|---------|-------|
+| Buckets created | `event-flyers` (defer `event-gallery`, `avatars`, `org-logos` to later phases) |
+| Allowed MIME types | `image/jpeg`, `image/png`, `image/webp` |
+| Max file size | 5 MB |
+| Access model | Flyers are **public read** after event publish; signed URLs during `draft`/`pending_review` |
+| Who can upload/replace | Org members (owner, manager, staff) for their own org's events |
+| Who can delete | Org owners + admins |
+
+**Acceptance criteria:**
+- [ ] An organizer with *any* org can create an event with a flyer and submit it for review
+- [ ] An admin can see `pending_review` events and publish or reject them
+- [ ] Published events appear in the public feed at `/events`
+- [ ] Events are filterable by city and category
+- [ ] Event detail page shows flyer, description, date/time, location
+- [ ] Flyer upload enforces MIME type and size limits
+
+---
+
+### Phase 3: Ticket Types + Free RSVP
+
+**Goal:** Events have ticket tiers. Attendees can RSVP to free events and receive tickets.
+
+**Database work:**
+- [ ] Write `scripts/011_create_tickets.sql` -- `ticket_types`, `orders`, `order_items`, `tickets` tables, indexes, RLS policies
+
+**Server actions:**
+- [ ] `app/actions/orders.ts` -- `createFreeRSVP()` (creates $0 order + mints ticket instantly)
+- [ ] `app/actions/tickets.ts` -- helper functions for ticket queries
+
+**Pages:**
+- [ ] Enhance `/events/[id]` -- add ticket type selector and RSVP button for free events
+- [ ] `/tickets` -- ticket wallet showing all upcoming + past tickets (replace current empty state)
+- [ ] `/tickets/[id]` -- individual ticket view with large ticket code (QR-ready for future)
+- [ ] Enhance organizer event form -- add ticket type builder (name, price, capacity, sale window)
+
+**Components:**
+- [ ] `components/tickets/ticket-card.tsx` -- ticket in the wallet view
+- [ ] `components/tickets/ticket-detail.tsx` -- full ticket with code
+- [ ] `components/events/ticket-type-selector.tsx` -- select ticket tier + quantity on event page
+- [ ] `components/events/rsvp-button.tsx` -- one-click RSVP for free events
+
+**Key decisions:**
+- Free RSVPs are `$0` tickets -- one unified model for all door-check scenarios
+- `ticket_code` is a unique 16-char hex string (QR payload for v2)
+- `checked_in_at` being non-null = attendee was checked in
+
+**Acceptance criteria:**
+- [ ] An organizer can add ticket types (free or paid) to their event
+- [ ] An attendee can RSVP to a free event and receive a ticket instantly
+- [ ] Tickets appear in the attendee's wallet at `/tickets`
+- [ ] Each ticket shows a unique ticket code
+- [ ] Ticket capacity is enforced (RSVP fails when sold out)
+
+---
+
+### Phase 4: Paid Tickets (Stripe Checkout)
+
+**Goal:** Attendees can purchase paid tickets via Stripe Checkout.
+
+**Integration setup:**
+- [ ] Connect Stripe integration (get `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)
+
+**API routes:**
+- [ ] `app/api/stripe/create-checkout-session/route.ts` -- creates Stripe Checkout session with line items
+- [ ] `app/api/stripe/webhook/route.ts` -- handles `checkout.session.completed`, updates order status, mints tickets
+
+**Server actions:**
+- [ ] `app/actions/orders.ts` -- `createPaidOrder()` (creates pending order, returns Stripe session URL)
+
+**Page enhancements:**
+- [ ] Enhance `/events/[id]` -- add "Buy Tickets" flow that redirects to Stripe Checkout
+- [ ] Add success/cancel pages for Stripe redirect returns
+
+**Key decisions:**
+- Stripe Checkout (hosted page) -- no custom payment forms
+- Orders start as `pending`, webhook confirms `paid`
+- Never trust client redirect as confirmation -- only webhook is authoritative
+- All sales run through ViBE's own Stripe account for MVP (manual payouts to organizers)
+
+**Acceptance criteria:**
+- [ ] An attendee can select a paid ticket type and complete checkout via Stripe
+- [ ] After payment, the webhook mints tickets and updates order status
+- [ ] Tickets appear in the attendee's wallet after purchase
+- [ ] Failed/cancelled payments do not create tickets
+- [ ] Webhook signature verification is enforced
+
+---
+
+### Phase 5: Door Check-In
+
+**Goal:** Organizers can check in attendees at the door on event day.
+
+**Pages:**
+- [ ] `/organizer/[slug]/events/[id]/door` -- door check-in screen with attendee list and check-in toggle
+
+**Components:**
+- [ ] `components/organizer/door-screen.tsx` -- attendee list with search, check-in button per ticket
+- [ ] `components/organizer/checkin-counter.tsx` -- live count of checked-in vs. total
+
+**Server actions:**
+- [ ] `app/actions/tickets.ts` -- `checkInTicket()` (sets `checked_in_at` timestamp)
+
+**Optional (nice-to-have):**
+- [ ] Supabase Realtime subscription for live check-in counter updates
+- [ ] Ticket search by name or ticket code
+
+**Key decisions:**
+- Manual tap check-in (no QR scanning for MVP)
+- Check-in sets `checked_in_at = now()` -- idempotent (tapping twice is a no-op)
+- Requires active internet connection
+
+**Acceptance criteria:**
+- [ ] An organizer can open the door screen for their event
+- [ ] The attendee list shows all ticket holders with check-in status
+- [ ] Tapping "Check In" marks the ticket and updates the counter
+- [ ] Only org members can access the door screen (RLS + auth helper)
+
+---
+
+### Phase 6: Admin Workflows + Polish
+
+**Goal:** Full admin dashboard, organization approval queue, user moderation, platform metrics. Responsive polish.
+
+**Pages:**
+- [ ] `/admin/orgs` -- organization approval queue (pending list, approve/reject with notes)
+- [ ] `/admin/users` -- user management table (search, view profiles, moderate)
+- [ ] Enhance `/admin` -- real metrics dashboard (total users, events, tickets sold, revenue)
+- [ ] `/admin/events` -- enhanced event management (beyond just approval)
+
+**Server actions:**
+- [ ] `app/actions/admin.ts` -- `approveOrganization()`, `suspendOrganization()`, `moderateUser()`
+
+**Polish:**
+- [ ] Mobile-responsive sidebar (sheet/drawer on mobile, collapse on tablet)
+- [ ] Loading states (skeletons) for all dashboard pages
+- [ ] Error boundaries for dashboard pages
+- [ ] Toast notifications for all mutations (create event, RSVP, check-in)
+- [ ] SEO metadata for public pages (`/events`, `/events/[id]`)
+- [ ] Accessibility audit (ARIA labels, focus management, keyboard navigation)
+
+**Acceptance criteria:**
+- [ ] An admin can approve or reject pending organizations with notes
+- [ ] An admin can view and search all platform users
+- [ ] The admin dashboard shows real metrics from live data
+- [ ] All dashboard pages work on mobile screens
+- [ ] All interactive elements have loading and error states
+
+---
+
+## Feature-Level Completion Matrix
+
+| Feature Category | What Exists | What's Missing | % Done |
+|-----------------|-------------|----------------|--------|
+| **Landing Page** | Full marketing homepage, waitlist, brand system | Nothing -- complete | 100% |
+| **Authentication** | Sign-up, sign-in, email confirmation, session refresh, route protection, sign-out | Google OAuth (post-MVP), magic link (post-MVP) | 95% |
+| **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, account deletion | 75% |
+| **Organizations** | Create org, auto-slug, type selection, membership check, sidebar display | Org settings page, member management, logo upload | 40% |
+| **Events** | None | Entire events system (CRUD, feed, detail, media) | 0% |
+| **Ticketing** | Empty state pages exist | Entire ticketing system (types, orders, tickets, wallet) | 0% |
+| **Payments** | None | Stripe integration, checkout, webhooks | 0% |
+| **Door Check-In** | None | Check-in screen, attendee list, live counter | 0% |
+| **Admin** | Placeholder with live counts | Approval queues, user moderation, full metrics | 15% |
+| **Responsive Design** | Landing page responsive, dashboard desktop-only | Mobile sidebar, responsive dashboard | 50% |
+| **Documentation** | Full spec, brand system, architecture, coding standards, onboarding | Domain contracts (Layer 2), user journeys (Layer 3) | 70% |
+
+---
+
+## Technical Debt & Known Issues
+
+| Issue | Severity | Fix Phase | Status | Notes |
+|-------|----------|-----------|--------|-------|
+| Org type enum mismatch: DB had (venue/partner/promoter) but form uses collective/brand/nonprofit/independent | **High** | Phase 1.1 | **FIXED** (migration 008) | Enum values added; form and DB now match |
+| Status vocabulary mismatch: DB had `pending` but code uses `pending_review` | **High** | Phase 1.1 | **FIXED** (migration 008) | `pending_review` added to `org_status` and `event_status` enums |
+| Subscribers table allowed public SELECT (email enumeration risk) | Medium | Phase 1.1 | **FIXED** (migration 009) | Replaced with admin-only read policy |
+| Profile `role_admin` column writable by authenticated users | Medium | Phase 1.1 | **FIXED** (migration 007) | Column-level REVOKE + selective GRANT on profiles |
+| Dashboard sidebar is desktop-only (fixed `w-64`, no mobile collapse) | Medium | Phase 6 | Open | Users on mobile cannot navigate the dashboard |
+| Tickets route mismatch: current page at `/dashboard/tickets`, canonical wallet at `/tickets` | Medium | Phase 3 | Open | Will be resolved when real wallet is built at `/tickets` |
+| No loading.tsx in dashboard routes (except `/login`) | Low | Phase 6 | Open | No skeleton states during server component loading |
+| `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL` env var in signup page | Low | Phase 2 | Open | Should use origin consistently; dev-only var may cause issues |
+| No error boundaries in dashboard routes | Low | Phase 6 | Open | Unhandled errors show generic Next.js error page |
+| Profile form uses client-side Supabase write instead of server action | Low | Phase 1.1 | Open | Inconsistent with Rule 2 (mutations in server actions); low risk since RLS + column privileges prevent escalation |
+
+---
+
+## Environment Variables
+
+### Currently Required
+
+| Variable | Set? | Purpose |
+|----------|------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Required | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Required | Supabase anonymous key |
+
+### Needed for Future Phases
+
+| Variable | Phase | Purpose |
+|----------|-------|---------|
+| `STRIPE_SECRET_KEY` | Phase 4 | Stripe API key |
+| `STRIPE_WEBHOOK_SECRET` | Phase 4 | Webhook signature verification |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Phase 4 | Stripe client key |
+
+---
+
+## Recommended Execution Order (Next Steps)
+
+### Immediate Priority: Phase 2 (Events + Media)
+
+This is the critical path. Without events, there's nothing to ticket, check in, or monetize. Phase 2 unlocks every subsequent phase.
+
+**Step 1: Database** -- Write and execute `010_create_events.sql` (events + event_media tables with RLS)
+**Step 2: Storage** -- Create Supabase Storage buckets for flyers and gallery images
+**Step 3: Event CRUD** -- Build event creation form and server actions
+**Step 4: Public Feed** -- Build `/events` page with flyer-first grid
+**Step 5: Event Detail** -- Build `/events/[id]` with full event info
+**Step 6: Admin Approval** -- Build `/admin/events` approval queue
+
+### After Phase 2: Phase 3 (Free RSVP) is the next unlock
+
+Once events exist, free RSVP gives the platform its first real user interaction loop:
+1. Organizer creates event
+2. Admin publishes event
+3. Attendee RSVPs and gets a ticket
+4. Organizer sees attendee on check-in list
+
+This loop is the MVP's core value proposition and should be prioritized over paid tickets.
+
+---
+
+## Post-MVP Features (Backlog)
+
+| Feature | Priority | Effort | Notes |
+|---------|----------|--------|-------|
+| QR code scanning for door check-in | High | Medium | Replace manual tap with camera-based scan |
+| Stripe Connect for organizer payouts | High | Large | Automated revenue sharing |
+| Google OAuth | Medium | Small | One-click signup via Supabase dashboard config |
+| Push notifications for event reminders | Medium | Medium | Requires service worker setup |
+| Event recommendations / "For You" feed | Low | Large | Needs usage data first |
+| Social features (follow organizers, invite friends) | Low | Large | Post-traction feature |
+| Event chat / community features | Low | Large | Post-traction feature |
+| Light mode support | Low | Medium | Brand system currently dark-mode only |
+
+---
+
+*Last Updated: February 5, 2026 (v4)*
+*Current Phase: Phase 1 complete; Phase 2 queued (Events + Media is critical path)*
+*Next Review: After Phase 2 completion*
+
+**Revision History:**
+- **v1:** Initial draft with phase breakdown and feature matrix
+- **v2:** Applied 10-point audit (enum fixes 008, route clarification, storage spec, security hardening 007/009)
+- **v3:** Added verification steps for all critical security fixes + post-migration regression checklist
+- **v4:** Added migration map, evidence column for verification steps, regression checklist environment/accounts/known-failures. Replaced "no issues found" with honest status language. No critical blockers beyond tracked technical debt.

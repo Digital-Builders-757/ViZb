@@ -1,0 +1,465 @@
+"use server"
+
+import { requireAuth, requireAdmin } from "@/lib/auth-helpers"
+import { slugify } from "@/lib/utils"
+import { revalidatePath } from "next/cache"
+
+const VALID_CATEGORIES = ["party", "workshop", "networking", "social", "concert", "other"] as const
+
+const MAX_FLYER_SIZE = 5 * 1024 * 1024
+const ALLOWED_FLYER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+
+export async function createEvent(formData: FormData) {
+  const { user, supabase } = await requireAuth()
+
+  const orgId = formData.get("org_id") as string
+  const title = (formData.get("title") as string)?.trim()
+  const description = (formData.get("description") as string)?.trim()
+  const startsAt = formData.get("starts_at") as string
+  const endsAt = (formData.get("ends_at") as string) || null
+  const venueName = (formData.get("venue_name") as string)?.trim()
+  const address = (formData.get("address") as string)?.trim() || null
+  const city = (formData.get("city") as string)?.trim()
+  const category = formData.get("category") as string
+
+  if (!orgId || !title || !startsAt || !venueName || !city || !category) {
+    return { error: "Please fill in all required fields." }
+  }
+
+  if (!VALID_CATEGORIES.includes(category as (typeof VALID_CATEGORIES)[number])) {
+    return { error: "Invalid category." }
+  }
+
+  const { data: membership } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("org_id", orgId)
+    .eq("user_id", user.id)
+    .single()
+
+  if (!membership || !["owner", "admin", "editor"].includes(membership.role)) {
+    return { error: "You don't have permission to create events for this organization." }
+  }
+
+  let slug = slugify(title)
+  if (!slug) slug = `event-${Date.now()}`
+
+  const { data: existing } = await supabase
+    .from("events")
+    .select("slug")
+    .eq("org_id", orgId)
+    .eq("slug", slug)
+    .maybeSingle()
+
+  if (existing) {
+    slug = `${slug}-${Date.now().toString(36).slice(-4)}`
+  }
+
+  const startDate = new Date(startsAt)
+  if (Number.isNaN(startDate.getTime())) {
+    return { error: "Invalid start date." }
+  }
+
+  if (endsAt) {
+    const endDate = new Date(endsAt)
+    if (Number.isNaN(endDate.getTime()) || endDate <= startDate) {
+      return { error: "End date must be after start date." }
+    }
+  }
+
+  const { data: event, error } = await supabase
+    .from("events")
+    .insert({
+      org_id: orgId,
+      title,
+      slug,
+      description: description || null,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      venue_name: venueName,
+      address,
+      city,
+      category,
+      status: "draft" as const,
+      created_by: user.id,
+    })
+    .select("id, slug")
+    .single()
+
+  if (error) {
+    return { error: `Failed to create event: ${error.message}` }
+  }
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", orgId)
+    .single()
+
+  const orgSlug = org?.slug || orgId
+  revalidatePath(`/organizer/${orgSlug}`)
+
+  return { success: true, event, orgSlug }
+}
+
+export async function uploadEventFlyer(formData: FormData) {
+  try {
+    const { user, supabase } = await requireAuth()
+
+    const eventId = formData.get("event_id") as string
+    const file = formData.get("flyer") as File | null
+
+    if (!eventId || !file) {
+      return { error: "Missing event ID or file." }
+    }
+
+    if (!ALLOWED_FLYER_TYPES.includes(file.type)) {
+      return { error: "Invalid file type. Use JPEG, PNG, WebP, or GIF." }
+    }
+
+    if (file.size > MAX_FLYER_SIZE) {
+      return { error: "File too large. Maximum size is 5MB." }
+    }
+
+    const { data: event, error: fetchError } = await supabase
+      .from("events")
+      .select("id, org_id, slug, status, flyer_url")
+      .eq("id", eventId)
+      .single()
+
+    if (fetchError || !event) {
+      return { error: "Event not found." }
+    }
+
+    if (!["draft", "pending_review", "rejected"].includes(event.status)) {
+      return { error: "Flyers can only be changed on draft, pending, or rejected events." }
+    }
+
+    const { data: membership } = await supabase
+      .from("organization_members")
+      .select("role")
+      .eq("org_id", event.org_id)
+      .eq("user_id", user.id)
+      .single()
+
+    if (!membership || !["owner", "admin", "editor"].includes(membership.role)) {
+      return { error: "You don't have permission to upload flyers for this event." }
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg"
+    const storagePath = `${event.org_id}/${event.id}/${Date.now()}.${ext}`
+
+    if (event.flyer_url) {
+      const oldPath = event.flyer_url.split("/event-flyers/")[1]
+      if (oldPath) {
+        await supabase.storage.from("event-flyers").remove([oldPath])
+      }
+    }
+
+    const { error: uploadError } = await supabase.storage
+      .from("event-flyers")
+      .upload(storagePath, file, { cacheControl: "3600", upsert: false })
+
+    if (uploadError) {
+      return { error: `Upload failed: ${uploadError.message}` }
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("event-flyers")
+      .getPublicUrl(storagePath)
+
+    const flyerUrl = publicUrlData.publicUrl
+
+    const { error: updateError } = await supabase
+      .from("events")
+      .update({ flyer_url: flyerUrl, updated_at: new Date().toISOString() })
+      .eq("id", eventId)
+
+    if (updateError) {
+      return { error: `Failed to save flyer URL: ${updateError.message}` }
+    }
+
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("slug")
+      .eq("id", event.org_id)
+      .single()
+
+    const orgSlug = org?.slug || event.org_id
+    revalidatePath(`/organizer/${orgSlug}`)
+    revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
+    revalidatePath(`/events/${event.slug}`)
+    revalidatePath("/events")
+
+    return { success: true, flyerUrl }
+  } catch (err) {
+    if (err && typeof err === "object" && "digest" in err) {
+      throw err
+    }
+    return { error: "An unexpected error occurred during upload." }
+  }
+}
+
+export async function removeEventFlyer(eventId: string) {
+  const { user, supabase } = await requireAuth()
+
+  const { data: event, error: fetchError } = await supabase
+    .from("events")
+    .select("id, org_id, flyer_url")
+    .eq("id", eventId)
+    .single()
+
+  if (fetchError || !event) {
+    return { error: "Event not found." }
+  }
+
+  const { data: membership } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("org_id", event.org_id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (!membership || !["owner", "admin"].includes(membership.role)) {
+    return { error: "Only owners and admins can remove flyers." }
+  }
+
+  if (event.flyer_url) {
+    const oldPath = event.flyer_url.split("/event-flyers/")[1]
+    if (oldPath) {
+      await supabase.storage.from("event-flyers").remove([oldPath])
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from("events")
+    .update({ flyer_url: null, updated_at: new Date().toISOString() })
+    .eq("id", eventId)
+
+  if (updateError) {
+    return { error: `Failed to clear flyer: ${updateError.message}` }
+  }
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", event.org_id)
+    .single()
+
+  const orgSlug = org?.slug || event.org_id
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath("/events")
+
+  return { success: true }
+}
+
+export async function submitEventForReview(eventId: string) {
+  const { user, supabase } = await requireAuth()
+
+  const { data: event, error: fetchError } = await supabase
+    .from("events")
+    .select("id, org_id, slug, status, flyer_url")
+    .eq("id", eventId)
+    .single()
+
+  if (fetchError || !event) {
+    return { error: "Event not found." }
+  }
+
+  if (!["draft", "rejected"].includes(event.status)) {
+    return { error: "Only draft or rejected events can be submitted for review." }
+  }
+
+  if (!event.flyer_url) {
+    return { error: "Please upload a flyer before submitting for review." }
+  }
+
+  const { data: membership } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("org_id", event.org_id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (!membership || !["owner", "admin", "editor"].includes(membership.role)) {
+    return { error: "You don't have permission to submit events for this organization." }
+  }
+
+  const now = new Date().toISOString()
+
+  const { data: updated, error } = await supabase
+    .from("events")
+    .update({
+      status: "pending_review",
+      updated_at: now,
+      reviewed_by: null,
+      reviewed_at: null,
+      review_notes: null,
+      published_at: null,
+    })
+    .eq("id", eventId)
+    .in("status", ["draft", "rejected"])
+    .select("id")
+
+  if (error) {
+    return { error: `Failed to submit: ${error.message}` }
+  }
+
+  if (!updated || updated.length === 0) {
+    return { error: "Event status has already changed. Please refresh and try again." }
+  }
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", event.org_id)
+    .single()
+
+  const orgSlug = org?.slug || event.org_id
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
+  revalidatePath(`/events/${event.slug}`)
+  revalidatePath("/events")
+
+  return { success: true }
+}
+
+export async function reviewEvent(formData: FormData) {
+  const { user, supabase } = await requireAdmin()
+
+  const eventId = formData.get("eventId") as string
+  const action = formData.get("action") as "approve" | "reject"
+  const reviewNotes = (formData.get("review_notes") as string)?.trim() || null
+
+  if (!eventId || !["approve", "reject"].includes(action)) {
+    return { error: "Invalid review parameters." }
+  }
+
+  const { data: event, error: fetchError } = await supabase
+    .from("events")
+    .select("id, org_id, slug, status, title")
+    .eq("id", eventId)
+    .single()
+
+  if (fetchError || !event) {
+    return { error: "Event not found." }
+  }
+
+  if (event.status !== "pending_review") {
+    return { error: "Only events pending review can be approved or rejected." }
+  }
+
+  const newStatus = action === "approve" ? "published" : "rejected"
+  const now = new Date().toISOString()
+
+  const updatePayload: Record<string, string | null> = {
+    status: newStatus,
+    updated_at: now,
+    reviewed_by: user.id,
+    reviewed_at: now,
+    review_notes: action === "reject" ? reviewNotes : null,
+  }
+
+  if (action === "approve") {
+    updatePayload.published_at = now
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("events")
+    .update(updatePayload)
+    .eq("id", eventId)
+    .eq("status", "pending_review")
+    .select("id")
+
+  if (updateError) {
+    return { error: `Failed to ${action} event: ${updateError.message}` }
+  }
+
+  if (!updated || updated.length === 0) {
+    return { error: "Event status has already changed. Please refresh and try again." }
+  }
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", event.org_id)
+    .single()
+
+  const orgSlug = org?.slug || event.org_id
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
+  revalidatePath(`/events/${event.slug}`)
+  revalidatePath("/events")
+  revalidatePath("/admin")
+
+  return {
+    success: true,
+    action: action === "approve" ? "approved" : "rejected",
+    event: { title: event.title, slug: event.slug },
+  }
+}
+
+// ---------- Delete Event (Admin) ----------
+
+export async function deleteEvent(eventId: string) {
+  const { supabase } = await requireAdmin()
+
+  if (!eventId) {
+    return { error: "Missing event ID." }
+  }
+
+  // Fetch event details for cleanup + revalidation
+  const { data: event, error: fetchError } = await supabase
+    .from("events")
+    .select("id, org_id, slug, title, flyer_url")
+    .eq("id", eventId)
+    .single()
+
+  if (fetchError || !event) {
+    return { error: "Event not found." }
+  }
+
+  // Clean up flyer from storage if present
+  if (event.flyer_url) {
+    const flyerPath = event.flyer_url.split("/event-flyers/")[1]
+    if (flyerPath) {
+      await supabase.storage.from("event-flyers").remove([flyerPath])
+    }
+  }
+
+  // Also remove all files in the event's storage folder (e.g. old flyers)
+  const storagePrefix = `${event.org_id}/${event.id}`
+  const { data: files } = await supabase.storage
+    .from("event-flyers")
+    .list(storagePrefix)
+
+  if (files && files.length > 0) {
+    const paths = files.map((f) => `${storagePrefix}/${f.name}`)
+    await supabase.storage.from("event-flyers").remove(paths)
+  }
+
+  // Delete the event row
+  const { error: deleteError } = await supabase
+    .from("events")
+    .delete()
+    .eq("id", eventId)
+
+  if (deleteError) {
+    return { error: `Failed to delete event: ${deleteError.message}` }
+  }
+
+  // Revalidate all relevant pages
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", event.org_id)
+    .single()
+
+  const orgSlug = org?.slug || event.org_id
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath(`/events/${event.slug}`)
+  revalidatePath("/events")
+  revalidatePath("/admin")
+
+  return { success: true, title: event.title }
+}
