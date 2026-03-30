@@ -39,17 +39,33 @@
   --sidebar-border: oklch(0.2 0 0);
   --sidebar-ring: oklch(0.6 0.22 250);
 
-  /* Vibe UI — mockup-aligned tokens (additive; shadcn semantic tokens unchanged) */
-  --vibe-void: #03030a;
+  /*
+   * Neon glass design system (single source for dashboard / mobile mock style).
+   * shadcn --border/--background stay separate; use --neon-* in glass components.
+   * Mockup aliases: bg0/bg1/surface/hairline/text0-2/neonA-C → --neon-* below.
+   */
+  --neon-bg0: #05050a;
+  --neon-bg1: #08081c;
+  --neon-surface: rgb(255 255 255 / 0.055);
+  --neon-hairline: rgb(255 255 255 / 0.1);
+  --neon-text0: #ffffff;
+  --neon-text1: rgb(218 228 255 / 0.92);
+  --neon-text2: rgb(155 170 215 / 0.78);
+  --neon-a: #00d1ff;
+  --neon-b: #9d4dff;
+  --neon-c: #ff4ecd;
+
+  /* Vibe UI — wired to neon tokens (additive; shadcn semantic tokens unchanged) */
+  --vibe-void: var(--neon-bg0);
   --vibe-void-elevated: #0c0c14;
-  --vibe-neon-cyan: #00d4ff;
-  --vibe-neon-purple: #c084fc;
-  --vibe-glass-bg: rgb(255 255 255 / 0.06);
-  --vibe-glass-border: rgb(0 212 255 / 0.22);
-  --vibe-text-secondary: oklch(0.88 0.02 250);
-  --vibe-text-muted: oklch(0.72 0.04 250);
-  --vibe-neon-glow: 0 0 24px rgb(0 212 255 / 0.35), 0 0 56px rgb(192 132 252 / 0.2);
-  --vibe-neon-glow-subtle: 0 0 16px rgb(0 212 255 / 0.22);
+  --vibe-neon-cyan: var(--neon-a);
+  --vibe-neon-purple: var(--neon-b);
+  --vibe-glass-bg: var(--neon-surface);
+  --vibe-glass-border: var(--neon-hairline);
+  --vibe-text-secondary: var(--neon-text1);
+  --vibe-text-muted: var(--neon-text2);
+  --vibe-neon-glow: 0 0 24px rgb(0 209 255 / 0.35), 0 0 56px rgb(157 77 255 / 0.22);
+  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.22);
 }
 
 .dark {
@@ -86,16 +102,27 @@
   --sidebar-border: oklch(0.2 0 0);
   --sidebar-ring: oklch(0.6 0.22 250);
 
-  --vibe-void: #03030a;
+  --neon-bg0: #05050a;
+  --neon-bg1: #08081c;
+  --neon-surface: rgb(255 255 255 / 0.055);
+  --neon-hairline: rgb(255 255 255 / 0.1);
+  --neon-text0: #ffffff;
+  --neon-text1: rgb(218 228 255 / 0.92);
+  --neon-text2: rgb(155 170 215 / 0.78);
+  --neon-a: #00d1ff;
+  --neon-b: #9d4dff;
+  --neon-c: #ff4ecd;
+
+  --vibe-void: var(--neon-bg0);
   --vibe-void-elevated: #0c0c14;
-  --vibe-neon-cyan: #00d4ff;
-  --vibe-neon-purple: #c084fc;
-  --vibe-glass-bg: rgb(255 255 255 / 0.06);
-  --vibe-glass-border: rgb(0 212 255 / 0.22);
-  --vibe-text-secondary: oklch(0.88 0.02 250);
-  --vibe-text-muted: oklch(0.72 0.04 250);
-  --vibe-neon-glow: 0 0 24px rgb(0 212 255 / 0.35), 0 0 56px rgb(192 132 252 / 0.2);
-  --vibe-neon-glow-subtle: 0 0 16px rgb(0 212 255 / 0.22);
+  --vibe-neon-cyan: var(--neon-a);
+  --vibe-neon-purple: var(--neon-b);
+  --vibe-glass-bg: var(--neon-surface);
+  --vibe-glass-border: var(--neon-hairline);
+  --vibe-text-secondary: var(--neon-text1);
+  --vibe-text-muted: var(--neon-text2);
+  --vibe-neon-glow: 0 0 24px rgb(0 209 255 / 0.35), 0 0 56px rgb(157 77 255 / 0.22);
+  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.22);
 }
 
 @theme inline {
@@ -184,6 +211,21 @@
   background-repeat: repeat;
   background-size: 120% 120%;
   opacity: 0.85;
+}
+
+/* Extra depth for dashboard (fixed; stacks above global starfield, below content) */
+.neon-dashboard-aurora {
+  background:
+    radial-gradient(ellipse 130% 90% at 50% -25%, rgb(0 209 255 / 0.14), transparent 55%),
+    radial-gradient(ellipse 100% 70% at 100% 25%, rgb(157 77 255 / 0.11), transparent 52%),
+    radial-gradient(ellipse 90% 60% at 0% 75%, rgb(255 78 205 / 0.07), transparent 48%),
+    linear-gradient(180deg, rgb(8 8 28 / 0.55) 0%, transparent 42%, rgb(2 2 10 / 0.4) 100%);
+}
+
+.neon-dashboard-noise {
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Glass surface + form row (mockup-style; use with rounded-lg+) */

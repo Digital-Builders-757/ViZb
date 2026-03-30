@@ -54,46 +54,48 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
   }
 
   return (
-    <header className="md:hidden sticky top-0 z-50 bg-card border-b border-border bg-gradient-to-r from-card via-card to-brand-cyan/5">
-      <div className="flex items-center justify-between h-14 px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <header className="sticky top-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/75 backdrop-blur-xl md:hidden">
+      <div
+        className="flex h-14 items-center justify-between px-4"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/vibe-logo.png"
-            alt="ViZb"
-            width={28}
-            height={28}
-            className="h-7 w-auto"
-          />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-brand-cyan">Dashboard</span>
+          <Image src="/vibe-logo.png" alt="ViZb" width={28} height={28} className="h-7 w-auto" />
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
+            ViZb
+          </span>
         </Link>
 
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button
-              className="flex items-center justify-center w-11 h-11 text-foreground"
+              className="flex h-11 w-11 items-center justify-center text-[color:var(--neon-text0)]"
               aria-label="Open navigation"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="h-5 w-5" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[280px] p-0 bg-card border-border">
-            <SheetHeader className="border-b border-border px-4 py-4">
+          <SheetContent
+            side="left"
+            className="w-[280px] border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/95 p-0 backdrop-blur-xl"
+          >
+            <SheetHeader className="border-b border-[color:var(--neon-hairline)] px-4 py-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-cyan flex items-center justify-center ring-2 ring-brand-cyan/30">
-                  <span className="text-xs font-bold text-white">
+                <div className="flex h-9 w-9 items-center justify-center bg-gradient-to-br from-[color:var(--neon-a)]/30 to-[color:var(--neon-b)]/30 ring-2 ring-[color:var(--neon-a)]/35">
+                  <span className="text-xs font-bold text-[color:var(--neon-text0)]">
                     {(profile?.display_name || "U")[0].toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <SheetTitle className="text-sm font-medium text-foreground truncate">
+                <div className="min-w-0 flex-1">
+                  <SheetTitle className="truncate text-sm font-medium text-[color:var(--neon-text0)]">
                     {profile?.display_name || "User"}
                   </SheetTitle>
                 </div>
               </div>
             </SheetHeader>
 
-            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-              <span className="block text-[10px] font-mono uppercase tracking-widest text-brand-cyan px-3 mb-3">
+            <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+              <span className="mb-3 block px-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
                 Personal
               </span>
               {attendeeLinks.map((link) => {
@@ -103,13 +105,15 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
                     key={link.href}
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-3 text-sm transition-colors min-h-[44px] ${
+                    className={`flex min-h-[44px] items-center gap-3 border-l-2 px-3 py-3 text-sm transition-colors ${
                       isActive
-                        ? "text-brand-cyan border-l-2 active-gradient-border bg-brand-cyan/5"
-                        : "text-muted-foreground hover:text-foreground border-l-2 border-transparent"
+                        ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
+                        : "border-transparent text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
                     }`}
                   >
-                    <link.icon className={`w-4 h-4 ${isActive ? "text-brand-cyan" : ""}`} />
+                    <link.icon
+                      className={`h-4 w-4 ${isActive ? "text-[color:var(--neon-a)]" : ""}`}
+                    />
                     <span>{link.label}</span>
                   </Link>
                 )
@@ -117,8 +121,8 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
 
               {organizations.length > 0 && (
                 <>
-                  <div className="pt-6 pb-2">
-                    <span className="block text-[10px] font-mono uppercase tracking-widest text-brand-blue-mid px-3">
+                  <div className="pb-2 pt-6">
+                    <span className="block px-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-b)]">
                       Organizations
                     </span>
                   </div>
@@ -131,16 +135,16 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
                         key={org.id}
                         href={orgHref}
                         onClick={() => setOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-3 text-sm transition-colors min-h-[44px] ${
+                        className={`flex min-h-[44px] items-center gap-3 border-l-2 px-3 py-3 text-sm transition-colors ${
                           isActive
-                            ? "text-brand-blue-mid border-l-2 border-brand-blue-mid bg-brand-blue-mid/5"
-                            : "text-muted-foreground hover:text-foreground border-l-2 border-transparent"
+                            ? "border-[color:var(--neon-b)] bg-[color:var(--neon-b)]/8 text-[color:var(--neon-text0)]"
+                            : "border-transparent text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
                         }`}
                       >
-                        <Building2 className="w-4 h-4" />
+                        <Building2 className="h-4 w-4" />
                         <span className="truncate">{org.name}</span>
                         {org.status === "pending_review" && (
-                          <span className="ml-auto text-[10px] font-mono uppercase tracking-widest text-muted-foreground border border-border px-1.5 py-0.5">
+                          <span className="ml-auto border border-[color:var(--neon-hairline)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
                             Pending
                           </span>
                         )}
@@ -155,13 +159,13 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
                   <Link
                     href="/host/apply"
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-3 text-sm transition-colors min-h-[44px] ${
+                    className={`flex min-h-[44px] items-center gap-3 border-l-2 px-3 py-3 text-sm transition-colors ${
                       pathname === "/host/apply"
-                        ? "text-brand-cyan-bright border-l-2 border-brand-cyan-bright bg-brand-cyan-bright/5"
-                        : "text-muted-foreground hover:text-foreground border-l-2 border-transparent"
+                        ? "border-[color:var(--neon-c)] bg-[color:var(--neon-c)]/8 text-[color:var(--neon-text0)]"
+                        : "border-transparent text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
                     }`}
                   >
-                    <PlusCircle className="w-4 h-4" />
+                    <PlusCircle className="h-4 w-4" />
                     <span>Request to Host</span>
                   </Link>
                 </div>
@@ -169,31 +173,34 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
 
               {profile?.platform_role === "staff_admin" && (
                 <>
-                  <div className="pt-6 pb-2">
-                    <span className="block text-[10px] font-mono uppercase tracking-widest text-brand-blue px-3">
+                  <div className="pb-2 pt-6">
+                    <span className="block px-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
                       Admin
                     </span>
                   </div>
                   <Link
                     href="/admin"
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-3 text-sm transition-colors min-h-[44px] ${
+                    className={`flex min-h-[44px] items-center gap-3 border-l-2 px-3 py-3 text-sm transition-colors ${
                       pathname.startsWith("/admin")
-                        ? "text-brand-blue border-l-2 border-brand-blue bg-brand-blue/5"
-                        : "text-muted-foreground hover:text-foreground border-l-2 border-transparent"
+                        ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
+                        : "border-transparent text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
                     }`}
                   >
-                    <Shield className="w-4 h-4" />
+                    <Shield className="h-4 w-4" />
                     <span>Admin Panel</span>
                   </Link>
                 </>
               )}
             </nav>
 
-            <div className="border-t border-border p-4" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+            <div
+              className="border-t border-[color:var(--neon-hairline)] p-4"
+              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 w-full px-3 py-3 text-xs uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors min-h-[44px]"
+                className="flex min-h-[44px] w-full items-center gap-2 px-3 py-3 text-xs uppercase tracking-widest text-[color:var(--neon-text2)] transition-colors hover:text-destructive"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>
