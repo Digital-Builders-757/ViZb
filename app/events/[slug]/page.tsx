@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
@@ -29,6 +29,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  if (!isServerSupabaseConfigured()) {
+    if (process.env.NODE_ENV === "production") {
+      await createClient()
+    }
+    return { title: "Event | ViZb" }
+  }
   const supabase = await createClient()
 
   const { data: event } = await supabase
@@ -55,6 +61,12 @@ export default async function PublicEventDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  if (!isServerSupabaseConfigured()) {
+    if (process.env.NODE_ENV === "production") {
+      await createClient()
+    }
+    notFound()
+  }
   const supabase = await createClient()
 
   const { data: rawEvent } = await supabase

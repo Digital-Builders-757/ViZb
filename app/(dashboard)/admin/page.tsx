@@ -7,6 +7,17 @@ import { EventReviewQueue } from "@/components/admin/event-review-queue"
 import { AdminEventManager } from "@/components/admin/admin-event-manager"
 import { UsersTable } from "@/components/admin/users-table"
 
+/** Supabase may return a joined `organizations` row as object or single-element array. */
+type OrgSnippet = { name: string; slug: string }
+
+function normalizeOrganization(
+  raw: OrgSnippet | OrgSnippet[] | null | undefined,
+): OrgSnippet | null {
+  if (raw == null) return null
+  if (Array.isArray(raw)) return raw[0] ?? null
+  return raw
+}
+
 export default async function AdminPage() {
   await requireAdmin()
   const supabase = await createClient()
@@ -50,9 +61,19 @@ export default async function AdminPage() {
   const activeInvites = activeInvitesResult.count ?? 0
   const pendingEvents = pendingEventsResult.count ?? 0
   const applications = applicationsData.data ?? []
-  const reviewEventsList = pendingEventsData.data ?? []
+  const reviewEventsList = (pendingEventsData.data ?? []).map((e) => ({
+    ...e,
+    organizations: normalizeOrganization(
+      e.organizations as OrgSnippet | OrgSnippet[] | null | undefined,
+    ),
+  }))
   const allUsers = usersData.data ?? []
-  const allEvents = allEventsData.data ?? []
+  const allEvents = (allEventsData.data ?? []).map((e) => ({
+    ...e,
+    organizations: normalizeOrganization(
+      e.organizations as OrgSnippet | OrgSnippet[] | null | undefined,
+    ),
+  }))
 
   return (
     <div>

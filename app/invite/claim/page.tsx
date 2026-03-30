@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useLayoutEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { claimInvite } from "@/app/actions/invite"
 import { useRouter } from "next/navigation"
@@ -10,30 +10,35 @@ import { Suspense } from "react"
 function ClaimInviteContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const token = searchParams.get("token") // Declare the token variable
+  const tokenFromUrl = searchParams.get("token")
 
-  // Stash token on first render, then strip it from URL to prevent leaking via referrer/logs
-  const tokenRef = useRef<string | null>(token)
+  const [inviteToken, setInviteToken] = useState<string | null>(null)
+  const [inviteParamsReady, setInviteParamsReady] = useState(false)
 
   const [status, setStatus] = useState<"idle" | "claiming" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
   const [orgId, setOrgId] = useState<string | null>(null)
 
+  useLayoutEffect(() => {
+    setInviteToken(tokenFromUrl)
+    setInviteParamsReady(true)
+  }, [tokenFromUrl])
+
   useEffect(() => {
-    if (!tokenRef.current) {
+    if (!inviteParamsReady) return
+    if (!inviteToken) {
       setStatus("error")
       setMessage("No invite token provided. Please check your invite link.")
       return
     }
-    // Strip token from URL to prevent leaking via referrer headers / analytics / server logs
     router.replace("/invite/claim")
-  }, [router])
+  }, [router, inviteToken, inviteParamsReady])
 
   async function handleClaim() {
-    if (!tokenRef.current) return
+    if (!inviteToken) return
     setStatus("claiming")
 
-    const result = await claimInvite(tokenRef.current)
+    const result = await claimInvite(inviteToken)
 
     if (result.error) {
       setStatus("error")
@@ -60,7 +65,7 @@ function ClaimInviteContent() {
           {"You've Been Invited"}
         </h1>
 
-        {status === "idle" && tokenRef.current && (
+        {status === "idle" && inviteToken && (
           <>
             <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
               Someone has invited you to join an organization on ViZb. Click below to accept.

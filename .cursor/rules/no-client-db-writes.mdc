@@ -1,0 +1,11 @@
+description: Mutations and secrets stay server-side; matches ARCHITECTURE_CONSTITUTION
+alwaysApply: true
+---
+
+# No client database writes
+
+- **Client Components** must not call Supabase (or any API) to **insert/update/delete** protected data. Use **Server Actions** or server-only route handlers.
+- Do not add **service role** keys or secrets to client bundles.
+- Use **`createSupabaseBrowser()`** only for patterns that belong in the browser per `lib/supabase/client.ts`; prefer server data fetching for RSC.
+
+If a feature seems to require client writes, stop and redesign: **Terminal** asks **Staff** (actions) to mutate; **Locks** (RLS) enforce access.

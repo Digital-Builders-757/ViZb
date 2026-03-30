@@ -3,6 +3,10 @@
 # dependencies
 /node_modules
 
+# npm-only repo — do not commit other lockfiles
+/bun.lock
+/pnpm-lock.yaml
+
 # next.js
 /.next/
 /out/
@@ -18,6 +22,12 @@ yarn-error.log*
 
 # env files
 .env*
+!.env.example
+# Common mistake: Next.js ignores this name — use `.env.local`
+env.local
+
+# Cursor — commit .cursor/commands/ and .cursor/rules/; keep MCP local (secrets)
+.cursor/mcp.json
 
 # vercel
 .vercel

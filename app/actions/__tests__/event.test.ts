@@ -5,7 +5,7 @@
  * 1. submitEventForReview: event existence, status, flyer, membership
  * 2. uploadEventFlyer: status gate (only draft/pending)
  */
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest"
 
 // --- Mocks ---
 
@@ -73,7 +73,14 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }))
 
-const { submitEventForReview, uploadEventFlyer } = await import("../event")
+let submitEventForReview: typeof import("../event").submitEventForReview
+let uploadEventFlyer: typeof import("../event").uploadEventFlyer
+
+beforeAll(async () => {
+  const mod = await import("../event")
+  submitEventForReview = mod.submitEventForReview
+  uploadEventFlyer = mod.uploadEventFlyer
+})
 
 // ============================
 // submitEventForReview
@@ -107,7 +114,7 @@ describe("submitEventForReview", () => {
     }
 
     const result = await submitEventForReview("evt-1")
-    expect(result.error).toBe("Only draft events can be submitted for review.")
+    expect(result.error).toBe("Only draft or rejected events can be submitted for review.")
   })
 
   it("returns error if event has no flyer", async () => {
@@ -221,7 +228,7 @@ describe("uploadEventFlyer", () => {
     formData.set("flyer", new File(["img"], "flyer.jpg", { type: "image/jpeg" }))
 
     const result = await uploadEventFlyer(formData)
-    expect(result.error).toBe("Flyers can only be changed on draft or pending events.")
+    expect(result.error).toBe("Flyers can only be changed on draft, pending, or rejected events.")
   })
 
   // --------------------------------------------------

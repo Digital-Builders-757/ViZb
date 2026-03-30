@@ -78,7 +78,7 @@ If TypeScript types, documentation, or application code disagree with the databa
 |--------|------|-------|
 | Login page | `app/login/page.tsx` | Auth |
 | Signup page | `app/signup/page.tsx` | Auth |
-| Auth callback | `app/api/auth/callback/route.ts` | Auth |
+| Auth callback | `app/auth/callback/route.ts` | Auth |
 | Route protection | `middleware.ts` | Auth |
 | Role helper | `lib/auth-helpers.ts` | Auth |
 | Profile trigger | `scripts/004_create_profiles.sql` | Auth / DB |

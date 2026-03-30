@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { ThreeBackgroundWrapper } from "@/components/three-background-wrapper"
@@ -51,17 +51,20 @@ export default async function EventsExplorePage({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category: activeFilter } = await searchParams
-  const supabase = await createClient()
 
   // Use current time as the upcoming/past split -- simple, no timezone edge cases
   const now = new Date()
-  const nowISO = now.toISOString()
 
   // Past events cutoff: 30 days ago
   const pastCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
   const pastCutoffISO = pastCutoff.toISOString()
 
-  const selectFields = `
+  let allEvents: PublicEventRow[] | null = null
+
+  if (isServerSupabaseConfigured()) {
+    const supabase = await createClient()
+
+    const selectFields = `
     id,
     title,
     slug,
@@ -76,33 +79,37 @@ export default async function EventsExplorePage({
     organizations ( name, slug )
   `
 
-  // Upcoming + happening now:
-  //   If ends_at exists: include when ends_at >= now (still happening)
-  //   If ends_at is null: include when starts_at >= now
-  // Supabase doesn't support OR across columns easily, so fetch broadly and filter in JS
-  let upcomingQuery = supabase
-    .from("events")
-    .select(selectFields)
-    .eq("status", "published")
-    .gte("starts_at", pastCutoffISO)
-    .order("starts_at", { ascending: true })
+    // Upcoming + happening now:
+    //   If ends_at exists: include when ends_at >= now (still happening)
+    //   If ends_at is null: include when starts_at >= now
+    // Supabase doesn't support OR across columns easily, so fetch broadly and filter in JS
+    let upcomingQuery = supabase
+      .from("events")
+      .select(selectFields)
+      .eq("status", "published")
+      .gte("starts_at", pastCutoffISO)
+      .order("starts_at", { ascending: true })
 
-  // Past events: separate query with same broad fetch, filtered in JS
-  let pastQuery = supabase
-    .from("events")
-    .select(selectFields)
-    .eq("status", "published")
-    .gte("starts_at", pastCutoffISO)
-    .order("starts_at", { ascending: false })
+    // Past events: separate query with same broad fetch, filtered in JS
+    let pastQuery = supabase
+      .from("events")
+      .select(selectFields)
+      .eq("status", "published")
+      .gte("starts_at", pastCutoffISO)
+      .order("starts_at", { ascending: false })
 
-  // Apply category filter to both queries
-  if (activeFilter && activeFilter !== "all") {
-    upcomingQuery = upcomingQuery.eq("category", activeFilter.toLowerCase())
-    pastQuery = pastQuery.eq("category", activeFilter.toLowerCase())
+    // Apply category filter to both queries
+    if (activeFilter && activeFilter !== "all") {
+      upcomingQuery = upcomingQuery.eq("category", activeFilter.toLowerCase())
+      pastQuery = pastQuery.eq("category", activeFilter.toLowerCase())
+    }
+
+    // Fetch all events from the last 30 days onward in one query (category filter applied above)
+    const { data } = await upcomingQuery
+    allEvents = data as PublicEventRow[] | null
+  } else if (process.env.NODE_ENV === "production") {
+    await createClient()
   }
-
-  // Fetch all events from the last 30 days onward in one query (category filter applied above)
-  const { data: allEvents } = await upcomingQuery
 
   // Map to flat format with org fallbacks
   function flattenEvents(rows: PublicEventRow[] | null): FlatEvent[] {

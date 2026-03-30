@@ -1,0 +1,16 @@
+description: Reinforce ViBE brand laws on UI and copy changes
+globs: app/**/*.tsx,components/**/*.tsx,styles/**/*.css
+alwaysApply: false
+---
+
+# Brand consistency (ViBE)
+
+When editing **UI, marketing pages, or user-facing copy**:
+
+1. Read **`docs/BRAND_CONSTITUTION.md`** and the relevant **`docs/brand/*`** file.
+2. Preserve **dark-first**, **high-contrast**, and **zero-radius** discipline from **`docs/BRAND_SYSTEM.md`** unless the task explicitly documents a brand amendment.
+3. Do not introduce **generic SaaS** patterns (stock blue-gray cards, bubbly radii everywhere, Inter-only typography).
+4. **Gradient / neon** only on brand moments — not body copy or dense tables.
+5. For **events**, titles and facts must match **data truth** — see **`/event-flow`** if lifecycle is involved.
+
+Use **`/brand-check`** for substantive visual or copy changes before ship.

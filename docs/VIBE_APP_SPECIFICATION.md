@@ -824,7 +824,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 |-------|---------|
 | `app/api/stripe/create-checkout-session/route.ts` | Create Stripe Checkout session |
 | `app/api/stripe/webhook/route.ts` | Handle Stripe webhooks |
-| `app/api/auth/callback/route.ts` | Supabase auth callback (OAuth) |
+| `app/auth/callback/route.ts` | Supabase auth callback (OAuth) |
 
 ---
 
