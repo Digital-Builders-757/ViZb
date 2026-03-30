@@ -1,4 +1,11 @@
 import { getProfile, getUserOrganizations } from "@/lib/auth-helpers"
+import {
+  formatCategoryLabel,
+  formatDashboardEventWhen,
+  getDashboardUpcomingEventPreviews,
+} from "@/lib/events/upcoming-preview"
+import { isServerSupabaseConfigured } from "@/lib/supabase/server"
+import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Building2, Heart, Shield, Sparkles, Ticket, Users } from "lucide-react"
 
@@ -31,6 +38,9 @@ const CULTURE_PICKS = [
 export default async function DashboardPage() {
   const { profile } = await getProfile()
   const { memberships } = await getUserOrganizations()
+  const trendingLive = await getDashboardUpcomingEventPreviews(3)
+  const supabaseReady = isServerSupabaseConfigured()
+  const showTrendingMocks = !supabaseReady
 
   const displayName = profile?.display_name || "there"
   const isFirstRun = !profile?.display_name
@@ -154,28 +164,75 @@ export default async function DashboardPage() {
             Trending this weekend
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
-            Curated picks near you — swap for live data when the feed is wired.
+            {trendingLive.length > 0
+              ? "Happening soon — open a card for full details."
+              : showTrendingMocks
+                ? "Sample picks for layout; connect Supabase to pull live published events."
+                : "No upcoming published events yet — browse the full feed for the latest."}
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          {TRENDING_MOCK.map((ev) => (
-            <GlassCard key={ev.title} className="overflow-hidden p-0" emphasis>
-              <div
-                className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
-                role="img"
-                aria-label=""
-              />
-              <div className="space-y-2 p-4 md:p-5">
-                <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
-                <p className="text-sm text-[color:var(--neon-text1)]">
-                  {ev.location} · {ev.dates}
-                </p>
-                <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
-                  {ev.tag}
-                </span>
-              </div>
-            </GlassCard>
-          ))}
+          {trendingLive.length > 0
+            ? trendingLive.map((ev) => (
+                <Link key={ev.id} href={`/events/${ev.slug}`} className="block">
+                  <GlassCard className="overflow-hidden p-0 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99]" emphasis>
+                    {ev.flyer_url ? (
+                      <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
+                        <Image
+                          src={ev.flyer_url}
+                          alt={`${ev.title} flyer`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 800px"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
+                        aria-hidden
+                      />
+                    )}
+                    <div className="space-y-2 p-4 md:p-5">
+                      <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                      <p className="text-sm text-[color:var(--neon-text1)]">
+                        {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
+                      </p>
+                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
+                        {formatCategoryLabel(ev.category)}
+                      </span>
+                    </div>
+                  </GlassCard>
+                </Link>
+              ))
+            : showTrendingMocks
+              ? TRENDING_MOCK.map((ev) => (
+                  <GlassCard key={ev.title} className="overflow-hidden p-0" emphasis>
+                    <div
+                      className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
+                      aria-hidden
+                    />
+                    <div className="space-y-2 p-4 md:p-5">
+                      <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                      <p className="text-sm text-[color:var(--neon-text1)]">
+                        {ev.location} · {ev.dates}
+                      </p>
+                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
+                        {ev.tag}
+                      </span>
+                    </div>
+                  </GlassCard>
+                ))
+              : (
+                  <EmptyStateCard
+                    kicker="Nothing scheduled"
+                    title="Check the events feed"
+                    description="Published events you can attend will show up here first. Explore everything on the timeline."
+                  >
+                    <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
+                      Browse events
+                    </NeonLink>
+                  </EmptyStateCard>
+                )}
         </div>
       </section>
 
