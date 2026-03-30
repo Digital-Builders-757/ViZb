@@ -1,10 +1,21 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { getSupabaseProjectAnonKey, getSupabaseProjectUrl, isProjectSupabaseConfigured } from "./project-env"
+
+export { isProjectSupabaseConfigured as isServerSupabaseConfigured }
 
 export async function createClient() {
   const cookieStore = await cookies()
 
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  const url = getSupabaseProjectUrl()
+  const anonKey = getSupabaseProjectAnonKey()
+  if (!url || !anonKey) {
+    throw new Error(
+      "Supabase URL and anon key are missing on the server. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to `.env.local`, or set SUPABASE_URL and SUPABASE_ANON_KEY (see `.env.example`). Restart `npm run dev` after editing env."
+    )
+  }
+
+  return createServerClient(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll()

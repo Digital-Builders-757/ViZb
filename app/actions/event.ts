@@ -3,8 +3,30 @@
 import { requireAuth, requireAdmin } from "@/lib/auth-helpers"
 import { slugify } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
+import type { SupabaseClient } from "@supabase/supabase-js"
+import { parseCategoriesFromFormData } from "@/lib/events/categories"
 
-const VALID_CATEGORIES = ["party", "workshop", "networking", "social", "concert", "other"] as const
+/** Staff admin or org member with one of the allowed roles (for Server Actions; mirrors RLS intent). */
+async function isStaffOrHasOrgRole(
+  supabase: SupabaseClient,
+  userId: string,
+  orgId: string,
+  allowedRoles: readonly string[],
+): Promise<boolean> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("platform_role")
+    .eq("id", userId)
+    .single()
+  if (profile?.platform_role === "staff_admin") return true
+  const { data: membership } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("org_id", orgId)
+    .eq("user_id", userId)
+    .single()
+  return !!(membership && allowedRoles.includes(membership.role))
+}
 
 const MAX_FLYER_SIZE = 5 * 1024 * 1024
 const ALLOWED_FLYER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
@@ -20,24 +42,18 @@ export async function createEvent(formData: FormData) {
   const venueName = (formData.get("venue_name") as string)?.trim()
   const address = (formData.get("address") as string)?.trim() || null
   const city = (formData.get("city") as string)?.trim()
-  const category = formData.get("category") as string
+  const categories = parseCategoriesFromFormData(formData)
 
-  if (!orgId || !title || !startsAt || !venueName || !city || !category) {
+  if (!orgId || !title || !startsAt || !venueName || !city) {
     return { error: "Please fill in all required fields." }
   }
 
-  if (!VALID_CATEGORIES.includes(category as (typeof VALID_CATEGORIES)[number])) {
-    return { error: "Invalid category." }
+  if (!categories) {
+    return { error: "Select at least one valid category." }
   }
 
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("role")
-    .eq("org_id", orgId)
-    .eq("user_id", user.id)
-    .single()
-
-  if (!membership || !["owner", "admin", "editor"].includes(membership.role)) {
+  const canCreate = await isStaffOrHasOrgRole(supabase, user.id, orgId, ["owner", "admin", "editor"])
+  if (!canCreate) {
     return { error: "You don't have permission to create events for this organization." }
   }
 
@@ -79,7 +95,7 @@ export async function createEvent(formData: FormData) {
       venue_name: venueName,
       address,
       city,
-      category,
+      categories,
       status: "draft" as const,
       created_by: user.id,
     })
@@ -98,6 +114,7 @@ export async function createEvent(formData: FormData) {
 
   const orgSlug = org?.slug || orgId
   revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath("/dashboard")
 
   return { success: true, event, orgSlug }
 }
@@ -135,14 +152,8 @@ export async function uploadEventFlyer(formData: FormData) {
       return { error: "Flyers can only be changed on draft, pending, or rejected events." }
     }
 
-    const { data: membership } = await supabase
-      .from("organization_members")
-      .select("role")
-      .eq("org_id", event.org_id)
-      .eq("user_id", user.id)
-      .single()
-
-    if (!membership || !["owner", "admin", "editor"].includes(membership.role)) {
+    const canUpload = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, ["owner", "admin", "editor"])
+    if (!canUpload) {
       return { error: "You don't have permission to upload flyers for this event." }
     }
 
@@ -190,6 +201,7 @@ export async function uploadEventFlyer(formData: FormData) {
     revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
     revalidatePath(`/events/${event.slug}`)
     revalidatePath("/events")
+    revalidatePath("/dashboard")
 
     return { success: true, flyerUrl }
   } catch (err) {
@@ -213,14 +225,8 @@ export async function removeEventFlyer(eventId: string) {
     return { error: "Event not found." }
   }
 
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("role")
-    .eq("org_id", event.org_id)
-    .eq("user_id", user.id)
-    .single()
-
-  if (!membership || !["owner", "admin"].includes(membership.role)) {
+  const canRemove = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, ["owner", "admin"])
+  if (!canRemove) {
     return { error: "Only owners and admins can remove flyers." }
   }
 
@@ -249,6 +255,7 @@ export async function removeEventFlyer(eventId: string) {
   const orgSlug = org?.slug || event.org_id
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath("/events")
+  revalidatePath("/dashboard")
 
   return { success: true }
 }
@@ -274,14 +281,8 @@ export async function submitEventForReview(eventId: string) {
     return { error: "Please upload a flyer before submitting for review." }
   }
 
-  const { data: membership } = await supabase
-    .from("organization_members")
-    .select("role")
-    .eq("org_id", event.org_id)
-    .eq("user_id", user.id)
-    .single()
-
-  if (!membership || !["owner", "admin", "editor"].includes(membership.role)) {
+  const canSubmit = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, ["owner", "admin", "editor"])
+  if (!canSubmit) {
     return { error: "You don't have permission to submit events for this organization." }
   }
 
@@ -320,6 +321,7 @@ export async function submitEventForReview(eventId: string) {
   revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
   revalidatePath(`/events/${event.slug}`)
   revalidatePath("/events")
+  revalidatePath("/dashboard")
 
   return { success: true }
 }
@@ -391,6 +393,7 @@ export async function reviewEvent(formData: FormData) {
   revalidatePath(`/events/${event.slug}`)
   revalidatePath("/events")
   revalidatePath("/admin")
+  revalidatePath("/dashboard")
 
   return {
     success: true,
@@ -460,6 +463,7 @@ export async function deleteEvent(eventId: string) {
   revalidatePath(`/events/${event.slug}`)
   revalidatePath("/events")
   revalidatePath("/admin")
+  revalidatePath("/dashboard")
 
   return { success: true, title: event.title }
 }

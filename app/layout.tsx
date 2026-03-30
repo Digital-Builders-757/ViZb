@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Poppins, Playfair_Display, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { StarfieldBackground } from "@/components/ui/starfield-background"
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
@@ -28,7 +29,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        {children}
+        <StarfieldBackground />
+        <div className="relative z-10 min-h-dvh">{children}</div>
         <Toaster />
         <Analytics />
       </body>

@@ -13,6 +13,8 @@ import {
 } from "lucide-react"
 import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
+import { normalizeCategories } from "@/lib/events/categories"
+import { formatCategoryLabel } from "@/lib/events/event-display-format"
 
 export default async function EventDetailPage({
   params,
@@ -33,6 +35,10 @@ export default async function EventDetailPage({
   if (!event) {
     notFound()
   }
+
+  const categories = normalizeCategories(
+    (event as { categories?: unknown }).categories,
+  )
 
   const config = EVENT_STATUS_CONFIG[event.status] ?? EVENT_STATUS_CONFIG.draft
   const StatusIcon = config.icon
@@ -92,10 +98,17 @@ export default async function EventDetailPage({
               {config.label}
             </span>
           </div>
-          {event.category && (
-            <span className="mt-2 inline-block text-xs text-muted-foreground capitalize">
-              {event.category}
-            </span>
+          {categories.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <span
+                  key={c}
+                  className="inline-block border border-border px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-muted-foreground"
+                >
+                  {formatCategoryLabel(c)}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 

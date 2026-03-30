@@ -1,7 +1,8 @@
 # ViBE -- Brand System (Canonical Visual Identity)
 
-**Last Updated:** February 5, 2026
-**Authority:** This is the **single source of truth** for ViBE's visual identity. If any code, component, or documentation contradicts this file, this file wins.
+**Last Updated:** February 5, 2026  
+**Layer 1 summary:** `docs/BRAND_CONSTITUTION.md` — non-negotiable laws; this file is the **full** token and pattern spec.  
+**Authority:** If code or docs contradict **this** file for visual/voice detail, **this file wins** (constitution wins on stated laws).
 
 > **Origin:** These rules were extracted from the live ViBE landing page (January 2026) and codified so every screen -- marketing, dashboard, admin, mobile -- feels like the same brand.
 

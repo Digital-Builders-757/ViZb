@@ -45,25 +45,19 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
   }
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex-col z-40">
+    <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-64 flex-col border-r border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 backdrop-blur-xl md:flex">
       {/* Logo */}
-      <div className="h-14 flex items-center px-6 border-b border-border bg-gradient-to-r from-brand-blue/5 to-brand-cyan/5">
+      <div className="flex h-14 items-center border-b border-[color:var(--neon-hairline)] px-6">
         <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/vibe-logo.png"
-            alt="ViZb"
-            width={32}
-            height={32}
-            className="h-8 w-auto"
-          />
-          <span className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Dashboard</span>
+          <Image src="/vibe-logo.png" alt="ViZb" width={32} height={32} className="h-8 w-auto" />
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">ViZb</span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-6">
         {/* Attendee section */}
-        <span className="block text-[10px] font-mono uppercase tracking-widest text-brand-cyan px-3 mb-3">
+        <span className="mb-3 block px-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
           Personal
         </span>
         {attendeeLinks.map((link) => {
@@ -72,13 +66,15 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+              className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
                 isActive
-                  ? "text-brand-cyan border-l-2 active-gradient-border bg-brand-cyan/5"
-                  : "text-muted-foreground hover:text-foreground border-l-2 border-transparent hover:border-l-2 hover:border-brand-cyan/30"
+                  ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
+                  : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:text-[color:var(--neon-text0)]"
               }`}
             >
-              <link.icon className={`w-4 h-4 ${isActive ? "text-brand-cyan" : ""}`} />
+              <link.icon
+                className={`h-4 w-4 ${isActive ? "text-[color:var(--neon-a)]" : ""}`}
+              />
               <span>{link.label}</span>
             </Link>
           )
@@ -87,8 +83,8 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
         {/* Organizer section */}
         {organizations.length > 0 && (
           <>
-            <div className="pt-6 pb-2">
-              <span className="block text-[10px] font-mono uppercase tracking-widest text-brand-blue-mid px-3">
+            <div className="pb-2 pt-6">
+              <span className="block px-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-b)]">
                 Organizations
               </span>
             </div>
@@ -100,16 +96,16 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
                 <Link
                   key={org.id}
                   href={orgHref}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+                  className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
                     isActive
-                      ? "text-brand-blue-mid border-l-2 border-brand-blue-mid bg-brand-blue-mid/5"
-                      : "text-muted-foreground hover:text-foreground border-l-2 border-transparent hover:border-l-2 hover:border-brand-blue-mid/30"
+                      ? "border-[color:var(--neon-b)] bg-[color:var(--neon-b)]/8 text-[color:var(--neon-text0)]"
+                      : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:text-[color:var(--neon-text0)]"
                   }`}
                 >
-                  <Building2 className="w-4 h-4" />
+                  <Building2 className="h-4 w-4" />
                   <span className="truncate">{org.name}</span>
                   {org.status === "pending_review" && (
-                    <span className="ml-auto text-[10px] font-mono uppercase tracking-widest text-muted-foreground border border-border px-1.5 py-0.5">
+                    <span className="ml-auto border border-[color:var(--neon-hairline)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
                       Pending
                     </span>
                   )}
@@ -124,13 +120,13 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
           <div className="pt-4">
             <Link
               href="/host/apply"
-              className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+              className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
                 pathname === "/host/apply"
-                  ? "text-brand-cyan-bright border-l-2 border-brand-cyan-bright bg-brand-cyan-bright/5"
-                  : "text-muted-foreground hover:text-foreground border-l-2 border-transparent hover:border-l-2 hover:border-brand-cyan-bright/30"
+                  ? "border-[color:var(--neon-c)] bg-[color:var(--neon-c)]/8 text-[color:var(--neon-text0)]"
+                  : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:text-[color:var(--neon-text0)]"
               }`}
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="h-4 w-4" />
               <span>Request to Host</span>
             </Link>
           </div>
@@ -139,20 +135,20 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
         {/* Admin section */}
         {profile?.platform_role === "staff_admin" && (
           <>
-            <div className="pt-6 pb-2">
-              <span className="block text-[10px] font-mono uppercase tracking-widest text-brand-blue px-3">
+            <div className="pb-2 pt-6">
+              <span className="block px-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
                 Admin
               </span>
             </div>
             <Link
               href="/admin"
-              className={`flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+              className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
                 pathname.startsWith("/admin")
-                  ? "text-brand-blue border-l-2 border-brand-blue bg-brand-blue/5"
-                  : "text-muted-foreground hover:text-foreground border-l-2 border-transparent hover:border-l-2 hover:border-brand-blue/30"
+                  ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
+                  : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:text-[color:var(--neon-text0)]"
               }`}
             >
-              <Shield className="w-4 h-4" />
+              <Shield className="h-4 w-4" />
               <span>Admin Panel</span>
             </Link>
           </>
@@ -160,24 +156,24 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
       </nav>
 
       {/* Bottom -- user info + sign out */}
-      <div className="border-t border-border p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-blue to-brand-cyan flex items-center justify-center ring-2 ring-brand-cyan/30">
-            <span className="text-xs font-bold text-white">
+      <div className="border-t border-[color:var(--neon-hairline)] p-4">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[color:var(--neon-a)]/40 to-[color:var(--neon-b)]/40 ring-2 ring-[color:var(--neon-a)]/35">
+            <span className="text-xs font-bold text-[color:var(--neon-text0)]">
               {(profile?.display_name || "U")[0].toUpperCase()}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-[color:var(--neon-text0)]">
               {profile?.display_name || "User"}
             </p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2 w-full px-3 py-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors"
+          className="flex w-full items-center gap-2 px-3 py-2 text-xs uppercase tracking-widest text-[color:var(--neon-text2)] transition-colors hover:text-destructive"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="h-4 w-4" />
           <span>Sign Out</span>
         </button>
       </div>

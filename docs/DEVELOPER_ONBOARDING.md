@@ -4,6 +4,8 @@
 
 Read this first. It takes 5 minutes and prevents hours of mistakes.
 
+**AI agents:** start with **`AGENT_ONBOARDING.md`** and **`VIBE_PROJECT_CONTEXT_PROMPT.md`** at the repo root, then return here. Command doctrine: **`docs/development/ENGINEERING_COMMANDS.md`** (ViBE Operating Doctrine).
+
 ---
 
 ## What is ViBE?

@@ -1,135 +1,306 @@
 import { getProfile, getUserOrganizations } from "@/lib/auth-helpers"
+import { DashboardMonthCalendar } from "@/components/dashboard/dashboard-month-calendar"
+import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
+import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
+import {
+  formatCategoryLabels,
+  formatDashboardEventWhen,
+  getDashboardUpcomingEventPreviews,
+} from "@/lib/events/upcoming-preview"
+import { isServerSupabaseConfigured } from "@/lib/supabase/server"
+import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Building2, Ticket, Shield } from "lucide-react"
+import { Calendar, Building2, Heart, Shield, Sparkles, Ticket, Users } from "lucide-react"
 
-export default async function DashboardPage() {
+import { EmptyStateCard } from "@/components/ui/empty-state-card"
+import { GlassCard } from "@/components/ui/glass-card"
+import { NeonLink } from "@/components/ui/neon-link"
+import { StatCard } from "@/components/ui/stat-card"
+
+const TRENDING_MOCK = [
+  {
+    title: "The Matrix Party",
+    location: "Norfolk",
+    dates: "Fri–Sat, Apr 26–27",
+    tag: "Urban Nightlife",
+  },
+  {
+    title: "BeatNight 757",
+    location: "Norfolk",
+    dates: "Sat, Apr 27",
+    tag: "Hip-hop",
+  },
+] as const
+
+const CULTURE_PICKS = [
+  { label: "Black-owned", icon: Sparkles },
+  { label: "Date night", icon: Heart },
+  { label: "Creative meetups", icon: Users },
+] as const
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cal?: string }>
+}) {
+  const { cal } = await searchParams
+  const { year, monthIndex, calKey } = parseDashboardCalendarMonth(cal)
+
   const { profile } = await getProfile()
   const { memberships } = await getUserOrganizations()
+  const trendingLive = await getDashboardUpcomingEventPreviews(3)
+  const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
+  const supabaseReady = isServerSupabaseConfigured()
+  const showTrendingMocks = !supabaseReady
 
   const displayName = profile?.display_name || "there"
   const isFirstRun = !profile?.display_name
 
   return (
-    <div>
-      {/* Page header */}
-      <span className="text-xs uppercase tracking-widest text-brand-cyan font-mono">Overview</span>
-      <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground mt-2 text-balance">
-        {isFirstRun ? "Welcome to ViZb" : `Hey, ${displayName}`}
-      </h1>
-      {isFirstRun && (
-        <p className="text-muted-foreground mt-2 max-w-lg">
-          {"You're in. Set up your profile to get the most out of ViZb."}
-        </p>
-      )}
-
-      {/* First-run prompt */}
-      {isFirstRun && (
-        <Link
-          href="/profile"
-          className="mt-6 inline-flex items-center gap-3 bg-brand-cyan/10 border border-brand-cyan/20 px-4 py-3 md:px-6 md:py-4 hover:bg-brand-cyan/20 transition-colors group w-full sm:w-auto"
-        >
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-cyan flex items-center justify-center">
-            <span className="text-white font-bold">1</span>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Complete your profile</p>
-            <p className="text-xs text-muted-foreground">Add your name to get started</p>
-          </div>
-          <span className="ml-auto text-brand-cyan group-hover:translate-x-1 transition-transform">
-            &rarr;
-          </span>
-        </Link>
-      )}
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-8 md:mt-10">
-        <div className="border border-border p-4 md:p-6 card-accent-cyan">
-          <div className="flex items-center gap-3 mb-3 md:mb-4">
-            <Ticket className="w-4 h-4 md:w-5 md:h-5 text-brand-cyan" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground">Tickets</span>
-          </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">0</span>
-          <span className="block text-xs text-muted-foreground mt-1">Upcoming events</span>
-        </div>
-
-        <div className="border border-border p-4 md:p-6 card-accent-blue-mid">
-          <div className="flex items-center gap-3 mb-3 md:mb-4">
-            <Building2 className="w-4 h-4 md:w-5 md:h-5 text-brand-blue-mid" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground">Organizations</span>
-          </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-blue-mid font-mono">{memberships.length}</span>
-          <span className="block text-xs text-muted-foreground mt-1">
-            {memberships.length === 0 ? "Not part of any org yet" : "Active memberships"}
-          </span>
-        </div>
-
-        <div className="border border-border p-4 md:p-6 card-accent-cyan-bright">
-          <div className="flex items-center gap-3 mb-3 md:mb-4">
-            <Calendar className="w-4 h-4 md:w-5 md:h-5 text-brand-cyan-bright" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground">Events</span>
-          </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-cyan-bright font-mono">0</span>
-          <span className="block text-xs text-muted-foreground mt-1">Events attended</span>
-        </div>
-      </div>
-
-      {/* Request to Host CTA -- only for non-admin users with no orgs */}
-      {memberships.length === 0 && profile?.platform_role !== "staff_admin" && (
-        <div className="mt-10">
-          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Organize</span>
-          <h2 className="font-serif text-xl font-bold text-foreground mt-2">Want to Host Events?</h2>
-          <Link
-            href="/host/apply"
-            className="mt-4 flex items-center gap-3 border border-border px-4 py-3 md:px-6 md:py-4 hover:border-brand-cyan/30 hover:bg-brand-cyan/5 transition-colors group"
-          >
-            <Building2 className="w-5 h-5 text-brand-cyan" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">Request to Host</p>
-              <p className="text-xs text-muted-foreground">Apply to become an event organizer on ViZb</p>
-            </div>
-            <span className="ml-auto text-brand-cyan group-hover:translate-x-1 transition-transform">&rarr;</span>
-          </Link>
-        </div>
-      )}
-
-      {/* Admin quick link -- only for admins with no orgs */}
-      {memberships.length === 0 && profile?.platform_role === "staff_admin" && (
-        <div className="mt-10">
-          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Organize</span>
-          <h2 className="font-serif text-xl font-bold text-foreground mt-2">Create an Organization</h2>
-          <Link
-            href="/admin"
-            className="mt-4 flex items-center gap-3 border border-border px-4 py-3 md:px-6 md:py-4 hover:border-brand-blue/30 hover:bg-brand-blue/5 transition-colors group"
-          >
-            <Shield className="w-5 h-5 text-brand-blue" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">Go to Admin Panel</p>
-              <p className="text-xs text-muted-foreground">Create organizations directly from the admin dashboard</p>
-            </div>
-            <span className="ml-auto text-brand-blue group-hover:translate-x-1 transition-transform">&rarr;</span>
-          </Link>
-        </div>
-      )}
-
-      {/* Tickets empty state */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Upcoming</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Your Tickets</h2>
-
-        <div className="mt-6 border border-dashed p-6 md:p-12 flex flex-col items-center text-center gradient-border">
-          <span className="text-xs uppercase tracking-widest text-brand-cyan font-mono">No Tickets Yet</span>
-          <h3 className="text-lg font-bold text-foreground uppercase mt-2">Find Your Next Vibe</h3>
-          <p className="text-sm text-muted-foreground mt-2 max-w-md">
-            Browse upcoming events and grab your tickets. Your confirmed events will show up here.
+    <div className="space-y-10 md:space-y-12">
+      <header>
+        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+          Overview
+        </span>
+        <h1 className="mt-2 text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">
+          {isFirstRun ? "Welcome to ViZb" : `Hey, ${displayName}`}
+        </h1>
+        {isFirstRun ? (
+          <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
+            {"You're in. Set up your profile to get the most out of ViZb."}
           </p>
-          <Link
-            href="/events"
-            className="mt-6 bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-4 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all"
-          >
-            Browse Events
-          </Link>
+        ) : null}
+      </header>
+
+      {isFirstRun ? (
+        <Link href="/profile" className="group block">
+          <GlassCard className="flex w-full items-center gap-4 p-4 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99] sm:w-auto sm:p-5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center bg-gradient-to-br from-[color:var(--neon-a)] to-[color:var(--neon-b)] font-bold text-[color:var(--neon-text0)]">
+              1
+            </div>
+            <div className="min-w-0 text-left">
+              <p className="font-semibold text-[color:var(--neon-text0)]">Complete your profile</p>
+              <p className="text-sm text-[color:var(--neon-text2)]">Add your name to get started</p>
+            </div>
+            <span className="ml-auto text-[color:var(--neon-a)] transition-transform group-hover:translate-x-0.5">
+              →
+            </span>
+          </GlassCard>
+        </Link>
+      ) : null}
+
+      <section aria-labelledby="dash-stats">
+        <h2 id="dash-stats" className="sr-only">
+          Your stats
+        </h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+          <StatCard
+            icon={Ticket}
+            label="Tickets"
+            value={0}
+            hint="Upcoming events"
+            accent="a"
+          />
+          <StatCard
+            icon={Building2}
+            label="Organizations"
+            value={memberships.length}
+            hint={
+              memberships.length === 0 ? "Not part of any org yet" : "Active memberships"
+            }
+            accent="b"
+          />
+          <StatCard
+            icon={Calendar}
+            label="Events"
+            value={0}
+            hint="Events attended"
+            accent="c"
+          />
         </div>
-      </div>
+      </section>
+
+      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
+        <h2 id="dash-calendar-heading" className="sr-only">
+          Events this month
+        </h2>
+        <DashboardMonthCalendar
+          year={year}
+          monthIndex={monthIndex}
+          calKey={calKey}
+          events={calendarEvents}
+        />
+      </section>
+
+      {memberships.length === 0 && profile?.platform_role !== "staff_admin" ? (
+        <section>
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Organize
+          </span>
+          <h2 className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)]">
+            Want to Host Events?
+          </h2>
+          <Link href="/host/apply" className="mt-4 block">
+            <GlassCard className="flex items-center gap-4 p-4 transition-[box-shadow] hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-5">
+              <Building2 className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" />
+              <div className="min-w-0 text-left">
+                <p className="font-semibold text-[color:var(--neon-text0)]">Request to Host</p>
+                <p className="text-sm text-[color:var(--neon-text2)]">
+                  Apply to become an event organizer on ViZb
+                </p>
+              </div>
+              <span className="ml-auto text-[color:var(--neon-a)]">→</span>
+            </GlassCard>
+          </Link>
+        </section>
+      ) : null}
+
+      {memberships.length === 0 && profile?.platform_role === "staff_admin" ? (
+        <section>
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Organize
+          </span>
+          <h2 className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)]">
+            Create an Organization
+          </h2>
+          <Link href="/admin" className="mt-4 block">
+            <GlassCard className="flex items-center gap-4 p-4 transition-[box-shadow] hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-5">
+              <Shield className="h-5 w-5 shrink-0 text-[color:var(--neon-b)]" />
+              <div className="min-w-0 text-left">
+                <p className="font-semibold text-[color:var(--neon-text0)]">Go to Admin Panel</p>
+                <p className="text-sm text-[color:var(--neon-text2)]">
+                  Create organizations directly from the admin dashboard
+                </p>
+              </div>
+              <span className="ml-auto text-[color:var(--neon-b)]">→</span>
+            </GlassCard>
+          </Link>
+        </section>
+      ) : null}
+
+      <section aria-labelledby="trending-heading">
+        <div className="mb-4">
+          <h2
+            id="trending-heading"
+            className="font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl"
+          >
+            Trending this weekend
+          </h2>
+          <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
+            {trendingLive.length > 0
+              ? "Happening soon — open a card for full details."
+              : showTrendingMocks
+                ? "Sample picks for layout; connect Supabase to pull live published events."
+                : "No upcoming published events yet — browse the full feed for the latest."}
+          </p>
+        </div>
+        <div className="flex flex-col gap-4">
+          {trendingLive.length > 0
+            ? trendingLive.map((ev) => (
+                <Link key={ev.id} href={`/events/${ev.slug}`} className="block">
+                  <GlassCard className="overflow-hidden p-0 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99]" emphasis>
+                    {ev.flyer_url ? (
+                      <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
+                        <Image
+                          src={ev.flyer_url}
+                          alt={`${ev.title} flyer`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 800px"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
+                        aria-hidden
+                      />
+                    )}
+                    <div className="space-y-2 p-4 md:p-5">
+                      <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                      <p className="text-sm text-[color:var(--neon-text1)]">
+                        {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
+                      </p>
+                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
+                        {formatCategoryLabels(ev.categories)}
+                      </span>
+                    </div>
+                  </GlassCard>
+                </Link>
+              ))
+            : showTrendingMocks
+              ? TRENDING_MOCK.map((ev) => (
+                  <GlassCard key={ev.title} className="overflow-hidden p-0" emphasis>
+                    <div
+                      className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
+                      aria-hidden
+                    />
+                    <div className="space-y-2 p-4 md:p-5">
+                      <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                      <p className="text-sm text-[color:var(--neon-text1)]">
+                        {ev.location} · {ev.dates}
+                      </p>
+                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
+                        {ev.tag}
+                      </span>
+                    </div>
+                  </GlassCard>
+                ))
+              : (
+                  <EmptyStateCard
+                    kicker="Nothing scheduled"
+                    title="Check the events feed"
+                    description="Published events you can attend will show up here first. Explore everything on the timeline."
+                  >
+                    <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
+                      Browse events
+                    </NeonLink>
+                  </EmptyStateCard>
+                )}
+        </div>
+      </section>
+
+      <section aria-labelledby="culture-heading">
+        <h2
+          id="culture-heading"
+          className="mb-4 font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl"
+        >
+          Culture picks
+        </h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {CULTURE_PICKS.map(({ label, icon: Icon }) => (
+            <GlassCard
+              key={label}
+              className="flex items-center gap-3 p-4 shadow-[0_0_22px_rgb(0_209_255/0.12)] ring-1 ring-[color:var(--neon-a)]/25"
+            >
+              <Icon className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
+              <span className="text-sm font-medium text-[color:var(--neon-text0)]">{label}</span>
+            </GlassCard>
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="tickets-heading">
+        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+          Upcoming
+        </span>
+        <h2
+          id="tickets-heading"
+          className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)]"
+        >
+          Your Tickets
+        </h2>
+
+        <EmptyStateCard
+          className="mt-6"
+          kicker="No tickets yet"
+          title="Find your next vibe"
+          description="Browse upcoming events and grab your tickets. Your confirmed events will show up here."
+        >
+          <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
+            Browse events
+          </NeonLink>
+        </EmptyStateCard>
+      </section>
     </div>
   )
 }

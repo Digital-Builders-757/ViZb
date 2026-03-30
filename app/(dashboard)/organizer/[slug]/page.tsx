@@ -1,4 +1,5 @@
 import { requireOrgMember } from "@/lib/auth-helpers"
+import { normalizeCategories } from "@/lib/events/categories"
 import { createClient } from "@/lib/supabase/server"
 import { EventCardList } from "@/components/organizer/event-card-list"
 import Link from "next/link"
@@ -19,11 +20,14 @@ export default async function OrgDashboardPage({
   // Fetch events for this org
   const { data: events } = await supabase
     .from("events")
-    .select("id, title, slug, status, starts_at, ends_at, venue_name, city, category, review_notes, created_at")
+    .select("id, title, slug, status, starts_at, ends_at, venue_name, city, categories, review_notes, created_at")
     .eq("org_id", org.id)
     .order("created_at", { ascending: false })
 
-  const eventList = events ?? []
+  const eventList = (events ?? []).map((e) => ({
+    ...e,
+    categories: normalizeCategories((e as { categories?: unknown }).categories),
+  }))
   const totalEvents = eventList.length
   const publishedEvents = eventList.filter(e => e.status === "published").length
 

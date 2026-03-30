@@ -1,0 +1,30 @@
+description: Auto-handoff from /continue to /ship or /pr when delivery is the next honest step
+alwaysApply: true
+---
+
+# Continue → ship / PR handoff (ViBE / ViZb)
+
+When using `/continue`, do not loop on tiny local-only tweaks once the dirty set is a **single coherent batch** ready to integrate.
+
+## Hand off to `/ship` when
+
+- Intended dirty files belong to **one** workstream  
+- `npm run typecheck`, `npm run test`, `npm run lint`, and `npm run build` have passed for that work (or the only unknown is remote CI)  
+- No higher-value local step remains before commit/push  
+
+Then: run the **`/ship`** workflow in the same turn; stage **only** intended files if unrelated edits exist.
+
+**Do not** auto-ship when checks fail, git identity is missing, or meaningful implementation work remains.
+
+**Integration branch:** **`develop`** (`docs/development/BRANCHING.md`). `/ship` ends with `git push origin develop` (be on `develop` with changes merged as appropriate).
+
+## Hand off to `/pr` when
+
+- Batch is **already pushed** (typically to **`develop`** or a **feature branch** that is ready to merge)  
+- Worktree is **clean** locally where relevant  
+- Checks are green (local and/or GitHub)  
+- Next step is **PR coordination**: either **feature → `develop`**, or **release `develop` → `main`**, not more implementation  
+
+Then: run **`/pr`** in the same turn; avoid duplicate PRs.
+
+**Do not** auto-PR when CI is failing/running, local edits remain, or the PR story would misrepresent the branch diff.

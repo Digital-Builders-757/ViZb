@@ -1,5 +1,6 @@
 import React from "react"
 import { getProfile, getUserOrganizations } from "@/lib/auth-helpers"
+import { AppShell } from "@/components/ui/app-shell"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { MobileHeader } from "@/components/dashboard/mobile-header"
 
@@ -20,19 +21,15 @@ export default async function DashboardLayout({
     }))
 
   return (
-    <div className="min-h-[100dvh] bg-background overflow-x-hidden">
-      {/* Mobile header with hamburger -- visible below md */}
+    <AppShell
+      withNeonBackdrop
+      className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+    >
       <MobileHeader profile={profile} organizations={organizations} />
-
-      {/* Desktop sidebar -- hidden below md */}
       <DashboardSidebar profile={profile} organizations={organizations} />
-
-      {/* Main content -- responsive margin and padding */}
-      <main className="md:ml-64 min-h-[100dvh]">
-        <div className="max-w-[1400px] mx-auto px-4 py-6 md:px-8 md:py-8">
-          {children}
-        </div>
+      <main className="min-h-[100dvh] md:ml-64">
+        <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">{children}</div>
       </main>
-    </div>
+    </AppShell>
   )
 }
