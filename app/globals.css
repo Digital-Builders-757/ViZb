@@ -38,6 +38,18 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.2 0 0);
   --sidebar-ring: oklch(0.6 0.22 250);
+
+  /* Vibe UI — mockup-aligned tokens (additive; shadcn semantic tokens unchanged) */
+  --vibe-void: #03030a;
+  --vibe-void-elevated: #0c0c14;
+  --vibe-neon-cyan: #00d4ff;
+  --vibe-neon-purple: #c084fc;
+  --vibe-glass-bg: rgb(255 255 255 / 0.06);
+  --vibe-glass-border: rgb(0 212 255 / 0.22);
+  --vibe-text-secondary: oklch(0.88 0.02 250);
+  --vibe-text-muted: oklch(0.72 0.04 250);
+  --vibe-neon-glow: 0 0 24px rgb(0 212 255 / 0.35), 0 0 56px rgb(192 132 252 / 0.2);
+  --vibe-neon-glow-subtle: 0 0 16px rgb(0 212 255 / 0.22);
 }
 
 .dark {
@@ -73,6 +85,17 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.2 0 0);
   --sidebar-ring: oklch(0.6 0.22 250);
+
+  --vibe-void: #03030a;
+  --vibe-void-elevated: #0c0c14;
+  --vibe-neon-cyan: #00d4ff;
+  --vibe-neon-purple: #c084fc;
+  --vibe-glass-bg: rgb(255 255 255 / 0.06);
+  --vibe-glass-border: rgb(0 212 255 / 0.22);
+  --vibe-text-secondary: oklch(0.88 0.02 250);
+  --vibe-text-muted: oklch(0.72 0.04 250);
+  --vibe-neon-glow: 0 0 24px rgb(0 212 255 / 0.35), 0 0 56px rgb(192 132 252 / 0.2);
+  --vibe-neon-glow-subtle: 0 0 16px rgb(0 212 255 / 0.22);
 }
 
 @theme inline {
@@ -120,6 +143,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-vibe-void: var(--vibe-void);
+  --color-vibe-void-elevated: var(--vibe-void-elevated);
+  --color-vibe-neon-cyan: var(--vibe-neon-cyan);
+  --color-vibe-neon-purple: var(--vibe-neon-purple);
 }
 
 @layer base {
@@ -129,6 +156,67 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Static starfield (no motion — respects readability; use behind content with z-index) */
+.vibe-starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--vibe-void);
+  background-image:
+    radial-gradient(1px 1px at 8% 12%, rgb(0 212 255 / 0.45), transparent),
+    radial-gradient(1px 1px at 18% 44%, rgb(192 132 252 / 0.35), transparent),
+    radial-gradient(1px 1px at 28% 78%, rgb(0 212 255 / 0.25), transparent),
+    radial-gradient(1px 1px at 38% 22%, rgb(255 255 255 / 0.12), transparent),
+    radial-gradient(1px 1px at 48% 56%, rgb(192 132 252 / 0.2), transparent),
+    radial-gradient(1px 1px at 58% 88%, rgb(0 212 255 / 0.3), transparent),
+    radial-gradient(1px 1px at 68% 14%, rgb(0 212 255 / 0.2), transparent),
+    radial-gradient(1px 1px at 78% 40%, rgb(255 255 255 / 0.1), transparent),
+    radial-gradient(1px 1px at 88% 72%, rgb(192 132 252 / 0.28), transparent),
+    radial-gradient(1px 1px at 92% 30%, rgb(0 212 255 / 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 12% 62%, rgb(0 212 255 / 0.4), transparent),
+    radial-gradient(1px 1px at 52% 8%, rgb(192 132 252 / 0.22), transparent),
+    radial-gradient(1px 1px at 72% 94%, rgb(0 212 255 / 0.22), transparent),
+    radial-gradient(2px 2px at 24% 8%, rgb(0 212 255 / 0.25), transparent),
+    radial-gradient(1px 1px at 96% 48%, rgb(192 132 252 / 0.18), transparent);
+  background-repeat: repeat;
+  background-size: 120% 120%;
+  opacity: 0.85;
+}
+
+/* Glass surface + form row (mockup-style; use with rounded-lg+) */
+.vibe-glass-panel {
+  background: var(--vibe-glass-bg);
+  border: 1px solid var(--vibe-glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.vibe-input-glass {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.5rem;
+  color: var(--foreground);
+  background: var(--vibe-glass-bg);
+  border: 1px solid var(--vibe-glass-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vibe-input-glass::placeholder {
+  color: var(--vibe-text-muted);
+}
+
+.vibe-input-glass:focus-visible {
+  outline: none;
+  border-color: var(--vibe-neon-cyan);
+  box-shadow: 0 0 0 2px rgb(0 212 255 / 0.35);
 }
 
 /* Editorial text styles */
@@ -190,6 +278,13 @@
   }
   100% {
     background-position: 200% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-gradient-text {
+    animation: none;
+    background-position: 50% center;
   }
 }
 
