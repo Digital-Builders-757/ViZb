@@ -17,6 +17,7 @@ Use this as context so you do not redo work.
 | **Supabase — browser** | `lib/supabase/client.ts` trims vars, clear errors, **`isBrowserSupabaseConfigured()`**; **Navbar** skips creating a client when unset. |
 | **Supabase — server** | `lib/supabase/project-env.ts`: server and middleware resolve **`NEXT_PUBLIC_*` first**, then fall back to **`SUPABASE_URL` / `SUPABASE_ANON_KEY`** (matches `.env.example`). |
 | **Public events UI** | `/events` and `/events/[slug]` avoid crashing in **dev** when Supabase is not configured; **production** still fails fast if misconfigured. |
+| **Advertising / partnerships** | **`/advertise`** — structured “Advertise with ViZb” inquiry form; emails **`admin@thevavibe.com`** by default via **Resend** (`RESEND_API_KEY`, optional `ADMIN_EMAIL`, `RESEND_FROM`). |
 
 **Operational habits:** merge work on **`develop`**; use **`/ship`** when a batch is ready; visible UI changes → **`docs/BRAND_CONSTITUTION.md`** + **`/brand-check`**.
 
@@ -61,6 +62,7 @@ Aligned with **`docs/MVP_STATUS_ROADMAP.md`** / **`docs/VIBE_APP_SPECIFICATION.m
 | **C3** | **Paid flow** | Stripe Checkout + webhooks, idempotent order handling (Phase 4). |
 | **C4** | **Door / check-in** | Staff or organizer check-in UX (Phase 5). |
 | **C5** | **Admin + polish** | Approval queues, metrics, mobile dashboard debt, loading states (Phase 6). |
+| **C6** | **Monetization surface** | **`/advertise`** live; Resend verified **from** domain in production; optional CRM / lead logging later. |
 
 **Architecture debt called out in roadmap:** move **profile** mutations to **Server Actions** if anything still writes from the client (see “Known Deviations” in **`docs/MVP_STATUS_ROADMAP.md`**).
 

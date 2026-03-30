@@ -6,6 +6,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, ArrowLeft, Users } from "lucide-react"
 import type { Metadata } from "next"
+import { normalizeCategories } from "@/lib/events/categories"
+import { formatCategoryLabel } from "@/lib/events/event-display-format"
 
 interface PublicEvent {
   id: string
@@ -17,7 +19,7 @@ interface PublicEvent {
   venue_name: string
   address: string | null
   city: string
-  category: string
+  categories: string[]
   flyer_url: string | null
   org_name: string
   org_slug: string
@@ -73,7 +75,7 @@ export default async function PublicEventDetailPage({
     .from("events")
     .select(`
       id, title, slug, description, starts_at, ends_at,
-      venue_name, address, city, category, flyer_url,
+      venue_name, address, city, categories, flyer_url,
       organizations!inner ( name, slug )
     `)
     .eq("slug", slug)
@@ -97,7 +99,7 @@ export default async function PublicEventDetailPage({
     venue_name: rawEvent.venue_name,
     address: rawEvent.address,
     city: rawEvent.city,
-    category: rawEvent.category,
+    categories: normalizeCategories(rawEvent.categories),
     flyer_url: rawEvent.flyer_url,
     org_name: org.name,
     org_slug: org.slug,
@@ -159,11 +161,22 @@ export default async function PublicEventDetailPage({
                     </p>
                   </div>
                 )}
-                {/* Category badge */}
-                <div className="absolute top-4 left-4">
-                  <span className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5">
-                    {event.category}
-                  </span>
+                {/* Category badges */}
+                <div className="absolute top-4 left-4 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
+                  {event.categories.length > 0 ? (
+                    event.categories.map((c) => (
+                      <span
+                        key={c}
+                        className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5"
+                      >
+                        {formatCategoryLabel(c)}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5">
+                      Event
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

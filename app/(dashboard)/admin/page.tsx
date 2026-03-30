@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/auth-helpers"
+import { normalizeCategories } from "@/lib/events/categories"
 import { createClient } from "@/lib/supabase/server"
 import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Settings2 } from "lucide-react"
 import { CreateOrgForm } from "@/components/admin/create-org-form"
@@ -45,13 +46,13 @@ export default async function AdminPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("events")
-      .select("id, title, slug, description, status, starts_at, ends_at, venue_name, city, category, flyer_url, created_at, reviewed_at, review_notes, organizations!inner(name, slug)")
+      .select("id, title, slug, description, status, starts_at, ends_at, venue_name, city, categories, flyer_url, created_at, reviewed_at, review_notes, organizations!inner(name, slug)")
       .in("status", ["pending_review", "published", "rejected"])
       .order("created_at", { ascending: false }),
     supabase.rpc("admin_list_users"),
     supabase
       .from("events")
-      .select("id, title, slug, status, starts_at, venue_name, city, category, created_at, organizations(name, slug)")
+      .select("id, title, slug, status, starts_at, venue_name, city, categories, created_at, organizations(name, slug)")
       .order("created_at", { ascending: false }),
   ])
 
@@ -63,6 +64,7 @@ export default async function AdminPage() {
   const applications = applicationsData.data ?? []
   const reviewEventsList = (pendingEventsData.data ?? []).map((e) => ({
     ...e,
+    categories: normalizeCategories((e as { categories?: unknown }).categories),
     organizations: normalizeOrganization(
       e.organizations as OrgSnippet | OrgSnippet[] | null | undefined,
     ),
@@ -70,6 +72,7 @@ export default async function AdminPage() {
   const allUsers = usersData.data ?? []
   const allEvents = (allEventsData.data ?? []).map((e) => ({
     ...e,
+    categories: normalizeCategories((e as { categories?: unknown }).categories),
     organizations: normalizeOrganization(
       e.organizations as OrgSnippet | OrgSnippet[] | null | undefined,
     ),

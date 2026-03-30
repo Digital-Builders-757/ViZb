@@ -20,6 +20,11 @@ Scripts are applied in **numeric order** (see `docs/MVP_STATUS_ROADMAP.md` migra
 - **Preferred (Supabase CLI):** `supabase migration new <description>` → SQL under `supabase/migrations/` (when CLI is adopted).
 - **Current repo pattern:** numbered files under `scripts/` until migrations are fully moved; **never edit scripts that already ran in shared environments** — add a new script instead.
 
+**Recent script (verify against your Supabase project):**
+
+- `019_staff_event_create_and_flyer_storage.sql` — `events_insert_staff` RLS; storage `event-flyers` INSERT/UPDATE also allows `staff_admin` (path still `org_id/event_id/...`).
+- `020_event_categories_array.sql` — replaces `events.category` with `events.categories TEXT[]` (validated set + GIN index).
+
 ---
 
 ## Quick audit checklist (run when schema changes)

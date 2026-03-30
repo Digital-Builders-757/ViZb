@@ -1,4 +1,7 @@
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { normalizeCategories } from "@/lib/events/categories"
+
+export { formatCategoryLabel, formatCategoryLabels, formatDashboardEventWhen } from "./event-display-format"
 
 /** Minimal row shape for dashboard cards (explicit select; matches public events feed). */
 interface PublicEventRow {
@@ -9,7 +12,7 @@ interface PublicEventRow {
   ends_at: string | null
   venue_name: string
   city: string
-  category: string
+  categories: string[]
   flyer_url: string | null
 }
 
@@ -21,12 +24,12 @@ export interface DashboardEventPreview {
   ends_at: string | null
   venue_name: string
   city: string
-  category: string
+  categories: string[]
   flyer_url: string | null
 }
 
 const SELECT =
-  "id, title, slug, starts_at, ends_at, venue_name, city, category, flyer_url"
+  "id, title, slug, starts_at, ends_at, venue_name, city, categories, flyer_url"
 
 function isUpcomingOrOngoing(e: Pick<PublicEventRow, "starts_at" | "ends_at">, now: Date): boolean {
   if (e.ends_at) return new Date(e.ends_at).getTime() >= now.getTime()
@@ -71,26 +74,7 @@ export async function getDashboardUpcomingEventPreviews(limit: number): Promise<
       ends_at: e.ends_at,
       venue_name: e.venue_name,
       city: e.city,
-      category: e.category,
+      categories: normalizeCategories(e.categories),
       flyer_url: e.flyer_url,
     }))
-}
-
-export function formatDashboardEventWhen(startsAt: string, endsAt: string | null): string {
-  const df = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  })
-  const startLabel = df.format(new Date(startsAt))
-  if (!endsAt) return startLabel
-  const endLabel = df.format(new Date(endsAt))
-  if (startLabel === endLabel) return startLabel
-  return `${startLabel} – ${endLabel}`
-}
-
-export function formatCategoryLabel(category: string): string {
-  if (!category) return "Event"
-  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
 }

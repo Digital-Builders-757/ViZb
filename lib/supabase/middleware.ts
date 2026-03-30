@@ -56,13 +56,14 @@ export async function updateSession(request: NextRequest) {
   // Deep role checks happen in server layouts, RLS is the ultimate authority
   const pathname = request.nextUrl.pathname
 
-  const protectedPrefixes = ["/dashboard", "/organizer", "/admin", "/tickets", "/profile"]
+  const protectedPrefixes = ["/dashboard", "/organizer", "/admin", "/tickets", "/profile", "/events"]
   const isProtected = protectedPrefixes.some((prefix) => pathname.startsWith(prefix))
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
     url.pathname = "/login"
-    url.searchParams.set("redirect", pathname)
+    const returnTo = `${pathname}${request.nextUrl.search}`
+    url.searchParams.set("redirect", returnTo)
     return NextResponse.redirect(url)
   }
 

@@ -4,6 +4,8 @@ import { useState, useRef } from "react"
 import { reviewEvent } from "@/app/actions/event"
 import { Clock, CheckCircle2, XCircle, Calendar, MapPin, ImageIcon, Eye, AlertTriangle } from "lucide-react"
 import Image from "next/image"
+import { normalizeCategories } from "@/lib/events/categories"
+import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -26,7 +28,7 @@ type ReviewEvent = {
   ends_at: string | null
   venue_name: string
   city: string
-  category: string
+  categories: string[]
   flyer_url: string | null
   created_at: string
   reviewed_at: string | null
@@ -164,7 +166,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
               : evt.status === "published"
                 ? "border-l-brand-blue"
                 : "border-l-amber-500"
-            const catStyle = CATEGORY_COLORS[evt.category] ?? CATEGORY_COLORS.other
+            const cats = normalizeCategories(evt.categories)
 
             const startDate = new Date(evt.starts_at)
             const formattedDate = startDate.toLocaleDateString("en-US", {
@@ -208,11 +210,16 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                       <div className="min-w-0">
                         <h4 className="text-sm font-bold text-foreground truncate">{evt.title}</h4>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span
-                            className={`inline-flex items-center text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${catStyle}`}
-                          >
-                            {evt.category}
-                          </span>
+                          {cats.map((c) => (
+                            <span
+                              key={c}
+                              className={`inline-flex items-center text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${
+                                CATEGORY_COLORS[c] ?? CATEGORY_COLORS.other
+                              }`}
+                            >
+                              {formatCategoryLabel(c)}
+                            </span>
+                          ))}
                           {evt.organizations && (
                             <span className="text-[10px] font-mono text-muted-foreground truncate">
                               by {evt.organizations.name}

@@ -1,6 +1,9 @@
 import { getProfile, getUserOrganizations } from "@/lib/auth-helpers"
+import { DashboardMonthCalendar } from "@/components/dashboard/dashboard-month-calendar"
+import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
+import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
 import {
-  formatCategoryLabel,
+  formatCategoryLabels,
   formatDashboardEventWhen,
   getDashboardUpcomingEventPreviews,
 } from "@/lib/events/upcoming-preview"
@@ -35,10 +38,18 @@ const CULTURE_PICKS = [
   { label: "Creative meetups", icon: Users },
 ] as const
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cal?: string }>
+}) {
+  const { cal } = await searchParams
+  const { year, monthIndex, calKey } = parseDashboardCalendarMonth(cal)
+
   const { profile } = await getProfile()
   const { memberships } = await getUserOrganizations()
   const trendingLive = await getDashboardUpcomingEventPreviews(3)
+  const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
   const supabaseReady = isServerSupabaseConfigured()
   const showTrendingMocks = !supabaseReady
 
@@ -107,6 +118,18 @@ export default async function DashboardPage() {
             accent="c"
           />
         </div>
+      </section>
+
+      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
+        <h2 id="dash-calendar-heading" className="sr-only">
+          Events this month
+        </h2>
+        <DashboardMonthCalendar
+          year={year}
+          monthIndex={monthIndex}
+          calKey={calKey}
+          events={calendarEvents}
+        />
       </section>
 
       {memberships.length === 0 && profile?.platform_role !== "staff_admin" ? (
@@ -198,7 +221,7 @@ export default async function DashboardPage() {
                         {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
                       </p>
                       <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
-                        {formatCategoryLabel(ev.category)}
+                        {formatCategoryLabels(ev.categories)}
                       </span>
                     </div>
                   </GlassCard>

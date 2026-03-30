@@ -60,6 +60,7 @@
 - Waitlist subscription via `subscribers` table (scripts 001-002)
 - ViBE brand system fully implemented: dark mode, zero radius, Space Grotesk + Playfair Display + JetBrains Mono typography
 - Responsive navbar with mobile toggle
+- **Partnerships:** **`/advertise`** — “Advertise with ViZb” lead form; submissions email **`admin@thevavibe.com`** by default via **Resend** (see **`.env.example`**: `RESEND_API_KEY`, `ADMIN_EMAIL`, `RESEND_FROM`)
 
 ### Database (9 Migrations Executed)
 

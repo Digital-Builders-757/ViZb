@@ -49,6 +49,16 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
   const [endTime, setEndTime] = useState("23:00")
   const [startOpen, setStartOpen] = useState(false)
   const [endOpen, setEndOpen] = useState(false)
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
+
+  function toggleCategory(value: string) {
+    setSelectedCategories((prev) => {
+      const next = new Set(prev)
+      if (next.has(value)) next.delete(value)
+      else next.add(value)
+      return next
+    })
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -61,9 +71,18 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
       return
     }
 
+    if (selectedCategories.size === 0) {
+      setError("Select at least one category.")
+      setLoading(false)
+      return
+    }
+
     const form = e.currentTarget
     const formData = new FormData(form)
     formData.set("org_id", orgId)
+    for (const c of selectedCategories) {
+      formData.append("categories", c)
+    }
 
     const startDateTime = `${format(startDate, "yyyy-MM-dd")}T${startTime}`
     formData.set("starts_at", startDateTime)
@@ -148,25 +167,34 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                 <p className="text-[11px] text-[#555555]">Keep it short and catchy -- this is what people see first.</p>
               </div>
 
-              {/* Category */}
-              <div className="flex flex-col gap-2">
-                <label htmlFor="category" className="text-xs font-mono uppercase tracking-widest text-[#888888]">
-                  Category <span className="text-brand-cyan">*</span>
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  required
-                  className={inputClass}
-                >
-                  <option value="">Select a category</option>
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Categories (multi-select) */}
+              <fieldset className="flex flex-col gap-3 min-w-0">
+                <legend className="text-xs font-mono uppercase tracking-widest text-[#888888] mb-1">
+                  Categories <span className="text-brand-cyan">*</span>
+                </legend>
+                <p className="text-[11px] text-[#555555] -mt-1">
+                  Pick all that apply — helps people discover your event.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map((cat) => {
+                    const on = selectedCategories.has(cat.value)
+                    return (
+                      <button
+                        key={cat.value}
+                        type="button"
+                        onClick={() => toggleCategory(cat.value)}
+                        className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
+                          on
+                            ? "border-brand-cyan bg-brand-cyan/10 text-[#FAFAFA]"
+                            : "border-[#333333] text-[#888888] hover:border-[#444444] hover:text-[#FAFAFA]"
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
 
               {/* Description */}
               <div className="flex flex-col gap-2">

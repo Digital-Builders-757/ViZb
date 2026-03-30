@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Clock } from "lucide-react"
+import { formatCategoryLabel } from "@/lib/events/event-display-format"
 
 interface EventTimelineCardProps {
   event: {
@@ -14,17 +15,12 @@ interface EventTimelineCardProps {
     ends_at: string | null
     venue_name: string
     city: string
-    category: string
+    categories: string[]
     flyer_url: string | null
     org_name: string
     org_slug: string | null
   }
   index: number
-}
-
-function titleCaseCategory(cat: string) {
-  const cleaned = cat.replace(/_/g, " ").trim()
-  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
 }
 
 export function EventTimelineCard({ event, index }: EventTimelineCardProps) {
@@ -87,11 +83,22 @@ export function EventTimelineCard({ event, index }: EventTimelineCardProps) {
             </div>
           )}
 
-          {/* Category Badge */}
-          <div className="absolute top-4 left-4 z-10">
-            <span className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5">
-              {titleCaseCategory(event.category)}
-            </span>
+          {/* Category badges */}
+          <div className="absolute top-4 left-4 z-10 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
+            {event.categories.length > 0 ? (
+              event.categories.map((c) => (
+                <span
+                  key={c}
+                  className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5"
+                >
+                  {formatCategoryLabel(c)}
+                </span>
+              ))
+            ) : (
+              <span className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5">
+                Event
+              </span>
+            )}
           </div>
 
           {/* Neon glow overlay on hover */}

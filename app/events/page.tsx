@@ -7,6 +7,7 @@ import { TimelineDateHeader } from "@/components/events/timeline-date-header"
 import { Calendar } from "lucide-react"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { normalizeCategories } from "@/lib/events/categories"
 
 export const metadata: Metadata = {
   title: "Events | ViZb",
@@ -22,7 +23,7 @@ interface PublicEventRow {
   ends_at: string | null
   venue_name: string
   city: string
-  category: string
+  categories: string[]
   flyer_url: string | null
   status: string
   organizations: { name: string; slug: string } | null
@@ -37,7 +38,7 @@ interface FlatEvent {
   ends_at: string | null
   venue_name: string
   city: string
-  category: string
+  categories: string[]
   flyer_url: string | null
   org_name: string
   org_slug: string | null
@@ -73,7 +74,7 @@ export default async function EventsExplorePage({
     ends_at,
     venue_name,
     city,
-    category,
+    categories,
     flyer_url,
     status,
     organizations ( name, slug )
@@ -98,10 +99,10 @@ export default async function EventsExplorePage({
       .gte("starts_at", pastCutoffISO)
       .order("starts_at", { ascending: false })
 
-    // Apply category filter to both queries
+    // Apply category filter (event must include this tag in its categories array)
     if (activeFilter && activeFilter !== "all") {
-      upcomingQuery = upcomingQuery.eq("category", activeFilter.toLowerCase())
-      pastQuery = pastQuery.eq("category", activeFilter.toLowerCase())
+      upcomingQuery = upcomingQuery.contains("categories", [activeFilter.toLowerCase()])
+      pastQuery = pastQuery.contains("categories", [activeFilter.toLowerCase()])
     }
 
     // Fetch all events from the last 30 days onward in one query (category filter applied above)
@@ -122,7 +123,7 @@ export default async function EventsExplorePage({
       ends_at: e.ends_at,
       venue_name: e.venue_name,
       city: e.city,
-      category: e.category,
+      categories: normalizeCategories(e.categories),
       flyer_url: e.flyer_url,
       org_name: e.organizations?.name ?? "ViZb",
       org_slug: e.organizations?.slug ?? null,

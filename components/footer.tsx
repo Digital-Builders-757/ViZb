@@ -30,6 +30,9 @@ export function Footer() {
                 <Link href="#events" className="block text-sm text-foreground hover:text-primary transition-colors">
                   Events
                 </Link>
+                <Link href="/advertise" className="block text-sm text-foreground hover:text-primary transition-colors">
+                  Advertise with us
+                </Link>
                 <Link href="#about" className="block text-sm text-foreground hover:text-primary transition-colors">
                   About
                 </Link>

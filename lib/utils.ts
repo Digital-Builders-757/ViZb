@@ -16,7 +16,17 @@ export function getSafeRedirectPath(redirect: string | null): string {
   if (redirect.startsWith("//")) return fallback
   if (/[\\%]/.test(redirect.split("?")[0] ?? "")) return fallback
 
-  const allowedPrefixes = ["/dashboard", "/organizer", "/admin", "/profile", "/tickets", "/host", "/invite"]
+  const allowedPrefixes = [
+    "/dashboard",
+    "/organizer",
+    "/admin",
+    "/profile",
+    "/tickets",
+    "/host",
+    "/invite",
+    "/events",
+    "/advertise",
+  ]
   const pathWithoutQuery = redirect.split("?")[0] ?? ""
   if (!allowedPrefixes.some((prefix) => pathWithoutQuery.startsWith(prefix))) {
     return fallback

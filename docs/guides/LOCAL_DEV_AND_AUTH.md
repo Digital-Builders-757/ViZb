@@ -96,3 +96,30 @@ NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
 ## 6. After this works
 
 Run **`npm run ci`** before pushing. For dashboard UI work, follow **`docs/BRAND_CONSTITUTION.md`** and use **`/brand-check`** for visible changes. Next priorities: **`docs/development/PUSH_FORWARD_ROADMAP.md`**.
+
+---
+
+## 7. Advertising / partnership form (`/advertise`)
+
+1. Create a [Resend](https://resend.com) API key and add **`RESEND_API_KEY`** to **`.env.local`**.
+2. Set **`ADMIN_EMAIL`** if the inbox should differ from the default **`admin@thevavibe.com`**.
+3. Set **`RESEND_FROM`** to a **verified sender** in Resend (e.g. `ViZb <partners@yourdomain.com>`). For quick tests only, Resend’s docs allow **`onboarding@resend.dev`** as the from-address with restrictions.
+4. Restart **`npm run dev`**, open **`http://localhost:3000/advertise`**, submit the form, and confirm the message arrives in the admin inbox (check spam if needed).
+
+---
+
+## 8. Staff admin + posting events (local / staging)
+
+1. **Role:** In Supabase → **SQL Editor**, promote your user (use the UUID from **Authentication → Users**):
+
+   ```sql
+   update public.profiles
+   set platform_role = 'staff_admin'
+   where id = 'YOUR_USER_UUID';
+   ```
+
+2. **Schema:** Run repo SQL in order through **`scripts/019_staff_event_create_and_flyer_storage.sql`** on that project so staff can **insert** events and **upload flyers** without a row in `organization_members`.
+
+3. **Flow:** Sign in → **`/admin`** → **Create Organization** (note the org **slug**) → open **`/organizer/{slug}/events/new`** → create draft → upload flyer → **Submit for review** → **`/admin`** → **Event Submissions** → approve (or use another staff account to approve). Published events appear on **`/events`**, **dashboard “Trending”**, and the **month calendar** on **`/dashboard`**.
+
+4. **Month view:** Use **`/dashboard?cal=2026-03`** (`YYYY-MM`) to jump months; arrows on the card update the same query param.

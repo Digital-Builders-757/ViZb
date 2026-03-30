@@ -14,7 +14,7 @@ Canonical zone map for planning and triage (`/plan`, `/triage`, `/debug`, `/cont
 |------|-----------------|-------------------|
 | **Security** | Session refresh, auth gates, redirects | `middleware.ts`, `lib/supabase/middleware.ts` |
 | **Terminal** | Interactive UI shells, dashboards, forms | `app/**`, `components/**` (presentation + client islands) |
-| **Manifest** | **Public discovery surface** — what unauthenticated/authenticated users browse without editing org data: marketing home, event catalog, event detail | `app/page.tsx`, `app/events/**`, public reads only; content **governed by RLS + publish rules** |
+| **Manifest** | **Discovery surface** — marketing home is public; **full event catalog + detail** require a session (middleware → `/login`). Reads still **governed by RLS + publish rules** | `app/page.tsx` (public); `app/events/**` (auth-gated in `lib/supabase/middleware.ts`) |
 | **Staff** | Business logic, mutations, orchestration | `app/actions/*.ts`, server-only `app/**/route.ts` |
 | **Ticketing** | Paid checkout, orders, webhooks *(roadmap)* | Future Stripe routes, `app/api/**` webhooks |
 | **Announcements** | Email, SMS, push *(roadmap)* | Future notification modules |

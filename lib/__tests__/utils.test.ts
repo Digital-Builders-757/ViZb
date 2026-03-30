@@ -73,6 +73,19 @@ describe("getSafeRedirectPath", () => {
   it("allows /tickets subpath", () => {
     expect(getSafeRedirectPath("/tickets")).toBe("/tickets")
   })
+
+  it("allows /events and detail slug", () => {
+    expect(getSafeRedirectPath("/events")).toBe("/events")
+    expect(getSafeRedirectPath("/events/summer-jam")).toBe("/events/summer-jam")
+  })
+
+  it("allows /events with query params (category filter)", () => {
+    expect(getSafeRedirectPath("/events?category=Party")).toBe("/events?category=Party")
+  })
+
+  it("allows /advertise", () => {
+    expect(getSafeRedirectPath("/advertise")).toBe("/advertise")
+  })
 })
 
 describe("slugify", () => {

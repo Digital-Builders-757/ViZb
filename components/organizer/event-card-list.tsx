@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Calendar, MapPin, Tag, ArrowRight } from "lucide-react"
 import { EVENT_STATUS_CONFIG } from "@/lib/constants"
+import { formatCategoryLabel } from "@/lib/events/event-display-format"
 
 interface EventItem {
   id: string
@@ -14,7 +15,7 @@ interface EventItem {
   ends_at: string | null
   venue_name: string | null
   city: string | null
-  category: string | null
+  categories: string[]
   review_notes: string | null
   created_at: string
 }
@@ -171,10 +172,12 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
                 )}
               </span>
             )}
-            {event.category && (
+            {event.categories.length > 0 && (
               <span className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Tag className="w-3 h-3 shrink-0 text-brand-blue-mid" />
-                <span className="capitalize">{event.category}</span>
+                <span className="capitalize">
+                  {event.categories.map((c) => formatCategoryLabel(c)).join(" · ")}
+                </span>
               </span>
             )}
           </div>

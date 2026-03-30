@@ -25,6 +25,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
+import { formatCategoryLabel } from "@/lib/events/event-display-format"
 
 interface AdminEvent {
   id: string
@@ -34,7 +35,7 @@ interface AdminEvent {
   starts_at: string | null
   venue_name: string | null
   city: string | null
-  category: string | null
+  categories: string[]
   created_at: string
   organizations: { name: string; slug: string } | null
 }
@@ -67,7 +68,8 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
         const matchesTitle = e.title.toLowerCase().includes(q)
         const matchesOrg = e.organizations?.name.toLowerCase().includes(q)
         const matchesCity = e.city?.toLowerCase().includes(q)
-        if (!matchesTitle && !matchesOrg && !matchesCity) return false
+        const matchesCat = e.categories.some((c) => c.toLowerCase().includes(q))
+        if (!matchesTitle && !matchesOrg && !matchesCity && !matchesCat) return false
       }
       return true
     })
@@ -205,8 +207,10 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                           {event.city ? `, ${event.city}` : ""}
                         </span>
                       )}
-                      {event.category && (
-                        <span className="capitalize">{event.category}</span>
+                      {event.categories.length > 0 && (
+                        <span className="capitalize text-muted-foreground">
+                          {event.categories.map((c) => formatCategoryLabel(c)).join(" · ")}
+                        </span>
                       )}
                     </div>
                   </div>
