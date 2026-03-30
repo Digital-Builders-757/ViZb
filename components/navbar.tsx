@@ -4,19 +4,27 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, X, User } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { createClient, isBrowserSupabaseConfigured } from "@/lib/supabase/client"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<{ email?: string } | null>(null)
-  const [loading, setLoading] = useState(true)
+  // When Supabase public env is missing, skip auth fetch and show marketing CTAs immediately.
+  const [loading, setLoading] = useState(() => isBrowserSupabaseConfigured())
 
   useEffect(() => {
+    if (!isBrowserSupabaseConfigured()) return
+
     const supabase = createClient()
+    let cancelled = false
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled) return
       setUser(user)
       setLoading(false)
     })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const isLoggedIn = !!user
