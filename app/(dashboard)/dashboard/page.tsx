@@ -32,10 +32,11 @@ const TRENDING_MOCK = [
   },
 ] as const
 
+/** Labels are editorial; `category` must match `events.categories` + `/events` filter (lowercase). */
 const CULTURE_PICKS = [
-  { label: "Black-owned", icon: Sparkles },
-  { label: "Date night", icon: Heart },
-  { label: "Creative meetups", icon: Users },
+  { label: "Parties & nightlife", category: "party" as const, icon: Sparkles },
+  { label: "Network & connect", category: "networking" as const, icon: Users },
+  { label: "Workshops & builds", category: "workshop" as const, icon: Heart },
 ] as const
 
 export default async function DashboardPage({
@@ -267,14 +268,23 @@ export default async function DashboardPage({
           Culture picks
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {CULTURE_PICKS.map(({ label, icon: Icon }) => (
-            <GlassCard
+          {CULTURE_PICKS.map(({ label, category, icon: Icon }) => (
+            <Link
               key={label}
-              className="flex items-center gap-3 p-4 shadow-[0_0_22px_rgb(0_209_255/0.12)] ring-1 ring-[color:var(--neon-a)]/25"
+              href={`/events?category=${category}`}
+              className="group block transition-[transform] active:scale-[0.99]"
             >
-              <Icon className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
-              <span className="text-sm font-medium text-[color:var(--neon-text0)]">{label}</span>
-            </GlassCard>
+              <GlassCard className="flex h-full items-center gap-3 p-4 shadow-[0_0_22px_rgb(0_209_255/0.12)] ring-1 ring-[color:var(--neon-a)]/25 transition-[box-shadow] group-hover:shadow-[var(--vibe-neon-glow-subtle)]">
+                <Icon className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
+                <span className="text-sm font-medium text-[color:var(--neon-text0)]">{label}</span>
+                <span
+                  className="ml-auto font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-text2)] transition-colors group-hover:text-[color:var(--neon-a)]"
+                  aria-hidden
+                >
+                  →
+                </span>
+              </GlassCard>
+            </Link>
           ))}
         </div>
       </section>
