@@ -2,6 +2,13 @@
 -- VERIFY 019 + 020 on a Supabase project (read-only)
 -- =============================================================================
 -- Run in: Supabase Dashboard → SQL Editor → Production (or any project).
+--
+-- IMPORTANT: If you paste this **entire** file and click Run, many SQL clients
+-- (including Supabase) only **show the last statement’s** result. Earlier SELECTs
+-- still ran — you just don’t see them — OR the last one may return 0 rows.
+-- Prefer: run **one section at a time**, OR run only the **FINAL rollup** at
+-- the bottom of this file for a single visible row.
+--
 -- Safe: SELECTs only. Use results to confirm schema matches repo scripts:
 --   scripts/019_staff_event_create_and_flyer_storage.sql
 --   scripts/020_event_categories_array.sql
@@ -173,3 +180,63 @@ WHERE p.schemaname = 'public'
   AND p.policyname = 'events_insert_staff';
 
 -- Pass: one row, pass = true. If zero rows, policy missing; if pass false, re-apply 019 events section.
+
+-- ---------------------------------------------------------------------------
+-- FINAL — one row (run this alone if “whole file” shows nothing useful)
+-- ---------------------------------------------------------------------------
+SELECT
+  '019+020 rollup (single row)' AS check_id,
+  EXISTS (
+    SELECT 1
+    FROM information_schema.columns c
+    WHERE c.table_schema = 'public'
+      AND c.table_name = 'events'
+      AND c.column_name = 'categories'
+  ) AS categories_column_exists,
+  NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns c
+    WHERE c.table_schema = 'public'
+      AND c.table_name = 'events'
+      AND c.column_name = 'category'
+  ) AS legacy_category_dropped,
+  EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.events'::regclass
+      AND conname = 'events_categories_check'
+  ) AS has_categories_check,
+  EXISTS (
+    SELECT 1
+    FROM pg_indexes
+    WHERE schemaname = 'public'
+      AND tablename = 'events'
+      AND indexname = 'idx_events_categories_gin'
+  ) AS has_gin_index,
+  (
+    SELECT
+      (
+        coalesce(p.qual::text, '')
+        || coalesce(p.with_check::text, '')
+      ) ~ 'is_staff_admin'
+    FROM pg_policies p
+    WHERE p.schemaname = 'public'
+      AND p.tablename = 'events'
+      AND p.policyname = 'events_insert_staff'
+    LIMIT 1
+  ) AS events_insert_staff_includes_is_staff_admin,
+  (
+    SELECT COUNT(*) = 2
+      AND COUNT(*) FILTER (
+        WHERE
+          (coalesce(p.qual::text, '') || coalesce(p.with_check::text, '')) ~ 'is_staff_admin'
+      ) = 2
+    FROM pg_policies p
+    WHERE p.schemaname = 'storage'
+      AND p.tablename = 'objects'
+      AND p.policyname IN (
+        'event_flyers_insert_org_member',
+        'event_flyers_update_org_member'
+      )
+  ) AS both_flyer_policies_include_is_staff_admin;
+-- Expect: all boolean columns true when 019 + 020 are fully applied.
