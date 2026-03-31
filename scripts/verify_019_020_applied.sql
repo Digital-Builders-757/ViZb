@@ -15,6 +15,68 @@
 -- ---------------------------------------------------------------------------
 -- A) 020 — events.categories + legacy category gone
 -- ---------------------------------------------------------------------------
+-- Always returns ONE row (no empty result) — quick pass/fail:
+SELECT
+  '020 summary (expect categories_ok true, legacy_category_ok false)' AS check_id,
+  EXISTS (
+    SELECT 1
+    FROM information_schema.columns c
+    WHERE c.table_schema = 'public'
+      AND c.table_name = 'events'
+      AND c.column_name = 'categories'
+  ) AS categories_column_exists,
+  EXISTS (
+    SELECT 1
+    FROM information_schema.columns c
+    WHERE c.table_schema = 'public'
+      AND c.table_name = 'events'
+      AND c.column_name = 'category'
+  ) AS legacy_category_still_exists,
+  EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.events'::regclass
+      AND conname = 'events_categories_check'
+  ) AS has_events_categories_check,
+  EXISTS (
+    SELECT 1
+    FROM pg_indexes
+    WHERE schemaname = 'public'
+      AND tablename = 'events'
+      AND indexname = 'idx_events_categories_gin'
+  ) AS has_categories_gin_index,
+  (
+    EXISTS (
+      SELECT 1
+      FROM information_schema.columns c
+      WHERE c.table_schema = 'public'
+        AND c.table_name = 'events'
+        AND c.column_name = 'categories'
+    )
+    AND NOT EXISTS (
+      SELECT 1
+      FROM information_schema.columns c
+      WHERE c.table_schema = 'public'
+        AND c.table_name = 'events'
+        AND c.column_name = 'category'
+    )
+    AND EXISTS (
+      SELECT 1
+      FROM pg_constraint
+      WHERE conrelid = 'public.events'::regclass
+        AND conname = 'events_categories_check'
+    )
+    AND EXISTS (
+      SELECT 1
+      FROM pg_indexes
+      WHERE schemaname = 'public'
+        AND tablename = 'events'
+        AND indexname = 'idx_events_categories_gin'
+    )
+  ) AS pass_020_fully_applied;
+
+-- Pass row: categories_column_exists true, legacy_category_still_exists false, both has_* true, pass_020_fully_applied true.
+
 SELECT
   '020 columns on public.events' AS check_id,
   column_name,
