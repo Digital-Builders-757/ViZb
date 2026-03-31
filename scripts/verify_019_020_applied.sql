@@ -78,18 +78,36 @@ ORDER BY policyname;
 
 -- Pass: two rows (INSERT + UPDATE). If missing, staff flyer upload may fail RLS.
 
--- Optional: confirm policy definitions mention staff (text search — heuristic)
+-- 019 vs 014: INSERT/UPDATE must include OR is_staff_admin(). 014-only = org members only.
 SELECT
-  '019 storage policy definitions (snippet)' AS check_id,
+  '019 storage has staff branch (expect true)' AS check_id,
   policyname,
-  left(coalesce(qual::text, '') || coalesce(with_check::text, ''), 200) AS definition_snippet
-FROM pg_policies
-WHERE schemaname = 'storage'
-  AND tablename = 'objects'
-  AND policyname IN (
+  (
+    coalesce(p.qual::text, '')
+    || coalesce(p.with_check::text, '')
+  ) ~ 'is_staff_admin' AS pass
+FROM pg_policies p
+WHERE p.schemaname = 'storage'
+  AND p.tablename = 'objects'
+  AND p.policyname IN (
     'event_flyers_insert_org_member',
     'event_flyers_update_org_member'
   )
-ORDER BY policyname;
+ORDER BY p.policyname;
 
--- Pass: snippets include is_staff_admin (or your SQL may show function OID). If only org_member EXISTS and no staff, 019 may not be applied.
+-- Pass: both rows `pass` = true. If false, run scripts/019_staff_event_create_and_flyer_storage.sql (storage section).
+
+-- events_insert_staff WITH CHECK should reference is_staff_admin (not just org path)
+SELECT
+  '019 events_insert_staff has staff check (expect true)' AS check_id,
+  policyname,
+  (
+    coalesce(p.qual::text, '')
+    || coalesce(p.with_check::text, '')
+  ) ~ 'is_staff_admin' AS pass
+FROM pg_policies p
+WHERE p.schemaname = 'public'
+  AND p.tablename = 'events'
+  AND p.policyname = 'events_insert_staff';
+
+-- Pass: one row, pass = true. If zero rows, policy missing; if pass false, re-apply 019 events section.
