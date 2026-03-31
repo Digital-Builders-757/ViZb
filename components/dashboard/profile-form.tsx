@@ -1,86 +1,51 @@
 "use client"
 
-import React from "react"
+import { updateProfileDisplayName, type UpdateProfileState } from "@/app/actions/profile"
+import { GlassCard } from "@/components/ui/glass-card"
+import { Lock, User } from "lucide-react"
+import { useActionState } from "react"
 
-import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import { User, Lock } from "lucide-react"
+const initialActionState: UpdateProfileState = { error: null, success: false }
 
 interface ProfileFormProps {
   initialDisplayName: string
-  initialAvatarUrl: string
   email: string
 }
 
-export function ProfileForm({ initialDisplayName, initialAvatarUrl, email }: ProfileFormProps) {
-  const [displayName, setDisplayName] = useState(initialDisplayName)
-  const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+const inputClass =
+  "w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[color:color-mix(in_srgb,var(--neon-surface)_88%,transparent)] px-4 py-3 text-[15px] text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] transition-[border-color,box-shadow] focus:border-[color:color-mix(in_srgb,var(--neon-a)_55%,var(--neon-hairline))] focus:outline-none focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--neon-a)_22%,transparent),var(--vibe-neon-glow-subtle)]"
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    setError(null)
-    setSuccess(false)
-
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      setError("Not authenticated")
-      setSaving(false)
-      return
-    }
-
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ display_name: displayName })
-      .eq("id", user.id)
-
-    if (updateError) {
-      setError(updateError.message)
-      setSaving(false)
-      return
-    }
-
-    setSuccess(true)
-    setSaving(false)
-    router.refresh()
-  }
+export function ProfileForm({ initialDisplayName, email }: ProfileFormProps) {
+  const [state, formAction, isPending] = useActionState(updateProfileDisplayName, initialActionState)
 
   return (
-    <form onSubmit={handleSave}>
-      <div className="form-card p-0 overflow-hidden">
-        {/* Section header */}
-        <div className="px-5 md:px-6 pt-5 md:pt-6 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-cyan/10 flex items-center justify-center">
-            <User className="w-3 h-3 text-brand-cyan" />
+    <form action={formAction}>
+      <GlassCard className="overflow-hidden shadow-[var(--vibe-neon-glow-subtle)]">
+        <div className="flex items-center gap-3 px-5 pb-4 pt-5 md:px-6 md:pt-6">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--neon-a)_14%,transparent)]">
+            <User className="h-4 w-4 text-[color:var(--neon-a)]" aria-hidden />
           </div>
-          <span className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Account Details</span>
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Account details
+          </span>
         </div>
 
-        <div className="section-divider" />
+        <div className="border-t border-[color:var(--neon-hairline)]" />
 
-        {/* Messages */}
-        {success && (
-          <div className="mx-5 md:mx-6 mt-5 border border-brand-cyan/50 bg-brand-cyan/10 px-4 py-3">
-            <p className="text-sm text-brand-cyan">Profile updated. Looking good.</p>
+        {state.success ? (
+          <div className="mx-5 mt-5 border border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] bg-[color:color-mix(in_srgb,var(--neon-a)_10%,transparent)] px-4 py-3 md:mx-6">
+            <p className="text-sm text-[color:var(--neon-a)]">Profile updated.</p>
           </div>
-        )}
-        {error && (
-          <div className="mx-5 md:mx-6 mt-5 border border-destructive/50 bg-destructive/10 px-4 py-3">
-            <p className="text-sm text-destructive">{error}</p>
+        ) : null}
+        {state.error ? (
+          <div className="mx-5 mt-5 border border-destructive/50 bg-destructive/10 px-4 py-3 md:mx-6">
+            <p className="text-sm text-destructive">{state.error}</p>
           </div>
-        )}
+        ) : null}
 
-        {/* Fields */}
-        <div className="px-5 md:px-6 py-5 md:py-6 flex flex-col gap-6">
-          {/* Email (read-only) */}
+        <div className="flex flex-col gap-6 px-5 py-5 md:px-6 md:py-6">
           <div>
-            <label className="block text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2">
+            <label className="mb-2 block font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
               Email
             </label>
             <div className="relative">
@@ -88,44 +53,53 @@ export function ProfileForm({ initialDisplayName, initialAvatarUrl, email }: Pro
                 type="email"
                 value={email}
                 disabled
-                className="w-full input-premium px-4 py-3 text-muted-foreground cursor-not-allowed pr-10 !bg-[#111111] !border-[#1a1a1a]"
+                readOnly
+                className={`${inputClass} cursor-not-allowed pr-10 opacity-80`}
               />
-              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50" />
+              <Lock
+                className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--neon-text2)]"
+                aria-hidden
+              />
             </div>
-            <p className="text-[11px] text-muted-foreground/60 mt-1.5">Managed by your authentication provider</p>
+            <p className="mt-1.5 text-[11px] text-[color:var(--neon-text2)]">
+              Managed by your sign-in provider
+            </p>
           </div>
 
-          {/* Display Name */}
           <div>
-            <label htmlFor="display-name" className="block text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2">
-              Display Name
+            <label
+              htmlFor="display-name"
+              className="mb-2 block font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]"
+            >
+              Display name
             </label>
             <input
               id="display-name"
+              name="displayName"
               type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              key={initialDisplayName}
+              defaultValue={initialDisplayName}
               placeholder="What should we call you?"
-              className="w-full input-premium px-4 py-3 text-foreground placeholder:text-muted-foreground/40"
+              className={inputClass}
+              disabled={isPending}
             />
           </div>
         </div>
 
-        {/* Footer action bar */}
-        <div className="section-divider" />
-        <div className="px-5 md:px-6 py-4 flex items-center gap-4 bg-[#0a0a0a]">
+        <div className="border-t border-[color:var(--neon-hairline)]" />
+        <div className="flex items-center gap-4 bg-[color:color-mix(in_srgb,var(--neon-bg1)_55%,transparent)] px-5 py-4 md:px-6">
           <button
             type="submit"
-            disabled={saving}
-            className="bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-3 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isPending}
+            className="group relative inline-flex min-h-11 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] px-8 py-3 text-xs font-mono font-semibold uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[var(--vibe-neon-glow-subtle)] transition-[transform,opacity,box-shadow] hover:shadow-[var(--vibe-neon-glow)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save Changes"}
+            {isPending ? "Saving…" : "Save changes"}
           </button>
-          {success && (
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Saved</span>
-          )}
+          {state.success ? (
+            <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Saved</span>
+          ) : null}
         </div>
-      </div>
+      </GlassCard>
     </form>
   )
 }
