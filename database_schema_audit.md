@@ -24,7 +24,7 @@ Scripts are applied in **numeric order** (see `docs/MVP_STATUS_ROADMAP.md` migra
 
 - `019_staff_event_create_and_flyer_storage.sql` — `events_insert_staff` RLS; storage `event-flyers` INSERT/UPDATE also allows `staff_admin` (path still `org_id/event_id/...`).
 - `020_event_categories_array.sql` — replaces `events.category` with `events.categories TEXT[]` (validated set + GIN index).
-- `021_seed_design_events.sql` — **data only** (not schema): optional published events + org `vibe-design-preview` for UI/design previews; run manually in SQL Editor (see `docs/guides/LOCAL_DEV_AND_AUTH.md` §9).
+- `021_seed_design_events.sql` — **data only** (not schema): optional published events + org `vibe-design-preview` for UI/design previews; detects **`events.categories`** vs legacy **`events.category`**; run manually in SQL Editor (see `docs/guides/LOCAL_DEV_AND_AUTH.md` §9).
 
 ---
 

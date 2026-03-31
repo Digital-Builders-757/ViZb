@@ -131,7 +131,7 @@ Run **`npm run ci`** before pushing. For dashboard UI work, follow **`docs/BRAND
 For layout and visual design, you can insert **published** mock events without clicking through the organizer flow.
 
 1. **Sign up once** on the project so **`auth.users`** has at least one row (the script attaches the seed org to the **oldest** user by `created_at`).
-2. **Schema:** Apply migrations through **`020_event_categories_array.sql`** so `events.categories` exists.
+2. **Schema:** Prefer **`020_event_categories_array.sql`** on every shared environment so the app matches `events.categories`. The seed script still runs if you only have legacy **`events.category`** (it stores the **first** tag per row).
 3. **Run:** Supabase → **SQL Editor** → paste **`scripts/021_seed_design_events.sql`** → **Run**.
 
 This creates an **`active`** org with slug **`vibe-design-preview`**, **~11** upcoming/past events (Norfolk, Richmond, DMV, etc.) with Unsplash **flyer** URLs, and **skips** rows that already exist (`ON CONFLICT DO NOTHING` on `(org_id, slug)`).
