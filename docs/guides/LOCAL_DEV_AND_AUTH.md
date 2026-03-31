@@ -1,6 +1,6 @@
 # Local dev server + Supabase auth (login & dashboard)
 
-**Last updated:** March 23, 2026
+**Last updated:** March 30, 2026
 
 Use this when you want **localhost** working end-to-end: **Next.js dev server**, **Supabase Auth**, and **dashboard** after sign-in.
 
@@ -123,3 +123,19 @@ Run **`npm run ci`** before pushing. For dashboard UI work, follow **`docs/BRAND
 3. **Flow:** Sign in → **`/admin`** → **Create Organization** (note the org **slug**) → open **`/organizer/{slug}/events/new`** → create draft → upload flyer → **Submit for review** → **`/admin`** → **Event Submissions** → approve (or use another staff account to approve). Published events appear on **`/events`**, **dashboard “Trending”**, and the **month calendar** on **`/dashboard`**.
 
 4. **Month view:** Use **`/dashboard?cal=2026-03`** (`YYYY-MM`) to jump months; arrows on the card update the same query param.
+
+---
+
+## 9. Design seed — populate `/events` and dashboard (optional)
+
+For layout and visual design, you can insert **published** mock events without clicking through the organizer flow.
+
+1. **Sign up once** on the project so **`auth.users`** has at least one row (the script attaches the seed org to the **oldest** user by `created_at`).
+2. **Schema:** Apply migrations through **`020_event_categories_array.sql`** so `events.categories` exists.
+3. **Run:** Supabase → **SQL Editor** → paste **`scripts/021_seed_design_events.sql`** → **Run**.
+
+This creates an **`active`** org with slug **`vibe-design-preview`**, **~11** upcoming/past events (Norfolk, Richmond, DMV, etc.) with Unsplash **flyer** URLs, and **skips** rows that already exist (`ON CONFLICT DO NOTHING` on `(org_id, slug)`).
+
+**Why not Playwright for this?** Browser automation would need a logged-in session, org membership, staff approval paths, and storage uploads — it is brittle for “fill the feed.” SQL seeding matches production RLS-shaped data in one step.
+
+**Remove later:** Cleanup SQL is in the header comment of **`scripts/021_seed_design_events.sql`**.
