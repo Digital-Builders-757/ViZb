@@ -36,7 +36,9 @@ export async function getLatestPublishedPosts(limit = 3): Promise<PostRow[]> {
     .limit(limit)
 
   if (error) {
-    // Common in local/dev before schema is applied.
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[posts] getLatestPublishedPosts:", error.message)
+    }
     return []
   }
 
@@ -56,6 +58,11 @@ export async function getPublishedPostBySlug(slug: string): Promise<PostRow | nu
     .eq("status", "published")
     .single()
 
-  if (error) return null
+  if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[posts] getPublishedPostBySlug:", error.message)
+    }
+    return null
+  }
   return data as PostRow
 }
