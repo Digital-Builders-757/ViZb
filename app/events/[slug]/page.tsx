@@ -4,10 +4,13 @@ import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Clock, MapPin, ArrowLeft, Users } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { GlassCard } from "@/components/ui/glass-card"
+import { NeonLink } from "@/components/ui/neon-link"
+import { NeonButton } from "@/components/ui/neon-button"
 
 interface PublicEvent {
   id: string
@@ -123,7 +126,7 @@ export default async function PublicEventDetailPage({
     : null
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[color:var(--neon-bg0)]">
       <Navbar />
 
       <section className="pt-24 sm:pt-28 pb-16 md:pb-24 px-4 sm:px-8">
@@ -141,7 +144,7 @@ export default async function PublicEventDetailPage({
           <div className="mt-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Flyer */}
             <div className="w-full lg:w-1/2">
-              <div className="relative aspect-[4/5] overflow-hidden border border-border bg-secondary">
+              <GlassCard className="relative aspect-[4/5] overflow-hidden p-0">
                 {event.flyer_url ? (
                   <Image
                     src={event.flyer_url}
@@ -167,18 +170,24 @@ export default async function PublicEventDetailPage({
                     event.categories.map((c) => (
                       <span
                         key={c}
-                        className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5"
+                        className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur"
                       >
                         {formatCategoryLabel(c)}
                       </span>
                     ))
                   ) : (
-                    <span className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5">
+                    <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
                       Event
                     </span>
                   )}
                 </div>
-              </div>
+
+                {/* readability overlay */}
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/90 via-[color:var(--neon-bg0)]/25 to-transparent"
+                  aria-hidden
+                />
+              </GlassCard>
             </div>
 
             {/* Details */}
@@ -187,67 +196,98 @@ export default async function PublicEventDetailPage({
                 {/* Org */}
                 <Link
                   href={`/events?org=${event.org_slug}`}
-                  className="text-xs font-mono uppercase tracking-widest text-primary hover:underline"
+                  className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline"
                 >
                   {event.org_name}
                 </Link>
 
                 {/* Title */}
-                <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mt-3 text-balance leading-tight">
+                <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[color:var(--neon-text0)] mt-3 text-balance leading-tight">
                   {event.title}
                 </h1>
 
                 {/* Date/Time */}
-                <div className="mt-6 flex flex-col gap-3">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-primary shrink-0" />
-                    <span className="text-base text-foreground">{dateStr}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-primary shrink-0" />
-                    <span className="text-base text-foreground">
-                      {timeStr}
-                      {endTimeStr && ` - ${endTimeStr}`}
-                    </span>
-                  </div>
+                <div className="mt-6 grid gap-3">
+                  <GlassCard className="flex items-start gap-3 p-4">
+                    <Calendar className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Date</p>
+                      <p className="mt-1 text-base text-[color:var(--neon-text0)]">{dateStr}</p>
+                    </div>
+                  </GlassCard>
+                  <GlassCard className="flex items-start gap-3 p-4">
+                    <Clock className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Time</p>
+                      <p className="mt-1 text-base text-[color:var(--neon-text0)]">
+                        {timeStr}
+                        {endTimeStr && ` - ${endTimeStr}`}
+                      </p>
+                    </div>
+                  </GlassCard>
                 </div>
 
                 {/* Location */}
-                <div className="mt-6 pt-6 border-t border-border flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-primary shrink-0" />
-                    <span className="text-base text-foreground">{event.venue_name}</span>
-                  </div>
-                  {event.address && (
-                    <p className="text-sm text-muted-foreground ml-8">{event.address}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground ml-8 uppercase tracking-wider">{event.city}</p>
+                <div className="mt-4">
+                  <GlassCard className="p-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Location</p>
+                        <p className="mt-1 text-base text-[color:var(--neon-text0)]">{event.venue_name}</p>
+                        {event.address ? (
+                          <p className="mt-1 text-sm text-[color:var(--neon-text1)]">{event.address}</p>
+                        ) : null}
+                        <p className="mt-1 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                          {event.city}
+                        </p>
+                      </div>
+                    </div>
+                  </GlassCard>
                 </div>
 
                 {/* Description */}
                 {event.description && (
-                  <div className="mt-6 pt-6 border-t border-border">
-                    <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">
-                      About This Event
-                    </h2>
-                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                      {event.description}
-                    </p>
+                  <div className="mt-6">
+                    <GlassCard className="p-4 md:p-5">
+                      <h2 className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                        About this event
+                      </h2>
+                      <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)] whitespace-pre-wrap">
+                        {event.description}
+                      </p>
+                    </GlassCard>
                   </div>
                 )}
               </div>
 
               {/* CTA area */}
-              <div className="mt-8 pt-6 border-t border-border">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono uppercase tracking-widest">
-                    <Users className="w-4 h-4" />
-                    Free Event
+              <div className="mt-8">
+                <GlassCard className="p-4 md:p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
+                      <Users className="w-4 h-4" />
+                      Free event
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
+                      <Ticket className="w-4 h-4" />
+                      Tickets coming soon
+                    </div>
                   </div>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-3">
-                  Ticket purchasing coming soon. For now, just show up.
-                </p>
+
+                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <NeonButton fullWidth shape="xl" disabled>
+                      Get Tickets
+                    </NeonButton>
+                    <NeonButton fullWidth variant="secondary" shape="xl" disabled>
+                      RSVP
+                    </NeonButton>
+                  </div>
+
+                  <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
+                    Showing both actions for the final UX. Ticketing + RSVP flows will be wired next.
+                  </p>
+                </GlassCard>
               </div>
             </div>
           </div>
