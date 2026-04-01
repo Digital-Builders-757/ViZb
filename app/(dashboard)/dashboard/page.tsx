@@ -209,14 +209,41 @@ export default async function DashboardPage({
                           className="object-cover"
                           sizes="(max-width: 768px) 100vw, 800px"
                         />
+                        {/* readability overlay for text-on-image (mobile-first) */}
+                        <div
+                          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/35 to-transparent"
+                          aria-hidden
+                        />
+                        <div className="absolute inset-x-0 bottom-0 space-y-1.5 p-4 md:hidden">
+                          <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                          <p className="text-sm text-[color:var(--neon-text1)]">
+                            {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
+                          </p>
+                          <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)] backdrop-blur">
+                            {formatCategoryLabels(ev.categories)}
+                          </span>
+                        </div>
                       </div>
                     ) : (
-                      <div
-                        className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
-                        aria-hidden
-                      />
+                      <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10">
+                        <div
+                          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/85 via-[color:var(--neon-bg0)]/30 to-transparent"
+                          aria-hidden
+                        />
+                        <div className="absolute inset-x-0 bottom-0 space-y-1.5 p-4 md:hidden">
+                          <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                          <p className="text-sm text-[color:var(--neon-text1)]">
+                            {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
+                          </p>
+                          <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)] backdrop-blur">
+                            {formatCategoryLabels(ev.categories)}
+                          </span>
+                        </div>
+                      </div>
                     )}
-                    <div className="space-y-2 p-4 md:p-5">
+
+                    {/* desktop detail stack */}
+                    <div className="hidden space-y-2 p-4 md:block md:p-5">
                       <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
                       <p className="text-sm text-[color:var(--neon-text1)]">
                         {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
@@ -231,11 +258,22 @@ export default async function DashboardPage({
             : showTrendingMocks
               ? TRENDING_MOCK.map((ev) => (
                   <GlassCard key={ev.title} className="overflow-hidden p-0" emphasis>
-                    <div
-                      className="aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10"
-                      aria-hidden
-                    />
-                    <div className="space-y-2 p-4 md:p-5">
+                    <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10">
+                      <div
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/85 via-[color:var(--neon-bg0)]/30 to-transparent"
+                        aria-hidden
+                      />
+                      <div className="absolute inset-x-0 bottom-0 space-y-1.5 p-4 md:hidden">
+                        <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
+                        <p className="text-sm text-[color:var(--neon-text1)]">
+                          {ev.location} · {ev.dates}
+                        </p>
+                        <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)] backdrop-blur">
+                          {ev.tag}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="hidden space-y-2 p-4 md:block md:p-5">
                       <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
                       <p className="text-sm text-[color:var(--neon-text1)]">
                         {ev.location} · {ev.dates}

@@ -45,7 +45,7 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
   }
 
   return (
-    <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-64 flex-col border-r border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 backdrop-blur-xl md:flex">
+    <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-64 flex-col border-r border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/85 backdrop-blur-xl md:flex">
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-[color:var(--neon-hairline)] px-6">
         <Link href="/" className="flex items-center gap-3">
