@@ -54,7 +54,7 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/75 backdrop-blur-xl md:hidden">
+    <header className="sticky top-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/75 backdrop-blur-xl md:hidden">
       <div
         className="flex h-14 items-center justify-between px-4"
         style={{ paddingTop: "env(safe-area-inset-top)" }}

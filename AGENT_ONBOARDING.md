@@ -1,6 +1,6 @@
 # Agent onboarding — ViBE / ViZb
 
-**Last updated:** March 23, 2026
+**Last updated:** April 1, 2026
 
 Five-minute path for a new AI agent or developer.
 
@@ -12,6 +12,13 @@ Five-minute path for a new AI agent or developer.
 4. **`docs/ARCHITECTURE_CONSTITUTION.md`** — Non-negotiables (short).
 5. **`docs/diagrams/airport-model.md`** — Zones for `/plan`, `/triage`, `/debug`.  
 6. **`docs/diagrams/README.md`** — Which other diagram to open (auth, roles, infra, lifecycle).
+
+## Feature entrypoints (common)
+
+- **Public feed posts (MVP):**
+  - Plan + SQL/RLS: `docs/plans/POSTS_MVP.md`
+  - Contract: `docs/contracts/community_posts.md`
+  - Journey: `docs/journeys/public_discovery_to_member.md`
 
 ## Before pushing code
 

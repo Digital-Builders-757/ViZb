@@ -56,12 +56,16 @@ export function EventTimelineCard({ event, index }: EventTimelineCardProps) {
       className="group block"
     >
       <article
-        className={`relative flex flex-col ${
+        className={`vibe-glass-panel relative flex flex-col ${
           isEven ? "md:flex-row" : "md:flex-row-reverse"
-        } gap-0 md:gap-8 overflow-hidden border border-border hover:border-primary/40 transition-all duration-500 bg-card`}
+        } gap-0 md:gap-8 overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)] transition-[border-color,box-shadow,transform] duration-500 hover:border-[color:var(--neon-a)]/35 hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.995]`}
       >
         {/* Flyer Image */}
         <div className="relative w-full md:w-1/2 aspect-[4/5] sm:aspect-[3/4] md:aspect-auto md:min-h-[420px] overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/30 to-transparent"
+            aria-hidden
+          />
           {event.flyer_url ? (
             <Image
               src={event.flyer_url}
@@ -89,13 +93,13 @@ export function EventTimelineCard({ event, index }: EventTimelineCardProps) {
               event.categories.map((c) => (
                 <span
                   key={c}
-                  className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5"
+                  className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur"
                 >
                   {formatCategoryLabel(c)}
                 </span>
               ))
             ) : (
-              <span className="bg-primary text-background text-[10px] sm:text-xs uppercase tracking-widest font-mono px-3 py-1.5">
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
                 Event
               </span>
             )}
@@ -107,39 +111,48 @@ export function EventTimelineCard({ event, index }: EventTimelineCardProps) {
 
         {/* Event Details */}
         <div className="relative w-full md:w-1/2 flex flex-col justify-between p-5 sm:p-6 md:p-10">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{
+              background:
+                "radial-gradient(ellipse 80% 60% at 0% 0%, rgb(0 209 255 / 0.10), transparent 55%), radial-gradient(ellipse 70% 55% at 100% 100%, rgb(157 77 255 / 0.08), transparent 55%)",
+            }}
+            aria-hidden
+          />
+          <div className="relative z-[1] flex h-full flex-col justify-between">
           {/* Top: Org + Time */}
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-primary">
+              <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
                 {event.org_name}
               </span>
-              <span className="w-1 h-1 bg-muted-foreground rounded-full" />
-              <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-mono text-muted-foreground">
+              <span className="w-1 h-1 bg-[color:var(--neon-text2)]/60 rounded-full" />
+              <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-mono text-[color:var(--neon-text2)]">
                 <Clock className="w-3 h-3" />
                 {startLabel}
               </span>
             </div>
 
             {/* Title */}
-            <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-4 group-hover:text-primary transition-colors duration-300 text-balance leading-tight">
+            <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[color:var(--neon-text0)] mt-4 transition-colors duration-300 text-balance leading-tight group-hover:text-[color:var(--neon-a)]">
               {event.title}
             </h3>
 
             {/* Description */}
             {event.description && (
-              <p className="text-sm text-muted-foreground mt-4 leading-relaxed line-clamp-3">
+              <p className="text-sm text-[color:var(--neon-text2)] mt-4 leading-relaxed line-clamp-3">
                 {event.description}
               </p>
             )}
           </div>
 
           {/* Bottom: Venue + City */}
-          <div className="mt-6 md:mt-8 pt-4 border-t border-border">
-            <div className="flex items-center gap-2 text-sm text-foreground">
-              <MapPin className="w-4 h-4 text-primary shrink-0" />
+          <div className="mt-6 md:mt-8 pt-4 border-t border-[color:var(--neon-hairline)]">
+            <div className="flex items-center gap-2 text-sm text-[color:var(--neon-text0)]">
+              <MapPin className="w-4 h-4 text-[color:var(--neon-a)] shrink-0" />
               <span className="truncate">{event.venue_name}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1 ml-6 uppercase tracking-wider">
+            <p className="text-xs text-[color:var(--neon-text2)] mt-1 ml-6 uppercase tracking-wider">
               {event.city}
             </p>
           </div>
@@ -149,6 +162,7 @@ export function EventTimelineCard({ event, index }: EventTimelineCardProps) {
             <span className="text-primary text-xl">&rarr;</span>
           </div>
         </div>
+      </div>
       </article>
     </Link>
   )

@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu, X, User } from "lucide-react"
 import { createClient, isBrowserSupabaseConfigured } from "@/lib/supabase/client"
+import { NeonLink } from "@/components/ui/neon-link"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -30,7 +31,7 @@ export function Navbar() {
   const isLoggedIn = !!user
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-sm border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/72 backdrop-blur-xl">
       <div className="max-w-[1800px] mx-auto px-4 sm:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
@@ -49,19 +50,19 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <Link
               href="/events"
-              className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
             >
               Events
             </Link>
             <Link
               href="/advertise"
-              className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
             >
               Advertise
             </Link>
             <Link
               href="#about"
-              className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
             >
               About
             </Link>
@@ -69,27 +70,21 @@ export function Navbar() {
             {!loading && (
               <>
                 {isLoggedIn ? (
-                  <Link
-                    href="/dashboard"
-                    className="inline-flex items-center gap-2 text-xs uppercase tracking-widest bg-foreground text-background px-4 py-2 hover:bg-brand-cyan transition-colors"
-                  >
+                  <NeonLink href="/dashboard" shape="xl" size="sm" className="sm:w-auto">
                     <User className="w-3.5 h-3.5" />
                     Dashboard
-                  </Link>
+                  </NeonLink>
                 ) : (
                   <>
                     <Link
                       href="/login"
-                      className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
                     >
                       Sign In
                     </Link>
-                    <Link
-                      href="/signup"
-                      className="text-xs uppercase tracking-widest bg-foreground text-background px-4 py-2 hover:bg-brand-cyan transition-colors"
-                    >
+                    <NeonLink href="/signup" shape="xl" size="sm" className="sm:w-auto">
                       Join
-                    </Link>
+                    </NeonLink>
                   </>
                 )}
               </>
@@ -97,7 +92,7 @@ export function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden text-foreground" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
+          <button className="md:hidden text-[color:var(--neon-text0)]" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -105,25 +100,25 @@ export function Navbar() {
 
       {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden bg-background border-b border-border">
+        <div className="md:hidden border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/92 backdrop-blur-xl">
           <div className="px-4 py-6 space-y-4">
             <Link
               href="/events"
-              className="block text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
               onClick={() => setIsOpen(false)}
             >
               Events
             </Link>
             <Link
               href="/advertise"
-              className="block text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
               onClick={() => setIsOpen(false)}
             >
               Advertise
             </Link>
             <Link
               href="#about"
-              className="block text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
               onClick={() => setIsOpen(false)}
             >
               About
@@ -132,30 +127,34 @@ export function Navbar() {
             {!loading && (
               <>
                 {isLoggedIn ? (
-                  <Link
+                  <NeonLink
                     href="/dashboard"
-                    className="flex items-center justify-center gap-2 text-xs uppercase tracking-widest bg-foreground text-background px-4 py-3"
+                    shape="xl"
+                    fullWidth
+                    size="sm"
                     onClick={() => setIsOpen(false)}
                   >
                     <User className="w-3.5 h-3.5" />
                     Dashboard
-                  </Link>
+                  </NeonLink>
                 ) : (
                   <>
                     <Link
                       href="/login"
-                      className="block text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                      className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
                       Sign In
                     </Link>
-                    <Link
+                    <NeonLink
                       href="/signup"
-                      className="block text-xs uppercase tracking-widest bg-foreground text-background px-4 py-3 text-center"
+                      shape="xl"
+                      fullWidth
+                      size="sm"
                       onClick={() => setIsOpen(false)}
                     >
-                      Join the Movement
-                    </Link>
+                      Join
+                    </NeonLink>
                   </>
                 )}
               </>
