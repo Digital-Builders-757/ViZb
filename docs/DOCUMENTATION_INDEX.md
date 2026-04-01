@@ -54,6 +54,17 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `releasenotes/` | `/release` archive |
 | `plans/`, `archive/` | Plans + superseded docs |
 
+---
+
+## New: Posts MVP (public feed)
+
+- Plan/SQL/RLS: `docs/plans/POSTS_MVP.md`
+- Contract: `docs/contracts/community_posts.md`
+- Public routes: `/` (module) + `/p/[slug]`
+- Admin routes: `/admin/posts/*` (staff admin)
+- Journey: `docs/journeys/public_discovery_to_member.md`
+
+
 ### `docs/diagrams/` (conceptual maps)
 
 | File | Role |
