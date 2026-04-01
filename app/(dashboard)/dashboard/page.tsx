@@ -312,15 +312,41 @@ export default async function DashboardPage({
               href={`/events?category=${category}`}
               className="group block transition-[transform] active:scale-[0.99]"
             >
-              <GlassCard className="flex h-full items-center gap-3 p-4 shadow-[0_0_22px_rgb(0_209_255/0.12)] ring-1 ring-[color:var(--neon-a)]/25 transition-[box-shadow] group-hover:shadow-[var(--vibe-neon-glow-subtle)]">
-                <Icon className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
-                <span className="text-sm font-medium text-[color:var(--neon-text0)]">{label}</span>
+              <GlassCard
+                className={
+                  "relative flex h-full items-center gap-3 overflow-hidden p-4 " +
+                  // subtle neon edge + depth (closer to mock pill cards)
+                  "shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_18%,transparent),0_0_22px_rgb(0_209_255/0.12)] " +
+                  "transition-[box-shadow,transform] group-hover:shadow-[var(--vibe-neon-glow-subtle)]"
+                }
+              >
+                <span
+                  className="grid h-10 w-10 place-items-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/35 backdrop-blur-md"
+                  aria-hidden
+                >
+                  <Icon className="h-5 w-5 text-[color:var(--neon-a)]" aria-hidden />
+                </span>
+
+                <div className="min-w-0">
+                  <span className="block text-sm font-semibold text-[color:var(--neon-text0)]">
+                    {label}
+                  </span>
+                  <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                    Tap to browse
+                  </span>
+                </div>
+
                 <span
                   className="ml-auto font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-text2)] transition-colors group-hover:text-[color:var(--neon-a)]"
                   aria-hidden
                 >
                   →
                 </span>
+
+                <span
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[color:var(--neon-b)]/35 to-transparent"
+                  aria-hidden
+                />
               </GlassCard>
             </Link>
           ))}

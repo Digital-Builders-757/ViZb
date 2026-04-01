@@ -54,7 +54,7 @@ export function DashboardMonthCalendar({
 
   return (
     <GlassCard className="overflow-hidden p-0">
-      <div className="flex flex-col gap-4 border-b border-[color:var(--neon-hairline)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <div className="flex flex-col gap-4 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
           <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
             Town calendar
@@ -70,16 +70,18 @@ export function DashboardMonthCalendar({
           <Link
             href={`/dashboard?cal=${prevKey}`}
             scroll={false}
-            className="inline-flex h-10 w-10 items-center justify-center border border-[color:var(--neon-hairline)] text-[color:var(--neon-text0)] transition-colors hover:bg-[color:var(--neon-a)]/10"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 text-[color:var(--neon-text0)] backdrop-blur transition-colors hover:bg-[color:var(--neon-a)]/10"
             aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
           </Link>
-          <span className="min-w-[9rem] text-center font-mono text-xs text-[color:var(--neon-text1)]">{calKey}</span>
+          <span className="min-w-[9rem] rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30 px-3 py-2 text-center font-mono text-xs text-[color:var(--neon-text1)] backdrop-blur">
+            {calKey}
+          </span>
           <Link
             href={`/dashboard?cal=${nextKey}`}
             scroll={false}
-            className="inline-flex h-10 w-10 items-center justify-center border border-[color:var(--neon-hairline)] text-[color:var(--neon-text0)] transition-colors hover:bg-[color:var(--neon-a)]/10"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 text-[color:var(--neon-text0)] backdrop-blur transition-colors hover:bg-[color:var(--neon-a)]/10"
             aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
@@ -92,7 +94,7 @@ export function DashboardMonthCalendar({
           <Calendar
             key={calKey}
             defaultMonth={monthDate}
-            className="rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/40 p-2 [--cell-size:2.25rem] md:[--cell-size:2.5rem]"
+            className="rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-2 backdrop-blur [--cell-size:2.25rem] md:[--cell-size:2.5rem]"
             classNames={{
               root: "w-full max-w-[min(100%,20rem)]",
               nav: "hidden",
@@ -118,7 +120,7 @@ export function DashboardMonthCalendar({
 
         <div className="min-w-0 space-y-3">
           {events.length === 0 ? (
-            <div className="rounded-none border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/30 px-4 py-8 text-center">
+            <div className="rounded-xl border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
               <p className="text-sm text-[color:var(--neon-text1)]">
                 No published events with a start date this month yet.
               </p>
@@ -135,10 +137,10 @@ export function DashboardMonthCalendar({
                   <li key={e.id}>
                     <Link
                       href={`/events/${e.slug}`}
-                      className={`block border border-[color:var(--neon-hairline)] px-3 py-3 transition-colors sm:px-4 ${
+                      className={`block rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-3 py-3 backdrop-blur transition-[border-color,box-shadow,transform] sm:px-4 ${
                         active
-                          ? "bg-[color:var(--neon-a)]/10 shadow-[0_0_20px_rgb(0_209_255/0.12)]"
-                          : "bg-[color:var(--neon-bg1)]/20 hover:border-[color:var(--neon-a)]/40"
+                          ? "border-[color:var(--neon-a)]/35 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_14%,transparent),0_0_26px_rgb(0_209_255/0.12)]"
+                          : "hover:border-[color:var(--neon-a)]/40 hover:shadow-[0_0_18px_rgb(0_209_255/0.08)]"
                       }`}
                       onMouseEnter={() => setHoveredDay(dayKey)}
                       onMouseLeave={() => setHoveredDay(null)}
