@@ -41,6 +41,9 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
     redirect("/admin/posts")
   }
 
+  // Primitives for the server action closure — TS does not narrow `post` inside nested async functions.
+  const existingPublishedAt = post.published_at
+
   async function updatePost(formData: FormData) {
     "use server"
 
@@ -61,7 +64,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
     const supabase = await createClient()
 
     // Preserve published_at once set. If transitioning to published with no published_at, set now.
-    const shouldSetPublishedAt = status === "published" && !post.published_at
+    const shouldSetPublishedAt = status === "published" && !existingPublishedAt
 
     await supabase
       .from("posts")
@@ -73,7 +76,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
         video_url: video_url || null,
         content_md,
         status,
-        published_at: shouldSetPublishedAt ? new Date().toISOString() : post.published_at,
+        published_at: shouldSetPublishedAt ? new Date().toISOString() : existingPublishedAt,
       })
       .eq("id", id)
 
