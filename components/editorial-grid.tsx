@@ -23,14 +23,14 @@ export function EditorialGrid() {
           {/* Stack of smaller cards */}
           <div className="md:col-span-5 flex flex-col gap-4">
             <Link href="/host/apply" className="relative group overflow-hidden bg-card flex-1 min-h-[240px] block">
-              <Image src="/host-with-vibe-santa-bull.jpg" alt="Host an event with ViZb" fill sizes="(max-width: 768px) 100vw, 42vw" className="object-cover object-[center_35%] img-zoom" />
+              <Image src="/host-with-vibe-santa-bull.jpg" alt="Host an event with VIZB" fill sizes="(max-width: 768px) 100vw, 42vw" className="object-cover object-[center_35%] img-zoom" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
               <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary transition-colors mx-0" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <span className="text-xs uppercase tracking-widest text-primary font-mono">Create</span>
-                <h3 className="text-xl font-bold text-foreground mt-2 uppercase">Host With ViZb</h3>
+                <h3 className="text-xl font-bold text-foreground mt-2 uppercase">Host With VIZB</h3>
                 <p className="text-sm mt-2 leading-relaxed text-foreground">
-                  Bring your event to the ViZb calendar — we'll help you pack the room.
+                  Bring your event to the VIZB calendar — we'll help you pack the room.
                 </p>
                 <span className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-mono mt-4 group-hover:gap-3 transition-all">
                   Submit an Event

@@ -56,7 +56,7 @@ export default function SignUpPage() {
       <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center border-r border-border overflow-hidden">
         <Image
           src="/curated-events-crowd.jpg"
-          alt="ViZb Events"
+          alt="VIZB Events"
           fill
           className="object-cover opacity-40"
           priority
@@ -83,7 +83,7 @@ export default function SignUpPage() {
           <Link href="/" className="inline-block mb-12">
             <Image
               src="/vibe-logo.png"
-              alt="ViZb"
+              alt="VIZB"
               width={48}
               height={48}
               className="h-12 w-auto"

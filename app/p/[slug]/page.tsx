@@ -18,11 +18,11 @@ export async function generateMetadata({
   const post = await getPublishedPostBySlug(slug)
 
   if (!post) {
-    return { title: "Post Not Found | ViZb" }
+    return { title: "Post Not Found | VIZB" }
   }
 
   return {
-    title: `${post.title} | ViZb`,
+    title: `${post.title} | VIZB`,
     description: post.excerpt ?? undefined,
     openGraph: post.cover_image_url
       ? { images: [{ url: post.cover_image_url, width: 1200, height: 630 }] }

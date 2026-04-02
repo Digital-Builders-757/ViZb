@@ -5,9 +5,9 @@ import { AdvertiseContactForm } from "@/components/advertise/advertise-contact-f
 import { getAdminInboxEmail, isAdvertiseEmailConfigured } from "@/lib/email/project-env"
 
 export const metadata: Metadata = {
-  title: "Advertise with ViZb",
+  title: "Advertise with VIZB",
   description:
-    "Partner with ViZb to reach Virginia and DMV audiences. Sponsorships, placements, and brand collaborations.",
+    "Partner with VIZB to reach Virginia and DMV audiences. Sponsorships, placements, and brand collaborations.",
 }
 
 export default function AdvertisePage() {
@@ -22,7 +22,7 @@ export default function AdvertisePage() {
         <div className="max-w-2xl mx-auto">
           <p className="text-xs font-mono uppercase tracking-widest text-primary">Partnerships</p>
           <h1 className="mt-3 font-serif text-3xl sm:text-4xl font-bold text-foreground text-balance">
-            Advertise with ViZb
+            Advertise with VIZB
           </h1>
           <p className="mt-4 text-muted-foreground leading-relaxed">
             Reach people who show up for culture in Virginia and the DMV — events, creative communities, and

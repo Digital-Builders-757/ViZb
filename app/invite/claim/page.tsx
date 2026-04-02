@@ -68,7 +68,7 @@ function ClaimInviteContent() {
         {status === "idle" && inviteToken && (
           <>
             <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
-              Someone has invited you to join an organization on ViZb. Click below to accept.
+              Someone has invited you to join an organization on VIZB. Click below to accept.
             </p>
             <button
               onClick={handleClaim}

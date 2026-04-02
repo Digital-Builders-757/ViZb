@@ -32,7 +32,7 @@ export function HeroSection() {
               Everyone says you have to leave Virginia to find things to do. We don't believe that.
             </p>
             <p className="text-lg text-muted-foreground mt-4 max-w-lg leading-relaxed">
-              ViZb is turning Virginia into a place where people actually know where to go — for the culture, the
+              VIZB is turning Virginia into a place where people actually know where to go — for the culture, the
               connections, and the good times.
             </p>
 
@@ -63,7 +63,7 @@ export function HeroSection() {
                 href="/host/apply"
                 className="text-xs uppercase tracking-widest border border-foreground/30 text-foreground px-8 py-4 hover:border-primary hover:text-primary transition-colors backdrop-blur-sm"
               >
-                Host With ViZb
+                Host With VIZB
               </Link>
             </div>
           </div>
@@ -74,7 +74,7 @@ export function HeroSection() {
                 <div className="relative aspect-[3/4] overflow-hidden group">
                   <Image
                     src="/vibe-event-dj.jpg"
-                    alt="DJ performing at ViZb event"
+                    alt="DJ performing at VIZB event"
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
                     priority
@@ -98,7 +98,7 @@ export function HeroSection() {
                 <div className="relative aspect-[3/4] overflow-hidden group">
                   <Image
                     src="/vibe-event-party.jpg"
-                    alt="ViZb community members at party"
+                    alt="VIZB community members at party"
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

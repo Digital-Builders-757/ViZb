@@ -9,7 +9,7 @@ export default function SignUpSuccessPage() {
         <Link href="/" className="inline-block mb-12">
           <Image
             src="/vibe-logo.png"
-            alt="ViZb"
+            alt="VIZB"
             width={48}
             height={48}
             className="h-12 w-auto"

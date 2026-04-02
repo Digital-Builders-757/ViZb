@@ -40,7 +40,7 @@ export default async function HostApplyPage() {
       </div>
       <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground mt-2">Request to Host Events</h1>
       <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-lg">
-        Want to organize events on ViZb? Tell us about your organization and our team will review your application.
+        Want to organize events on VIZB? Tell us about your organization and our team will review your application.
       </p>
 
       {membership && (

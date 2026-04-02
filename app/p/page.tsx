@@ -6,8 +6,8 @@ import { getLatestPublishedPosts } from "@/lib/posts/posts"
 import { PostCard } from "@/components/posts/post-card"
 
 export const metadata: Metadata = {
-  title: "Posts | ViZb",
-  description: "Culture drops, recaps, and what’s next from ViZb.",
+  title: "Posts | VIZB",
+  description: "Culture drops, recaps, and what’s next from VIZB.",
 }
 
 export default async function PostsIndexPage() {
@@ -24,7 +24,7 @@ export default async function PostsIndexPage() {
               Updates
             </span>
             <h1 className="mt-2 font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl">
-              From ViZb
+              From VIZB
             </h1>
             <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
               Culture drops, recaps, and what’s next.

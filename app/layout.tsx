@@ -11,9 +11,9 @@ const _playfair = Playfair_Display({ subsets: ["latin"] })
 const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ViZb | Driving Culture Forward",
+  title: "VIZB | Driving Culture Forward",
   description:
-    "ViZb creates experiences that bring people together — music, culture, creativity, and community — all across Virginia.",
+    "VIZB creates experiences that bring people together — music, culture, creativity, and community — all across Virginia.",
   generator: "v0.app",
   icons: {
     icon: "/icon.png",

@@ -16,7 +16,7 @@ export async function LatestPostsSection() {
             Latest
           </span>
           <h2 id="latest-posts" className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl">
-            From ViZb
+            From VIZB
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
             Updates, recaps, culture drops, and what’s next.

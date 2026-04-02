@@ -60,9 +60,9 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/vibe-logo.png" alt="ViZb" width={28} height={28} className="h-7 w-auto" />
+          <Image src="/vibe-logo.png" alt="VIZB" width={28} height={28} className="h-7 w-auto" />
           <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
-            ViZb
+            VIZB
           </span>
         </Link>
 
