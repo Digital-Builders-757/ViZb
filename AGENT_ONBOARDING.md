@@ -19,6 +19,15 @@ Five-minute path for a new AI agent or developer.
   - Plan + SQL/RLS: `docs/plans/POSTS_MVP.md`
   - Contract: `docs/contracts/community_posts.md`
   - Journey: `docs/journeys/public_discovery_to_member.md`
+  - Public routes:
+    - `/` ("From ViZb" module)
+    - `/p` (all posts)
+    - `/p/[slug]` (post detail)
+  - Admin routes (staff admin):
+    - `/admin` (overview → Posts card)
+    - `/admin/posts`
+    - `/admin/posts/new`
+    - `/admin/posts/[id]`
 
 ## Before pushing code
 

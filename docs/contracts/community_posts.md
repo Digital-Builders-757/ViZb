@@ -7,9 +7,12 @@
 - Store posts in Supabase table: `public.posts` (Markdown in `content_md`).
 - Public can read **published** posts only.
 - Staff admins (by `profiles.platform_role = 'staff_admin'`) can CRUD.
-- Public routes: `/` (module) + `/p/[slug]`.
-- Admin routes: `/admin/posts/*`.
+- Public routes: `/` (module) + `/p` + `/p/[slug]`.
+- Admin routes: `/admin` (overview) + `/admin/posts/*`.
 - Canonical SQL/RLS: `docs/plans/POSTS_MVP.md`.
+- Journeys:
+  - `docs/journeys/public_discovery_to_member.md`
+  - `docs/journeys/admin_publishes_post.md`.
 
 ## Purpose
 

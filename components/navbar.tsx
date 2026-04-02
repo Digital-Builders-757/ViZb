@@ -55,6 +55,12 @@ export function Navbar() {
               Events
             </Link>
             <Link
+              href="/p"
+              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
+            >
+              Posts
+            </Link>
+            <Link
               href="/advertise"
               className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
             >
@@ -108,6 +114,13 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               Events
+            </Link>
+            <Link
+              href="/p"
+              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Posts
             </Link>
             <Link
               href="/advertise"

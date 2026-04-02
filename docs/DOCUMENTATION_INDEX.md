@@ -60,9 +60,18 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 
 - Plan/SQL/RLS: `docs/plans/POSTS_MVP.md`
 - Contract: `docs/contracts/community_posts.md`
-- Public routes: `/` (module) + `/p/[slug]`
-- Admin routes: `/admin/posts/*` (staff admin)
-- Journey: `docs/journeys/public_discovery_to_member.md`
+- Public routes:
+  - `/` ("From ViZb" module)
+  - `/p` (all posts)
+  - `/p/[slug]` (post detail)
+- Admin routes (staff admin):
+  - `/admin` (overview → Posts card)
+  - `/admin/posts` (list + filters)
+  - `/admin/posts/new` (create)
+  - `/admin/posts/[id]` (edit)
+- Journeys:
+  - `docs/journeys/public_discovery_to_member.md`
+  - `docs/journeys/admin_publishes_post.md`
 
 
 ### `docs/diagrams/` (conceptual maps)

@@ -78,7 +78,7 @@ function inlineFormat(text: string): React.ReactNode {
         parts.push(
           <code
             key={`c-${i}`}
-            className="rounded-md border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/50 px-1.5 py-0.5 font-mono text-[13px] text-[color:var(--neon-text0)]"
+            className="rounded-md border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/45 px-1.5 py-0.5 font-mono text-[13px] text-[color:var(--neon-text0)]"
           >
             {code}
           </code>,
@@ -128,7 +128,7 @@ export function MarkdownContent({ md }: { md: string }) {
   function flushList() {
     if (listItems.length === 0) return
     out.push(
-      <ul key={`ul-${out.length}`} className="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
+      <ul key={`ul-${out.length}`} className="mt-4 list-disc space-y-2 pl-5 text-[15px] leading-[1.7] text-[color:var(--neon-text1)]">
         {listItems.splice(0).map((li, idx) => (
           <li key={idx}>{li}</li>
         ))}
@@ -144,11 +144,12 @@ export function MarkdownContent({ md }: { md: string }) {
         <h2
           key={`h-${idx}`}
           className={
-            n.level === 1
-              ? "mt-6 font-serif text-2xl font-bold text-[color:var(--neon-text0)]"
+            (n.level === 1
+              ? "mt-10 font-serif text-2xl font-bold tracking-tight text-[color:var(--neon-text0)]"
               : n.level === 2
-                ? "mt-6 font-serif text-xl font-bold text-[color:var(--neon-text0)]"
-                : "mt-5 text-lg font-semibold text-[color:var(--neon-text0)]"
+                ? "mt-9 font-serif text-xl font-bold tracking-tight text-[color:var(--neon-text0)]"
+                : "mt-7 text-lg font-semibold tracking-tight text-[color:var(--neon-text0)]") +
+            " scroll-mt-28"
           }
         >
           {n.text}
@@ -159,7 +160,7 @@ export function MarkdownContent({ md }: { md: string }) {
 
     if (n.kind === "p") {
       out.push(
-        <p key={`p-${idx}`} className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
+        <p key={`p-${idx}`} className="mt-4 text-[15px] leading-[1.7] text-[color:var(--neon-text1)]">
           {inlineFormat(n.text)}
         </p>,
       )
@@ -175,7 +176,7 @@ export function MarkdownContent({ md }: { md: string }) {
       out.push(
         <pre
           key={`pre-${idx}`}
-          className="mt-4 overflow-x-auto rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/55 p-4 text-[13px] leading-relaxed text-[color:var(--neon-text1)]"
+          className="mt-6 overflow-x-auto rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 p-4 text-[13px] leading-[1.7] text-[color:var(--neon-text1)]"
         >
           <code className="font-mono">{n.text}</code>
         </pre>,
@@ -186,5 +187,5 @@ export function MarkdownContent({ md }: { md: string }) {
 
   flushList()
 
-  return <div>{out}</div>
+  return <div className="[&_strong]:text-[color:var(--neon-text0)]">{out}</div>
 }

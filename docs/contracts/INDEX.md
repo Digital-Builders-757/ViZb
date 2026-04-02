@@ -11,7 +11,7 @@ Contracts define **invariants**, **owners** (routes + actions), **data touched**
 | RSVPs & orders | `rsvps.md` | Roadmap — free RSVP + paid orders |
 | Check-in | `checkins.md` | Roadmap — door / scanner |
 | Member profiles | `member_profiles.md` | Stub — trigger, `profiles` table |
-| Community posts / public feed posts | `community_posts.md` | MVP (schema pending in Supabase) |
+| Community posts / public feed posts | `community_posts.md` | MVP (Supabase schema + RLS required; see `docs/plans/POSTS_MVP.md`) |
 | Venues | `venues.md` | Roadmap — may start as text fields on events |
 | Notifications | `notifications.md` | Roadmap — email/push |
 | Sponsors | `sponsors.md` | Roadmap |

@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { Menu, Home, User, Calendar, Shield, Building2, PlusCircle, LogOut, Compass } from "lucide-react"
+import { Menu, Home, User, Calendar, Shield, Building2, PlusCircle, LogOut, Compass, Newspaper } from "lucide-react"
 import {
   Sheet,
   SheetContent,
@@ -182,13 +182,26 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
                     href="/admin"
                     onClick={() => setOpen(false)}
                     className={`flex min-h-[44px] items-center gap-3 border-l-2 px-3 py-3 text-sm transition-colors ${
-                      pathname.startsWith("/admin")
+                      pathname === "/admin"
                         ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
                         : "border-transparent text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
                     }`}
                   >
                     <Shield className="h-4 w-4" />
-                    <span>Admin Panel</span>
+                    <span>Admin Overview</span>
+                  </Link>
+
+                  <Link
+                    href="/admin/posts"
+                    onClick={() => setOpen(false)}
+                    className={`flex min-h-[44px] items-center gap-3 border-l-2 px-3 py-3 text-sm transition-colors ${
+                      pathname.startsWith("/admin/posts")
+                        ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
+                        : "border-transparent text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
+                    }`}
+                  >
+                    <Newspaper className="h-4 w-4" />
+                    <span>Posts</span>
                   </Link>
                 </>
               )}
