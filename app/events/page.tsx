@@ -12,6 +12,10 @@ import { normalizeCategories } from "@/lib/events/categories"
 export const metadata: Metadata = {
   title: "Events | ViZb",
   description: "Explore upcoming events across Virginia. Parties, mixers, workshops, and more.",
+  openGraph: {
+    title: "Events | ViZb",
+    description: "Explore upcoming events across Virginia. Parties, mixers, workshops, and more.",
+  },
 }
 
 interface PublicEventRow {

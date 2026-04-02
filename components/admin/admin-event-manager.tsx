@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation"
 import { archiveEvent } from "@/app/actions/event"
 import { EVENT_STATUS_CONFIG } from "@/lib/constants"
 import {
-  Trash2,
   Search,
   Calendar,
   MapPin,
-  AlertTriangle,
   Loader2,
   ExternalLink,
+  Archive,
+  Pencil,
 } from "lucide-react"
 import {
   AlertDialog,
@@ -58,11 +58,8 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
   const [search, setSearch] = useState("")
   const [activeTab, setActiveTab] = useState("all")
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
-
   const filtered = useMemo(() => {
     return events.filter((e) => {
-      if (deletedIds.has(e.id)) return false
       if (activeTab !== "all" && e.status !== activeTab) return false
       if (search) {
         const q = search.toLowerCase()
@@ -74,10 +71,10 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
       }
       return true
     })
-  }, [events, activeTab, search, deletedIds])
+  }, [events, activeTab, search])
 
   const counts = useMemo(() => {
-    const visible = events.filter((e) => !deletedIds.has(e.id))
+    const visible = events
     return {
       all: visible.length,
       draft: visible.filter((e) => e.status === "draft").length,
@@ -86,7 +83,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
       rejected: visible.filter((e) => e.status === "rejected").length,
       archived: visible.filter((e) => e.status === "archived").length,
     } as Record<string, number>
-  }, [events, deletedIds])
+  }, [events])
 
   async function handleArchive(eventId: string, eventTitle: string) {
     setDeletingId(eventId)
@@ -95,8 +92,8 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
       if (result.error) {
         toast.error(result.error)
       } else {
-        setDeletedIds((prev) => new Set(prev).add(eventId))
         toast.success(`"${eventTitle}" was archived.`)
+        setActiveTab("archived")
         router.refresh()
       }
     } catch {
@@ -219,6 +216,18 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 shrink-0">
+                    {event.organizations?.slug ? (
+                      <a
+                        href={`/organizer/${event.organizations.slug}/events/${event.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors bg-transparent"
+                        title="Open organizer editor"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </a>
+                    ) : null}
+
                     {event.status === "published" && (
                       <a
                         href={`/events/${event.slug}`}
@@ -236,28 +245,28 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         <button
                           type="button"
                           disabled={isDeleting}
-                          className="p-2 border border-border text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors disabled:opacity-50 bg-transparent"
+                          className="p-2 border border-border text-muted-foreground hover:text-amber-400 hover:border-amber-400/40 transition-colors disabled:opacity-50 bg-transparent"
                           title="Archive event"
                         >
                           {isDeleting ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           ) : (
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Archive className="w-3.5 h-3.5" />
                           )}
                         </button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="bg-[#111111] border-border">
                         <AlertDialogHeader>
                           <div className="flex items-center gap-3 mb-1">
-                            <div className="w-9 h-9 bg-destructive/10 flex items-center justify-center shrink-0">
-                              <AlertTriangle className="w-5 h-5 text-destructive" />
+                            <div className="w-9 h-9 bg-amber-500/10 flex items-center justify-center shrink-0">
+                              <Archive className="w-5 h-5 text-amber-400" />
                             </div>
                             <AlertDialogTitle className="font-serif text-foreground">
                               Archive Event
                             </AlertDialogTitle>
                           </div>
                           <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
-                            Archive hides this event from public discovery and organizer surfaces, but keeps it for audit.
+                            Archiving removes this event from public discovery and organizer surfaces, but keeps it for audit.
                             <span className="block mt-2 font-semibold text-foreground">
                               {event.title}
                             </span>
@@ -269,8 +278,10 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                                 </span>
                               </>
                             )}
-                            ? This action cannot be undone. The event, its flyer, and all
-                            associated data will be permanently removed.
+                            ?
+                            <span className="block mt-2">
+                              You can unarchive later (staff-only) if needed.
+                            </span>
                           </AlertDialogDescription>
                         </AlertDialogHeader>
 
@@ -300,9 +311,9 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                           </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleArchive(event.id, event.title)}
-                            className="bg-destructive text-white font-mono text-xs uppercase tracking-widest border-0 hover:bg-destructive/90"
+                            className="bg-amber-500 text-black font-mono text-xs uppercase tracking-widest border-0 hover:bg-amber-400"
                           >
-                            Delete Permanently
+                            Archive event
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

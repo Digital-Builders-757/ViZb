@@ -124,6 +124,16 @@ export default async function EventDetailPage({
         </div>
       </div>
 
+      {/* Archived banner */}
+      {event.status === "archived" ? (
+        <div className="mt-4 border border-border bg-muted/5 p-4 md:p-5">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Archived</span>
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            This event has been archived. It’s hidden from public discovery and can’t be edited.
+          </p>
+        </div>
+      ) : null}
+
       {/* Rejection feedback banner */}
       {event.status === "rejected" && event.review_notes && (
         <div className="mt-4 border border-amber-500/30 bg-amber-500/5 p-4 md:p-5">
