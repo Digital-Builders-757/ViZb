@@ -1,6 +1,6 @@
 # ViBE / ViZb — Push-forward roadmap
 
-**Last updated:** March 23, 2026  
+**Last updated:** April 2, 2026  
 **Purpose:** Single checklist to move the product forward after recent engineering hardening. Deep spec remains in **`docs/MVP_STATUS_ROADMAP.md`** and **`docs/VIBE_APP_SPECIFICATION.md`** — refresh those when phase gates change.
 
 ---
@@ -25,12 +25,15 @@ Use this as context so you do not redo work.
 
 ## 2. Where the product actually is (reality check)
 
-The **February 2026** snapshot inside **`docs/MVP_STATUS_ROADMAP.md`** is **behind the repo**. For example:
+The roadmap is now closer to reality, but **treat SQL + production behavior as truth**.
 
-- **`scripts/`** includes events- and review-related SQL through **`018_*`** (e.g. **`013_create_events.sql`**, flyers bucket, staff policies, review metadata).
-- The app includes **public events** routes and **dashboard/admin/organizer** surfaces that assume an **`events`** (and related) schema in Supabase.
+- `scripts/` currently includes migrations through **023** (events lifecycle + review + flyers + categories + posts + archived soft-delete lock).
+- The app includes public `/events` + organizer/admin surfaces that rely on those migrations.
 
-**Action for you:** Treat **`database_schema_audit.md`** + your live Supabase project as truth. Re-audit the roadmap doc when you confirm which scripts are applied in each environment.
+**Habit:** when shipping status vocabulary changes (e.g. `archived`), update:
+- `scripts/*.sql` (enum + policies)
+- `docs/contracts/events.md`
+- `docs/MVP_STATUS_ROADMAP.md` (audit stamp + tables list)
 
 ---
 
