@@ -9,11 +9,11 @@ export function getAdminInboxEmail(): string {
   return v && v.length > 0 ? v : DEFAULT_ADMIN_INBOX
 }
 
-/** Verified sender in Resend (e.g. `ViZb <mail@yourdomain.com>`). Falls back to Resend sandbox for local dev. */
+/** Verified sender in Resend (e.g. `VIZB <mail@yourdomain.com>`). Falls back to Resend sandbox for local dev. */
 export function getResendFromAddress(): string {
   const v = process.env.RESEND_FROM?.trim()
   if (v && v.length > 0) return v
-  return "ViZb Advertising <onboarding@resend.dev>"
+  return "VIZB Advertising <onboarding@resend.dev>"
 }
 
 export function getResendApiKey(): string | null {

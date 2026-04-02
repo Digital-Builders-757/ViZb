@@ -49,8 +49,8 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-[color:var(--neon-hairline)] px-6">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/vibe-logo.png" alt="ViZb" width={32} height={32} className="h-8 w-auto" />
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">ViZb</span>
+          <Image src="/vibe-logo.png" alt="VIZB" width={32} height={32} className="h-8 w-auto" />
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">VIZB</span>
         </Link>
       </div>
 

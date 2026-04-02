@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, FileText, XCircle } from "lucide-react"
+import { CheckCircle2, Clock, FileText, XCircle, Archive } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export interface StatusConfig {
@@ -31,6 +31,11 @@ export const EVENT_STATUS_CONFIG: Record<string, StatusConfig> = {
     label: "Rejected",
     color: "text-amber-500 border-amber-500/30 bg-amber-500/5",
     icon: XCircle,
+  },
+  archived: {
+    label: "Archived",
+    color: "text-muted-foreground border-muted-foreground/25 bg-muted/5",
+    icon: Archive,
   },
   cancelled: {
     label: "Cancelled",

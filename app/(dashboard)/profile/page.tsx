@@ -18,7 +18,7 @@ export default async function ProfilePage() {
           Your profile
         </h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Manage your personal information and how you appear in ViZb.
+          Manage your personal information and how you appear in VIZB.
         </p>
       </header>
 

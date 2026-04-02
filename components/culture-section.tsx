@@ -19,7 +19,7 @@ export function CultureSection() {
               Everyone says you have to leave Virginia to find real culture. We don't believe that.
             </p>
             <p className="text-lg text-muted-foreground mt-4 max-w-md leading-relaxed">
-              ViZb is turning Virginia into a place where creators actually want to show up — not just for work, but for
+              VIZB is turning Virginia into a place where creators actually want to show up — not just for work, but for
               community, collaboration, and fun.
             </p>
 
@@ -36,7 +36,7 @@ export function CultureSection() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
                 <div className="relative aspect-[3/4] overflow-hidden">
-                  <Image src="/young-creative-professional-portrait-streetwear-st.jpg" alt="ViZb member" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
+                  <Image src="/young-creative-professional-portrait-streetwear-st.jpg" alt="VIZB member" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
                 </div>
                 <div className="bg-primary p-4">
                   <p className="text-xs uppercase tracking-widest text-background font-mono">Hampton Roads</p>
@@ -47,7 +47,7 @@ export function CultureSection() {
                   <p className="text-xs uppercase tracking-widest text-foreground font-mono">DMV</p>
                 </div>
                 <div className="relative aspect-[3/4] overflow-hidden">
-                  <Image src="/group-of-young-people-laughing-at-creative-event.jpg" alt="ViZb community" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
+                  <Image src="/group-of-young-people-laughing-at-creative-event.jpg" alt="VIZB community" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
                 </div>
               </div>
             </div>

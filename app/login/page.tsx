@@ -46,7 +46,7 @@ export default function LoginPage() {
         {/* Background image with overlay */}
         <Image
           src="/community-real-connections.jpg"
-          alt="ViZb Community"
+          alt="VIZB Community"
           fill
           className="object-cover opacity-40"
           priority
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-block mb-12">
             <Image
               src="/vibe-logo.png"
-              alt="ViZb"
+              alt="VIZB"
               width={48}
               height={48}
               className="h-12 w-auto"

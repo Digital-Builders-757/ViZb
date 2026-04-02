@@ -38,7 +38,7 @@ export function Navbar() {
           <Link href="/" className="flex items-center">
             <Image
               src="/vibe-logo.png"
-              alt="ViZb Logo"
+              alt="VIZB Logo"
               width={40}
               height={40}
               className="h-10 w-auto"

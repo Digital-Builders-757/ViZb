@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
+
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { getLatestPublishedPosts } from "@/lib/posts/posts"
 import { PostCard } from "@/components/posts/post-card"
+
+export const metadata: Metadata = {
+  title: "Posts | VIZB",
+  description: "Culture drops, recaps, and what’s next from VIZB.",
+}
 
 export default async function PostsIndexPage() {
   const posts = await getLatestPublishedPosts(24)
@@ -17,7 +24,7 @@ export default async function PostsIndexPage() {
               Updates
             </span>
             <h1 className="mt-2 font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl">
-              From ViZb
+              From VIZB
             </h1>
             <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
               Culture drops, recaps, and what’s next.
@@ -25,9 +32,7 @@ export default async function PostsIndexPage() {
           </header>
 
           {posts.length === 0 ? (
-            <p className="mt-10 text-[15px] text-[color:var(--neon-text1)]">
-              No posts published yet.
-            </p>
+            <p className="mt-10 text-[15px] text-[color:var(--neon-text1)]">No posts published yet.</p>
           ) : (
             <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
               {posts.map((p) => (

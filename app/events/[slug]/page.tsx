@@ -38,7 +38,7 @@ export async function generateMetadata({
     if (process.env.NODE_ENV === "production") {
       await createClient()
     }
-    return { title: "Event | ViZb" }
+    return { title: "Event | VIZB" }
   }
   const supabase = await createClient()
 
@@ -49,10 +49,10 @@ export async function generateMetadata({
     .eq("status", "published")
     .single()
 
-  if (!event) return { title: "Event Not Found | ViZb" }
+  if (!event) return { title: "Event Not Found | VIZB" }
 
   return {
-    title: `${event.title} | ViZb`,
+    title: `${event.title} | VIZB`,
     description: event.description || `${event.title} at ${event.venue_name}, ${event.city}`,
     openGraph: event.flyer_url
       ? { images: [{ url: event.flyer_url, width: 1200, height: 630 }] }

@@ -2,7 +2,7 @@ import React from "react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Claim Invite | ViZb",
+  title: "Claim Invite | VIZB",
   referrer: "no-referrer",
 }
 

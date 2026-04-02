@@ -1,12 +1,34 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import type { Metadata } from "next"
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { GlassCard } from "@/components/ui/glass-card"
 import { getPublishedPostBySlug } from "@/lib/posts/posts"
 import { MarkdownContent } from "@/components/posts/markdown"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPublishedPostBySlug(slug)
+
+  if (!post) {
+    return { title: "Post Not Found | VIZB" }
+  }
+
+  return {
+    title: `${post.title} | VIZB`,
+    description: post.excerpt ?? undefined,
+    openGraph: post.cover_image_url
+      ? { images: [{ url: post.cover_image_url, width: 1200, height: 630 }] }
+      : undefined,
+  }
+}
 
 export default async function PostDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params

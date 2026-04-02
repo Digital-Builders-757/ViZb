@@ -64,11 +64,11 @@ export default async function DashboardPage({
           Overview
         </span>
         <h1 className="mt-2 text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">
-          {isFirstRun ? "Welcome to ViZb" : `Hey, ${displayName}`}
+          {isFirstRun ? "Welcome to VIZB" : `Hey, ${displayName}`}
         </h1>
         {isFirstRun ? (
           <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            {"You're in. Set up your profile to get the most out of ViZb."}
+            {"You're in. Set up your profile to get the most out of VIZB."}
           </p>
         ) : null}
       </header>
@@ -147,7 +147,7 @@ export default async function DashboardPage({
               <div className="min-w-0 text-left">
                 <p className="font-semibold text-[color:var(--neon-text0)]">Request to Host</p>
                 <p className="text-sm text-[color:var(--neon-text2)]">
-                  Apply to become an event organizer on ViZb
+                  Apply to become an event organizer on VIZB
                 </p>
               </div>
               <span className="ml-auto text-[color:var(--neon-a)]">→</span>

@@ -10,8 +10,12 @@ import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 
 export const metadata: Metadata = {
-  title: "Events | ViZb",
+  title: "Events | VIZB",
   description: "Explore upcoming events across Virginia. Parties, mixers, workshops, and more.",
+  openGraph: {
+    title: "Events | VIZB",
+    description: "Explore upcoming events across Virginia. Parties, mixers, workshops, and more.",
+  },
 }
 
 interface PublicEventRow {
@@ -125,7 +129,7 @@ export default async function EventsExplorePage({
       city: e.city,
       categories: normalizeCategories(e.categories),
       flyer_url: e.flyer_url,
-      org_name: e.organizations?.name ?? "ViZb",
+      org_name: e.organizations?.name ?? "VIZB",
       org_slug: e.organizations?.slug ?? null,
     }))
   }
@@ -340,7 +344,7 @@ export default async function EventsExplorePage({
                       href="/signup"
                       className="text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all text-center"
                     >
-                      Join ViZb
+                      Join VIZB
                     </Link>
                     <Link
                       href="/host/apply"

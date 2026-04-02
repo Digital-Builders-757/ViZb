@@ -402,19 +402,17 @@ export async function reviewEvent(formData: FormData) {
   }
 }
 
-// ---------- Delete Event (Admin) ----------
+// ---------- Update Event Details (Org + Staff) ----------
 
-export async function deleteEvent(eventId: string) {
-  const { supabase } = await requireAdmin()
+export async function updateEventDetails(formData: FormData) {
+  const { user, supabase } = await requireAuth()
 
-  if (!eventId) {
-    return { error: "Missing event ID." }
-  }
+  const eventId = String(formData.get("event_id") ?? "").trim()
+  if (!eventId) return { error: "Missing event ID." }
 
-  // Fetch event details for cleanup + revalidation
   const { data: event, error: fetchError } = await supabase
     .from("events")
-    .select("id, org_id, slug, title, flyer_url")
+    .select("id, org_id, slug, status")
     .eq("id", eventId)
     .single()
 
@@ -422,33 +420,113 @@ export async function deleteEvent(eventId: string) {
     return { error: "Event not found." }
   }
 
-  // Clean up flyer from storage if present
-  if (event.flyer_url) {
-    const flyerPath = event.flyer_url.split("/event-flyers/")[1]
-    if (flyerPath) {
-      await supabase.storage.from("event-flyers").remove([flyerPath])
+  const canEdit = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, ["owner", "admin"])
+  if (!canEdit) {
+    return { error: "You don't have permission to edit events for this organization." }
+  }
+
+  if (event.status === "archived") {
+    return { error: "Archived events can't be edited." }
+  }
+
+  const title = String(formData.get("title") ?? "").trim()
+  const description = String(formData.get("description") ?? "").trim() || null
+  const startsAt = String(formData.get("starts_at") ?? "").trim()
+  const endsAtRaw = String(formData.get("ends_at") ?? "").trim()
+  const endsAt = endsAtRaw ? endsAtRaw : null
+  const venueName = String(formData.get("venue_name") ?? "").trim()
+  const address = String(formData.get("address") ?? "").trim() || null
+  const city = String(formData.get("city") ?? "").trim()
+  const categories = parseCategoriesFromFormData(formData)
+
+  if (!title || !startsAt || !venueName || !city) {
+    return { error: "Please fill in all required fields." }
+  }
+
+  if (!categories) {
+    return { error: "Select at least one valid category." }
+  }
+
+  const startDate = new Date(startsAt)
+  if (Number.isNaN(startDate.getTime())) {
+    return { error: "Invalid start date." }
+  }
+
+  if (endsAt) {
+    const endDate = new Date(endsAt)
+    if (Number.isNaN(endDate.getTime()) || endDate <= startDate) {
+      return { error: "End date must be after start date." }
     }
   }
 
-  // Also remove all files in the event's storage folder (e.g. old flyers)
-  const storagePrefix = `${event.org_id}/${event.id}`
-  const { data: files } = await supabase.storage
-    .from("event-flyers")
-    .list(storagePrefix)
-
-  if (files && files.length > 0) {
-    const paths = files.map((f) => `${storagePrefix}/${f.name}`)
-    await supabase.storage.from("event-flyers").remove(paths)
-  }
-
-  // Delete the event row
-  const { error: deleteError } = await supabase
+  const now = new Date().toISOString()
+  const { error: updateError } = await supabase
     .from("events")
-    .delete()
+    .update({
+      title,
+      description,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      venue_name: venueName,
+      address,
+      city,
+      categories,
+      updated_at: now,
+    })
     .eq("id", eventId)
 
-  if (deleteError) {
-    return { error: `Failed to delete event: ${deleteError.message}` }
+  if (updateError) {
+    return { error: `Failed to update event: ${updateError.message}` }
+  }
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", event.org_id)
+    .single()
+
+  const orgSlug = org?.slug || event.org_id
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
+  revalidatePath(`/events/${event.slug}`)
+  revalidatePath("/events")
+  revalidatePath("/dashboard")
+
+  return { success: true }
+}
+
+// ---------- Archive Event (Admin) ----------
+
+export async function archiveEvent(eventId: string) {
+  const { supabase } = await requireAdmin()
+
+  if (!eventId) {
+    return { error: "Missing event ID." }
+  }
+
+  // Fetch event details for revalidation
+  const { data: event, error: fetchError } = await supabase
+    .from("events")
+    .select("id, org_id, slug, title, status")
+    .eq("id", eventId)
+    .single()
+
+  if (fetchError || !event) {
+    return { error: "Event not found." }
+  }
+
+  if (event.status === "archived") {
+    return { success: true, title: event.title }
+  }
+
+  const now = new Date().toISOString()
+  const { error: updateError } = await supabase
+    .from("events")
+    .update({ status: "archived", updated_at: now })
+    .eq("id", eventId)
+
+  if (updateError) {
+    return { error: `Failed to archive event: ${updateError.message}` }
   }
 
   // Revalidate all relevant pages

@@ -16,7 +16,7 @@ export default function RootLoading() {
       <div className="relative animate-logo-enter opacity-0">
         <Image
           src="/vibe-logo.png"
-          alt="ViZb"
+          alt="VIZB"
           width={280}
           height={280}
           className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 object-contain select-none"

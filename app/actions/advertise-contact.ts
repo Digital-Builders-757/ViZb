@@ -35,7 +35,7 @@ function buildPlainBody(data: {
   message: string
 }): string {
   const lines = [
-    "New “Advertise with ViZb” inquiry",
+    "New “Advertise with VIZB” inquiry",
     "—".repeat(48),
     `Name: ${data.fullName}`,
     `Email: ${data.email}`,
@@ -104,7 +104,7 @@ export async function submitAdvertiseInquiry(formData: FormData): Promise<Advert
 
   const to = getAdminInboxEmail()
   const from = getResendFromAddress()
-  const subject = `[ViZb] Advertising inquiry — ${data.fullName}`
+  const subject = `[VIZB] Advertising inquiry — ${data.fullName}`
   const text = buildPlainBody(data)
 
   try {

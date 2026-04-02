@@ -39,12 +39,12 @@ export function AppPreview() {
             <h2 className="headline-lg text-foreground uppercase mt-4">
               The
               <br />
-              <span className="neon-gradient-text">ViZb</span>
+              <span className="neon-gradient-text">VIZB</span>
               <br />
               App
             </h2>
             <p className="text-lg text-muted-foreground mt-8 max-w-md leading-relaxed">
-              Discover events, connect with creators, and never miss a vibe. The ViZb app is launching soon — be the
+              Discover events, connect with creators, and never miss a vibe. The VIZB app is launching soon — be the
               first to know.
             </p>
 
@@ -89,7 +89,7 @@ export function AppPreview() {
                   {/* App Header - cleaner, less border competition */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800/50">
                     <div className="flex items-center gap-3">
-                      <Image src="/vibe-logo.png" alt="ViZb" width={28} height={28} className="rounded" />
+                      <Image src="/vibe-logo.png" alt="VIZB" width={28} height={28} className="rounded" />
                       <span className="text-lg font-bold text-foreground tracking-tight">Events</span>
                     </div>
                     <div className="flex items-center gap-3">

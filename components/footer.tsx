@@ -11,7 +11,7 @@ export function Footer() {
             <Link href="/" className="inline-block">
               <Image
                 src="/vibe-logo.png"
-                alt="ViZb Logo"
+                alt="VIZB Logo"
                 width={60}
                 height={60}
                 className="h-14 w-auto"
@@ -34,7 +34,7 @@ export function Footer() {
                   Advertise with us
                 </Link>
                 <Link href="/p" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
-                  From ViZb
+                  From VIZB
                 </Link>
               </div>
             </div>
@@ -73,7 +73,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-[color:var(--neon-hairline)] flex flex-col sm:flex-row justify-between gap-4">
-          <p className="text-xs text-[color:var(--neon-text2)]">© {new Date().getFullYear()} ViZb. All rights reserved.</p>
+          <p className="text-xs text-[color:var(--neon-text2)]">© {new Date().getFullYear()} VIZB. All rights reserved.</p>
           <p className="text-xs text-[color:var(--neon-text2)] font-mono">Virginia Isn't Boring.</p>
         </div>
       </div>

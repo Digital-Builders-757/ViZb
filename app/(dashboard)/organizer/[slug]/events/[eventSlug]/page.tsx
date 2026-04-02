@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
+import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
 
@@ -123,6 +124,16 @@ export default async function EventDetailPage({
         </div>
       </div>
 
+      {/* Archived banner */}
+      {event.status === "archived" ? (
+        <div className="mt-4 border border-border bg-muted/5 p-4 md:p-5">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Archived</span>
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            This event has been archived. It’s hidden from public discovery and can’t be edited.
+          </p>
+        </div>
+      ) : null}
+
       {/* Rejection feedback banner */}
       {event.status === "rejected" && event.review_notes && (
         <div className="mt-4 border border-amber-500/30 bg-amber-500/5 p-4 md:p-5">
@@ -187,11 +198,16 @@ export default async function EventDetailPage({
 
       {/* Event details card */}
       <div className="mt-6 form-card p-6 md:p-8">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-6">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2">
           Event Details
         </h2>
+        <p className="text-sm text-muted-foreground mb-6">
+          Edit your event details here. Published event edits update the public page immediately.
+        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <EventDetailsEditForm event={event} />
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Date & Time */}
           <div className="flex flex-col gap-4">
             <div>

@@ -139,7 +139,7 @@ export default async function AdminPage() {
         </div>
         <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Posts</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Publish updates that appear on the public homepage ("From ViZb") and /p.
+          Publish updates that appear on the public homepage ("From VIZB") and /p.
         </p>
 
         <GlassCard className="mt-4 p-4 md:p-5">
@@ -221,7 +221,7 @@ export default async function AdminPage() {
         </div>
         <h2 className="font-serif text-xl font-bold text-foreground mt-2">Posts</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Publish Markdown for the homepage From ViZb module and the public <code className="text-xs">/p</code> feed.
+          Publish Markdown for the homepage From VIZB module and the public <code className="text-xs">/p</code> feed.
         </p>
         <div className="mt-6 border border-border p-5 md:p-6 card-accent-cyan">
           <ul className="flex flex-col gap-3 text-sm">
