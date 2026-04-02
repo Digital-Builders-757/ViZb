@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { deleteEvent } from "@/app/actions/event"
+import { archiveEvent } from "@/app/actions/event"
 import { EVENT_STATUS_CONFIG } from "@/lib/constants"
 import {
   Trash2,
@@ -50,6 +50,7 @@ const STATUS_TABS = [
   { key: "pending_review", label: "In Review" },
   { key: "published", label: "Published" },
   { key: "rejected", label: "Rejected" },
+  { key: "archived", label: "Archived" },
 ] as const
 
 export function AdminEventManager({ events }: AdminEventManagerProps) {
@@ -83,18 +84,19 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
       pending_review: visible.filter((e) => e.status === "pending_review").length,
       published: visible.filter((e) => e.status === "published").length,
       rejected: visible.filter((e) => e.status === "rejected").length,
+      archived: visible.filter((e) => e.status === "archived").length,
     } as Record<string, number>
   }, [events, deletedIds])
 
-  async function handleDelete(eventId: string, eventTitle: string) {
+  async function handleArchive(eventId: string, eventTitle: string) {
     setDeletingId(eventId)
     try {
-      const result = await deleteEvent(eventId)
+      const result = await archiveEvent(eventId)
       if (result.error) {
         toast.error(result.error)
       } else {
         setDeletedIds((prev) => new Set(prev).add(eventId))
-        toast.success(`"${eventTitle}" has been permanently deleted.`)
+        toast.success(`"${eventTitle}" was archived.`)
         router.refresh()
       }
     } catch {
@@ -235,7 +237,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                           type="button"
                           disabled={isDeleting}
                           className="p-2 border border-border text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors disabled:opacity-50 bg-transparent"
-                          title="Delete event"
+                          title="Archive event"
                         >
                           {isDeleting ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -251,12 +253,12 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                               <AlertTriangle className="w-5 h-5 text-destructive" />
                             </div>
                             <AlertDialogTitle className="font-serif text-foreground">
-                              Delete Event
+                              Archive Event
                             </AlertDialogTitle>
                           </div>
                           <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
-                            Are you sure you want to permanently delete{" "}
-                            <span className="font-semibold text-foreground">
+                            Archive hides this event from public discovery and organizer surfaces, but keeps it for audit.
+                            <span className="block mt-2 font-semibold text-foreground">
                               {event.title}
                             </span>
                             {event.organizations && (
@@ -297,7 +299,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                             Cancel
                           </AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => handleDelete(event.id, event.title)}
+                            onClick={() => handleArchive(event.id, event.title)}
                             className="bg-destructive text-white font-mono text-xs uppercase tracking-widest border-0 hover:bg-destructive/90"
                           >
                             Delete Permanently
