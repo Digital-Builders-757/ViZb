@@ -300,7 +300,7 @@ export default async function AdminPage() {
         </div>
         <h2 className="font-serif text-xl font-bold text-foreground mt-2">All Events</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Search, filter, and manage all events on the platform. Delete events that violate guidelines or are no longer needed.
+          Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed.
         </p>
         <div className="mt-6">
           <AdminEventManager events={allEvents} />
