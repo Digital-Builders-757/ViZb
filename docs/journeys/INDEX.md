@@ -13,6 +13,7 @@ Journeys describe **acceptance-level** behavior: what the user does and what the
 | Member joins community | `member_joins_community.md` | Stub (signup/org/invite) |
 | Host creates event | `host_creates_event.md` | Stub |
 | Admin reviews submission | `admin_reviews_submission.md` | Stub |
+| Admin publishes a post | `admin_publishes_post.md` | MVP |
 | Sponsor partnership | `sponsor_partnership_flow.md` | Roadmap |
 
 ## When to update

@@ -56,7 +56,8 @@ export async function updateSession(request: NextRequest) {
   // Deep role checks happen in server layouts, RLS is the ultimate authority
   const pathname = request.nextUrl.pathname
 
-  const protectedPrefixes = ["/dashboard", "/organizer", "/admin", "/tickets", "/profile", "/events"]
+  // /events is public (marketing timeline); dashboard/organizer/tickets/profile/admin stay gated.
+  const protectedPrefixes = ["/dashboard", "/organizer", "/admin", "/tickets", "/profile"]
   const isProtected = protectedPrefixes.some((prefix) => pathname.startsWith(prefix))
 
   if (isProtected && !user) {

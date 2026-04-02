@@ -5,7 +5,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Home, User, Calendar, Settings, LogOut, Shield, Building2, PlusCircle, Compass } from "lucide-react"
+import { Home, User, Calendar, Settings, LogOut, Shield, Building2, PlusCircle, Compass, Newspaper } from "lucide-react"
 
 interface SidebarProps {
   profile: {
@@ -143,13 +143,25 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
             <Link
               href="/admin"
               className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
-                pathname.startsWith("/admin")
+                pathname === "/admin"
                   ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
                   : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:text-[color:var(--neon-text0)]"
               }`}
             >
               <Shield className="h-4 w-4" />
-              <span>Admin Panel</span>
+              <span>Admin Overview</span>
+            </Link>
+
+            <Link
+              href="/admin/posts"
+              className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-sm transition-colors ${
+                pathname.startsWith("/admin/posts")
+                  ? "border-[color:var(--neon-a)] bg-[color:var(--neon-a)]/8 text-[color:var(--neon-text0)]"
+                  : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:text-[color:var(--neon-text0)]"
+              }`}
+            >
+              <Newspaper className="h-4 w-4" />
+              <span>Posts</span>
             </Link>
           </>
         )}

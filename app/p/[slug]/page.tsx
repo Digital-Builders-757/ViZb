@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
@@ -19,9 +20,29 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
       <section className="pt-24 sm:pt-28 pb-16 px-4 sm:px-8">
         <div className="mx-auto max-w-[900px]">
-          <h1 className="text-balance font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl">
-            {post.title}
-          </h1>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+                <Link href="/" className="hover:text-[color:var(--neon-text0)]">Home</Link>
+                <span className="mx-2 text-[color:var(--neon-text2)]">/</span>
+                <Link href="/p" className="hover:text-[color:var(--neon-text0)]">Posts</Link>
+              </p>
+              <h1 className="mt-3 text-balance font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl">
+                {post.title}
+              </h1>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {post.video_url ? (
+                <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
+                  Video
+                </span>
+              ) : null}
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] backdrop-blur">
+                {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
+              </span>
+            </div>
+          </div>
           {post.excerpt ? (
             <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
               {post.excerpt}
@@ -29,7 +50,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
           ) : null}
 
           {post.cover_image_url ? (
-            <GlassCard className="mt-6 overflow-hidden p-0" emphasis>
+            <GlassCard className="mt-8 overflow-hidden p-0" emphasis>
               <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
                 <Image
                   src={post.cover_image_url}
@@ -49,7 +70,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
           {post.video_url ? (
             <GlassCard className="mt-6 p-4 md:p-5" emphasis>
-              <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Video</p>
+              <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Video link</p>
               <a
                 href={post.video_url}
                 target="_blank"
@@ -61,13 +82,21 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             </GlassCard>
           ) : null}
 
-          <GlassCard className="mt-6 p-4 md:p-6">
+          <GlassCard className="mt-8 p-4 md:p-6">
             <MarkdownContent md={post.content_md} />
           </GlassCard>
 
-          <p className="mt-6 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-            Published {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
-          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+              Published {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
+            </p>
+            <Link
+              href="/p"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-6 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur hover:shadow-[var(--vibe-neon-glow-subtle)]"
+            >
+              Back to posts
+            </Link>
+          </div>
         </div>
       </section>
 

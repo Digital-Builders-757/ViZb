@@ -5,8 +5,18 @@ import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 
-export default async function AdminPostsPage() {
+export default async function AdminPostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
   await requireAdmin()
+  const { status } = await searchParams
+  const activeStatusRaw = (status ?? "all").toLowerCase()
+  const activeStatus: "all" | "draft" | "published" | "archived" =
+    activeStatusRaw === "draft" || activeStatusRaw === "published" || activeStatusRaw === "archived"
+      ? activeStatusRaw
+      : "all"
 
   let posts: Array<{ id: string; title: string; slug: string; status: string; published_at: string | null; updated_at: string }> = []
   let schemaReady = true
@@ -15,11 +25,17 @@ export default async function AdminPostsPage() {
     schemaReady = false
   } else {
     const supabase = await createClient()
-    const { data, error } = await supabase
+    let q = supabase
       .from("posts")
       .select("id,title,slug,status,published_at,updated_at")
       .order("updated_at", { ascending: false })
       .limit(50)
+
+    if (activeStatus !== "all") {
+      q = q.eq("status", activeStatus)
+    }
+
+    const { data, error } = await q
 
     if (error) {
       schemaReady = false
@@ -43,6 +59,32 @@ export default async function AdminPostsPage() {
           New post
         </NeonLink>
       </header>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {[
+          { key: "all", label: "All" },
+          { key: "draft", label: "Draft" },
+          { key: "published", label: "Published" },
+          { key: "archived", label: "Archived" },
+        ].map((opt) => {
+          const isActive = activeStatus === opt.key
+          const href = opt.key === "all" ? "/admin/posts" : `/admin/posts?status=${opt.key}`
+          return (
+            <Link
+              key={opt.key}
+              href={href}
+              className={
+                "rounded-full border px-4 py-2 text-[10px] font-mono uppercase tracking-widest backdrop-blur transition-colors " +
+                (isActive
+                  ? "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-surface)]/65 text-[color:var(--neon-text0)] shadow-[var(--vibe-neon-glow-subtle)]"
+                  : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)]")
+              }
+            >
+              {opt.label}
+            </Link>
+          )
+        })}
+      </div>
 
       {!schemaReady ? (
         <GlassCard className="p-6">
@@ -88,13 +130,41 @@ export default async function AdminPostsPage() {
                       /p/{p.slug}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/45 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] backdrop-blur">
+                  <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+                    <span
+                      className={
+                        "rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/45 px-3 py-1 font-mono text-[10px] uppercase tracking-widest backdrop-blur " +
+                        (p.status === "published"
+                          ? "text-[color:var(--neon-a)]"
+                          : p.status === "draft"
+                            ? "text-[color:var(--neon-text1)]"
+                            : "text-[color:var(--neon-c)]")
+                      }
+                    >
                       {p.status}
                     </span>
                     <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                      {new Date(p.updated_at).toLocaleDateString()}
+                      {p.published_at
+                        ? `Published ${new Date(p.published_at).toLocaleDateString()}`
+                        : `Updated ${new Date(p.updated_at).toLocaleDateString()}`}
                     </span>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/admin/posts/${p.id}`}
+                        className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur hover:shadow-[var(--vibe-neon-glow-subtle)]"
+                      >
+                        Edit
+                      </Link>
+                      {p.status === "published" ? (
+                        <Link
+                          href={`/p/${p.slug}`}
+                          target="_blank"
+                          className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur hover:shadow-[var(--vibe-neon-glow-subtle)]"
+                        >
+                          View public
+                        </Link>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </li>

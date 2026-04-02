@@ -38,11 +38,11 @@ export function PostCard({ post }: { post: Pick<PostRow, "slug" | "title" | "exc
           ) : null}
 
           <div className="absolute inset-x-0 bottom-0 p-4">
-            <h3 className="text-base font-bold text-[color:var(--neon-text0)] md:text-lg">
+            <h3 className="text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
               {post.title}
             </h3>
             {post.excerpt ? (
-              <p className="mt-1 line-clamp-2 text-sm text-[color:var(--neon-text1)]">
+              <p className="mt-1 line-clamp-2 text-[13px] leading-[1.6] text-[color:var(--neon-text1)] sm:text-sm">
                 {post.excerpt}
               </p>
             ) : null}
