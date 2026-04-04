@@ -47,10 +47,10 @@ Last updated: 2026-04-04
 ## Next highest-impact tasks (queued)
 
 ### Task 2: Add a DB drift / migration apply checklist
-- Add `docs/database/MIGRATIONS.md` (or similar) with:
+- Add `docs/database/MIGRATIONS.md` with:
   - required scripts in order
-  - verification SQL
-  - how to confirm prod/staging parity
+  - verification pointers
+  - quick notes about parity/drift
 
 ### Task 3: Ticketing / RSVP V1 foundation (design + DB + minimal E2E)
 - DB:
@@ -76,4 +76,5 @@ Last updated: 2026-04-04
   - `npm run typecheck` ✅
   - `npm run test` ✅ (49 tests)
   - `npm run lint` ✅ (warning: baseline-browser-mapping data is old; non-blocking)
-- Next: commit + push Task 1 (unarchive + RLS fix) to `develop`.
+- Shipped Task 1 to `develop` (see commit history).
+- Started Task 2 (DB migrations checklist) by adding `docs/database/MIGRATIONS.md` and updating the local-dev guide.
