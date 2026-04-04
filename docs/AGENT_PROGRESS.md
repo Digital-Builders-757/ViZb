@@ -53,17 +53,15 @@ Last updated: 2026-04-04
   - quick notes about parity/drift
 
 ### Task 3: Ticketing / RSVP V1 foundation (design + DB + minimal E2E)
-- DB:
-  - `event_ticket_types`
-  - `event_registrations` (free RSVP)
-- UI:
-  - Event detail CTA (“RSVP Free”)
-  - Ticket wallet page (member)
-  - Organizer/admin visibility into RSVPs
-- Guardrails:
-  - unique constraint per user/event
-  - status transitions, cancellation
-  - RLS for member/organizer/staff
+- Shipped foundation pieces (in progress):
+  - DB migration: `scripts/025_create_event_registrations.sql`
+  - Server actions: `app/actions/registrations.ts` (RSVP + cancel)
+  - Public event detail CTA wired to RSVP (tickets still “coming soon”)
+  - Member wallet: `/dashboard/tickets` now lists RSVP’d events
+- Next expansions:
+  - Organizer/admin visibility for registrations
+  - Check-in status transitions
+  - Ticket types / quantities + paid orders
 
 ---
 

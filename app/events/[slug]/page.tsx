@@ -11,6 +11,7 @@ import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { NeonButton } from "@/components/ui/neon-button"
+import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 
 interface PublicEvent {
   id: string
@@ -110,6 +111,34 @@ export default async function PublicEventDetailPage({
 
   const startsAt = new Date(event.starts_at)
   const endsAt = event.ends_at ? new Date(event.ends_at) : null
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const isSignedIn = !!user
+  let initialRsvpStatus: "confirmed" | "cancelled" | "checked_in" | null = null
+
+  if (user) {
+    try {
+      const { data, error } = await supabase
+        .from("event_registrations")
+        .select("status")
+        .eq("event_id", event.id)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (!error) {
+        const status = data?.status as typeof initialRsvpStatus
+        initialRsvpStatus = status ?? null
+      }
+    } catch {
+      // In dev/staging, the migration may not be applied yet.
+      initialRsvpStatus = null
+    }
+  }
+
+  const authHref = `/login?redirect=${encodeURIComponent(`/events/${event.slug}`)}`
 
   const dateStr = startsAt.toLocaleDateString("en-US", {
     weekday: "long",
@@ -275,17 +304,15 @@ export default async function PublicEventDetailPage({
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <NeonButton fullWidth shape="xl" disabled>
-                      Get Tickets
-                    </NeonButton>
-                    <NeonButton fullWidth variant="secondary" shape="xl" disabled>
-                      RSVP
-                    </NeonButton>
-                  </div>
+                  <EventRsvpCta
+                    eventId={event.id}
+                    isSignedIn={isSignedIn}
+                    initialStatus={initialRsvpStatus}
+                    authHref={authHref}
+                  />
 
                   <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
-                    Showing both actions for the final UX. Ticketing + RSVP flows will be wired next.
+                    Tickets are coming next. Free RSVP is live for published events.
                   </p>
                 </GlassCard>
               </div>

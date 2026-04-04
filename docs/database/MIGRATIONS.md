@@ -19,6 +19,7 @@ At minimum, shared environments used for event workflows should have applied:
 - `022_add_event_archived.sql`
 - `023_lock_archived_events.sql`
 - `024_allow_staff_update_archived.sql` (fix: staff can update archived events to restore/moderate)
+- `025_create_event_registrations.sql` (free RSVP foundation)
 
 ## Quick verification
 
