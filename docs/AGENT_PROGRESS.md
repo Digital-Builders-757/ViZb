@@ -60,6 +60,7 @@ Last updated: 2026-04-04
   - Member wallet: `/dashboard/tickets` now lists RSVP’d events
 - Next expansions:
   - ✅ Organizer visibility for registrations (basic rollup panel in organizer event detail)
+  - ✅ Staff/admin visibility for registrations (new /admin/events/[id] detail view)
   - Check-in status transitions
   - Ticket types / quantities + paid orders
 

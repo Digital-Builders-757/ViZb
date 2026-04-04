@@ -235,6 +235,14 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 shrink-0">
+                    <a
+                      href={`/admin/events/${event.id}`}
+                      className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors bg-transparent"
+                      title="Open staff event detail"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </a>
+
                     {event.organizations?.slug ? (
                       <a
                         href={`/organizer/${event.organizations.slug}/events/${event.slug}`}
@@ -243,7 +251,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors bg-transparent"
                         title="Open organizer editor"
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     ) : null}
 
