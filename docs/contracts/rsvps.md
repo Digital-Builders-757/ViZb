@@ -34,3 +34,4 @@ Ship a minimal, real end-to-end **free RSVP** flow that:
 - Paid tickets not implemented yet.
 - No quantity / ticket types yet.
 - No Stripe checkout/webhooks yet.
+- Attendee identity display is limited to `profiles.display_name` (email/phone not part of the public profile contract).

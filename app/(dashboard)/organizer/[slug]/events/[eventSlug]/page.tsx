@@ -47,6 +47,7 @@ export default async function EventDetailPage({
 
   // RSVP rollup (requires scripts/025_create_event_registrations.sql)
   let rsvpRows: { user_id: string; status: string; created_at: string }[] = []
+  let profileById: Record<string, { display_name: string | null }> = {}
   try {
     const { data } = await supabase
       .from("event_registrations")
@@ -55,8 +56,24 @@ export default async function EventDetailPage({
       .order("created_at", { ascending: false })
 
     rsvpRows = (data as typeof rsvpRows) ?? []
+
+    const ids = Array.from(new Set(rsvpRows.map((r) => r.user_id)))
+    if (ids.length > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", ids)
+
+      profileById = Object.fromEntries(
+        (profiles ?? []).map((p) => [
+          p.id as string,
+          { display_name: (p as { display_name?: string | null }).display_name ?? null },
+        ]),
+      )
+    }
   } catch {
     rsvpRows = []
+    profileById = {}
   }
 
   const confirmed = rsvpRows.filter((r) => r.status === "confirmed").length
@@ -226,6 +243,7 @@ export default async function EventDetailPage({
         orgSlug={slug}
         eventSlug={eventSlug}
         eventId={event.id}
+        profileById={profileById}
       />
 
       {/* Event details card */}

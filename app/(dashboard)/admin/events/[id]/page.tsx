@@ -47,6 +47,7 @@ export default async function AdminEventDetailPage({
   // RSVP rollup (requires scripts/025_create_event_registrations.sql)
   let rows: { user_id: string; status: string; created_at: string }[] = []
   let rsvpError: string | null = null
+  let profileById: Record<string, { display_name: string | null; avatar_url: string | null }> = {}
 
   try {
     const { data, error } = await supabase
@@ -60,6 +61,24 @@ export default async function AdminEventDetailPage({
       rows = []
     } else {
       rows = (data as typeof rows) ?? []
+
+      const ids = Array.from(new Set(rows.map((r) => r.user_id)))
+      if (ids.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", ids)
+
+        profileById = Object.fromEntries(
+          (profiles ?? []).map((p) => [
+            p.id as string,
+            {
+              display_name: (p as { display_name?: string | null }).display_name ?? null,
+              avatar_url: (p as { avatar_url?: string | null }).avatar_url ?? null,
+            },
+          ]),
+        )
+      }
     }
   } catch {
     rsvpError = "event_registrations table not available"
@@ -146,7 +165,12 @@ export default async function AdminEventDetailPage({
                 key={`${r.user_id}-${r.created_at}`}
                 className="grid grid-cols-12 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-border/60 last:border-b-0"
               >
-                <div className="col-span-6 font-mono truncate">{r.user_id}</div>
+                <div className="col-span-6 min-w-0">
+                  <div className="font-mono truncate text-[11px] text-muted-foreground">{r.user_id}</div>
+                  <div className="mt-0.5 truncate text-foreground/90">
+                    {profileById[r.user_id]?.display_name || "(no display name)"}
+                  </div>
+                </div>
                 <div className="col-span-2 font-mono uppercase tracking-widest text-[10px] text-foreground/80">
                   {r.status}
                 </div>
