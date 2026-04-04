@@ -16,6 +16,7 @@ import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
 import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { EventAttendeesPanel } from "@/components/organizer/event-attendees-panel"
 
 export default async function EventDetailPage({
   params,
@@ -43,6 +44,25 @@ export default async function EventDetailPage({
 
   const config = EVENT_STATUS_CONFIG[event.status] ?? EVENT_STATUS_CONFIG.draft
   const StatusIcon = config.icon
+
+  // RSVP rollup (requires scripts/025_create_event_registrations.sql)
+  let rsvpRows: { user_id: string; status: string; created_at: string }[] = []
+  try {
+    const { data } = await supabase
+      .from("event_registrations")
+      .select("user_id, status, created_at")
+      .eq("event_id", event.id)
+      .order("created_at", { ascending: false })
+
+    rsvpRows = (data as typeof rsvpRows) ?? []
+  } catch {
+    rsvpRows = []
+  }
+
+  const confirmed = rsvpRows.filter((r) => r.status === "confirmed").length
+  const checkedIn = rsvpRows.filter((r) => r.status === "checked_in").length
+  const cancelled = rsvpRows.filter((r) => r.status === "cancelled").length
+  const total = rsvpRows.length
 
   // Parse starts_at / ends_at timestamps
   const startsAt = event.starts_at ? new Date(event.starts_at) : null
@@ -195,6 +215,15 @@ export default async function EventDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Attendees */}
+      <EventAttendeesPanel
+        total={total}
+        confirmed={confirmed}
+        checkedIn={checkedIn}
+        cancelled={cancelled}
+        rows={rsvpRows}
+      />
 
       {/* Event details card */}
       <div className="mt-6 form-card p-6 md:p-8">

@@ -59,7 +59,7 @@ Last updated: 2026-04-04
   - Public event detail CTA wired to RSVP (tickets still “coming soon”)
   - Member wallet: `/dashboard/tickets` now lists RSVP’d events
 - Next expansions:
-  - Organizer/admin visibility for registrations
+  - ✅ Organizer visibility for registrations (basic rollup panel in organizer event detail)
   - Check-in status transitions
   - Ticket types / quantities + paid orders
 
