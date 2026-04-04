@@ -61,7 +61,7 @@ Last updated: 2026-04-04
 - Next expansions:
   - ✅ Organizer visibility for registrations (basic rollup panel in organizer event detail)
   - ✅ Staff/admin visibility for registrations (new /admin/events/[id] detail view)
-  - Check-in status transitions
+  - ✅ Check-in status transitions (staff admin UI + action)
   - Ticket types / quantities + paid orders
 
 ---
