@@ -62,6 +62,7 @@ Last updated: 2026-04-04
   - ✅ Organizer visibility for registrations (basic rollup panel in organizer event detail)
   - ✅ Staff/admin visibility for registrations (new /admin/events/[id] detail view)
   - ✅ Check-in status transitions (staff admin UI + action)
+  - ✅ Organizer check-in (org owner/admin can check in attendees)
   - Ticket types / quantities + paid orders
 
 ---

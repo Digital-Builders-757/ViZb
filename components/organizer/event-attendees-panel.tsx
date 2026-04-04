@@ -1,4 +1,5 @@
-import { Users } from "lucide-react"
+import { CheckCircle2, Users } from "lucide-react"
+import { OrganizerCheckInButton } from "@/components/organizer/check-in-button"
 
 export function EventAttendeesPanel({
   total,
@@ -6,12 +7,18 @@ export function EventAttendeesPanel({
   checkedIn,
   cancelled,
   rows,
+  orgSlug,
+  eventSlug,
+  eventId,
 }: {
   total: number
   confirmed: number
   checkedIn: number
   cancelled: number
   rows: { user_id: string; status: string; created_at: string }[]
+  orgSlug: string
+  eventSlug: string
+  eventId: string
 }) {
   return (
     <div className="mt-6 form-card p-6 md:p-8">
@@ -59,8 +66,9 @@ export function EventAttendeesPanel({
         ) : (
           <div className="border border-border bg-black/20">
             <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground border-b border-border">
-              <div className="col-span-7">User ID</div>
-              <div className="col-span-3">Status</div>
+              <div className="col-span-6">User ID</div>
+              <div className="col-span-2">Status</div>
+              <div className="col-span-2">Action</div>
               <div className="col-span-2 text-right">Created</div>
             </div>
             {rows.slice(0, 25).map((r) => (
@@ -68,9 +76,28 @@ export function EventAttendeesPanel({
                 key={`${r.user_id}-${r.created_at}`}
                 className="grid grid-cols-12 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-border/60 last:border-b-0"
               >
-                <div className="col-span-7 font-mono truncate">{r.user_id}</div>
-                <div className="col-span-3 font-mono uppercase tracking-widest text-[10px] text-foreground/80">
+                <div className="col-span-6 font-mono truncate">{r.user_id}</div>
+                <div className="col-span-2 font-mono uppercase tracking-widest text-[10px] text-foreground/80">
                   {r.status}
+                </div>
+                <div className="col-span-2">
+                  {r.status === "confirmed" ? (
+                    <OrganizerCheckInButton
+                      orgSlug={orgSlug}
+                      eventSlug={eventSlug}
+                      eventId={eventId}
+                      userId={r.user_id}
+                    />
+                  ) : r.status === "checked_in" ? (
+                    <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Checked in
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                      —
+                    </span>
+                  )}
                 </div>
                 <div className="col-span-2 text-right font-mono text-[10px]">
                   {new Date(r.created_at).toLocaleDateString("en-US", {

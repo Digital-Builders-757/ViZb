@@ -223,6 +223,9 @@ export default async function EventDetailPage({
         checkedIn={checkedIn}
         cancelled={cancelled}
         rows={rsvpRows}
+        orgSlug={slug}
+        eventSlug={eventSlug}
+        eventId={event.id}
       />
 
       {/* Event details card */}
