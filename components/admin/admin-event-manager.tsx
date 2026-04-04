@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { archiveEvent } from "@/app/actions/event"
+import { archiveEvent, unarchiveEvent } from "@/app/actions/event"
 import { EVENT_STATUS_CONFIG } from "@/lib/constants"
 import {
   Search,
@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Archive,
   Pencil,
+  RotateCcw,
 } from "lucide-react"
 import {
   AlertDialog,
@@ -94,6 +95,24 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
       } else {
         toast.success(`"${eventTitle}" was archived.`)
         setActiveTab("archived")
+        router.refresh()
+      }
+    } catch {
+      toast.error("An unexpected error occurred.")
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  async function handleUnarchive(eventId: string, eventTitle: string) {
+    setDeletingId(eventId)
+    try {
+      const result = await unarchiveEvent(eventId)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success(`"${eventTitle}" was restored to draft.`)
+        setActiveTab("draft")
         router.refresh()
       }
     } catch {
@@ -226,6 +245,22 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </a>
+                    ) : null}
+
+                    {event.status === "archived" ? (
+                      <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => handleUnarchive(event.id, event.title)}
+                        className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors disabled:opacity-50 bg-transparent"
+                        title="Restore to draft"
+                      >
+                        {isDeleting ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <RotateCcw className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     ) : null}
 
                     {event.status === "published" && (
