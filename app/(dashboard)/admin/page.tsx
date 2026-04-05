@@ -11,6 +11,7 @@ import { AdminEventManager } from "@/components/admin/admin-event-manager"
 import { UsersTable } from "@/components/admin/users-table"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
+import { AdminSection } from "@/components/admin/admin-section"
 
 /** Supabase may return a joined `organizations` row as object or single-element array. */
 type OrgSnippet = { name: string; slug: string }
@@ -255,69 +256,45 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      {/* Users */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Directory</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">All Users</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Everyone who has signed up on the platform.
-        </p>
-        <div className="mt-6">
-          <UsersTable users={allUsers} />
-        </div>
-      </div>
+      <AdminSection
+        kicker="Directory"
+        title="All Users"
+        description="Everyone who has signed up on the platform."
+      >
+        <UsersTable users={allUsers} />
+      </AdminSection>
 
-      {/* Host Applications Queue */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Review Queue</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Host Applications</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review requests from users who want to host events. Approving creates the org and generates an invite link.
-        </p>
-        <div className="mt-6">
-          <ApplicationsQueue applications={applications} />
-        </div>
-      </div>
+      <AdminSection
+        kicker="Review Queue"
+        title="Host Applications"
+        description="Review requests from users who want to host events. Approving creates the org and generates an invite link."
+      >
+        <ApplicationsQueue applications={applications} />
+      </AdminSection>
 
-      {/* Event Review Queue */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Review Queue</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Event Submissions</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review, approve, or reject events submitted by organizers. Approved events go live on the public events page.
-          Rejected events are sent back with your feedback so organizers can revise and resubmit.
-        </p>
-        <div className="mt-6">
-          <EventReviewQueue events={reviewEventsList} />
-        </div>
-      </div>
+      <AdminSection
+        kicker="Review Queue"
+        title="Event Submissions"
+        description="Review, approve, or reject events submitted by organizers. Approved events go live on the public events page. Rejected events are sent back with your feedback so organizers can revise and resubmit."
+      >
+        <EventReviewQueue events={reviewEventsList} />
+      </AdminSection>
 
-      {/* Manage All Events */}
-      <div className="mt-10">
-        <div className="flex items-center gap-2">
-          <Settings2 className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Management</span>
-        </div>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">All Events</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed.
-        </p>
-        <div className="mt-6">
-          <AdminEventManager events={allEvents} />
-        </div>
-      </div>
+      <AdminSection
+        kicker="Management"
+        title="All Events"
+        description="Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed."
+      >
+        <AdminEventManager events={allEvents} />
+      </AdminSection>
 
-      {/* Create Org + Invite (manual) */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Manual</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Create Organization</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manually create an org and generate an invite link. Use this for direct onboarding.
-        </p>
-        <div className="mt-6">
-          <CreateOrgForm />
-        </div>
-      </div>
+      <AdminSection
+        kicker="Manual"
+        title="Create Organization"
+        description="Manually create an org and generate an invite link. Use this for direct onboarding."
+      >
+        <CreateOrgForm />
+      </AdminSection>
     </div>
   )
 }
