@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Home, User, Calendar, Settings, LogOut, Shield, Building2, PlusCircle, Compass, Newspaper } from "lucide-react"
 
+import { NotificationsMenu } from "@/components/dashboard/notifications-menu"
+import type { DashboardNotificationFeed } from "@/lib/notifications/dashboard-queries"
+
 interface SidebarProps {
   profile: {
     display_name: string | null
@@ -24,6 +27,7 @@ interface SidebarProps {
       logo_url: string | null
     }
   }>
+  notifications?: DashboardNotificationFeed
 }
 
 const attendeeLinks = [
@@ -33,7 +37,7 @@ const attendeeLinks = [
   { href: "/dashboard/tickets", label: "My Tickets", icon: Calendar },
 ]
 
-export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) {
+export function DashboardSidebar({ profile, organizations = [], notifications }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -47,11 +51,19 @@ export function DashboardSidebar({ profile, organizations = [] }: SidebarProps) 
   return (
     <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-64 flex-col border-r border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/85 backdrop-blur-xl md:flex">
       {/* Logo */}
-      <div className="flex h-14 items-center border-b border-[color:var(--neon-hairline)] px-6">
-        <Link href="/" className="flex items-center gap-3">
+      <div className="flex h-14 items-center justify-between gap-2 border-b border-[color:var(--neon-hairline)] px-4">
+        <Link href="/" className="flex min-w-0 items-center gap-2">
           <Image src="/vibe-logo.png" alt="VIZB" width={32} height={32} className="h-8 w-auto" />
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">VIZB</span>
+          <span className="truncate font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
+            VIZB
+          </span>
         </Link>
+        {notifications ? (
+          <NotificationsMenu
+            initialUnreadCount={notifications.unreadCount}
+            initialItems={notifications.items}
+          />
+        ) : null}
       </div>
 
       {/* Navigation */}
