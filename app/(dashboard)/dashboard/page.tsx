@@ -1,4 +1,6 @@
-import { getProfile, getUserOrganizations } from "@/lib/auth-helpers"
+import { getUserOrganizations } from "@/lib/auth-helpers"
+import { MemberHomeQuickActions } from "@/components/dashboard/member-home-quick-actions"
+import { MemberHomeTicketsSection } from "@/components/dashboard/member-home-tickets-section"
 import { DashboardMonthCalendar } from "@/components/dashboard/dashboard-month-calendar"
 import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
 import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
@@ -16,6 +18,7 @@ import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { StatCard } from "@/components/ui/stat-card"
+import { loadMemberHomeRsvpSummary } from "@/lib/dashboard/member-home-data"
 
 const TRENDING_MOCK = [
   {
@@ -47,8 +50,8 @@ export default async function DashboardPage({
   const { cal } = await searchParams
   const { year, monthIndex, calKey } = parseDashboardCalendarMonth(cal)
 
-  const { profile } = await getProfile()
-  const { memberships } = await getUserOrganizations()
+  const { profile, user, supabase, memberships } = await getUserOrganizations()
+  const rsvp = await loadMemberHomeRsvpSummary(supabase, user.id)
   const trendingLive = await getDashboardUpcomingEventPreviews(3)
   const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
   const supabaseReady = isServerSupabaseConfigured()
@@ -58,7 +61,7 @@ export default async function DashboardPage({
   const isFirstRun = !profile?.display_name
 
   return (
-    <div className="space-y-10 md:space-y-12">
+    <div className="max-w-full space-y-10 overflow-x-hidden md:space-y-12">
       <header>
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
           Overview
@@ -72,6 +75,8 @@ export default async function DashboardPage({
           </p>
         ) : null}
       </header>
+
+      <MemberHomeQuickActions />
 
       {isFirstRun ? (
         <Link href="/profile" className="group block">
@@ -98,8 +103,8 @@ export default async function DashboardPage({
           <StatCard
             icon={Ticket}
             label="Tickets"
-            value={0}
-            hint="Upcoming events"
+            value={rsvp.loadError ? "—" : rsvp.upcomingCount}
+            hint="Upcoming RSVPs"
             accent="a"
           />
           <StatCard
@@ -114,8 +119,8 @@ export default async function DashboardPage({
           <StatCard
             icon={Calendar}
             label="Events"
-            value={0}
-            hint="Events attended"
+            value={rsvp.loadError ? "—" : rsvp.attendedCount}
+            hint="Check-ins recorded"
             accent="c"
           />
         </div>
@@ -353,28 +358,11 @@ export default async function DashboardPage({
         </div>
       </section>
 
-      <section aria-labelledby="tickets-heading">
-        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-          Upcoming
-        </span>
-        <h2
-          id="tickets-heading"
-          className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)]"
-        >
-          Your Tickets
-        </h2>
-
-        <EmptyStateCard
-          className="mt-6"
-          kicker="No tickets yet"
-          title="Find your next vibe"
-          description="Browse upcoming events and grab your tickets. Your confirmed events will show up here."
-        >
-          <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
-            Browse events
-          </NeonLink>
-        </EmptyStateCard>
-      </section>
+      <MemberHomeTicketsSection
+        loadError={rsvp.loadError}
+        upcomingPreviews={rsvp.upcomingPreviews}
+        upcomingCount={rsvp.upcomingCount}
+      />
     </div>
   )
 }
