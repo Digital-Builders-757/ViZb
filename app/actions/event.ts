@@ -545,3 +545,59 @@ export async function archiveEvent(eventId: string) {
 
   return { success: true, title: event.title }
 }
+
+export async function unarchiveEvent(eventId: string) {
+  const { supabase } = await requireAdmin()
+
+  if (!eventId) {
+    return { error: "Missing event ID." }
+  }
+
+  const { data: event, error: fetchError } = await supabase
+    .from("events")
+    .select("id, org_id, slug, title, status")
+    .eq("id", eventId)
+    .single()
+
+  if (fetchError || !event) {
+    return { error: "Event not found." }
+  }
+
+  if (event.status !== "archived") {
+    return { success: true, title: event.title }
+  }
+
+  const now = new Date().toISOString()
+  const { error: updateError } = await supabase
+    .from("events")
+    .update({
+      status: "draft",
+      published_at: null,
+      reviewed_by: null,
+      reviewed_at: null,
+      review_notes: null,
+      updated_at: now,
+    })
+    .eq("id", eventId)
+
+  if (updateError) {
+    return { error: `Failed to unarchive event: ${updateError.message}` }
+  }
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", event.org_id)
+    .single()
+
+  const orgSlug = org?.slug || event.org_id
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
+  revalidatePath(`/events/${event.slug}`)
+  revalidatePath("/events")
+  revalidatePath("/admin")
+  revalidatePath("/dashboard")
+
+  return { success: true, title: event.title }
+}
+

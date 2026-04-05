@@ -118,7 +118,7 @@ Run **`npm run ci`** before pushing. For dashboard UI work, follow **`docs/BRAND
    where id = 'YOUR_USER_UUID';
    ```
 
-2. **Schema:** Run repo SQL in order through **`scripts/019_staff_event_create_and_flyer_storage.sql`** on that project so staff can **insert** events and **upload flyers** without a row in `organization_members`.
+2. **Schema:** Run repo SQL scripts in order (see `docs/database/MIGRATIONS.md`). For staff event workflows, apply at least through **`scripts/024_allow_staff_update_archived.sql`** so staff can **insert** events, **upload flyers**, and also **restore archived events** (fixes a policy regression introduced by `023`).
 
 3. **Flow:** Sign in → **`/admin`** → **Create Organization** (note the org **slug**) → open **`/organizer/{slug}/events/new`** → create draft → upload flyer → **Submit for review** → **`/admin`** → **Event Submissions** → approve (or use another staff account to approve). Published events appear on **`/events`**, **dashboard “Trending”**, and the **month calendar** on **`/dashboard`**.
 

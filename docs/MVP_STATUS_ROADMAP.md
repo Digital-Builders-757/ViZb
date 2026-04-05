@@ -10,10 +10,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | February 5, 2026 |
-| **Audited Environment** | dev (Supabase project via integration, v0 preview) |
-| **Migrations Applied** | 001-009 verified (see migration table below) |
-| **Overall MVP Progress** | 1 of 6 phases complete (~17%) |
+| **Last Audited** | April 2, 2026 |
+| **Audited Environment** | production + develop branch (GitHub) |
+| **Migrations Applied** | 001–023 exist in repo; events + posts migrations applied in production (per release work) |
+| **Overall MVP Progress** | Phase 1 complete; Phase 2 (Events + admin review) largely implemented; Posts MVP shipped |
 | **Security Audit** | 8/8 checks passed; see Security section + Known Issues |
 | **Open Redirect Protection** | PASS -- `auth/callback` validates redirect targets against allowlist |
 | **Subscribers Privacy** | PASS -- public SELECT disabled (migration 009); insert-only for waitlist |
@@ -33,8 +33,21 @@
 | 007 | `007_column_privileges_hardening.sql` | Column-level privilege lock on `role_admin` |
 | 008 | `008_fix_enum_values.sql` | Enum alignment (status + org_type values) |
 | 009 | `009_fix_subscribers_rls.sql` | Subscribers privacy (admin-only read) |
-| 010 | *`010_create_events.sql`* | Events + event_media *(Phase 2 -- not yet written)* |
-| 011 | *`011_create_tickets.sql`* | Ticket types, orders, tickets *(Phase 3 -- not yet written)* |
+| 010 | `010a_add_enum_values.sql` / `010b_invite_system.sql` / `010c_cleanup_old_policies.sql` | Platform role + org member roles + invite system |
+| 011 | `011_invite_hardening.sql` | Invite/RLS hardening |
+| 012 | `012_fix_org_members_recursion.sql` | RLS recursion fix |
+| 013 | `013_create_events.sql` | Events + event_media + base RLS |
+| 014 | `014_create_event_flyers_bucket.sql` | Storage bucket for event flyers |
+| 015 | `015_fix_editor_update_policy.sql` | Editor policy fixes |
+| 016 | `016_add_staff_events_update_policy.sql` | Staff/admin events update policy |
+| 017 | `017_event_review_metadata.sql` | Review metadata fields |
+| 018 | `018_guard_review_fields_trigger.sql` | Trigger guardrails for review fields |
+| 019 | `019_staff_event_create_and_flyer_storage.sql` | Staff create + flyer storage behavior |
+| 020 | `020_event_categories_array.sql` / `020_posts_mvp_platform_role.sql` | Categories array + Posts MVP (platform_role) |
+| 021 | `021_seed_design_events.sql` | Seed data |
+| 022 | `022_add_event_archived.sql` | Archived status for events (soft-delete) |
+| 023 | `023_lock_archived_events.sql` | Lock archived events read-only for org members |
+| 024 | *`024_create_tickets.sql`* | Ticket types, orders, tickets *(Phase 3 — planned)* |
 
 ---
 
@@ -43,11 +56,11 @@
 | Phase | Name | Status | Completion |
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
-| Phase 2 | Events + Media (Public Feed) | NOT STARTED | 0% |
+| Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
 | Phase 3 | Ticket Types + Free RSVP | NOT STARTED | 0% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | NOT STARTED | 0% |
+| Phase 6 | Admin Workflows + Polish | IN PROGRESS | 35% |
 
 ---
 
@@ -76,8 +89,8 @@
 | `008_fix_enum_values.sql` | Adds missing enum values: `pending_review` to org/event status, `collective`/`brand`/`nonprofit`/`independent` to org_type, `rejected` to event_status | Executed |
 | `009_fix_subscribers_rls.sql` | Locks down subscribers table: replaces public SELECT with admin-only read | Executed |
 
-**Tables that exist:** `subscribers`, `profiles`, `organizations`, `organization_members`
-**Tables NOT yet created:** `events`, `event_media`, `ticket_types`, `orders`, `order_items`, `tickets`
+**Tables that exist (now):** `subscribers`, `profiles`, `organizations`, `organization_members`, `events`, `event_media`, `posts`
+**Tables still needed (Phase 3+):** `ticket_types`, `orders`, `order_items`, `tickets`
 
 ### Authentication System (Phase 1 -- Complete)
 

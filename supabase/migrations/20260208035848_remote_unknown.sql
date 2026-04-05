@@ -1,0 +1,8 @@
+-- Placeholder migration file to match remote migration history.
+-- Remote version: 20260208035848 (UTC)
+--
+-- This repo was linked after production already had migrations applied.
+-- Supabase CLI requires local migration versions to exist before pushing new ones.
+--
+-- TODO: Replace this placeholder with the actual SQL if/when it is recovered.
+-- Safe note: This file should be treated as already-applied in prod.
