@@ -81,7 +81,9 @@ export default async function AdminPage() {
       .eq("status", "published"),
     supabase
       .from("host_applications")
-      .select("*")
+      .select(
+        "id, org_name, org_type, description, website, social_links, status, created_at, user_id",
+      )
       .in("status", ["new", "reviewing"])
       .order("created_at", { ascending: false }),
     supabase
