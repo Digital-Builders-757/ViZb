@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
+import { AdminPostRowActions } from "@/components/admin/posts/admin-post-row-actions"
 
 export default async function AdminPostsPage({
   searchParams,
@@ -148,7 +149,7 @@ export default async function AdminPostsPage({
                         ? `Published ${new Date(p.published_at).toLocaleDateString()}`
                         : `Updated ${new Date(p.updated_at).toLocaleDateString()}`}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/admin/posts/${p.id}`}
                         className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur hover:shadow-[var(--vibe-neon-glow-subtle)]"
@@ -164,6 +165,7 @@ export default async function AdminPostsPage({
                           View public
                         </Link>
                       ) : null}
+                      <AdminPostRowActions postId={p.id} status={p.status} title={p.title} />
                     </div>
                   </div>
                 </div>
