@@ -173,13 +173,17 @@ export default async function AdminPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mt-8 md:mt-10">
-        <div className="border border-border p-4 md:p-6 card-accent-blue">
-          <div className="flex items-center gap-3 mb-4">
-            <Users className="w-4 h-4 text-brand-blue" />
-            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Users</span>
+        {/* Make these actionable: jump to module */}
+
+        <Link href="#users" className="block">
+          <div className="border border-border p-4 md:p-6 card-accent-blue hover:border-brand-blue/40 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="w-4 h-4 text-brand-blue" />
+              <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Users</span>
+            </div>
+            <span className="text-2xl md:text-3xl font-bold text-brand-blue font-mono">{totalUsers}</span>
           </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-blue font-mono">{totalUsers}</span>
-        </div>
+        </Link>
 
         <div className="border border-border p-4 md:p-6 card-accent-blue-mid">
           <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
@@ -189,13 +193,15 @@ export default async function AdminPage() {
           <span className="text-2xl md:text-3xl font-bold text-brand-blue-mid font-mono">{totalOrgs}</span>
         </div>
 
-        <div className="border border-border p-4 md:p-6 card-accent-cyan">
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <FileText className="w-4 h-4 text-brand-cyan shrink-0" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Applications</span>
+        <Link href="#host-applications" className="block">
+          <div className="border border-border p-4 md:p-6 card-accent-cyan hover:border-brand-cyan/40 transition-colors">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <FileText className="w-4 h-4 text-brand-cyan shrink-0" />
+              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Applications</span>
+            </div>
+            <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">{pendingApps}</span>
           </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">{pendingApps}</span>
-        </div>
+        </Link>
 
         <div className="border border-border p-4 md:p-6 card-accent-cyan-bright">
           <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
@@ -205,13 +211,15 @@ export default async function AdminPage() {
           <span className="text-2xl md:text-3xl font-bold text-brand-cyan-bright font-mono">{activeInvites}</span>
         </div>
 
-        <div className={`border p-4 md:p-6 ${pendingEvents > 0 ? "border-amber-500/40 card-accent-cyan bg-amber-500/5" : "border-border card-accent-cyan"}`}>
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <CalendarCheck className={`w-4 h-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`} />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Events</span>
+        <Link href="#event-submissions" className="block">
+          <div className={`border p-4 md:p-6 transition-colors hover:border-brand-cyan/40 ${pendingEvents > 0 ? "border-amber-500/40 card-accent-cyan bg-amber-500/5" : "border-border card-accent-cyan"}`}>
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <CalendarCheck className={`w-4 h-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`} />
+              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Events</span>
+            </div>
+            <span className={`text-2xl md:text-3xl font-bold font-mono ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`}>{pendingEvents}</span>
           </div>
-          <span className={`text-2xl md:text-3xl font-bold font-mono ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`}>{pendingEvents}</span>
-        </div>
+        </Link>
       </div>
 
       {/* Public content — posts */}
@@ -257,6 +265,7 @@ export default async function AdminPage() {
       </div>
 
       <AdminSection
+        id="users"
         kicker="Directory"
         title="All Users"
         description="Everyone who has signed up on the platform."
@@ -265,6 +274,7 @@ export default async function AdminPage() {
       </AdminSection>
 
       <AdminSection
+        id="host-applications"
         kicker="Review Queue"
         title="Host Applications"
         description="Review requests from users who want to host events. Approving creates the org and generates an invite link."
@@ -273,6 +283,7 @@ export default async function AdminPage() {
       </AdminSection>
 
       <AdminSection
+        id="event-submissions"
         kicker="Review Queue"
         title="Event Submissions"
         description="Review, approve, or reject events submitted by organizers. Approved events go live on the public events page. Rejected events are sent back with your feedback so organizers can revise and resubmit."
@@ -281,6 +292,7 @@ export default async function AdminPage() {
       </AdminSection>
 
       <AdminSection
+        id="events"
         kicker="Management"
         title="All Events"
         description="Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed."
@@ -289,6 +301,7 @@ export default async function AdminPage() {
       </AdminSection>
 
       <AdminSection
+        id="create-org"
         kicker="Manual"
         title="Create Organization"
         description="Manually create an org and generate an invite link. Use this for direct onboarding."

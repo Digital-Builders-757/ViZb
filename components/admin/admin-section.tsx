@@ -1,12 +1,14 @@
 import { ReactNode } from "react"
 
 export function AdminSection({
+  id,
   kicker,
   title,
   description,
   action,
   children,
 }: {
+  id?: string
   kicker: string
   title: string
   description?: string
@@ -14,7 +16,7 @@ export function AdminSection({
   children: ReactNode
 }) {
   return (
-    <section className="mt-10">
+    <section className="mt-10 scroll-mt-24" id={id}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">{kicker}</span>
