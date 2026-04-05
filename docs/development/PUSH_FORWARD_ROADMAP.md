@@ -19,7 +19,7 @@ Use this as context so you do not redo work.
 | **Public events UI** | `/events` and `/events/[slug]` avoid crashing in **dev** when Supabase is not configured; **production** still fails fast if misconfigured. |
 | **Advertising / partnerships** | **`/advertise`** — structured “Advertise with ViZb” inquiry form; emails **`admin@thevavibe.com`** by default via **Resend** (`RESEND_API_KEY`, optional `ADMIN_EMAIL`, `RESEND_FROM`). |
 
-**Operational habits:** merge work on **`develop`**; use **`/ship`** when a batch is ready; visible UI changes → **`docs/BRAND_CONSTITUTION.md`** + **`/brand-check`**.
+**Operational habits:** do day-to-day work on **feature branches**, open **PRs into `develop`** (merge commit); use **`/ship`** to push your **branch** and then merge via GitHub; releases = PR **`develop` → `main`**. See **`docs/development/BRANCHING.md`**. Visible UI changes → **`docs/BRAND_CONSTITUTION.md`** + **`/brand-check`**.
 
 ---
 

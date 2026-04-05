@@ -33,7 +33,7 @@ Five-minute path for a new AI agent or developer.
 ## Before pushing code
 
 - Run **`npm run typecheck`**, **`npm run test`**, **`npm run lint`**, **`npm run build`** (or use **`/verify`**).
-- Use **`/ship`** for commit + push + doc hygiene when the batch is ready.
+- Prefer a **feature branch** off **`develop`** and a **PR into `develop`**; use **`/ship`** to push your **current branch** (see **`docs/development/BRANCHING.md`**).
 
 ## Commands
 

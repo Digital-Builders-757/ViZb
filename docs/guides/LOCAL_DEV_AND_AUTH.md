@@ -69,6 +69,10 @@ NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
 
 (`app/signup/page.tsx` uses this when set; otherwise it uses `window.location.origin` + `/auth/callback`.)
 
+### Auth email delivery (production)
+
+Sign-up and confirmation emails are sent by **Supabase**, not by the Next.js `resend` package. For production inboxes, configure **Resend as Supabase custom SMTP** in the dashboard (same Resend API key can power SMTP and `/advertise`). Step-by-step: **`docs/guides/SUPABASE_AUTH_EMAIL_RESEND.md`**.
+
 ---
 
 ## 4. Verify auth and dashboard

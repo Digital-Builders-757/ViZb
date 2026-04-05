@@ -172,6 +172,10 @@ The project uses Vercel for environment management. Variables are configured via
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
+**Email (Resend):**
+- **`RESEND_API_KEY`** — powers **`/advertise`** lead emails from the app (`app/actions/advertise-contact.ts`).
+- **Sign-up / auth mail** is sent by **Supabase Auth**, not the app. For production, configure **Resend as Supabase custom SMTP** (reuse the same API key in the dashboard SMTP password field). Guide: **`docs/guides/SUPABASE_AUTH_EMAIL_RESEND.md`**.
+
 **Needed for future phases:**
 - `STRIPE_SECRET_KEY` (Phase 4)
 - `STRIPE_WEBHOOK_SECRET` (Phase 4)

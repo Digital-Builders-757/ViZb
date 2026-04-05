@@ -1,6 +1,6 @@
 # Engineering commands — ViBE Operating Doctrine (Cursor)
 
-**Last updated:** March 23, 2026
+**Last updated:** April 6, 2026
 
 **Cursor commands:** `.cursor/commands/*.md`  
 **Rules:** `.cursor/rules/*.mdc`  
@@ -34,8 +34,8 @@
 | **`/implement`** | Approved plan only; minimal diff. |
 | **`/verify`** | Pre-ship checks. |
 | **`/continue`** | Next increment; may hand off to `/ship` / `/pr` (see `continue-auto-ship.mdc`). |
-| **`/ship`** | Commit + push **`develop`** + doc hygiene. |
-| **`/pr`** | Feature → `develop` or release `develop` → `main`. |
+| **`/ship`** | Run checks, commit, push **current branch** (prefer **`feat/*` / `fix/*` off `develop`**); open PR → **`develop`**. See `docs/development/BRANCHING.md`. |
+| **`/pr`** | Feature branch → **`develop`**, or release **`develop` → `main`** (merge commit default). |
 | **`/triage`** | Rank issues; airport zones. |
 | **`/debug`** | Evidence-first RCA. |
 | **`/redzone`** | Middleware, auth, RLS, webhooks. |
