@@ -4,13 +4,11 @@ import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowLeft } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { GlassCard } from "@/components/ui/glass-card"
-import { NeonLink } from "@/components/ui/neon-link"
-import { NeonButton } from "@/components/ui/neon-button"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 
 interface PublicEvent {
@@ -158,8 +156,8 @@ export default async function PublicEventDetailPage({
     <main className="min-h-screen bg-[color:var(--neon-bg0)]">
       <Navbar />
 
-      <section className="pt-24 sm:pt-28 pb-16 md:pb-24 px-4 sm:px-8">
-        <div className="max-w-[1200px] mx-auto">
+      <section className="pt-24 sm:pt-28 pb-16 md:pb-24 px-4 sm:px-8 overflow-x-hidden">
+        <div className="max-w-[1200px] mx-auto min-w-0">
           {/* Back */}
           <Link
             href="/events"
@@ -169,11 +167,11 @@ export default async function PublicEventDetailPage({
             Back to Events
           </Link>
 
-          {/* Layout: flyer + details */}
-          <div className="mt-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
+          {/* Mobile: title & meta first; desktop: flyer left, details right */}
+          <div className="mt-8 flex flex-col lg:flex-row gap-8 lg:gap-12 lg:items-start min-w-0">
             {/* Flyer */}
-            <div className="w-full lg:w-1/2">
-              <GlassCard className="relative aspect-[4/5] overflow-hidden p-0">
+            <div className="w-full lg:w-1/2 shrink-0 order-2 lg:order-1 max-w-full min-w-0">
+              <GlassCard className="relative aspect-[4/5] max-h-[min(70vh,520px)] lg:max-h-none overflow-hidden p-0 mx-auto lg:mx-0">
                 {event.flyer_url ? (
                   <Image
                     src={event.flyer_url}
@@ -220,54 +218,58 @@ export default async function PublicEventDetailPage({
             </div>
 
             {/* Details */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-between">
-              <div>
+            <div className="w-full lg:w-1/2 flex flex-col justify-between min-w-0 order-1 lg:order-2">
+              <div className="min-w-0">
                 {/* Org */}
                 <Link
                   href={`/events?org=${event.org_slug}`}
-                  className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline"
+                  className="inline-block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline break-words"
                 >
                   {event.org_name}
                 </Link>
 
                 {/* Title */}
-                <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[color:var(--neon-text0)] mt-3 text-balance leading-tight">
+                <h1 className="font-serif text-[1.625rem] sm:text-4xl md:text-5xl font-bold text-[color:var(--neon-text0)] mt-4 sm:mt-3 text-balance leading-[1.15] sm:leading-tight">
                   {event.title}
                 </h1>
 
                 {/* Date/Time */}
-                <div className="mt-6 grid gap-3">
-                  <GlassCard className="flex items-start gap-3 p-4">
-                    <Calendar className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Date</p>
-                      <p className="mt-1 text-base text-[color:var(--neon-text0)]">{dateStr}</p>
+                <div className="mt-6 sm:mt-7 grid gap-3 sm:gap-4">
+                  <GlassCard className="flex items-start gap-3 p-4 sm:p-5">
+                    <Calendar className="w-5 h-5 text-[color:var(--neon-a)] shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Date</p>
+                      <p className="mt-1.5 text-[15px] sm:text-base text-[color:var(--neon-text0)] leading-snug break-words">
+                        {dateStr}
+                      </p>
                     </div>
                   </GlassCard>
-                  <GlassCard className="flex items-start gap-3 p-4">
-                    <Clock className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Time</p>
-                      <p className="mt-1 text-base text-[color:var(--neon-text0)]">
+                  <GlassCard className="flex items-start gap-3 p-4 sm:p-5">
+                    <Clock className="w-5 h-5 text-[color:var(--neon-a)] shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Time</p>
+                      <p className="mt-1.5 text-[15px] sm:text-base text-[color:var(--neon-text0)] leading-snug">
                         {timeStr}
-                        {endTimeStr && ` - ${endTimeStr}`}
+                        {endTimeStr && ` – ${endTimeStr}`}
                       </p>
                     </div>
                   </GlassCard>
                 </div>
 
                 {/* Location */}
-                <div className="mt-4">
-                  <GlassCard className="p-4">
+                <div className="mt-4 sm:mt-5">
+                  <GlassCard className="p-4 sm:p-5">
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Location</p>
-                        <p className="mt-1 text-base text-[color:var(--neon-text0)]">{event.venue_name}</p>
+                      <MapPin className="w-5 h-5 text-[color:var(--neon-a)] shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Location</p>
+                        <p className="mt-1.5 text-[15px] sm:text-base text-[color:var(--neon-text0)] leading-snug break-words">
+                          {event.venue_name}
+                        </p>
                         {event.address ? (
-                          <p className="mt-1 text-sm text-[color:var(--neon-text1)]">{event.address}</p>
+                          <p className="mt-1.5 text-sm text-[color:var(--neon-text1)] break-words">{event.address}</p>
                         ) : null}
-                        <p className="mt-1 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                        <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] break-words">
                           {event.city}
                         </p>
                       </div>
@@ -291,17 +293,15 @@ export default async function PublicEventDetailPage({
               </div>
 
               {/* CTA area */}
-              <div className="mt-8">
-                <GlassCard className="p-4 md:p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
-                      <Users className="w-4 h-4" />
-                      Free event
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
-                      <Ticket className="w-4 h-4" />
-                      Tickets coming soon
-                    </div>
+              <div className="mt-8 sm:mt-10 min-w-0">
+                <GlassCard className="p-4 sm:p-5 md:p-6 border-[color:var(--neon-hairline)]">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                    <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
+                      RSVP
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-wider">
+                      Free event · Tickets (coming soon)
+                    </p>
                   </div>
 
                   <EventRsvpCta
@@ -310,10 +310,6 @@ export default async function PublicEventDetailPage({
                     initialStatus={initialRsvpStatus}
                     authHref={authHref}
                   />
-
-                  <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
-                    Tickets are coming next. Free RSVP is live for published events.
-                  </p>
                 </GlassCard>
               </div>
             </div>
