@@ -5,6 +5,7 @@ import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { AdminPostRowActions } from "@/components/admin/posts/admin-post-row-actions"
+import { AdminPostsCounts } from "@/components/admin/posts/admin-posts-counts"
 
 export default async function AdminPostsPage({
   searchParams,
@@ -54,6 +55,9 @@ export default async function AdminPostsPage({
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
             Publish updates that show up on the public site feed.
           </p>
+          <p className="mt-2 text-xs text-[color:var(--neon-text2)]">
+            <span className="font-mono uppercase tracking-widest">Published</span> posts are visible on the homepage module and the public <span className="font-mono">/p</span> feed.
+          </p>
         </div>
 
         <NeonLink href="/admin/posts/new" shape="xl" className="sm:w-auto">
@@ -61,30 +65,36 @@ export default async function AdminPostsPage({
         </NeonLink>
       </header>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {[
-          { key: "all", label: "All" },
-          { key: "draft", label: "Draft" },
-          { key: "published", label: "Published" },
-          { key: "archived", label: "Archived" },
-        ].map((opt) => {
-          const isActive = activeStatus === opt.key
-          const href = opt.key === "all" ? "/admin/posts" : `/admin/posts?status=${opt.key}`
-          return (
-            <Link
-              key={opt.key}
-              href={href}
-              className={
-                "rounded-full border px-4 py-2 text-[10px] font-mono uppercase tracking-widest backdrop-blur transition-colors " +
-                (isActive
-                  ? "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-surface)]/65 text-[color:var(--neon-text0)] shadow-[var(--vibe-neon-glow-subtle)]"
-                  : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)]")
-              }
-            >
-              {opt.label}
-            </Link>
-          )
-        })}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { key: "all", label: "All" },
+            { key: "draft", label: "Draft" },
+            { key: "published", label: "Published" },
+            { key: "archived", label: "Archived" },
+          ].map((opt) => {
+            const isActive = activeStatus === opt.key
+            const href = opt.key === "all" ? "/admin/posts" : `/admin/posts?status=${opt.key}`
+            return (
+              <Link
+                key={opt.key}
+                href={href}
+                className={
+                  "rounded-full border px-4 py-2 text-[10px] font-mono uppercase tracking-widest backdrop-blur transition-colors " +
+                  (isActive
+                    ? "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-surface)]/65 text-[color:var(--neon-text0)] shadow-[var(--vibe-neon-glow-subtle)]"
+                    : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)]")
+                }
+              >
+                {opt.label}
+              </Link>
+            )
+          })}
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <AdminPostsCounts />
+        </div>
       </div>
 
       {!schemaReady ? (
