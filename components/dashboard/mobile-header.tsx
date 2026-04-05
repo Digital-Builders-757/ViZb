@@ -13,6 +13,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { NotificationsMenu } from "@/components/dashboard/notifications-menu"
+import type { DashboardNotificationFeed } from "@/lib/notifications/dashboard-queries"
 
 interface MobileHeaderProps {
   profile: {
@@ -31,6 +33,7 @@ interface MobileHeaderProps {
       logo_url: string | null
     }
   }>
+  notifications?: DashboardNotificationFeed
 }
 
 const attendeeLinks = [
@@ -40,7 +43,7 @@ const attendeeLinks = [
   { href: "/dashboard/tickets", label: "My Tickets", icon: Calendar },
 ]
 
-export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps) {
+export function MobileHeader({ profile, organizations = [], notifications }: MobileHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -59,14 +62,21 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
         className="flex h-14 items-center justify-between px-4"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex min-w-0 items-center gap-2">
           <Image src="/vibe-logo.png" alt="VIZB" width={28} height={28} className="h-7 w-auto" />
           <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
             VIZB
           </span>
         </Link>
 
-        <Sheet open={open} onOpenChange={setOpen}>
+        <div className="flex shrink-0 items-center gap-1">
+          {notifications ? (
+            <NotificationsMenu
+              initialUnreadCount={notifications.unreadCount}
+              initialItems={notifications.items}
+            />
+          ) : null}
+          <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button
               className="flex h-11 w-11 items-center justify-center text-[color:var(--neon-text0)]"
@@ -221,6 +231,7 @@ export function MobileHeader({ profile, organizations = [] }: MobileHeaderProps)
             </div>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
     </header>
   )
