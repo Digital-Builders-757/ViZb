@@ -1,6 +1,8 @@
-# Database migrations (scripts/*.sql)
+# Database migrations (scripts/*.sql + Supabase CLI)
 
-This repo uses **numbered SQL scripts** in `scripts/` as the migration source of truth.
+This repo uses **numbered SQL scripts** in `scripts/` as a **manual mirror** and **`supabase/migrations/*.sql`** as the **CLI-applied** history for linked projects.
+
+**Deploy / verify on a remote Supabase project:** see **`docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md`** (`supabase migration list`, `supabase db push`, post-checks).
 
 ## Apply order
 

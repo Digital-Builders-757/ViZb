@@ -26,6 +26,14 @@
 
 ---
 
+## Git merge policy (release boundary)
+
+- **Default branch for new work:** open PRs **into `develop`**, not **`main`**, unless it is a documented hotfix workflow.
+- **Integrate with merge commits:** `gh pr merge --merge` (or GitHub UI **Create a merge commit**). Do **not** squash-merge **into `main`** — see `docs/development/BRANCHING.md` (“Merge commits vs squash”).
+- **Release:** PR **`develop` → `main`** using **merge commit** only.
+
+---
+
 ## Command roles
 
 | Command | Role |

@@ -58,9 +58,7 @@ gh pr create --base develop --head feat/short-description --title "..." --body "
 
 ### 5. Merge the PR into `develop`
 
-**Team default:** use **Create a merge commit** on the PR (matches your existing habit and preserves branch context in history).
-
-- **Squash and merge** is fine for tiny one-commit fixes if you want a linear story—optional, not required.
+Use **Create a merge commit** (not squash) unless it is a trivial one-commit fix and the team agrees. Agents default to **merge commit** per the policy at the end of this doc.
 - After merge, delete the remote feature branch if GitHub offers it.
 
 ### 6. Update your local `develop`
@@ -113,8 +111,18 @@ The repo **default branch** on GitHub may be **`main`**. That is fine: new work 
 
 ---
 
-## Merge commits vs squash
+## Merge commits vs squash (enforced for agents)
 
-- **Feature → `develop`:** default **merge commit** (your current style).
-- **`develop` → `main`:** default **merge commit** for a clear release boundary.
-- **Squash** only when the team explicitly wants a single commit for a tiny change—document that choice in the PR if relevant.
+- **Feature → `develop`:** use **Create a merge commit** (or enable auto-merge with **merge commit**). Preserves integration context and matches short-lived branch history.
+- **`develop` → `main` (release):** use **Create a merge commit** only. This is the **release boundary**; do **not** squash-merge into `main` — squash drops the integration graph, makes backports and audits harder, and conflicts with the “develop is staging integration” model.
+- **Never squash-merge bulk or multi-ticket work into `main`.** If GitHub’s default merge button is squash, change the repo setting or use `gh pr merge --merge` for release PRs.
+- **Optional squash** is only for a **tiny** one-commit hotfix **into `develop`**, and never as the default for agents.
+
+### Reconciling `develop` after work landed on `main` only
+
+If commits reached **`main`** without going through **`develop`** (e.g. emergency merge or mistaken base), **`develop` must be updated** so the next feature PRs do not conflict with reality:
+
+1. Open **one** PR: base **`develop`**, head **`main`**, merge with **merge commit** (or locally: `git checkout develop && git merge origin/main` then push).
+2. Resolve conflicts once on that integration PR.
+3. Confirm CI on **`develop`** after the merge.
+
