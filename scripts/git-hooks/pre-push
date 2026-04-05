@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+# Pre-push hook: prevent accidental pushes to main.
+# Install via: git config core.hooksPath scripts/git-hooks
+
+remote_name="$1"
+
+# stdin provides lines: <local ref> <local sha> <remote ref> <remote sha>
+# We block if the remote ref is refs/heads/main.
+
+while read local_ref local_sha remote_ref remote_sha
+do
+  case "$remote_ref" in
+    refs/heads/main)
+      echo "❌ Blocked: refusing to push directly to 'main'." >&2
+      echo "Use a PR from develop → main instead (see docs/development/RELEASING.md)." >&2
+      exit 1
+      ;;
+  esac
+done
+
+exit 0
