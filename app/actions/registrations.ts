@@ -8,6 +8,25 @@ export async function rsvpToEvent(eventId: string) {
 
   if (!eventId) return { error: "Missing event ID." }
 
+  // Idempotency + safety:
+  // - If the user is already checked in, do not downgrade them back to confirmed.
+  // - If they previously cancelled, confirming should clear cancelled_at.
+  const { data: existing, error: existingError } = await supabase
+    .from("event_registrations")
+    .select("status")
+    .eq("event_id", eventId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (existingError) {
+    return { error: `Failed to RSVP: ${existingError.message}` }
+  }
+
+  if (existing?.status === "checked_in") {
+    revalidatePath("/dashboard/tickets")
+    return { success: true }
+  }
+
   const now = new Date().toISOString()
 
   const { error } = await supabase
@@ -35,6 +54,25 @@ export async function cancelRsvp(eventId: string) {
   const { user, supabase } = await requireAuth()
 
   if (!eventId) return { error: "Missing event ID." }
+
+  // Idempotency:
+  // - If no registration exists yet, treat cancel as a no-op.
+  // - If already cancelled, treat as success.
+  const { data: existing, error: existingError } = await supabase
+    .from("event_registrations")
+    .select("status")
+    .eq("event_id", eventId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (existingError) {
+    return { error: `Failed to cancel RSVP: ${existingError.message}` }
+  }
+
+  if (!existing || existing.status === "cancelled") {
+    revalidatePath("/dashboard/tickets")
+    return { success: true }
+  }
 
   const now = new Date().toISOString()
   const { error } = await supabase
