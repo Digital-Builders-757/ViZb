@@ -27,8 +27,9 @@ Ship a minimal, real end-to-end **free RSVP** flow that:
 - Member wallet: `/dashboard/tickets`
 
 ## Code owners
-- Server actions: `app/actions/registrations.ts`
-- UI: `components/events/event-rsvp-cta.tsx`
+- RSVP server actions: `app/actions/registrations.ts`
+- RSVP UI: `components/events/event-rsvp-cta.tsx`
+- Check-in server actions: `app/actions/checkin.ts`, `app/actions/undo-checkin.ts`, `app/actions/organizer-checkin.ts`, `app/actions/organizer-undo-checkin.ts`
 
 ## Known limitations (intentional for MVP)
 - Paid tickets not implemented yet.

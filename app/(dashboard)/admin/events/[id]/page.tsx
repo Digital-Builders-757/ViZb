@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import { ArrowLeft, CheckCircle2, Users } from "lucide-react"
 import { GlassCard } from "@/components/ui/glass-card"
 import { CheckInButton } from "@/components/admin/check-in-button"
+import { UndoCheckInButton } from "@/components/admin/undo-check-in-button"
 
 export default async function AdminEventDetailPage({
   params,
@@ -178,10 +179,13 @@ export default async function AdminEventDetailPage({
                   {r.status === "confirmed" ? (
                     <CheckInButton eventId={event.id} userId={r.user_id} />
                   ) : r.status === "checked_in" ? (
-                    <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Checked in
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Checked in
+                      </span>
+                      <UndoCheckInButton eventId={event.id} userId={r.user_id} />
+                    </div>
                   ) : (
                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                       —

@@ -1,5 +1,6 @@
 import { CheckCircle2, Users } from "lucide-react"
 import { OrganizerCheckInButton } from "@/components/organizer/check-in-button"
+import { OrganizerUndoCheckInButton } from "@/components/organizer/undo-check-in-button"
 
 export function EventAttendeesPanel({
   total,
@@ -96,10 +97,18 @@ export function EventAttendeesPanel({
                       userId={r.user_id}
                     />
                   ) : r.status === "checked_in" ? (
-                    <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Checked in
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Checked in
+                      </span>
+                      <OrganizerUndoCheckInButton
+                        orgSlug={orgSlug}
+                        eventSlug={eventSlug}
+                        eventId={eventId}
+                        userId={r.user_id}
+                      />
+                    </div>
                   ) : (
                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                       —
