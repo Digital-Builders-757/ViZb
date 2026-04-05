@@ -31,7 +31,7 @@ export function EventAttendeesPanel({
             Attendees
           </h2>
           <p className="text-sm text-muted-foreground">
-            RSVP rollup for this event. (User display details come next.)
+            Door list: filter, search, copy lists, and check guests in at the venue.
           </p>
         </div>
 
@@ -55,7 +55,7 @@ export function EventAttendeesPanel({
           <div className="mt-1 text-lg font-bold font-mono text-muted-foreground">{cancelled}</div>
         </div>
         <div className="border border-border p-3">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Rows</div>
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">RSVPs</div>
           <div className="mt-1 text-lg font-bold font-mono text-foreground">{rows.length}</div>
         </div>
       </div>
@@ -73,10 +73,6 @@ export function EventAttendeesPanel({
           profileById={profileById}
         />
       )}
-
-      {rows.length > 200 ? (
-        <p className="mt-2 text-[11px] text-muted-foreground">Showing first 200 RSVPs.</p>
-      ) : null}
     </div>
   )
 }

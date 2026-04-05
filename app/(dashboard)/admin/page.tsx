@@ -3,7 +3,7 @@ import Link from "next/link"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
-import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Settings2, Newspaper } from "lucide-react"
+import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Newspaper } from "lucide-react"
 import { CreateOrgForm } from "@/components/admin/create-org-form"
 import { ApplicationsQueue } from "@/components/admin/applications-queue"
 import { EventReviewQueue } from "@/components/admin/event-review-queue"
@@ -132,23 +132,24 @@ export default async function AdminPage() {
         Manage organizations, review host applications, and generate invite links.
       </p>
 
-      {/* Content */}
-      <div className="mt-8 md:mt-10">
+      {/* Posts — homepage + /p feed */}
+      <div className="mt-8 md:mt-9" id="content-posts">
         <div className="flex items-center gap-2">
           <Newspaper className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Content</span>
         </div>
         <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Posts</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Publish updates that appear on the public homepage ("From VIZB") and /p.
+        <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
+          Publish Markdown for the homepage &quot;From VIZB&quot; module and the public{" "}
+          <code className="text-xs">/p</code> feed.
         </p>
 
         <GlassCard className="mt-4 p-4 md:p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold text-[color:var(--neon-text0)]">Manage posts</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Create, edit, publish, and archive Markdown posts.
+                Create, edit, publish, and archive posts.
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
@@ -159,7 +160,7 @@ export default async function AdminPage() {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-3 sm:flex-row sm:shrink-0">
               <NeonLink href="/admin/posts/new" shape="xl" className="sm:w-auto">
                 New post
               </NeonLink>
@@ -168,11 +169,31 @@ export default async function AdminPage() {
               </NeonLink>
             </div>
           </div>
+          <ul className="mt-5 pt-5 border-t border-[color:var(--neon-hairline)] flex flex-col gap-2.5 text-sm text-[color:var(--neon-text1)]">
+            <li>
+              <Link
+                href="/admin/posts/new"
+                className="font-medium text-[color:var(--neon-text0)] underline-offset-4 hover:text-brand-cyan hover:underline"
+              >
+                Create a new post
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/p"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-4 hover:text-brand-cyan hover:underline"
+              >
+                Open public feed (/p)
+              </Link>
+            </li>
+          </ul>
         </GlassCard>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mt-8 md:mt-10">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mt-8 md:mt-9">
         {/* Make these actionable: jump to module */}
 
         <Link href="#users" className="block">
@@ -215,60 +236,62 @@ export default async function AdminPage() {
           <div className={`border p-4 md:p-6 transition-colors hover:border-brand-cyan/40 ${pendingEvents > 0 ? "border-amber-500/40 card-accent-cyan bg-amber-500/5" : "border-border card-accent-cyan"}`}>
             <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
               <CalendarCheck className={`w-4 h-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`} />
-              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Events</span>
+              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Pending</span>
             </div>
             <span className={`text-2xl md:text-3xl font-bold font-mono ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`}>{pendingEvents}</span>
           </div>
         </Link>
       </div>
 
-      {/* Public content — posts */}
-      <div className="mt-10">
-        <div className="flex items-center gap-2">
-          <Newspaper className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Content</span>
-        </div>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Posts</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Publish Markdown for the homepage From VIZB module and the public <code className="text-xs">/p</code> feed.
-        </p>
-        <div className="mt-6 border border-border p-5 md:p-6 card-accent-cyan">
-          <ul className="flex flex-col gap-3 text-sm">
-            <li>
-              <Link
-                href="/admin/posts/new"
-                className="font-medium text-foreground underline-offset-4 hover:text-brand-cyan hover:underline"
-              >
-                Create a new post
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/admin/posts"
-                className="font-medium text-foreground underline-offset-4 hover:text-brand-cyan hover:underline"
-              >
-                Manage posts
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/p"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                View public feed
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <nav
+        className="mt-4 flex flex-wrap items-center gap-x-1 gap-y-2 rounded-md border border-border/70 bg-black/15 px-3 py-2.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
+        aria-label="Jump to admin section"
+      >
+        <span className="mr-1 text-foreground/50">Jump</span>
+        <span className="text-border" aria-hidden>
+          ·
+        </span>
+        <Link href="#content-posts" className="px-1.5 py-0.5 hover:text-brand-cyan">
+          Posts
+        </Link>
+        <span className="text-border" aria-hidden>
+          ·
+        </span>
+        <Link href="#users" className="px-1.5 py-0.5 hover:text-brand-cyan">
+          Users
+        </Link>
+        <span className="text-border" aria-hidden>
+          ·
+        </span>
+        <Link href="#host-applications" className="px-1.5 py-0.5 hover:text-brand-cyan">
+          Applications
+        </Link>
+        <span className="text-border" aria-hidden>
+          ·
+        </span>
+        <Link href="#event-submissions" className="px-1.5 py-0.5 hover:text-brand-cyan">
+          Submissions
+        </Link>
+        <span className="text-border" aria-hidden>
+          ·
+        </span>
+        <Link href="#events" className="px-1.5 py-0.5 hover:text-brand-cyan">
+          All events
+        </Link>
+        <span className="text-border" aria-hidden>
+          ·
+        </span>
+        <Link href="#create-org" className="px-1.5 py-0.5 hover:text-brand-cyan">
+          Create org
+        </Link>
+      </nav>
 
       <AdminSection
         id="users"
         kicker="Directory"
         title="All Users"
         description="Everyone who has signed up on the platform."
+        stickyHeader
       >
         <UsersTable users={allUsers} />
       </AdminSection>
@@ -296,6 +319,7 @@ export default async function AdminPage() {
         kicker="Management"
         title="All Events"
         description="Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed."
+        stickyHeader
       >
         <AdminEventManager events={allEvents} />
       </AdminSection>
