@@ -62,6 +62,7 @@ None observed in current screenshots.
 - Add status counts near filter pills.
 - Add a one-line note defining “published” semantics.
 - On small screens: reduce action clutter via progressive disclosure.
+- Keep **hard delete** available for posts (confirmed by owner).
 
 ### 5) Admin Event ops (`/admin/events/[id]`)
 
