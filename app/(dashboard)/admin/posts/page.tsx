@@ -175,7 +175,7 @@ export default async function AdminPostsPage({
                           View public
                         </Link>
                       ) : null}
-                      <AdminPostRowActions postId={p.id} status={p.status} title={p.title} />
+                      <AdminPostRowActions postId={p.id} status={p.status} title={p.title} slug={p.slug} />
                     </div>
                   </div>
                 </div>
