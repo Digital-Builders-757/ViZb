@@ -133,7 +133,8 @@ export default async function TicketsPage() {
     return firstEvent(r.event) != null
   })
 
-  const nowMs = Date.now()
+  // Request-time boundary for partitioning upcoming vs past (RSC; not a client re-render).
+  const nowMs = new Date().getTime()
   const { upcoming, past, undated } = partitionByStart(active, nowMs)
 
   return (

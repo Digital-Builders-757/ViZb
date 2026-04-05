@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth-helpers"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Settings2, Newspaper } from "lucide-react"
+import { NotificationSeedCard } from "@/components/admin/notification-seed-card"
 import { CreateOrgForm } from "@/components/admin/create-org-form"
 import { ApplicationsQueue } from "@/components/admin/applications-queue"
 import { EventReviewQueue } from "@/components/admin/event-review-queue"
@@ -300,6 +301,15 @@ export default async function AdminPage() {
         description="Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed."
       >
         <AdminEventManager events={allEvents} />
+      </AdminSection>
+
+      <AdminSection
+        id="notifications-qa"
+        kicker="QA"
+        title="Notifications"
+        description="Seed an unread in-app notification for your staff account (requires user_notifications migration)."
+      >
+        <NotificationSeedCard />
       </AdminSection>
 
       <AdminSection
