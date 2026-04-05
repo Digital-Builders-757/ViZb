@@ -22,8 +22,9 @@ export async function rsvpToEvent(eventId: string) {
     return { error: `Failed to RSVP: ${existingError.message}` }
   }
 
-  if (existing?.status === "checked_in") {
+  if (existing?.status === "checked_in" || existing?.status === "confirmed") {
     revalidatePath("/dashboard/tickets")
+    revalidatePath("/events")
     return { success: true }
   }
 
@@ -38,6 +39,7 @@ export async function rsvpToEvent(eventId: string) {
         status: "confirmed",
         updated_at: now,
         cancelled_at: null,
+        checked_in_at: null,
       },
       { onConflict: "event_id,user_id" },
     )
@@ -47,6 +49,7 @@ export async function rsvpToEvent(eventId: string) {
   }
 
   revalidatePath("/dashboard/tickets")
+  revalidatePath("/events")
   return { success: true }
 }
 
@@ -71,13 +74,19 @@ export async function cancelRsvp(eventId: string) {
 
   if (!existing || existing.status === "cancelled") {
     revalidatePath("/dashboard/tickets")
+    revalidatePath("/events")
     return { success: true }
   }
 
   const now = new Date().toISOString()
   const { error } = await supabase
     .from("event_registrations")
-    .update({ status: "cancelled", cancelled_at: now, updated_at: now })
+    .update({
+      status: "cancelled",
+      cancelled_at: now,
+      updated_at: now,
+      checked_in_at: null,
+    })
     .eq("event_id", eventId)
     .eq("user_id", user.id)
 
@@ -86,6 +95,7 @@ export async function cancelRsvp(eventId: string) {
   }
 
   revalidatePath("/dashboard/tickets")
+  revalidatePath("/events")
   return { success: true }
 }
 
