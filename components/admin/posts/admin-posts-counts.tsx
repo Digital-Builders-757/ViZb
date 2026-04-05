@@ -3,19 +3,21 @@ import { createClient } from "@/lib/supabase/server"
 export async function AdminPostsCounts() {
   const supabase = await createClient()
 
-  // NOTE: Keep it simple + fast. If this query ever becomes slow, we can cache.
-  const { data, error } = await supabase
-    .from("posts")
-    .select("status", { count: "exact", head: false })
+  // Use HEAD+count queries (no row transfer) to keep this fast at scale.
+  const [total, draft, published, archived] = await Promise.all([
+    supabase.from("posts").select("id", { count: "exact", head: true }),
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "draft"),
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "archived"),
+  ])
 
-  if (error) return null
+  if (total.error || draft.error || published.error || archived.error) return null
 
-  const counts = { draft: 0, published: 0, archived: 0, total: 0 }
-  for (const r of data ?? []) {
-    counts.total += 1
-    if (r.status === "draft") counts.draft += 1
-    if (r.status === "published") counts.published += 1
-    if (r.status === "archived") counts.archived += 1
+  const counts = {
+    total: total.count ?? 0,
+    draft: draft.count ?? 0,
+    published: published.count ?? 0,
+    archived: archived.count ?? 0,
   }
 
   return (
