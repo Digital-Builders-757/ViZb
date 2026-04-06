@@ -83,6 +83,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.180.0",
     "@vitest/ui": "4.0.18",
+    "baseline-browser-mapping": "^2.10.15",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.1",
     "postcss": "^8.5",
