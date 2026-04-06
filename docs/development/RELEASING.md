@@ -10,6 +10,10 @@
 
 ## Release steps
 
+0) Confirm database migrations are applied to the target environment (staging/prod) **before** releasing code that depends on them.
+
+See: `docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md`
+
 1) Update local branches:
 
 ```bash
