@@ -1,10 +1,53 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
+import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { normalizeCategories } from "@/lib/events/categories"
 
-export function HeroSection() {
+type HeroEvent = {
+  title: string
+  slug: string
+  starts_at: string
+  city: string
+  categories: string[]
+  flyer_url: string | null
+}
+
+function heroEventBadge(categories: string[]) {
+  const list = normalizeCategories(categories)
+  return list[0] ?? "Event"
+}
+
+function heroEventWhen(startsAt: string) {
+  const d = new Date(startsAt)
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(d)
+}
+
+export async function HeroSection() {
+  let trending: HeroEvent[] = []
+
+  if (isServerSupabaseConfigured()) {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from("events")
+      .select("title, slug, starts_at, city, categories, flyer_url")
+      .eq("status", "published")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true })
+      .limit(2)
+
+    trending = (data as HeroEvent[] | null) ?? []
+  } else if (process.env.NODE_ENV === "production") {
+    await createClient()
+  }
+
   return (
-    <section className="relative min-h-screen pt-20 overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden pt-20">
       {/* Three.js Background */}
       <ThreeBackgroundWrapper />
 
@@ -68,6 +111,69 @@ export function HeroSection() {
                 Host with VIZB
               </Link>
             </div>
+
+            {trending.length > 0 ? (
+              <div className="mt-10 max-w-xl">
+                <div className="flex items-center justify-between">
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                    Trending this weekend
+                  </p>
+                  <Link
+                    href="/events"
+                    className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] hover:brightness-110"
+                  >
+                    View all →
+                  </Link>
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {trending.map((e) => (
+                    <Link
+                      key={e.slug}
+                      href={`/events/${e.slug}`}
+                      className="group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-3 backdrop-blur transition hover:border-[color:var(--neon-a)]/35 hover:shadow-[0_0_24px_rgba(0,209,255,0.10)]"
+                    >
+                      <div
+                        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                        style={{
+                          background:
+                            "radial-gradient(900px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)",
+                        }}
+                        aria-hidden
+                      />
+
+                      <div className="relative z-[1] flex items-center gap-3">
+                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                          {e.flyer_url ? (
+                            <Image
+                              src={e.flyer_url}
+                              alt={e.title}
+                              fill
+                              sizes="56px"
+                              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                            />
+                          ) : null}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-[color:var(--neon-text0)]">
+                            {e.title}
+                          </p>
+                          <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                            {heroEventWhen(e.starts_at)} · {e.city}
+                          </p>
+                        </div>
+
+                        <span className="shrink-0 rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
+                          {heroEventBadge(e.categories)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="relative">
