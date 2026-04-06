@@ -28,42 +28,44 @@ export function HeroSection() {
               <span className="block headline-xl text-foreground uppercase">Boring.</span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-muted-foreground mt-8 max-w-lg leading-relaxed">
-              Everyone says you have to leave Virginia to find things to do. We don't believe that.
+            <p className="mt-8 max-w-xl text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+              Discover what&apos;s happening across Virginia — parties, pop-ups, mixers, and culture.
             </p>
-            <p className="text-lg text-muted-foreground mt-4 max-w-lg leading-relaxed">
-              VIZB is turning Virginia into a place where people actually know where to go — for the culture, the
-              connections, and the good times.
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[color:var(--neon-text2)] sm:text-base">
+              VIZB curates the timeline so you don&apos;t have to guess. Tap into the city. Pull up with your people.
             </p>
 
-            {/* Pull quote - editorial style */}
-            <blockquote className="mt-10 border-l-2 border-primary pl-6 relative">
-              <div className="absolute -left-1 top-0 w-2 h-full bg-primary/20 blur-sm" />
-              <p className="text-xl font-serif italic text-foreground">
-                "Easily join our community and stay tapped in."
-              </p>
-            </blockquote>
+            <div className="mt-8 flex flex-wrap gap-2">
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] backdrop-blur">
+                Timeline-first
+              </span>
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] backdrop-blur">
+                RSVP + tickets
+              </span>
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] backdrop-blur">
+                757 & beyond
+              </span>
+            </div>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-4 mt-10">
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/events"
-                className="group relative text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(13,64,255,0.5)]"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[color:var(--neon-a)] px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[0_0_28px_rgba(0,209,255,0.25)] transition hover:brightness-110"
               >
-                <span className="relative z-10">Find Events</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0D40FF] via-[#00BDFF] to-[#0D40FF] opacity-0 group-hover:opacity-100 transition-opacity" />
+                Explore events
               </Link>
               <Link
                 href="/signup"
-                className="group relative text-xs uppercase tracking-widest bg-secondary text-foreground px-8 py-4 overflow-hidden transition-all hover:bg-secondary/80"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur transition hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-a)]"
               >
-                <span className="relative z-10">Join the Community</span>
+                Join the community
               </Link>
               <Link
                 href="/host/apply"
-                className="text-xs uppercase tracking-widest border border-foreground/30 text-foreground px-8 py-4 hover:border-primary hover:text-primary transition-colors backdrop-blur-sm"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)] transition hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)]"
               >
-                Host With VIZB
+                Host with VIZB
               </Link>
             </div>
           </div>
