@@ -57,11 +57,11 @@ export function MobileHeader({ profile, organizations = [], notifications }: Mob
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/75 backdrop-blur-xl md:hidden">
-      <div
-        className="flex h-14 items-center justify-between px-4"
-        style={{ paddingTop: "env(safe-area-inset-top)" }}
-      >
+    <header
+      className="sticky top-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/75 backdrop-blur-xl md:hidden"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
+      <div className="flex h-14 items-center justify-between px-4">
         <Link href="/" className="flex min-w-0 items-center gap-2">
           <Image src="/vibe-logo.png" alt="VIZB" width={28} height={28} className="h-7 w-auto" />
           <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
@@ -77,18 +77,18 @@ export function MobileHeader({ profile, organizations = [], notifications }: Mob
             />
           ) : null}
           <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <button
-              className="flex h-11 w-11 items-center justify-center text-[color:var(--neon-text0)]"
-              aria-label="Open navigation"
+            <SheetTrigger asChild>
+              <button
+                className="flex h-11 w-11 items-center justify-center text-[color:var(--neon-text0)]"
+                aria-label="Open navigation"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="w-[280px] border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/95 p-0 backdrop-blur-xl"
             >
-              <Menu className="h-5 w-5" />
-            </button>
-          </SheetTrigger>
-          <SheetContent
-            side="left"
-            className="w-[280px] border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/95 p-0 backdrop-blur-xl"
-          >
             <SheetHeader className="border-b border-[color:var(--neon-hairline)] px-4 py-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center bg-gradient-to-br from-[color:var(--neon-a)]/30 to-[color:var(--neon-b)]/30 ring-2 ring-[color:var(--neon-a)]/35">
@@ -229,8 +229,8 @@ export function MobileHeader({ profile, organizations = [], notifications }: Mob
                 <span>Sign Out</span>
               </button>
             </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
