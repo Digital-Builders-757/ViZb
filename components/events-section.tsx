@@ -1,5 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
+
+import { WaterFrame } from "@/components/ui/water-frame"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
 
@@ -110,11 +112,11 @@ export async function EventsSection() {
             const badge = topCategory(e.categories)
 
             return (
-              <Link
-                key={e.slug}
-                href={`/events/${e.slug}`}
-                className="group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30 backdrop-blur"
-              >
+              <WaterFrame key={e.slug} className="rounded-2xl">
+                <Link
+                  href={`/events/${e.slug}`}
+                  className="group relative block overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/30 backdrop-blur"
+                >
                 <div className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ background: "radial-gradient(1200px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)" }} />
 
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -169,6 +171,7 @@ export async function EventsSection() {
                   </div>
                 </div>
               </Link>
+              </WaterFrame>
             )
           })}
         </div>

@@ -1,5 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
+
+import { WaterFrame } from "@/components/ui/water-frame"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
@@ -143,18 +145,20 @@ export async function HeroSection() {
                       />
 
                       <div className="relative z-[1] flex items-center gap-3">
-                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
-                          {e.flyer_url ? (
-                            <Image
-                              src={e.flyer_url}
-                              alt={e.title}
-                              fill
-                              sizes="56px"
-                              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                            />
-                          ) : null}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                        </div>
+                        <WaterFrame className="relative h-14 w-14 shrink-0 rounded-xl bg-black/30">
+                          <div className="relative h-full w-full overflow-hidden rounded-[inherit]">
+                            {e.flyer_url ? (
+                              <Image
+                                src={e.flyer_url}
+                                alt={e.title}
+                                fill
+                                sizes="56px"
+                                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                              />
+                            ) : null}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                          </div>
+                        </WaterFrame>
 
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold text-[color:var(--neon-text0)]">
@@ -179,7 +183,7 @@ export async function HeroSection() {
           <div className="relative">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
-                <div className="relative aspect-[3/4] overflow-hidden group">
+                <WaterFrame className="group relative aspect-[3/4] overflow-hidden rounded-2xl">
                   <Image
                     src="/vibe-event-dj.jpg"
                     alt="DJ performing at VIZB event"
@@ -188,11 +192,8 @@ export async function HeroSection() {
                     priority
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* Blue brand overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#0D40FF]/40 via-[#0C74E8]/30 to-transparent mix-blend-multiply" />
-                  {/* Neon border glow on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none border-2 border-primary shadow-[inset_0_0_20px_rgba(13,64,255,0.3)]" />
-                </div>
+                </WaterFrame>
                 <div className="bg-primary p-4 relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#0D40FF] to-[#00BDFF] opacity-0 group-hover:opacity-100 transition-opacity" />
                   <p className="relative text-xs uppercase tracking-widest text-background font-mono">Hampton Roads</p>
@@ -203,7 +204,7 @@ export async function HeroSection() {
                   <div className="absolute inset-0 bg-gradient-to-r from-secondary to-muted opacity-50" />
                   <p className="relative text-xs uppercase tracking-widest text-foreground font-mono">DMV</p>
                 </div>
-                <div className="relative aspect-[3/4] overflow-hidden group">
+                <WaterFrame className="group relative aspect-[3/4] overflow-hidden rounded-2xl">
                   <Image
                     src="/vibe-event-party.jpg"
                     alt="VIZB community members at party"
@@ -211,11 +212,8 @@ export async function HeroSection() {
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* Blue brand overlay */}
                   <div className="absolute inset-0 bg-gradient-to-tl from-[#00BDFF]/40 via-[#0C74E8]/30 to-transparent mix-blend-multiply" />
-                  {/* Neon border glow on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none border-2 border-[#00BDFF] shadow-[inset_0_0_20px_rgba(0,189,255,0.3)]" />
-                </div>
+                </WaterFrame>
               </div>
             </div>
 

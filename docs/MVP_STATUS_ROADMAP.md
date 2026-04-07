@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 2, 2026 |
+| **Last Audited** | April 7, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | 001–023 exist in repo; events + posts migrations applied in production (per release work) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 (Events + admin review) largely implemented; Posts MVP shipped |
@@ -69,6 +69,7 @@
 ### Landing Page (Pre-Phase 1 -- Live)
 
 - Full marketing homepage at `/` with hero, marquee, editorial grid, events preview, app mockup, waitlist form, footer
+- Global first-load screen (`app/loading.tsx`) uses CSS-only **WaterLoader**; hero, editorial grid, and events preview images use **WaterFrame** (liquid neon edge + inset hover glow; tokens `--water-a` / `--water-b` in `app/globals.css`)
 - 3D Three.js animated background (client-side)
 - Waitlist subscription via `subscribers` table (scripts 001-002)
 - ViBE brand system fully implemented: dark mode, zero radius, Space Grotesk + Playfair Display + JetBrains Mono typography

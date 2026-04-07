@@ -66,6 +66,9 @@
   --vibe-text-muted: var(--neon-text2);
   --vibe-neon-glow: 0 0 24px rgb(0 209 255 / 0.35), 0 0 56px rgb(157 77 255 / 0.22);
   --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.22);
+
+  --water-a: var(--neon-a);
+  --water-b: var(--neon-b);
 }
 
 .dark {
@@ -123,6 +126,9 @@
   --vibe-text-muted: var(--neon-text2);
   --vibe-neon-glow: 0 0 24px rgb(0 209 255 / 0.35), 0 0 56px rgb(157 77 255 / 0.22);
   --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.22);
+
+  --water-a: var(--neon-a);
+  --water-b: var(--neon-b);
 }
 
 @theme inline {
@@ -445,4 +451,198 @@
 .animate-shimmer-line {
   animation: shimmer-line 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   transform-origin: left center;
+}
+
+/* ─── Water / liquid neon system (loaders + frames, CSS-only) ─── */
+
+@keyframes water-loader-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes water-caustics {
+  0%,
+  100% {
+    transform: translateX(-35%) skewX(-12deg) scaleY(1.1);
+    opacity: 0.28;
+  }
+  50% {
+    transform: translateX(35%) skewX(8deg) scaleY(1.2);
+    opacity: 0.48;
+  }
+}
+
+@keyframes water-sheen {
+  0% {
+    background-position: -100% 40%;
+  }
+  100% {
+    background-position: 200% 60%;
+  }
+}
+
+@keyframes water-edge-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+/**
+ * Flowing bar: horizontal liquid light. Children: .water-loader-fill, .water-shimmer, .water-loader-sheen
+ */
+.water-loader .water-loader-fill {
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--water-a) 0%, transparent) 0%,
+    color-mix(in srgb, var(--water-a) 55%, transparent) 22%,
+    color-mix(in srgb, var(--water-b) 45%, transparent) 48%,
+    color-mix(in srgb, var(--water-a) 70%, transparent) 72%,
+    color-mix(in srgb, var(--water-b) 35%, transparent) 88%,
+    color-mix(in srgb, var(--water-a) 0%, transparent) 100%
+  );
+  background-size: 220% 100%;
+  animation: water-loader-flow 2.8s ease-in-out infinite;
+}
+
+.water-loader .water-shimmer {
+  background: linear-gradient(
+    118deg,
+    transparent 0%,
+    color-mix(in srgb, var(--water-a) 22%, transparent) 38%,
+    rgb(255 255 255 / 0.14) 50%,
+    color-mix(in srgb, var(--water-b) 20%, transparent) 62%,
+    transparent 100%
+  );
+  background-size: 160% 100%;
+  animation: water-caustics 3.2s ease-in-out infinite;
+}
+
+.water-loader .water-loader-sheen {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--water-b) 25%, transparent) 45%,
+    color-mix(in srgb, var(--water-a) 35%, transparent) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: water-sheen 3.6s ease-in-out infinite;
+}
+
+/**
+ * Liquid edge ring — use on .water-frame (combined with .water-border) or standalone .water-border
+ */
+.water-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.water-frame.water-border {
+  transition:
+    box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    filter 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.water-border::before,
+.water-frame.water-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  box-sizing: border-box;
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--water-b) 35%, transparent),
+    color-mix(in srgb, var(--water-a) 85%, transparent),
+    color-mix(in srgb, var(--water-b) 55%, transparent),
+    color-mix(in srgb, var(--water-a) 45%, transparent),
+    color-mix(in srgb, var(--water-b) 40%, transparent)
+  );
+  background-size: 220% 100%;
+  animation: water-edge-flow 5.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.water-frame.water-border:hover,
+.water-frame.water-border:focus-within {
+  box-shadow:
+    inset 0 0 48px color-mix(in srgb, var(--water-a) 16%, transparent),
+    inset 0 0 100px color-mix(in srgb, var(--water-b) 8%, transparent);
+}
+
+@media (hover: none) {
+  .water-frame.water-border:hover,
+  .water-frame.water-border:focus-within {
+    box-shadow: none;
+  }
+
+  .water-frame.water-border:active {
+    box-shadow:
+      inset 0 0 40px color-mix(in srgb, var(--water-a) 14%, transparent),
+      inset 0 0 80px color-mix(in srgb, var(--water-b) 7%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-frame.water-border {
+    transition: none;
+  }
+
+  .water-loader .water-loader-fill,
+  .water-loader .water-shimmer,
+  .water-loader .water-loader-sheen {
+    animation: none;
+  }
+
+  .water-loader .water-loader-fill {
+    background-position: 45% 50%;
+  }
+
+  .water-loader .water-shimmer {
+    transform: none;
+    opacity: 0.35;
+  }
+
+  .water-loader .water-loader-sheen {
+    background-position: 40% 50%;
+    opacity: 0.38;
+  }
+
+  .water-border::before,
+  .water-frame.water-border::before {
+    animation: none;
+    background-position: 35% 0%;
+  }
+
+  .water-frame.water-border:hover,
+  .water-frame.water-border:focus-within {
+    box-shadow:
+      inset 0 0 36px color-mix(in srgb, var(--water-a) 12%, transparent),
+      inset 0 0 72px color-mix(in srgb, var(--water-b) 6%, transparent);
+  }
+
+  .animate-logo-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: drop-shadow(0 0 24px rgb(0 209 255 / 0.2)) drop-shadow(0 0 48px rgb(157 77 255 / 0.12)) !important;
+  }
 }
