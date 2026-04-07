@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
+import { TicketQrReveal } from "@/components/dashboard/tickets/ticket-qr-reveal"
 
 export type TicketWalletEvent = {
   title: string
@@ -17,6 +18,7 @@ export function TicketWalletCard({
   checkedInAt,
   event: e,
   eventAbsoluteUrl,
+  qrToken,
 }: {
   status: string
   createdAt: string
@@ -24,6 +26,8 @@ export function TicketWalletCard({
   event: TicketWalletEvent
   /** Full URL for calendar description (server-derived). */
   eventAbsoluteUrl: string
+  /** Signed payload for door check-in; omitted when signing is not configured. */
+  qrToken?: string | null
 }) {
   const start = new Date(e.starts_at)
   const dateValid = !Number.isNaN(start.getTime())
@@ -64,8 +68,10 @@ export function TicketWalletCard({
               {status === "checked_in"
                 ? "Checked in"
                 : status === "confirmed"
-                  ? "RSVP confirmed"
-                  : status.replace(/_/g, " ")}
+                  ? "Confirmed"
+                  : status === "cancelled"
+                    ? "Cancelled"
+                    : status.replace(/_/g, " ")}
             </span>
             {status === "checked_in" && checkedInAt ? (
               <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
@@ -90,6 +96,15 @@ export function TicketWalletCard({
           </p>
         </div>
       </div>
+
+      {status === "cancelled" ? null : qrToken ? (
+        <TicketQrReveal token={qrToken} label={`Check-in QR for ${e.title}`} />
+      ) : status === "confirmed" || status === "checked_in" ? (
+        <p className="mt-4 text-[11px] font-mono text-[color:var(--neon-text2)]">
+          Door QR unavailable — set <span className="text-[color:var(--neon-text1)]">TICKET_QR_SECRET</span> on the
+          server to enable signed tickets.
+        </p>
+      ) : null}
 
       {dateValid ? (
         <EventCalendarActions

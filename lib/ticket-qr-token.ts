@@ -1,6 +1,13 @@
-import "server-only"
-
 import { createHmac, timingSafeEqual } from "node:crypto"
+
+/** Seconds from issue snapshot until ticket QR expires (member refreshes wallet for a new token). */
+export const TICKET_QR_TTL_SECONDS = 60 * 60 * 24 * 365
+
+export function getTicketQrSecret(): string | null {
+  const s = process.env.TICKET_QR_SECRET?.trim()
+  if (s && s.length >= 16) return s
+  return null
+}
 
 /**
  * Signed token for ticket QR codes.

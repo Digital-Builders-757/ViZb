@@ -5,6 +5,7 @@ import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { TicketWalletCard } from "@/components/dashboard/tickets/ticket-wallet-card"
+import { buildTicketQrToken, getTicketQrSecret, TICKET_QR_TTL_SECONDS } from "@/lib/ticket-qr-token"
 
 type WalletEvent = {
   title: string
@@ -16,6 +17,8 @@ type WalletEvent = {
 }
 
 type RegistrationRow = {
+  id: string
+  event_id: string
   status: string
   created_at: string
   checked_in_at: string | null
@@ -65,11 +68,15 @@ function TicketSection({
   subtitle,
   rows,
   origin,
+  ticketSecret,
+  qrIssuedAtUnixSeconds,
 }: {
   title: string
   subtitle?: string
   rows: RegistrationRow[]
   origin: string
+  ticketSecret: string | null
+  qrIssuedAtUnixSeconds: number
 }) {
   if (rows.length === 0) return null
 
@@ -88,14 +95,28 @@ function TicketSection({
           const base = origin || ""
           const eventAbsoluteUrl = base ? `${base}/events/${e.slug}` : `/events/${e.slug}`
 
+          const qrToken =
+            ticketSecret && r.event_id
+              ? buildTicketQrToken(
+                  {
+                    v: 1,
+                    rid: r.id,
+                    eid: r.event_id,
+                    exp: qrIssuedAtUnixSeconds + TICKET_QR_TTL_SECONDS,
+                  },
+                  ticketSecret,
+                )
+              : null
+
           return (
             <TicketWalletCard
-              key={`${e.slug}-${r.created_at}`}
+              key={r.id}
               status={r.status}
               createdAt={r.created_at}
               checkedInAt={r.checked_in_at}
               event={e}
               eventAbsoluteUrl={eventAbsoluteUrl}
+              qrToken={qrToken}
             />
           )
         })}
@@ -115,7 +136,7 @@ export default async function TicketsPage() {
     const { data, error } = await supabase
       .from("event_registrations")
       .select(
-        "status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
+        "id, event_id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -128,13 +149,14 @@ export default async function TicketsPage() {
   }
 
   const list = rows ?? []
-  const active = list.filter((r) => {
-    if (r.status === "cancelled") return false
-    return firstEvent(r.event) != null
-  })
+  const active = list.filter((r) => firstEvent(r.event) != null)
+  const ticketSecret = getTicketQrSecret()
 
-  // Request-time boundary for partitioning upcoming vs past (RSC; not a client re-render).
-  const nowMs = new Date().getTime()
+  // Single request-time clock snapshot (avoids multiple impure time calls in this RSC).
+  const clock = new Date()
+  const nowMs = clock.getTime()
+  const qrIssuedAtUnixSeconds = Math.floor(nowMs / 1000)
+
   const { upcoming, past, undated } = partitionByStart(active, nowMs)
 
   return (
@@ -187,6 +209,8 @@ export default async function TicketsPage() {
             subtitle="Events on your calendar from today forward."
             rows={[...upcoming, ...undated]}
             origin={origin}
+            ticketSecret={ticketSecret}
+            qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
           />
 
           <TicketSection
@@ -194,6 +218,8 @@ export default async function TicketsPage() {
             subtitle="Earlier RSVPs for your records."
             rows={past}
             origin={origin}
+            ticketSecret={ticketSecret}
+            qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
           />
         </div>
       ) : null}
