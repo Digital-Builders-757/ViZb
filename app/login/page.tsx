@@ -1,18 +1,20 @@
 "use client"
 
-import React from "react"
-
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
+
+import { AuthAlert } from "@/components/auth/auth-alert"
+import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
+import { supportMailtoHref } from "@/lib/auth/support-contact"
 import { getSafeRedirectPath } from "@/lib/utils"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
+  const [authIssue, setAuthIssue] = useState<MappedAuthError | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -21,7 +23,7 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    setError(null)
+    setAuthIssue(null)
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
@@ -30,7 +32,12 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setError(error.message)
+      setAuthIssue(
+        mapAuthError(error, "login", {
+          onNetworkRetry: () => setAuthIssue(null),
+          onGenericRetry: () => setAuthIssue(null),
+        }),
+      )
       setLoading(false)
       return
     }
@@ -90,14 +97,46 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleLogin} className="mt-10 space-y-6">
-            {error && (
-              <div className="border border-destructive/50 bg-destructive/10 px-4 py-3">
-                <p className="text-sm text-destructive">{error}</p>
-              </div>
-            )}
+            <div className="space-y-4">
+              {authIssue ? (
+                <>
+                  <AuthAlert
+                    variant={authIssue.severity === "warning" ? "warning" : "error"}
+                    title={authIssue.title}
+                    message={authIssue.message}
+                    hint={authIssue.hint}
+                    mapped={{
+                      primaryAction: authIssue.primaryAction,
+                      secondaryAction: authIssue.secondaryAction,
+                    }}
+                  />
+                  <p className="text-center text-sm text-muted-foreground">
+                    <button
+                      type="button"
+                      className="font-mono text-primary underline decoration-border underline-offset-4 hover:decoration-primary"
+                      onClick={() => setAuthIssue(null)}
+                    >
+                      Try again
+                    </button>
+                    <span className="mx-2 text-border" aria-hidden>
+                      ·
+                    </span>
+                    <a
+                      href={supportMailtoHref("VIZB sign-in help")}
+                      className="font-mono text-primary underline decoration-border underline-offset-4 hover:decoration-primary"
+                    >
+                      Contact support
+                    </a>
+                  </p>
+                </>
+              ) : null}
+            </div>
 
             <div>
-              <label htmlFor="email" className="block text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2">
+              <label
+                htmlFor="email"
+                className="block text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2"
+              >
                 Email
               </label>
               <input
@@ -107,14 +146,25 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full bg-input border-0 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="vibe-focus-ring w-full rounded-md bg-input border-0 px-4 py-3 text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2">
-                Password
-              </label>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-mono uppercase tracking-widest text-muted-foreground"
+                >
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs font-mono uppercase tracking-widest text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"
@@ -122,14 +172,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Your password"
-                className="w-full bg-input border-0 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="vibe-focus-ring w-full rounded-md bg-input border-0 px-4 py-3 text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-background px-8 py-4 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="vibe-focus-ring w-full bg-primary text-background px-8 py-4 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
