@@ -19,6 +19,8 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { StatCard } from "@/components/ui/stat-card"
 import { loadMemberHomeRsvpSummary } from "@/lib/dashboard/member-home-data"
+import { MyVibesThisWeek } from "@/components/dashboard/my-vibes-week"
+import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 
 const TRENDING_MOCK = [
   {
@@ -52,6 +54,7 @@ export default async function DashboardPage({
 
   const { profile, user, supabase, memberships } = await getUserOrganizations()
   const rsvp = await loadMemberHomeRsvpSummary(supabase, user.id)
+  const myVibesSavedIds = await fetchMySavedEventIds(supabase, user.id)
   const trendingLive = await getDashboardUpcomingEventPreviews(3)
   const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
   const supabaseReady = isServerSupabaseConfigured()
@@ -126,6 +129,8 @@ export default async function DashboardPage({
         </div>
       </section>
 
+      <MyVibesThisWeek supabase={supabase} userId={user.id} />
+
       <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
         <h2 id="dash-calendar-heading" className="sr-only">
           Events this month
@@ -136,6 +141,7 @@ export default async function DashboardPage({
           monthIndex={monthIndex}
           calKey={calKey}
           events={calendarEvents}
+          savedEventIds={myVibesSavedIds}
         />
       </section>
 

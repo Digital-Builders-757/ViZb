@@ -9,6 +9,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
+import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 
 export const metadata: Metadata = {
   title: "Events | VIZB",
@@ -51,12 +52,23 @@ interface FlatEvent {
 
 const FILTER_CATEGORIES = ["All", "Party", "Networking", "Workshop", "Concert", "Social", "Other"] as const
 
+function eventsListingQuery(opts: { category?: string | null; vibes?: boolean }): string {
+  const sp = new URLSearchParams()
+  if (opts.category && opts.category !== "all") {
+    sp.set("category", opts.category.toLowerCase())
+  }
+  if (opts.vibes) sp.set("vibes", "1")
+  const q = sp.toString()
+  return q ? `?${q}` : ""
+}
+
 export default async function EventsExplorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; vibes?: string }>
 }) {
-  const { category: activeFilter } = await searchParams
+  const { category: activeFilter, vibes: vibesParam } = await searchParams
+  const vibesFilter = vibesParam === "1" || vibesParam === "true"
 
   // Use current time as the upcoming/past split -- simple, no timezone edge cases
   const now = new Date()
@@ -117,6 +129,23 @@ export default async function EventsExplorePage({
     await createClient()
   }
 
+  let eventsUser: { id: string } | null = null
+  let savedEventIds: string[] = []
+  if (isServerSupabaseConfigured()) {
+    const supabaseAuth = await createClient()
+    const {
+      data: { user },
+    } = await supabaseAuth.auth.getUser()
+    if (user) {
+      eventsUser = { id: user.id }
+      savedEventIds = await fetchMySavedEventIds(supabaseAuth, user.id)
+    }
+  }
+
+  const savedIdSet = new Set(savedEventIds)
+  const isSignedInForVibes = !!eventsUser
+  const vibeAuthHref = `/login?redirect=${encodeURIComponent(`/events${eventsListingQuery({ category: activeFilter ?? undefined, vibes: vibesFilter })}`)}`
+
   // Map to flat format with org fallbacks
   function flattenEvents(rows: PublicEventRow[] | null): FlatEvent[] {
     return (rows ?? []).map((e) => ({
@@ -146,14 +175,24 @@ export default async function EventsExplorePage({
     return new Date(e.starts_at).getTime() >= now.getTime()
   }
 
-  const flatUpcoming = allFlat
+  let flatUpcoming = allFlat
     .filter(isUpcomingOrOngoing)
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
 
-  const flatPast = allFlat
+  let flatPast = allFlat
     .filter((e) => !isUpcomingOrOngoing(e))
     .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
     .slice(0, 12)
+
+  const vibesSignedOutGate = vibesFilter && !isSignedInForVibes
+
+  if (vibesSignedOutGate) {
+    flatUpcoming = []
+    flatPast = []
+  } else if (vibesFilter && isSignedInForVibes) {
+    flatUpcoming = flatUpcoming.filter((e) => savedIdSet.has(e.id))
+    flatPast = flatPast.filter((e) => savedIdSet.has(e.id))
+  }
 
   // Simple “Trending” strip: earliest upcoming items (no extra query)
   const trending = flatUpcoming.slice(0, 3)
@@ -225,7 +264,11 @@ export default async function EventsExplorePage({
               const isActive = cat === "All"
                 ? !activeFilter || activeFilter === "all"
                 : activeFilter === cat.toLowerCase()
-              const href = cat === "All" ? "/events" : `/events?category=${cat.toLowerCase()}`
+              const catSlug = cat === "All" ? undefined : cat.toLowerCase()
+              const href =
+                cat === "All"
+                  ? `/events${eventsListingQuery({ vibes: vibesFilter })}`
+                  : `/events${eventsListingQuery({ category: catSlug, vibes: vibesFilter })}`
 
               return (
                 <Link
@@ -241,6 +284,20 @@ export default async function EventsExplorePage({
                 </Link>
               )
             })}
+            <Link
+              href={
+                vibesFilter
+                  ? `/events${eventsListingQuery({ category: activeFilter ?? undefined })}`
+                  : `/events${eventsListingQuery({ category: activeFilter ?? undefined, vibes: true })}`
+              }
+              className={`inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
+                vibesFilter
+                  ? "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(157,77,255,0.14)]"
+                  : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-b)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
+              }`}
+            >
+              My Vibes
+            </Link>
           </div>
         </div>
       </section>
@@ -324,6 +381,26 @@ export default async function EventsExplorePage({
       {/* Timeline Section */}
       <section className="px-4 py-12 sm:px-8 md:py-20">
         <div className="max-w-[1200px] mx-auto">
+          {vibesSignedOutGate ? (
+            <div
+              role="status"
+              className="mb-10 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-4 py-4 backdrop-blur md:px-6 md:py-5"
+            >
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
+                My Vibes
+              </p>
+              <p className="mt-2 text-sm text-[color:var(--neon-text1)]">
+                Sign in to see events you&apos;ve saved.
+              </p>
+              <Link
+                href={vibeAuthHref}
+                className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/15 px-5 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors hover:bg-[color:var(--neon-a)]/25"
+              >
+                Sign in to save
+              </Link>
+            </div>
+          ) : null}
+
           {hasEvents ? (
             <>
               {/* Upcoming Events */}
@@ -348,6 +425,9 @@ export default async function EventsExplorePage({
                                 key={event.id}
                                 event={event}
                                 index={runningIndex}
+                                isSignedIn={isSignedInForVibes}
+                                isSaved={savedIdSet.has(event.id)}
+                                vibeAuthHref={vibeAuthHref}
                               />
                             )
                             runningIndex++
@@ -378,6 +458,9 @@ export default async function EventsExplorePage({
                           <EventTimelineCard
                             event={event}
                             index={runningIndex}
+                            isSignedIn={isSignedInForVibes}
+                            isSaved={savedIdSet.has(event.id)}
+                            vibeAuthHref={vibeAuthHref}
                           />
                         </div>
                       )
@@ -388,27 +471,50 @@ export default async function EventsExplorePage({
                 </div>
               )}
             </>
-          ) : (
+          ) : vibesSignedOutGate ? null : (
             /* Empty State */
             <div className="flex flex-col items-center text-center py-16 md:py-32">
               <div className="w-20 h-20 md:w-24 md:h-24 border border-border rounded-full flex items-center justify-center mb-8">
                 <Calendar className="w-8 h-8 md:w-10 md:h-10 text-muted-foreground" />
               </div>
               <span className="text-xs font-mono uppercase tracking-widest text-primary">
-                {activeFilter && activeFilter !== "all" ? "No Results" : "Coming Soon"}
+                {vibesFilter && isSignedInForVibes
+                  ? "My Vibes"
+                  : activeFilter && activeFilter !== "all"
+                    ? "No Results"
+                    : "Coming Soon"}
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-4 text-balance">
-                {activeFilter && activeFilter !== "all"
-                  ? `No ${activeFilter} Events Found`
-                  : "The Timeline Is Loading"}
+                {vibesFilter && isSignedInForVibes
+                  ? "No saved events match this view"
+                  : activeFilter && activeFilter !== "all"
+                    ? `No ${activeFilter} Events Found`
+                    : "The Timeline Is Loading"}
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mt-4 max-w-md leading-relaxed">
-                {activeFilter && activeFilter !== "all"
-                  ? "Try a different category or check back later."
-                  : "Events are being curated by organizers across Virginia. Check back soon or join the movement."}
+                {vibesFilter && isSignedInForVibes
+                  ? "Save events from the timeline with the My Vibes control, or widen your filters."
+                  : activeFilter && activeFilter !== "all"
+                    ? "Try a different category or check back later."
+                    : "Events are being curated by organizers across Virginia. Check back soon or join the movement."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mt-10">
-                {activeFilter && activeFilter !== "all" ? (
+                {vibesFilter && isSignedInForVibes ? (
+                  <>
+                    <Link
+                      href={`/events${eventsListingQuery({ category: activeFilter && activeFilter !== "all" ? activeFilter : undefined })}`}
+                      className="text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all text-center"
+                    >
+                      Clear My Vibes filter
+                    </Link>
+                    <Link
+                      href="/events"
+                      className="text-xs uppercase tracking-widest border border-border text-foreground px-8 py-4 hover:border-primary hover:text-primary transition-colors text-center"
+                    >
+                      Explore events
+                    </Link>
+                  </>
+                ) : activeFilter && activeFilter !== "all" ? (
                   <Link
                     href="/events"
                     className="text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all text-center"

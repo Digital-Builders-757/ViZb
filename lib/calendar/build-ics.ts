@@ -2,6 +2,17 @@
 
 const CRLF = "\r\n"
 
+export type PublishedEventIcsPayload = {
+  eventId: string
+  title: string
+  description: string | null
+  startsAt: string
+  endsAt: string | null
+  venueName: string
+  city: string
+  eventUrl: string
+}
+
 function icsEscapeText(input: string): string {
   return input
     .replace(/\\/g, "\\\\")
@@ -57,16 +68,17 @@ function formatNyLocal(iso: string): string {
   return `${y}${mo}${da}T${h}${mi}${se}`
 }
 
-export function buildPublishedEventIcs(params: {
-  eventId: string
-  title: string
-  description: string | null
-  startsAt: string
-  endsAt: string | null
-  venueName: string
-  city: string
-  eventUrl: string
-}): string {
+const VCAL_HEADER_LINES = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "PRODID:-//VIZB//Event Calendar//EN",
+  "CALSCALE:GREGORIAN",
+  "METHOD:PUBLISH",
+] as const
+
+const VCAL_FOOTER_LINES = ["END:VCALENDAR"] as const
+
+function publishedEventVeventLines(params: PublishedEventIcsPayload): string[] {
   const endInstant =
     params.endsAt ??
     new Date(new Date(params.startsAt).getTime() + 2 * 60 * 60 * 1000).toISOString()
@@ -74,12 +86,7 @@ export function buildPublishedEventIcs(params: {
   const descParts = [params.description?.trim() || "", params.eventUrl].filter(Boolean)
   const description = descParts.join("\n\n")
 
-  const rawLines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//VIZB//Event Calendar//EN",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
+  return [
     "BEGIN:VEVENT",
     `UID:${params.eventId}@vizb.local`,
     `DTSTAMP:${formatUtcStamp(Date.now())}`,
@@ -90,8 +97,19 @@ export function buildPublishedEventIcs(params: {
     `DESCRIPTION:${icsEscapeText(description)}`,
     `URL:${params.eventUrl}`,
     "END:VEVENT",
-    "END:VCALENDAR",
   ]
+}
 
-  return rawLines.flatMap(foldLine).join(CRLF) + CRLF
+function joinFolded(lines: string[]): string {
+  return lines.flatMap(foldLine).join(CRLF) + CRLF
+}
+
+export function buildPublishedEventIcs(params: PublishedEventIcsPayload): string {
+  return joinFolded([...VCAL_HEADER_LINES, ...publishedEventVeventLines(params), ...VCAL_FOOTER_LINES])
+}
+
+/** Multiple published events in one calendar file (RFC 5545). */
+export function buildPublishedEventsIcs(events: PublishedEventIcsPayload[]): string {
+  const vevents = events.flatMap((e) => publishedEventVeventLines(e))
+  return joinFolded([...VCAL_HEADER_LINES, ...vevents, ...VCAL_FOOTER_LINES])
 }

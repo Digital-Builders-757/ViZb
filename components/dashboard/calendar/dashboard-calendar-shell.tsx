@@ -25,6 +25,8 @@ export interface DashboardCalendarShellProps {
   monthIndex: number
   calKey: string
   events: DashboardCalendarEvent[]
+  /** Event IDs the member saved (My Vibes); powers calendar detail save control. */
+  savedEventIds?: string[]
 }
 
 export function DashboardCalendarShell({
@@ -32,6 +34,7 @@ export function DashboardCalendarShell({
   monthIndex,
   calKey,
   events,
+  savedEventIds = [],
 }: DashboardCalendarShellProps) {
   const [view, setView] = useState<DashboardCalendarView>("month")
   const [detailSheetOpen, setDetailSheetOpen] = useState(false)
@@ -102,6 +105,8 @@ export function DashboardCalendarShell({
     [events, selectedEventId],
   )
 
+  const savedSet = useMemo(() => new Set(savedEventIds), [savedEventIds])
+
   const panelContent =
     events.length === 0 ? (
       <div className="rounded-xl border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
@@ -113,7 +118,11 @@ export function DashboardCalendarShell({
         </NeonLink>
       </div>
     ) : selectedEvent ? (
-      <DashboardCalendarEventDetail event={selectedEvent} onBack={clearEvent} />
+      <DashboardCalendarEventDetail
+        event={selectedEvent}
+        onBack={clearEvent}
+        initialSaved={savedSet.has(selectedEvent.id)}
+      />
     ) : (
       <DashboardCalendarDayPanel
         dayKey={selectedDayKey}
@@ -238,7 +247,11 @@ export function DashboardCalendarShell({
         >
           <SheetTitle className="sr-only">Event details</SheetTitle>
           {selectedEvent ? (
-            <DashboardCalendarEventDetail event={selectedEvent} onBack={clearEvent} />
+            <DashboardCalendarEventDetail
+              event={selectedEvent}
+              onBack={clearEvent}
+              initialSaved={savedSet.has(selectedEvent.id)}
+            />
           ) : null}
         </SheetContent>
       </Sheet>

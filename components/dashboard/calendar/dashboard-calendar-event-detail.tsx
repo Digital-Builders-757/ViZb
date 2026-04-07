@@ -10,10 +10,12 @@ import {
 import { ArrowLeft, CalendarPlus, ExternalLink, Share2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { MyVibesButton } from "@/components/events/my-vibes-button"
 
 export interface DashboardCalendarEventDetailProps {
   event: DashboardCalendarEvent
   onBack: () => void
+  initialSaved: boolean
 }
 
 function hostedByLabel(event: DashboardCalendarEvent): string {
@@ -22,8 +24,13 @@ function hostedByLabel(event: DashboardCalendarEvent): string {
   return "VIZB"
 }
 
-export function DashboardCalendarEventDetail({ event, onBack }: DashboardCalendarEventDetailProps) {
+export function DashboardCalendarEventDetail({
+  event,
+  onBack,
+  initialSaved,
+}: DashboardCalendarEventDetailProps) {
   const icsHref = `/api/calendar/ics?slug=${encodeURIComponent(event.slug)}`
+  const vibeAuthHref = `/login?redirect=${encodeURIComponent(`/dashboard`)}`
 
   async function copyShareLink() {
     const path = `/events/${event.slug}`
@@ -109,6 +116,14 @@ export function DashboardCalendarEventDetail({ event, onBack }: DashboardCalenda
           </p>
 
           <div className="flex flex-col gap-2 pt-1">
+            <MyVibesButton
+              eventId={event.id}
+              eventSlug={event.slug}
+              isSignedIn
+              initialSaved={initialSaved}
+              authHref={vibeAuthHref}
+              variant="dashboard"
+            />
             <Button
               asChild
               size="sm"
