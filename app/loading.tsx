@@ -222,11 +222,12 @@ export default function RootLoading() {
   }, [])
 
   useEffect(() => {
-    setMounted(true)
+    const mountTimer = setTimeout(() => setMounted(true), 0)
     const splashTimer = setTimeout(() => setSplashTriggered(true), 200)
     const contentTimer = setTimeout(() => setShowContent(true), 600)
-    
+
     return () => {
+      clearTimeout(mountTimer)
       clearTimeout(splashTimer)
       clearTimeout(contentTimer)
     }
