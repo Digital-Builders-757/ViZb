@@ -166,7 +166,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus:outline-none focus:ring-2 focus:ring-[color:var(--neon-b)]/50 focus:border-[color:var(--neon-b)]/50 transition-all"
+                className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-b)]/50 transition-all"
               />
             </div>
 
@@ -181,14 +181,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Your password"
-                className="w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus:outline-none focus:ring-2 focus:ring-[color:var(--neon-b)]/50 focus:border-[color:var(--neon-b)]/50 transition-all"
+                className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-b)]/50 transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(157,77,255,0.45),0_0_64px_rgba(0,209,255,0.3)] transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="vibe-focus-ring group relative w-full overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(157,77,255,0.45),0_0_64px_rgba(0,209,255,0.3)] transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-[color:var(--neon-b)] via-[color:var(--neon-a)] to-[color:var(--neon-b)] bg-[length:200%_100%] animate-[neon-border-flow_3s_linear_infinite]" />
               <span className="relative z-10 flex items-center justify-center w-full bg-[color:var(--neon-bg0)]/80 group-hover:bg-[color:var(--neon-bg0)]/60 px-8 py-4 rounded-lg text-xs uppercase tracking-widest font-bold text-[color:var(--neon-text0)] transition-colors">

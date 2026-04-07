@@ -148,6 +148,7 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
         </div>
       </div>
 
+      {/* Honeypot — hidden from users */}
       <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
         <label htmlFor="companyWebsite">Company website</label>
         <input id="companyWebsite" name="companyWebsite" type="text" tabIndex={-1} autoComplete="off" />
@@ -197,7 +198,7 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
         <label htmlFor="message" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
           Goals, timing & audience <span className="text-[color:var(--neon-a)]">*</span>
         </label>
- <p className="mt-1 text-xs text-[color:var(--neon-text2)]">
+        <p className="mt-1 text-xs text-[color:var(--neon-text2)]">
           Share what you want to promote, ideal run dates, and who you are trying to reach in Virginia / DMV.
         </p>
         <textarea
