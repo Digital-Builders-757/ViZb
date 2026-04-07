@@ -152,7 +152,13 @@ export function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden text-[color:var(--neon-text0)]" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
+          <button
+            type="button"
+            className="vibe-focus-ring rounded-md p-1 text-[color:var(--neon-text0)] md:hidden"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-expanded={isOpen}
+            aria-label="Toggle menu"
+          >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>

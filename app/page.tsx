@@ -7,24 +7,30 @@ import { AppPreview } from "@/components/app-preview"
 import { WaitlistSection } from "@/components/waitlist-section"
 import { Footer } from "@/components/footer"
 import { LatestPostsSection } from "@/components/posts/latest-posts-section"
+import { AppShell } from "@/components/ui/app-shell"
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
-      <HeroSection />
-      <MarqueeSection />
-      <EditorialGrid />
-      <EventsSection />
-      <div className="px-4 sm:px-8 pb-16">
-        <div className="max-w-[1200px] mx-auto">
-          {/* Public feed module: admin-authored posts (published only). */}
-          <LatestPostsSection />
+    <AppShell
+      withNeonBackdrop
+      className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+    >
+      <main className="min-h-screen">
+        <Navbar />
+        <HeroSection />
+        <MarqueeSection />
+        <EditorialGrid />
+        <EventsSection />
+        <div className="px-4 sm:px-8 pb-16">
+          <div className="mx-auto max-w-[1200px]">
+            {/* Public feed module: admin-authored posts (published only). */}
+            <LatestPostsSection />
+          </div>
         </div>
-      </div>
-      <AppPreview />
-      <WaitlistSection />
-      <Footer />
-    </main>
+        <AppPreview />
+        <WaitlistSection />
+        <Footer />
+      </main>
+    </AppShell>
   )
 }

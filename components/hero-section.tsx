@@ -56,23 +56,23 @@ export async function HeroSection() {
       <ThreeBackgroundWrapper />
 
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-background/60 z-[1]" />
+      <div className="absolute inset-0 z-[1] bg-[color:var(--neon-bg0)]/60" />
 
       {/* Content */}
       <div className="relative z-10 max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16 py-12 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh]">
           {/* Text content */}
           <div>
-            <span className="text-xs uppercase tracking-widest text-primary font-mono inline-flex items-center gap-2">
-              <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-[color:var(--neon-a)] shadow-[0_0_12px_rgba(0,209,255,0.45)]" />
               The Movement
             </span>
 
             {/* Main headline with neon gradient */}
             <h1 className="mt-6">
-              <span className="block headline-xl text-foreground uppercase">Virginia</span>
-              <span className="block headline-xl uppercase neon-gradient-text">Isn't</span>
-              <span className="block headline-xl text-foreground uppercase">Boring.</span>
+              <span className="headline-xl block uppercase text-[color:var(--neon-text0)]">Virginia</span>
+              <span className="headline-xl neon-gradient-text block uppercase">Isn&apos;t</span>
+              <span className="headline-xl block uppercase text-[color:var(--neon-text0)]">Boring.</span>
             </h1>
 
             <p className="mt-8 max-w-xl text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
@@ -187,15 +187,31 @@ export async function HeroSection() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-[#0D40FF]/40 via-[#0C74E8]/30 to-transparent mix-blend-multiply" />
                 </WaterFrame>
-                <div className="bg-primary p-4 relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0D40FF] to-[#00BDFF] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <p className="relative text-xs uppercase tracking-widest text-background font-mono">Hampton Roads</p>
+                <div className="group relative overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/28 p-4 backdrop-blur-sm transition hover:border-[color:var(--neon-a)]/35">
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-70 transition-opacity group-hover:opacity-100"
+                    style={{
+                      background:
+                        "linear-gradient(120deg, rgba(0,209,255,0.12), rgba(157,77,255,0.10))",
+                    }}
+                    aria-hidden
+                  />
+                  <p className="relative font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)]">
+                    Hampton Roads
+                  </p>
                 </div>
               </div>
               <div className="space-y-4 pt-12">
-                <div className="bg-secondary p-4 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-secondary to-muted opacity-50" />
-                  <p className="relative text-xs uppercase tracking-widest text-foreground font-mono">DMV</p>
+                <div className="group relative overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/28 p-4 backdrop-blur-sm transition hover:border-[color:var(--neon-b)]/35">
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-70 transition-opacity group-hover:opacity-100"
+                    style={{
+                      background:
+                        "linear-gradient(120deg, rgba(157,77,255,0.14), rgba(0,209,255,0.08))",
+                    }}
+                    aria-hidden
+                  />
+                  <p className="relative font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)]">DMV</p>
                 </div>
                 <WaterFrame className="group relative aspect-[3/4] overflow-hidden rounded-2xl">
                   <Image
@@ -211,14 +227,14 @@ export async function HeroSection() {
             </div>
 
             {/* Floating neon accent */}
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-[#00BDFF]/20 rounded-full blur-3xl animate-pulse delay-1000" />
+            <div className="absolute -right-8 -top-8 h-32 w-32 animate-pulse rounded-full bg-[color:var(--neon-b)]/20 blur-3xl" />
+            <div className="absolute -bottom-8 -left-8 h-24 w-24 animate-pulse rounded-full bg-[color:var(--neon-a)]/20 blur-3xl delay-1000" />
           </div>
         </div>
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[2]" />
+      <div className="absolute bottom-0 left-0 right-0 z-[2] h-32 bg-gradient-to-t from-[color:var(--neon-bg0)] to-transparent" />
 
       <OceanDivider variant="hero" density="normal" withLine className="relative z-[3]" />
     </section>

@@ -30,6 +30,12 @@ export function Footer() {
                 <Link href="/events" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
                   Events
                 </Link>
+                <Link href="/#waitlist" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
+                  Join the list
+                </Link>
+                <Link href="/host/apply" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
+                  Host with VIZB
+                </Link>
                 <Link href="/advertise" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
                   Advertise with us
                 </Link>
@@ -39,18 +45,14 @@ export function Footer() {
               </div>
             </div>
             <div>
-              <h4 className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-4">Social</h4>
-              <div className="space-y-2">
-                <a href="#" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
-                  Instagram
-                </a>
-                <a href="#" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
-                  Twitter
-                </a>
-                <a href="#" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
-                  TikTok
-                </a>
-              </div>
+              <h4 className="mb-4 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Social</h4>
+              <p className="max-w-[12rem] text-sm leading-relaxed text-[color:var(--neon-text2)]">
+                Official social links are on the way. In the meantime, tap in on the timeline or say hi through{" "}
+                <Link href="/advertise" className="text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 hover:decoration-[color:var(--neon-a)]">
+                  partnerships
+                </Link>
+                .
+              </p>
             </div>
           </div>
 
