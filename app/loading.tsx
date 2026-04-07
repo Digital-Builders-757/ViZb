@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import Image from "next/image"
 
 // Ocean-themed loading screen with water animations
@@ -99,7 +99,7 @@ function WaterParticle({ delay, x, size, duration }: { delay: number; x: number;
 }
 
 // Water droplet that falls
-function WaterDroplet({ delay, x, size }: { delay: number; x: number; size: number }) {
+function WaterDroplet({ delay, x, size, duration }: { delay: number; x: number; size: number; duration: number }) {
   return (
     <div
       className="absolute"
@@ -111,7 +111,7 @@ function WaterDroplet({ delay, x, size }: { delay: number; x: number; size: numb
         background: `radial-gradient(ellipse at 30% 30%, rgba(0, 209, 255, 0.8), rgba(0, 180, 220, 0.4))`,
         borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
         boxShadow: `0 0 ${size}px rgba(0, 209, 255, 0.4)`,
-        animation: `dropletFall ${2 + Math.random()}s ease-in ${delay}s infinite`,
+        animation: `dropletFall ${duration}s ease-in ${delay}s infinite`,
       }}
     />
   )
@@ -232,28 +232,29 @@ export default function RootLoading() {
     }
   }, [])
 
-  // Generate splash particles
-  const splashParticles = Array.from({ length: 25 }, (_, i) => ({
+  // Generate splash particles - use seeded values based on index for deterministic results
+  const splashParticles = useMemo(() => Array.from({ length: 25 }, (_, i) => ({
     delay: 0.2 + i * 0.03,
-    x: (Math.random() - 0.5) * 30,
-    size: 4 + Math.random() * 12,
-    duration: 1.5 + Math.random() * 0.5,
-  }))
+    x: ((i * 7.3 % 1) - 0.5) * 30, // deterministic pseudo-random based on index
+    size: 4 + (i * 3.7 % 1) * 12,
+    duration: 1.5 + (i * 2.1 % 1) * 0.5,
+  })), [])
 
-  // Generate droplets
-  const droplets = Array.from({ length: 15 }, (_, i) => ({
-    delay: Math.random() * 3,
-    x: 10 + Math.random() * 80,
-    size: 3 + Math.random() * 6,
-  }))
+  // Generate droplets - use seeded values based on index for deterministic results
+  const droplets = useMemo(() => Array.from({ length: 15 }, (_, i) => ({
+    delay: (i * 5.3 % 1) * 3,
+    x: 10 + (i * 4.7 % 1) * 80,
+    size: 3 + (i * 2.9 % 1) * 6,
+    duration: 2 + (i * 3.1 % 1), // add duration for WaterDroplet
+  })), [])
 
-  // Generate bubbles
-  const bubbles = Array.from({ length: 20 }, (_, i) => ({
-    delay: Math.random() * 2,
-    x: 5 + Math.random() * 90,
-    size: 6 + Math.random() * 18,
-    duration: 4 + Math.random() * 3,
-  }))
+  // Generate bubbles - use seeded values based on index for deterministic results
+  const bubbles = useMemo(() => Array.from({ length: 20 }, (_, i) => ({
+    delay: (i * 3.7 % 1) * 2,
+    x: 5 + (i * 6.1 % 1) * 90,
+    size: 6 + (i * 4.3 % 1) * 18,
+    duration: 4 + (i * 2.3 % 1) * 3,
+  })), [])
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-[#050508]">
