@@ -57,7 +57,7 @@
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
 | Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
-| Phase 3 | Ticket Types + Free RSVP | NOT STARTED | 0% |
+| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (RSVP + wallet passes slice) | ~20% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | 35% |
@@ -116,7 +116,7 @@
 | Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
 | Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
 | Member planner calendar | `components/dashboard/calendar/*` | Month / Week / Agenda + Eastern dates; day + event selection; detail panel (desktop) / Sheet (mobile); ICS via `app/api/calendar/ics`; org “Hosted by”; query still `getPublishedEventsForDashboardMonth` (widened window). Re-export: `dashboard-month-calendar.tsx` → shell. |
-| My Tickets page (temp) | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE -- empty state; **Note:** renders at `/dashboard/tickets` but canonical wallet route is `/tickets`. Will be replaced in Phase 3 when the real wallet is built at `/tickets`. |
+| My Tickets / wallet | `app/(dashboard)/dashboard/tickets/page.tsx`, `components/dashboard/tickets/*` | DONE (v1) -- RSVPs from `event_registrations`, calendar actions, **Add to Apple Wallet / Add to Google Wallet** when env is configured (see `docs/operations/WALLET_PASSES_SETUP.md`). APIs: `GET /api/tickets/pass/apple`, `GET /api/tickets/pass/google`. Canonical top-level `/tickets` wallet route remains future if product wants it. |
 | Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
 | Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |
 
@@ -198,7 +198,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 **Expected known failures (not regressions):**
 - Mobile dashboard navigation does not work (sidebar is desktop-only, fixed `w-64`). This is tracked in tech debt for Phase 6.
 - No loading skeletons -- pages may flash while server components load. Tracked for Phase 6.
-- Tickets page at `/dashboard/tickets` shows empty state only -- real wallet at `/tickets` is Phase 3.
+- Wallet pass issuance requires operator setup (Apple Pass Type ID + Google issuer); without env, dashboard shows “coming soon” for wallet buttons.
 
 > **Note:** This is a manual checklist. Automated E2E tests are post-MVP scope. Until then, run this checklist after every migration batch.
 
@@ -320,6 +320,16 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 ### Phase 3: Ticket Types + Free RSVP
 
 **Goal:** Events have ticket tiers. Attendees can RSVP to free events and receive tickets.
+
+**Shipped (April 2026 — Tickets / wallet passes v2):**
+
+- [x] HMAC-signed barcode payload (no PII) — `lib/tickets/barcode-token.ts`
+- [x] Apple Wallet `.pkpass` route (Node + `passkit-generator`) — `app/api/tickets/pass/apple/route.ts`
+- [x] Google Wallet “save” redirect + `format=json` — `app/api/tickets/pass/google/route.ts`
+- [x] Dashboard wallet buttons — `components/dashboard/tickets/ticket-wallet-actions.tsx`
+- [x] Operator doc — `docs/operations/WALLET_PASSES_SETUP.md`
+
+**P0 next:** Orders + `tickets` table model (or formalize free RSVP + check-in on `event_registrations` only). **P1:** Capacity limits, `/tickets` public wallet route parity, paid Stripe flow (Phase 4).
 
 **Database work:**
 - [ ] Write `scripts/011_create_tickets.sql` -- `ticket_types`, `orders`, `order_items`, `tickets` tables, indexes, RLS policies
@@ -457,7 +467,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, account deletion | 75% |
 | **Organizations** | Create org, auto-slug, type selection, membership check, sidebar display | Org settings page, member management, logo upload | 40% |
 | **Events** | None | Entire events system (CRUD, feed, detail, media) | 0% |
-| **Ticketing** | Empty state pages exist | Entire ticketing system (types, orders, tickets, wallet) | 0% |
+| **Ticketing** | Free RSVP via `event_registrations`; attendee wallet UI at `/dashboard/tickets`; signed barcode + Apple `.pkpass` + Google save JWT (env-gated) | Paid tiers, `orders`/`tickets` tables, `/tickets` top-level route, capacity enforcement | ~25% |
 | **Payments** | None | Stripe integration, checkout, webhooks | 0% |
 | **Door Check-In** | None | Check-in screen, attendee list, live counter | 0% |
 | **Admin** | Placeholder with live counts | Approval queues, user moderation, full metrics | 15% |
