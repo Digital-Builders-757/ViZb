@@ -5,7 +5,7 @@ import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { TicketWalletCard } from "@/components/dashboard/tickets/ticket-wallet-card"
-import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib/wallet/env"
+import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib/tickets/pass-config"
 
 type WalletEvent = {
   title: string

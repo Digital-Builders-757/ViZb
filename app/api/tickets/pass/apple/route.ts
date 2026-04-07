@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { buildRsvpAppleWalletPkPass } from "@/lib/wallet/build-apple-pkpass"
-import { isAppleWalletPassConfigured } from "@/lib/wallet/env"
+import { isAppleWalletPassConfigured } from "@/lib/tickets/pass-config"
 import { fetchRegistrationForWalletPass } from "@/lib/wallet/fetch-registration-for-pass"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -34,27 +33,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Registration is cancelled." }, { status: 403 })
   }
 
-  try {
-    const buf = buildRsvpAppleWalletPkPass({
-      registrationId: row.id,
-      eventId: row.event_id,
-      title: row.event.title,
-      venueName: row.event.venue_name,
-      city: row.event.city,
-      startsAtIso: row.event.starts_at,
-    })
-
-    return new NextResponse(new Uint8Array(buf), {
+  return NextResponse.json(
+    { ok: true, message: "apple pass not yet generated" },
+    {
       status: 200,
       headers: {
-        "Content-Type": "application/vnd.apple.pkpass",
-        "Content-Disposition": 'attachment; filename="vizb-ticket.pkpass"',
         "Cache-Control": "private, no-store",
         Vary: "Cookie",
       },
-    })
-  } catch (err) {
-    console.error("Apple Wallet pkpass error:", err)
-    return NextResponse.json({ error: "Pass generation failed." }, { status: 500 })
-  }
+    },
+  )
 }
