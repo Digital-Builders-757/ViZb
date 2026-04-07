@@ -1,22 +1,35 @@
 # Branching — ViBE / ViZb
 
-**Last updated:** March 23, 2026
+**Last updated:** April 6, 2026
 
-## Current default (Git-flow)
+## Goals
+
+- **`develop`** stays **integratable**: it should usually match what you would deploy to staging (or what multiple people can pull without surprise conflicts).
+- **Parallel work** (multiple humans, multiple agents, v0 sync) lands via **short-lived branches** and **PRs**, not by everyone pushing straight to **`develop`**.
+- **`main`** moves only through a **deliberate release** PR from **`develop`**.
+
+---
+
+## Branch roles
 
 | Branch | Role |
 |--------|------|
-| **`develop`** | **Integration branch** — day-to-day work merges here; **`/ship`** pushes this branch. |
-| **`main`** | **Release / production** — updated via PR **`develop` → `main`** when cutting a release. |
-| **Feature branches** | Branch off **`develop`**; open PRs with **base `develop`**. |
+| **`develop`** | **Integration** — default target for feature PRs; should remain releasable. Direct pushes are for **small exceptions** (see below). |
+| **`main`** | **Production / release** — updated only via PR **`develop` → `main`** when cutting a release. |
+| **`feat/*`**, **`fix/*`**, **`chore/*`**, **`docs/*`** | **Short-lived work** — branch off latest **`develop`**, open PR back into **`develop`**. |
 
-## Commands
+### Naming examples
 
-- **`/ship`:** Be on **`develop`** (merge or cherry-pick your work first), then commit and `git push origin develop`.
-- **`/pr` (feature):** `gh pr create --base develop --head <feature-branch>`.
-- **`/pr` (release):** `gh pr create --base main --head develop` (or edit an existing release PR).
+- `feat/event-rsvp-email`
+- `fix/admin-posts-null-guard`
+- `chore/eslint-config-align`
+- `docs/branching-workflow`
 
-## Switching to `develop` locally
+---
+
+## Standard workflow (preferred)
+
+### 1. Start from up-to-date `develop`
 
 ```powershell
 git fetch origin
@@ -24,6 +37,92 @@ git checkout develop
 git pull origin develop
 ```
 
+### 2. Create a branch for your change
+
+```powershell
+git checkout -b feat/short-description
+```
+
+### 3. Work, commit locally
+
+Run **`npm run ci`** (or your pre-push gate) before pushing.
+
+### 4. Publish the branch and open a PR
+
+```powershell
+git push -u origin feat/short-description
+gh pr create --base develop --head feat/short-description --title "..." --body "..."
+```
+
+(Or use GitHub’s UI: compare branch → base **`develop`**.)
+
+### 5. Merge the PR into `develop`
+
+Use **Create a merge commit** (not squash) unless it is a trivial one-commit fix and the team agrees. Agents default to **merge commit** per the policy at the end of this doc.
+- After merge, delete the remote feature branch if GitHub offers it.
+
+### 6. Update your local `develop`
+
+```powershell
+git checkout develop
+git pull origin develop
+```
+
+---
+
+## Release: `develop` → `main`
+
+When you are ready for production:
+
+1. Open a **release PR**: base **`main`**, head **`develop`**.
+2. Use **Create a merge commit** on that PR so the release is one visible integration point (you can tag the merge commit if you version releases).
+3. Deploy from **`main`** per your hosting workflow (e.g. Vercel production branch).
+
+Emergency **hotfix on production**: branch from **`main`** (e.g. `fix/prod-xyz`), PR → **`main`**, then **backport** the same fix into **`develop`** (cherry-pick or small follow-up PR) so branches do not diverge.
+
+---
+
+## When direct push to `develop` is acceptable
+
+Use sparingly; prefer PRs when anyone else might be on **`develop`**.
+
+| OK on `develop` | Avoid on `develop` |
+|-----------------|-------------------|
+| Urgent **docs-only** typo with no open PRs | Multi-file **feature** work |
+| Repo hygiene agreed in chat (e.g. one maintainer online) | Anything that should pass **CI review** before merge |
+| Fast-forward after **you** merged the same work via GitHub PR and need to sync local only | Long-running work without a branch |
+
+If two streams are active, **do not** both push to **`develop`**; use branches.
+
+---
+
+## Commands (Cursor)
+
+| Command | Role |
+|---------|------|
+| **`/ship`** | Run checks, commit **intended** files, push **current branch** — on a feature branch this means **open or update a PR to `develop`**; see `.cursor/commands/Ship.md`. |
+| **`/pr`** | **`gh pr create --base develop --head <branch>`** for features, or **`--base main --head develop`** for release. |
+
+---
+
 ## GitHub default branch
 
-The repo default on GitHub may still be **`main`**. That is fine: **`develop`** is the working integration branch. Optionally set the **default branch** to `develop` in GitHub repo settings if you want new clones to land on `develop`.
+The repo **default branch** on GitHub may be **`main`**. That is fine: new work still **starts from `develop`** for integration. Optionally set the **default branch** to **`develop`** in repo settings if you want clones to land on the integration branch first.
+
+---
+
+## Merge commits vs squash (enforced for agents)
+
+- **Feature → `develop`:** use **Create a merge commit** (or enable auto-merge with **merge commit**). Preserves integration context and matches short-lived branch history.
+- **`develop` → `main` (release):** use **Create a merge commit** only. This is the **release boundary**; do **not** squash-merge into `main` — squash drops the integration graph, makes backports and audits harder, and conflicts with the “develop is staging integration” model.
+- **Never squash-merge bulk or multi-ticket work into `main`.** If GitHub’s default merge button is squash, change the repo setting or use `gh pr merge --merge` for release PRs.
+- **Optional squash** is only for a **tiny** one-commit hotfix **into `develop`**, and never as the default for agents.
+
+### Reconciling `develop` after work landed on `main` only
+
+If commits reached **`main`** without going through **`develop`** (e.g. emergency merge or mistaken base), **`develop` must be updated** so the next feature PRs do not conflict with reality:
+
+1. Open **one** PR: base **`develop`**, head **`main`**, merge with **merge commit** (or locally: `git checkout develop && git merge origin/main` then push).
+2. Resolve conflicts once on that integration PR.
+3. Confirm CI on **`develop`** after the merge.
+

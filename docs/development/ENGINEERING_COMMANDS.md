@@ -1,6 +1,6 @@
 # Engineering commands — ViBE Operating Doctrine (Cursor)
 
-**Last updated:** March 23, 2026
+**Last updated:** April 6, 2026
 
 **Cursor commands:** `.cursor/commands/*.md`  
 **Rules:** `.cursor/rules/*.mdc`  
@@ -26,6 +26,14 @@
 
 ---
 
+## Git merge policy (release boundary)
+
+- **Default branch for new work:** open PRs **into `develop`**, not **`main`**, unless it is a documented hotfix workflow.
+- **Integrate with merge commits:** `gh pr merge --merge` (or GitHub UI **Create a merge commit**). Do **not** squash-merge **into `main`** — see `docs/development/BRANCHING.md` (“Merge commits vs squash”).
+- **Release:** PR **`develop` → `main`** using **merge commit** only.
+
+---
+
 ## Command roles
 
 | Command | Role |
@@ -34,8 +42,8 @@
 | **`/implement`** | Approved plan only; minimal diff. |
 | **`/verify`** | Pre-ship checks. |
 | **`/continue`** | Next increment; may hand off to `/ship` / `/pr` (see `continue-auto-ship.mdc`). |
-| **`/ship`** | Commit + push **`develop`** + doc hygiene. |
-| **`/pr`** | Feature → `develop` or release `develop` → `main`. |
+| **`/ship`** | Run checks, commit, push **current branch** (prefer **`feat/*` / `fix/*` off `develop`**); open PR → **`develop`**. See `docs/development/BRANCHING.md`. |
+| **`/pr`** | Feature branch → **`develop`**, or release **`develop` → `main`** (merge commit default). |
 | **`/triage`** | Rank issues; airport zones. |
 | **`/debug`** | Evidence-first RCA. |
 | **`/redzone`** | Middleware, auth, RLS, webhooks. |

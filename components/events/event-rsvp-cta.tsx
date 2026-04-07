@@ -22,7 +22,13 @@ export function EventRsvpCta({
   const isConfirmed = status === "confirmed" || status === "checked_in"
 
   return (
-    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="mt-4">
+      {!isSignedIn ? (
+        <p className="mb-2 text-xs text-[color:var(--neon-text2)]">
+          You’ll need an account to RSVP.
+        </p>
+      ) : null}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <NeonButton fullWidth shape="xl" disabled>
         Get Tickets
       </NeonButton>
@@ -61,8 +67,9 @@ export function EventRsvpCta({
           })
         }}
       >
-        {isConfirmed ? "Cancel RSVP" : "RSVP"}
+        {!isSignedIn ? "Sign in to RSVP" : isConfirmed ? "Cancel RSVP" : "RSVP"}
       </NeonButton>
+      </div>
     </div>
   )
 }

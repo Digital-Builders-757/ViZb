@@ -7,6 +7,8 @@ Intent: Open or update a pull request with a consistent narrative.
 1. **Feature integration:** **`<feature-branch>` → `develop`** (daily work).
 2. **Release:** **`develop` → `main`** (when promoting to production).
 
+**Merge style:** **Create a merge commit** for both feature→`develop` and release `develop`→`main`. Do **not** squash-merge into **`main`** (breaks the release boundary). Use `gh pr merge --merge`. Squash is **not** the default for agents; see `docs/development/BRANCHING.md`.
+
 Prompt text:
 
 Create or update a PR as appropriate.

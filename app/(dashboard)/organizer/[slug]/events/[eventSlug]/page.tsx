@@ -46,12 +46,12 @@ export default async function EventDetailPage({
   const StatusIcon = config.icon
 
   // RSVP rollup (requires scripts/025_create_event_registrations.sql)
-  let rsvpRows: { user_id: string; status: string; created_at: string }[] = []
+  let rsvpRows: { user_id: string; status: string; created_at: string; checked_in_at?: string | null }[] = []
   let profileById: Record<string, { display_name: string | null }> = {}
   try {
     const { data } = await supabase
       .from("event_registrations")
-      .select("user_id, status, created_at")
+      .select("user_id, status, created_at, checked_in_at")
       .eq("event_id", event.id)
       .order("created_at", { ascending: false })
 

@@ -3,10 +3,9 @@ import Link from "next/link"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
-import { ArrowLeft, CheckCircle2, Users } from "lucide-react"
+import { ArrowLeft, Users } from "lucide-react"
 import { GlassCard } from "@/components/ui/glass-card"
-import { CheckInButton } from "@/components/admin/check-in-button"
-import { UndoCheckInButton } from "@/components/admin/undo-check-in-button"
+import { AdminEventRegistrationsTable } from "@/components/admin/event-registrations-table"
 
 export default async function AdminEventDetailPage({
   params,
@@ -46,14 +45,14 @@ export default async function AdminEventDetailPage({
   if (!event) notFound()
 
   // RSVP rollup (requires scripts/025_create_event_registrations.sql)
-  let rows: { user_id: string; status: string; created_at: string }[] = []
+  let rows: { user_id: string; status: string; created_at: string; checked_in_at?: string | null }[] = []
   let rsvpError: string | null = null
   let profileById: Record<string, { display_name: string | null; avatar_url: string | null }> = {}
 
   try {
     const { data, error } = await supabase
       .from("event_registrations")
-      .select("user_id, status, created_at")
+      .select("user_id, status, created_at, checked_in_at")
       .eq("event_id", id)
       .order("created_at", { ascending: false })
 
@@ -149,63 +148,7 @@ export default async function AdminEventDetailPage({
           </div>
         </div>
 
-        <div className="mt-5 border border-border bg-black/20">
-          <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground border-b border-border">
-            <div className="col-span-6">User ID</div>
-            <div className="col-span-2">Status</div>
-            <div className="col-span-2">Action</div>
-            <div className="col-span-2 text-right">Created</div>
-          </div>
-          {rows.length === 0 ? (
-            <div className="px-3 py-6 text-center">
-              <p className="text-sm text-muted-foreground">No RSVPs yet.</p>
-            </div>
-          ) : (
-            rows.slice(0, 50).map((r) => (
-              <div
-                key={`${r.user_id}-${r.created_at}`}
-                className="grid grid-cols-12 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-border/60 last:border-b-0"
-              >
-                <div className="col-span-6 min-w-0">
-                  <div className="font-mono truncate text-[11px] text-muted-foreground">{r.user_id}</div>
-                  <div className="mt-0.5 truncate text-foreground/90">
-                    {profileById[r.user_id]?.display_name || "(no display name)"}
-                  </div>
-                </div>
-                <div className="col-span-2 font-mono uppercase tracking-widest text-[10px] text-foreground/80">
-                  {r.status}
-                </div>
-                <div className="col-span-2">
-                  {r.status === "confirmed" ? (
-                    <CheckInButton eventId={event.id} userId={r.user_id} />
-                  ) : r.status === "checked_in" ? (
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Checked in
-                      </span>
-                      <UndoCheckInButton eventId={event.id} userId={r.user_id} />
-                    </div>
-                  ) : (
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                      —
-                    </span>
-                  )}
-                </div>
-                <div className="col-span-2 text-right font-mono text-[10px]">
-                  {new Date(r.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {rows.length > 50 ? (
-          <p className="mt-2 text-[11px] text-muted-foreground">Showing first 50 RSVPs.</p>
-        ) : null}
+        <AdminEventRegistrationsTable eventId={event.id} rows={rows} profileById={profileById} />
       </div>
     </div>
   )

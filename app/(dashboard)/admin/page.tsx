@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth-helpers"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Settings2, Newspaper } from "lucide-react"
+import { NotificationSeedCard } from "@/components/admin/notification-seed-card"
 import { CreateOrgForm } from "@/components/admin/create-org-form"
 import { ApplicationsQueue } from "@/components/admin/applications-queue"
 import { EventReviewQueue } from "@/components/admin/event-review-queue"
@@ -11,6 +12,7 @@ import { AdminEventManager } from "@/components/admin/admin-event-manager"
 import { UsersTable } from "@/components/admin/users-table"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
+import { AdminSection } from "@/components/admin/admin-section"
 
 /** Supabase may return a joined `organizations` row as object or single-element array. */
 type OrgSnippet = { name: string; slug: string }
@@ -80,7 +82,9 @@ export default async function AdminPage() {
       .eq("status", "published"),
     supabase
       .from("host_applications")
-      .select("*")
+      .select(
+        "id, org_name, org_type, description, website, social_links, status, created_at, user_id",
+      )
       .in("status", ["new", "reviewing"])
       .order("created_at", { ascending: false }),
     supabase
@@ -172,13 +176,17 @@ export default async function AdminPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mt-8 md:mt-10">
-        <div className="border border-border p-4 md:p-6 card-accent-blue">
-          <div className="flex items-center gap-3 mb-4">
-            <Users className="w-4 h-4 text-brand-blue" />
-            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Users</span>
+        {/* Make these actionable: jump to module */}
+
+        <Link href="#users" className="block">
+          <div className="border border-border p-4 md:p-6 card-accent-blue hover:border-brand-blue/40 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="w-4 h-4 text-brand-blue" />
+              <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Users</span>
+            </div>
+            <span className="text-2xl md:text-3xl font-bold text-brand-blue font-mono">{totalUsers}</span>
           </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-blue font-mono">{totalUsers}</span>
-        </div>
+        </Link>
 
         <div className="border border-border p-4 md:p-6 card-accent-blue-mid">
           <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
@@ -188,13 +196,15 @@ export default async function AdminPage() {
           <span className="text-2xl md:text-3xl font-bold text-brand-blue-mid font-mono">{totalOrgs}</span>
         </div>
 
-        <div className="border border-border p-4 md:p-6 card-accent-cyan">
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <FileText className="w-4 h-4 text-brand-cyan shrink-0" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Applications</span>
+        <Link href="#host-applications" className="block">
+          <div className="border border-border p-4 md:p-6 card-accent-cyan hover:border-brand-cyan/40 transition-colors">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <FileText className="w-4 h-4 text-brand-cyan shrink-0" />
+              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Applications</span>
+            </div>
+            <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">{pendingApps}</span>
           </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">{pendingApps}</span>
-        </div>
+        </Link>
 
         <div className="border border-border p-4 md:p-6 card-accent-cyan-bright">
           <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
@@ -204,13 +214,15 @@ export default async function AdminPage() {
           <span className="text-2xl md:text-3xl font-bold text-brand-cyan-bright font-mono">{activeInvites}</span>
         </div>
 
-        <div className={`border p-4 md:p-6 ${pendingEvents > 0 ? "border-amber-500/40 card-accent-cyan bg-amber-500/5" : "border-border card-accent-cyan"}`}>
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <CalendarCheck className={`w-4 h-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`} />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Events</span>
+        <Link href="#event-submissions" className="block">
+          <div className={`border p-4 md:p-6 transition-colors hover:border-brand-cyan/40 ${pendingEvents > 0 ? "border-amber-500/40 card-accent-cyan bg-amber-500/5" : "border-border card-accent-cyan"}`}>
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <CalendarCheck className={`w-4 h-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`} />
+              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Events</span>
+            </div>
+            <span className={`text-2xl md:text-3xl font-bold font-mono ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`}>{pendingEvents}</span>
           </div>
-          <span className={`text-2xl md:text-3xl font-bold font-mono ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`}>{pendingEvents}</span>
-        </div>
+        </Link>
       </div>
 
       {/* Public content — posts */}
@@ -255,69 +267,59 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      {/* Users */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Directory</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">All Users</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Everyone who has signed up on the platform.
-        </p>
-        <div className="mt-6">
-          <UsersTable users={allUsers} />
-        </div>
-      </div>
+      <AdminSection
+        id="users"
+        kicker="Directory"
+        title="All Users"
+        description="Everyone who has signed up on the platform."
+      >
+        <UsersTable users={allUsers} />
+      </AdminSection>
 
-      {/* Host Applications Queue */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Review Queue</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Host Applications</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review requests from users who want to host events. Approving creates the org and generates an invite link.
-        </p>
-        <div className="mt-6">
-          <ApplicationsQueue applications={applications} />
-        </div>
-      </div>
+      <AdminSection
+        id="host-applications"
+        kicker="Review Queue"
+        title="Host Applications"
+        description="Review requests from users who want to host events. Approving creates the org and generates an invite link."
+      >
+        <ApplicationsQueue applications={applications} />
+      </AdminSection>
 
-      {/* Event Review Queue */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Review Queue</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Event Submissions</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review, approve, or reject events submitted by organizers. Approved events go live on the public events page.
-          Rejected events are sent back with your feedback so organizers can revise and resubmit.
-        </p>
-        <div className="mt-6">
-          <EventReviewQueue events={reviewEventsList} />
-        </div>
-      </div>
+      <AdminSection
+        id="event-submissions"
+        kicker="Review Queue"
+        title="Event Submissions"
+        description="Review, approve, or reject events submitted by organizers. Approved events go live on the public events page. Rejected events are sent back with your feedback so organizers can revise and resubmit."
+      >
+        <EventReviewQueue events={reviewEventsList} />
+      </AdminSection>
 
-      {/* Manage All Events */}
-      <div className="mt-10">
-        <div className="flex items-center gap-2">
-          <Settings2 className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Management</span>
-        </div>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">All Events</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed.
-        </p>
-        <div className="mt-6">
-          <AdminEventManager events={allEvents} />
-        </div>
-      </div>
+      <AdminSection
+        id="events"
+        kicker="Management"
+        title="All Events"
+        description="Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed."
+      >
+        <AdminEventManager events={allEvents} />
+      </AdminSection>
 
-      {/* Create Org + Invite (manual) */}
-      <div className="mt-10">
-        <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Manual</span>
-        <h2 className="font-serif text-xl font-bold text-foreground mt-2">Create Organization</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manually create an org and generate an invite link. Use this for direct onboarding.
-        </p>
-        <div className="mt-6">
-          <CreateOrgForm />
-        </div>
-      </div>
+      <AdminSection
+        id="notifications-qa"
+        kicker="QA"
+        title="Notifications"
+        description="Seed an unread in-app notification for your staff account (requires user_notifications migration)."
+      >
+        <NotificationSeedCard />
+      </AdminSection>
+
+      <AdminSection
+        id="create-org"
+        kicker="Manual"
+        title="Create Organization"
+        description="Manually create an org and generate an invite link. Use this for direct onboarding."
+      >
+        <CreateOrgForm />
+      </AdminSection>
     </div>
   )
 }

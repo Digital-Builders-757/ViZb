@@ -1,6 +1,5 @@
-import { CheckCircle2, Users } from "lucide-react"
-import { OrganizerCheckInButton } from "@/components/organizer/check-in-button"
-import { OrganizerUndoCheckInButton } from "@/components/organizer/undo-check-in-button"
+import { Users } from "lucide-react"
+import { OrganizerEventAttendeesTable } from "@/components/organizer/event-attendees-table"
 
 export function EventAttendeesPanel({
   total,
@@ -17,7 +16,7 @@ export function EventAttendeesPanel({
   confirmed: number
   checkedIn: number
   cancelled: number
-  rows: { user_id: string; status: string; created_at: string }[]
+  rows: { user_id: string; status: string; created_at: string; checked_in_at?: string | null }[]
   orgSlug: string
   eventSlug: string
   eventId: string
@@ -61,77 +60,23 @@ export function EventAttendeesPanel({
         </div>
       </div>
 
-      <div className="mt-5">
-        {rows.length === 0 ? (
-          <div className="border border-dashed border-border p-6 text-center">
-            <p className="text-sm text-muted-foreground">No RSVPs yet.</p>
-          </div>
-        ) : (
-          <div className="border border-border bg-black/20">
-            <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground border-b border-border">
-              <div className="col-span-6">User ID</div>
-              <div className="col-span-2">Status</div>
-              <div className="col-span-2">Action</div>
-              <div className="col-span-2 text-right">Created</div>
-            </div>
-            {rows.slice(0, 25).map((r) => (
-              <div
-                key={`${r.user_id}-${r.created_at}`}
-                className="grid grid-cols-12 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-border/60 last:border-b-0"
-              >
-                <div className="col-span-6 min-w-0">
-                  <div className="font-mono truncate text-[11px] text-muted-foreground">{r.user_id}</div>
-                  <div className="mt-0.5 truncate text-foreground/90">
-                    {profileById[r.user_id]?.display_name || "(no display name)"}
-                  </div>
-                </div>
-                <div className="col-span-2 font-mono uppercase tracking-widest text-[10px] text-foreground/80">
-                  {r.status}
-                </div>
-                <div className="col-span-2">
-                  {r.status === "confirmed" ? (
-                    <OrganizerCheckInButton
-                      orgSlug={orgSlug}
-                      eventSlug={eventSlug}
-                      eventId={eventId}
-                      userId={r.user_id}
-                    />
-                  ) : r.status === "checked_in" ? (
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-cyan">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Checked in
-                      </span>
-                      <OrganizerUndoCheckInButton
-                        orgSlug={orgSlug}
-                        eventSlug={eventSlug}
-                        eventId={eventId}
-                        userId={r.user_id}
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                      —
-                    </span>
-                  )}
-                </div>
-                <div className="col-span-2 text-right font-mono text-[10px]">
-                  {new Date(r.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      {rows.length === 0 ? (
+        <div className="mt-5 border border-dashed border-border p-6 text-center">
+          <p className="text-sm text-muted-foreground">No RSVPs yet.</p>
+        </div>
+      ) : (
+        <OrganizerEventAttendeesTable
+          orgSlug={orgSlug}
+          eventSlug={eventSlug}
+          eventId={eventId}
+          rows={rows}
+          profileById={profileById}
+        />
+      )}
 
-        {rows.length > 25 ? (
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            Showing first 25 RSVPs. Pagination + user details next.
-          </p>
-        ) : null}
-      </div>
+      {rows.length > 200 ? (
+        <p className="mt-2 text-[11px] text-muted-foreground">Showing first 200 RSVPs.</p>
+      ) : null}
     </div>
   )
 }

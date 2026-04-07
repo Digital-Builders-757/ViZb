@@ -16,7 +16,7 @@ Then: run the **`/ship`** workflow in the same turn; stage **only** intended fil
 
 **Do not** auto-ship when checks fail, git identity is missing, or meaningful implementation work remains.
 
-**Integration branch:** **`develop`** (`docs/development/BRANCHING.md`). `/ship` ends with `git push origin develop` (be on `develop` with changes merged as appropriate).
+**Integration branch:** **`develop`** (`docs/development/BRANCHING.md`). **`/ship`** pushes the **current branch** (usually a **feature branch**); merge into **`develop`** via **PR** with merge commit. Direct push to **`develop`** only for small agreed exceptions—see `docs/development/BRANCHING.md`.
 
 ## Hand off to `/pr` when
 

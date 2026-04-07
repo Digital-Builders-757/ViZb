@@ -49,7 +49,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `diagrams/` | Conceptual architecture maps |
 | `contracts/` | Layer 2 — `INDEX.md` + per-domain `.md` |
 | `journeys/` | Layer 3 — `INDEX.md` + per-journey `.md` |
-| `guides/` | Setup how-tos — start with `guides/LOCAL_DEV_AND_AUTH.md` for dev + auth |
+| `guides/` | Setup how-tos — start with `guides/LOCAL_DEV_AND_AUTH.md` for dev + auth; auth email via Resend: `guides/SUPABASE_AUTH_EMAIL_RESEND.md` |
 | `audits/`, `community/`, `content/`, `events/`, `features/`, `marketing/`, `operations/`, `performance/`, `security/`, `tests/` | Topic READMEs — add docs as you build |
 | `troubleshooting/` | Errors (`COMMON_ERRORS_QUICK_REFERENCE.md`) |
 | `releasenotes/` | `/release` archive |

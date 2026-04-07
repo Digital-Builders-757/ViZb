@@ -1,6 +1,6 @@
 /ship
 
-Intent: Summarize the session, run checks, update docs, stage intended files only, commit, push **integration branch**.
+Intent: Summarize the session, run checks, update docs, stage intended files only, commit, push **the current branch** (integration happens via PR into **`develop`**).
 
 Prompt text:
 
@@ -13,7 +13,10 @@ IMPORTANT OPERATING RULES:
 - Before commit, ensure `git config user.name` and `user.email` are set. Do **not** change git config automatically.
 - If a hook fails, fix and make a normal commit; do not amend unless asked.
 
-**Integration branch for ViZb:** **`develop`** (see `docs/development/BRANCHING.md`). Checkout `develop` and merge your feature branch (or commit directly on `develop`) before shipping.
+**Branching (ViZb):** See `docs/development/BRANCHING.md`. Prefer a **feature branch** (`feat/*`, `fix/*`, etc.) off **`develop`**, not long-running commits only on **`develop`**.
+
+- If the current branch is **`develop`**: pushing is allowed only for **small agreed exceptions** (e.g. docs-only). For normal product work, **create a branch first**, commit there, then push the feature branch and open a PR to **`develop`**.
+- If the current branch is **not** `develop`: after commit, **`git push -u origin <current-branch>`** (or push without `-u` if tracking exists). Tell the user to open/update a PR: **`gh pr create --base develop --head <branch>`** (or merge via GitHub UI).
 
 Run mandatory checks (stop on failure):
 
@@ -34,7 +37,7 @@ Then:
 - Stage **only** intended paths.
 - `git log -5 --oneline` — match commit message style.
 - Commit message format: `fix(<area>): <short outcome>` or `feat(<area>): …` / `docs: …` as appropriate. Pass the message safely for PowerShell (no bash heredoc).
-- `git push origin develop`
+- Push **the branch you are on** (`git push` / `git push -u origin <branch>`), not necessarily `develop`.
 
 Return:
 
@@ -42,5 +45,7 @@ Return:
 - Checks + outcomes  
 - Docs touched  
 - Files committed  
+- Branch name + push result  
 - Commit SHA  
+- Next step: PR link or `gh pr create …` if appropriate  
 - Unrelated files left unstaged  

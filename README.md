@@ -17,10 +17,10 @@ Use **npm only** for this repo (`package-lock.json`). Do not add `bun.lock` or `
 
 ## Branching
 
-- **`develop`** — default integration branch for day-to-day work; merge feature branches here and run **`/ship`** against it.
-- **`main`** — production/release; promote via PR **`develop` → `main`** when cutting a release.
+- **`develop`** — integration branch; land work via **PRs** from short-lived branches (`feat/*`, `fix/*`, …). Avoid multiple people pushing large changes straight to **`develop`** at once.
+- **`main`** — production/release; promote via PR **`develop` → `main`** (merge commit) when cutting a release.
 
-Details: [`docs/development/BRANCHING.md`](docs/development/BRANCHING.md).
+Details, merge policy, and hotfixes: [`docs/development/BRANCHING.md`](docs/development/BRANCHING.md).
 
 ## Documentation spine
 

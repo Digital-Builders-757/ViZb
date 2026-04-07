@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
-import { requireAuth } from "@/lib/auth-helpers"
+import { requireAdmin, requireAuth } from "@/lib/auth-helpers"
 
 function revalidateDashboardSurfaces() {
   revalidatePath("/dashboard")
@@ -46,4 +46,25 @@ export async function markNotificationRead(notificationId: string) {
 
   revalidateDashboardSurfaces()
   return { success: true as const }
+}
+
+/** Staff-only: insert one unread notification for the current admin (QA / demos). */
+export async function seedStaffTestNotification() {
+  const { user, supabase } = await requireAdmin()
+
+  const { data, error } = await supabase
+    .from("user_notifications")
+    .insert({
+      user_id: user.id,
+      title: "[QA] Test notification",
+      body: "Seed from Admin — use the bell to verify unread count, single-row read, and mark all read.",
+      href: "/dashboard",
+    })
+    .select("id")
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidateDashboardSurfaces()
+  return { success: true as const, id: data.id as string }
 }
