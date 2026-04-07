@@ -8,8 +8,11 @@ export function PostCard({ post }: { post: Pick<PostRow, "slug" | "title" | "exc
   const href = `/p/${post.slug}`
 
   return (
-    <Link href={href} className="group block active:scale-[0.99] transition-transform">
-      <GlassCard className="overflow-hidden p-0 transition-[box-shadow] group-hover:shadow-[var(--vibe-neon-glow-subtle)]" emphasis>
+    <Link
+      href={href}
+      className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
+    >
+      <GlassCard className="overflow-hidden p-0" emphasis interactive>
         <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
           {post.cover_image_url ? (
             <Image
