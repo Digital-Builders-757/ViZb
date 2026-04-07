@@ -16,16 +16,17 @@ export default function AdvertisePage() {
 
   return (
     <main className="min-h-screen bg-[color:var(--neon-bg0)] relative overflow-hidden">
-      {/* Ocean gradient background */}
+      {/* Brighter ocean gradient background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--neon-a)]/5 via-transparent to-[color:var(--neon-b)]/5" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_20%,rgba(0,209,255,0.08),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_80%,rgba(157,77,255,0.06),transparent)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--neon-a)]/15 via-[color:var(--neon-a)]/5 to-[color:var(--neon-b)]/15" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_10%,rgba(0,209,255,0.18),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_80%_70%,rgba(157,77,255,0.12),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_50%,rgba(0,209,255,0.10),transparent)]" />
       </div>
 
-      {/* Animated wave at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none -z-5">
-        <svg className="absolute bottom-0 w-full h-24 opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      {/* Animated wave at bottom - brighter */}
+      <div className="fixed bottom-0 left-0 right-0 h-40 overflow-hidden pointer-events-none -z-5">
+        <svg className="absolute bottom-0 w-full h-32 opacity-40" viewBox="0 0 1200 120" preserveAspectRatio="none">
           <path
             d="M0,60 C150,90 350,30 500,60 C650,90 850,30 1000,60 C1150,90 1200,60 1200,60 L1200,120 L0,120 Z"
             fill="url(#advertiseWaveGradient)"
@@ -39,14 +40,33 @@ export default function AdvertisePage() {
             </linearGradient>
           </defs>
         </svg>
+        {/* Second wave layer for depth */}
+        <svg className="absolute bottom-0 w-full h-24 opacity-25" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path
+            d="M0,80 C200,50 400,100 600,70 C800,40 1000,90 1200,60 L1200,120 L0,120 Z"
+            fill="url(#advertiseWaveGradient2)"
+            style={{ animation: "wave 6s ease-in-out infinite reverse" }}
+          />
+          <defs>
+            <linearGradient id="advertiseWaveGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="var(--neon-b)" />
+              <stop offset="50%" stopColor="var(--neon-a)" />
+              <stop offset="100%" stopColor="var(--neon-b)" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
+
+      {/* Floating light orbs */}
+      <div className="absolute top-20 left-1/4 w-64 h-64 bg-[color:var(--neon-a)]/20 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute top-40 right-1/4 w-48 h-48 bg-[color:var(--neon-b)]/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
 
       <Navbar />
 
       <section className="pt-24 sm:pt-28 pb-20 px-4 sm:px-8 relative">
-        {/* Decorative elements */}
-        <div className="absolute top-32 left-10 w-32 h-32 bg-[color:var(--neon-a)]/10 rounded-full blur-[80px] animate-pulse" />
-        <div className="absolute top-64 right-10 w-40 h-40 bg-[color:var(--neon-b)]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
+        {/* Decorative elements - brighter */}
+        <div className="absolute top-32 left-10 w-40 h-40 bg-[color:var(--neon-a)]/20 rounded-full blur-[80px] animate-pulse" />
+        <div className="absolute top-64 right-10 w-48 h-48 bg-[color:var(--neon-b)]/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
 
         <div className="max-w-2xl mx-auto relative">
           {/* Header with neon styling */}
@@ -82,11 +102,14 @@ export default function AdvertisePage() {
             ))}
           </div>
 
-          {/* Form card with glass effect */}
-          <div className="mt-12 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] backdrop-blur-sm p-6 sm:p-8 relative overflow-hidden">
-            {/* Subtle glow at top of card */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:var(--neon-a)]/50 to-transparent" />
-            <div className="absolute top-0 left-1/4 right-1/4 h-20 bg-gradient-to-b from-[color:var(--neon-a)]/10 to-transparent blur-xl" />
+          {/* Form card with enhanced glass effect */}
+          <div className="mt-12 rounded-2xl border border-[color:var(--neon-a)]/20 bg-gradient-to-b from-[color:var(--neon-surface)] to-[color:var(--neon-bg0)]/80 backdrop-blur-md p-6 sm:p-8 relative overflow-hidden shadow-[0_0_60px_rgba(0,209,255,0.1),0_0_120px_rgba(157,77,255,0.05)]">
+            {/* Brighter glow at top of card */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:var(--neon-a)]/70 to-transparent" />
+            <div className="absolute top-0 left-1/4 right-1/4 h-32 bg-gradient-to-b from-[color:var(--neon-a)]/20 to-transparent blur-2xl" />
+            {/* Side glows */}
+            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-40 h-40 bg-[color:var(--neon-a)]/15 rounded-full blur-[60px]" />
+            <div className="absolute -right-20 top-1/3 w-32 h-32 bg-[color:var(--neon-b)]/15 rounded-full blur-[50px]" />
             
             <AdvertiseContactForm emailConfigured={emailConfigured} />
           </div>
