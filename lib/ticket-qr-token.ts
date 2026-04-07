@@ -1,7 +1,19 @@
 import { createHmac, timingSafeEqual } from "node:crypto"
 
-/** Seconds from issue snapshot until ticket QR expires (member refreshes wallet for a new token). */
-export const TICKET_QR_TTL_SECONDS = 60 * 60 * 24 * 365
+/**
+ * Default signed ticket lifetime. After this, the QR is invalid until the member reloads
+ * `/dashboard/tickets` (new `exp` is minted server-side).
+ *
+ * 30 days balances usability with revocation windows; adjust only with care.
+ */
+export const TICKET_QR_TTL_SECONDS = 60 * 60 * 24 * 30
+
+/**
+ * Reject tokens whose `exp` is farther in the future than TTL + this skew (prevents
+ * forged “infinite” validity if someone tampers with the unsigned payload before signing — the
+ * signature would still need to match, but this caps absurd clock claims).
+ */
+export const TICKET_QR_MAX_EXP_SKEW_SECONDS = 300
 
 export function getTicketQrSecret(): string | null {
   const s = process.env.TICKET_QR_SECRET?.trim()
@@ -90,6 +102,9 @@ export function verifyTicketQrToken(token: string, secret: string, nowUnixSecond
   if (!p.eid || !p.rid) return { error: "Missing token fields" }
   if (!p.exp || typeof p.exp !== "number") return { error: "Missing expiry" }
   if (p.exp < nowUnixSeconds) return { error: "Token expired" }
+
+  const maxExp = nowUnixSeconds + TICKET_QR_TTL_SECONDS + TICKET_QR_MAX_EXP_SKEW_SECONDS
+  if (p.exp > maxExp) return { error: "Expiry too far in future" }
 
   return { payload: p as TicketQrTokenPayloadV1 }
 }

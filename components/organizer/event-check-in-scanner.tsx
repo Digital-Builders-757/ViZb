@@ -6,14 +6,38 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
 type AttendeeInfo = {
+  registrationId: string
   userId: string
   displayName: string | null
 }
 
 type ScanResult =
-  | { kind: "success"; message: string; attendee?: AttendeeInfo | null }
-  | { kind: "error"; message: string; attendee?: AttendeeInfo | null }
-  | { kind: "info"; message: string; attendee?: AttendeeInfo | null }
+  | { kind: "success"; title: string; message: string; attendee?: AttendeeInfo | null }
+  | { kind: "error"; title: string; message: string; attendee?: AttendeeInfo | null }
+  | { kind: "info"; title: string; message: string; attendee?: AttendeeInfo | null }
+
+type RecentScan = {
+  id: string
+  at: number
+  kind: ScanResult["kind"]
+  title: string
+  message: string
+  name?: string | null
+}
+
+type ScanApiJson = {
+  ok?: boolean
+  status?: string
+  error?: string
+  code?: string
+  attendee?: AttendeeInfo
+  checkedInAt?: string | null
+}
+
+function pushRecent(prev: RecentScan[], entry: Omit<RecentScan, "id">): RecentScan[] {
+  const row: RecentScan = { ...entry, id: `${entry.at}-${Math.random().toString(36).slice(2, 9)}` }
+  return [row, ...prev].slice(0, 5)
+}
 
 export function EventCheckInScanner({
   eventId,
@@ -24,93 +48,157 @@ export function EventCheckInScanner({
   const [manualToken, setManualToken] = useState("")
   const [isPending, startTransition] = useTransition()
   const [last, setLast] = useState<ScanResult | null>(null)
+  const [recent, setRecent] = useState<RecentScan[]>([])
+  const dedupeRef = useRef<{ token: string; at: number } | null>(null)
 
   const regionId = useMemo(() => `qr-reader-${eventId}`, [eventId])
   const qrcodeRef = useRef<Html5Qrcode | null>(null)
 
-  function submitToken(token: string) {
-    const trimmed = token.trim()
+  function submitToken(rawToken: string) {
+    const trimmed = rawToken.trim()
     if (!trimmed) return
+
+    const now = Date.now()
+    const prev = dedupeRef.current
+    if (prev && prev.token === trimmed && now - prev.at < 2800) return
+    dedupeRef.current = { token: trimmed, at: now }
 
     startTransition(async () => {
       try {
         const res = await fetch("/api/checkin/scan", {
           method: "POST",
+          cache: "no-store",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: trimmed, eventId }),
         })
-        const json = (await res.json()) as Record<string, unknown>
-        const result = json.result as string | undefined
-        const err = json.error as string | undefined
-        const attendee = json.attendee as AttendeeInfo | undefined
 
-        const nameLine = attendee?.displayName?.trim()
-          ? ` — ${attendee.displayName.trim()}`
-          : ""
-
-        if (res.status === 401) {
-          const msg = "Sign in again, then retry."
-          setLast({ kind: "error", message: msg })
-          toast.error(msg)
+        let json: ScanApiJson
+        try {
+          json = (await res.json()) as ScanApiJson
+        } catch {
+          const title = "Scan failed"
+          const message = "The server returned an unreadable response."
+          setLast({ kind: "error", title, message })
+          setRecent((r) => pushRecent(r, { at: Date.now(), kind: "error", title, message }))
+          toast.error(message)
           return
         }
 
-        if (res.status === 403 || result === "not_authorized") {
-          const msg = "You are not allowed to check in for this event."
-          setLast({ kind: "error", message: msg })
-          toast.error(msg)
+        const attendee = json.attendee
+        const name = attendee?.displayName?.trim() || null
+
+        if (json.ok === true && json.status === "checked_in") {
+          const title = "Checked in"
+          const message = "Guest admitted."
+          setLast({ kind: "success", title, message, attendee: attendee ?? null })
+          setRecent((r) => pushRecent(r, { at: Date.now(), kind: "success", title, message, name }))
+          toast.success(name ? `${message} ${name}` : message)
           return
         }
 
-        if (res.status === 503) {
-          const msg = err || "Scanner not configured (TICKET_QR_SECRET)."
-          setLast({ kind: "error", message: msg })
-          toast.error(msg)
+        if (json.ok === true && json.status === "already_checked_in") {
+          const title = "Already checked in"
+          const message = "This ticket was already scanned."
+          setLast({ kind: "info", title, message, attendee: attendee ?? null })
+          setRecent((r) => pushRecent(r, { at: Date.now(), kind: "info", title, message, name }))
+          toast(name ? `${message} ${name}` : message)
           return
         }
 
-        if (result === "wrong_event") {
-          const msg = (err as string) || "This QR is for a different event."
-          setLast({ kind: "error", message: msg, attendee: attendee ?? null })
-          toast.error(msg)
-          return
+        const errText = typeof json.error === "string" && json.error.length > 0 ? json.error : "Scan failed."
+        const code = json.code ?? "unknown"
+
+        const titled = (t: string, m: string, kind: ScanResult["kind"] = "error") => {
+          setLast({ kind, title: t, message: m, attendee: attendee ?? null })
+          setRecent((r) => pushRecent(r, { at: Date.now(), kind, title: t, message: m, name }))
         }
 
-        if (result === "registration_not_found" || res.status === 404) {
-          const msg = "Invalid ticket or unknown registration."
-          setLast({ kind: "error", message: msg })
-          toast.error(msg)
-          return
+        switch (code) {
+          case "scanner_not_configured":
+          case "service_unavailable": {
+            const title = "Scanner not ready"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "unauthorized": {
+            const title = "Not signed in"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "not_authorized": {
+            const title = "Not authorized"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "event_not_found": {
+            const title = "Event not found"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "wrong_event": {
+            const title = "Wrong event"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "token_expired": {
+            const title = "Expired ticket code"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "token_expiry_invalid":
+          case "invalid_token": {
+            const title = "Invalid ticket code"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "registration_not_found": {
+            const title = "Registration not found"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "registration_cancelled": {
+            const title = "Cancelled RSVP"
+            const message = name ? `${errText} — ${name}` : errText
+            titled(title, message)
+            toast.error(message)
+            return
+          }
+          case "registration_invalid_status": {
+            const title = "Not confirmed"
+            const message = name ? `${errText} — ${name}` : errText
+            titled(title, message)
+            toast.error(message)
+            return
+          }
+          case "invalid_body": {
+            const title = "Invalid request"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
+          case "check_in_failed":
+          case "server_error":
+          default: {
+            const title = "Could not check in"
+            titled(title, errText)
+            toast.error(errText)
+            return
+          }
         }
-
-        if (result === "cancelled") {
-          const msg = `Cancelled RSVP${nameLine}.`
-          setLast({ kind: "error", message: msg, attendee: attendee ?? null })
-          toast.error(msg)
-          return
-        }
-
-        if (result === "already_checked_in") {
-          const msg = `Already checked in${nameLine}.`
-          setLast({ kind: "info", message: msg, attendee: attendee ?? null })
-          toast(msg)
-          return
-        }
-
-        if (res.ok && result === "checked_in") {
-          const msg = `Checked in${nameLine}.`
-          setLast({ kind: "success", message: msg, attendee: attendee ?? null })
-          toast.success(msg)
-          return
-        }
-
-        const msg = (err as string) || "Scan failed"
-        setLast({ kind: "error", message: msg, attendee: attendee ?? null })
-        toast.error(msg)
       } catch {
-        const msg = "Scanner request failed"
-        setLast({ kind: "error", message: msg })
-        toast.error(msg)
+        const title = "Network error"
+        const message = "Scanner request failed. Check your connection and try again."
+        setLast({ kind: "error", title, message })
+        setRecent((r) => pushRecent(r, { at: Date.now(), kind: "error", title, message }))
+        toast.error(message)
       }
     })
   }
@@ -120,10 +208,10 @@ export function EventCheckInScanner({
       const inst = qrcodeRef.current
       qrcodeRef.current = null
       if (!inst) return
-      Promise.resolve(inst.stop() as any)
+      Promise.resolve(inst.stop() as unknown as Promise<void>)
         .catch(() => {})
         .finally(() => {
-          Promise.resolve(inst.clear() as any).catch(() => {})
+          Promise.resolve(inst.clear() as unknown as Promise<void>).catch(() => {})
         })
     }
   }, [])
@@ -149,14 +237,14 @@ export function EventCheckInScanner({
       .catch((err) => {
         setCameraOn(false)
         const msg = typeof err === "string" ? err : "Could not start camera"
-        setLast({ kind: "error", message: msg })
+        setLast({ kind: "error", title: "Camera", message: msg })
       })
 
     return () => {
-      Promise.resolve(inst.stop() as any)
+      Promise.resolve(inst.stop() as unknown as Promise<void>)
         .catch(() => {})
         .finally(() => {
-          Promise.resolve(inst.clear() as any).catch(() => {})
+          Promise.resolve(inst.clear() as unknown as Promise<void>).catch(() => {})
         })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -215,7 +303,7 @@ export function EventCheckInScanner({
         {last ? (
           <div
             className={cn(
-              "mt-4 rounded-xl border px-4 py-3 text-sm",
+              "mt-4 rounded-xl border px-4 py-3",
               last.kind === "success" &&
                 "border-emerald-400/30 bg-emerald-400/10 text-emerald-100",
               last.kind === "error" && "border-red-400/30 bg-red-400/10 text-red-100",
@@ -223,13 +311,45 @@ export function EventCheckInScanner({
                 "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text1)]",
             )}
           >
-            <p>{last.message}</p>
+            <p className="text-xs font-mono uppercase tracking-widest opacity-90">{last.title}</p>
+            <p className="mt-1 text-sm leading-snug">{last.message}</p>
             {last.attendee?.displayName ? (
-              <p className="mt-2 text-xs opacity-90">Name: {last.attendee.displayName}</p>
+              <p className="mt-2 text-xs opacity-90">Attendee: {last.attendee.displayName}</p>
             ) : null}
           </div>
         ) : null}
       </div>
+
+      {recent.length > 0 ? (
+        <div className="rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/12 p-4 backdrop-blur">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Recent scans
+          </p>
+          <p className="mt-1 text-xs text-[color:var(--neon-text2)]">Last five swipes — confirm without re-scanning.</p>
+          <ul className="mt-3 space-y-2">
+            {recent.map((row) => (
+              <li
+                key={row.id}
+                className={cn(
+                  "rounded-lg border px-3 py-2 text-sm",
+                  row.kind === "success" && "border-emerald-400/20 bg-emerald-400/5 text-emerald-50/95",
+                  row.kind === "error" && "border-red-400/20 bg-red-400/5 text-red-50/95",
+                  row.kind === "info" && "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/15 text-[color:var(--neon-text1)]",
+                )}
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
+                  <span className="font-mono text-[10px] uppercase tracking-widest opacity-80">{row.title}</span>
+                  <span className="font-mono text-[10px] text-[color:var(--neon-text2)]">
+                    {new Date(row.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", second: "2-digit" })}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-[13px] leading-snug">{row.message}</p>
+                {row.name ? <p className="mt-1 text-xs opacity-90">{row.name}</p> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   )
 }
