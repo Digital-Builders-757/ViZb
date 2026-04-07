@@ -93,6 +93,8 @@ North Star aesthetic
 - Tab navigation shows a consistent ring.
 - `npm run ci` passes.
 
+**Shipped (Apr 2026):** `.vibe-focus-ring` + `--vibe-focus-*` in `app/globals.css`; `NeonButton`, `NeonLink`, login/signup, waitlist, `/events` filters, **`/advertise`** inquiry controls; `.vibe-input-glass` uses `--vibe-focus-glow`.
+
 ---
 
 ### Pack 04 — Liquid Border v2 (WaterFrame upgrades)

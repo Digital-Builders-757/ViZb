@@ -23,13 +23,13 @@ const neonButtonInner = cva(
 )
 
 const neonButtonVariants = cva(
-  "inline-flex items-center justify-center text-base font-semibold leading-none transition-[box-shadow,transform,opacity] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 md:text-sm [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "vibe-focus-ring inline-flex items-center justify-center text-base font-semibold leading-none transition-[box-shadow,transform,opacity] disabled:pointer-events-none disabled:opacity-50 md:text-sm [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary: "",
         secondary:
-          "min-h-11 border border-[color:var(--vibe-glass-border)] bg-[color:var(--vibe-glass-bg)] px-8 py-3.5 text-foreground backdrop-blur-md shadow-[var(--vibe-neon-glow-subtle)] focus-visible:ring-2 focus-visible:ring-[color:var(--vibe-neon-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:scale-[0.99] md:px-7 md:py-3",
+          "min-h-11 border border-[color:var(--vibe-glass-border)] bg-[color:var(--vibe-glass-bg)] px-8 py-3.5 text-foreground backdrop-blur-md shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99] md:px-7 md:py-3",
         ghost:
           "min-h-11 border border-transparent bg-transparent px-8 py-3.5 text-foreground hover:border-[color:var(--vibe-glass-border)] hover:bg-[color:var(--vibe-glass-bg)]/50 active:scale-[0.99] md:px-7 md:py-3",
       },
@@ -73,7 +73,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           <Slot
             ref={ref}
             className={cn(
-              "group relative inline-flex p-[2px] shadow-[var(--vibe-neon-glow)] focus-visible:shadow-[var(--vibe-neon-glow),0_0_0_3px_var(--vibe-neon-cyan)] active:scale-[0.99] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300",
+              "group relative inline-flex p-[2px] shadow-[var(--vibe-neon-glow)] vibe-focus-ring active:scale-[0.99] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300",
               round,
               fullWidth && "w-full",
               className,
@@ -108,7 +108,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           ref={ref}
           type={type}
           className={cn(
-            "group relative p-[2px] shadow-[var(--vibe-neon-glow)] focus-visible:shadow-[var(--vibe-neon-glow),0_0_0_3px_var(--vibe-neon-cyan)] active:scale-[0.99] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300",
+            "group relative p-[2px] shadow-[var(--vibe-neon-glow)] vibe-focus-ring active:scale-[0.99] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300",
             round,
             fullWidth && "flex w-full",
             className,
