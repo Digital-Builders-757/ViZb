@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import { ThreeBackgroundWrapper } from "@/components/three-background-wrapper"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 import { Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -302,10 +303,8 @@ export default async function EventsExplorePage({
         </div>
       </section>
 
-      {/* Divider line */}
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
-        <div className="border-t border-[color:var(--neon-hairline)]" />
-      </div>
+      {/* Ocean wave divider */}
+      <OceanDivider variant="hero" density="normal" />
 
       {/* Trending strip */}
       {trending.length > 0 ? (
@@ -377,6 +376,9 @@ export default async function EventsExplorePage({
           </div>
         </section>
       ) : null}
+
+      {/* Ocean wave divider before timeline */}
+      {trending.length > 0 && <OceanDivider variant="soft" density="sparse" />}
 
       {/* Timeline Section */}
       <section className="px-4 py-12 sm:px-8 md:py-20">

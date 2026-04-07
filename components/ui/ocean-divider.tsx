@@ -4,9 +4,9 @@ export type OceanDividerVariant = "default" | "hero" | "soft"
 export type OceanDividerDensity = "sparse" | "normal" | "rich"
 
 const densityHeight: Record<OceanDividerDensity, string> = {
-  sparse: "h-12 sm:h-16",
-  normal: "h-16 sm:h-20",
-  rich: "h-20 sm:h-24",
+  sparse: "h-16 sm:h-20",
+  normal: "h-24 sm:h-32",
+  rich: "h-32 sm:h-40",
 }
 
 export type OceanDividerProps = {
@@ -35,87 +35,98 @@ export function OceanDivider({
       {/* Caustic light band background */}
       <div className="ocean-divider__band pointer-events-none absolute inset-0" />
       
-      {/* Animated SVG waves */}
+      {/* Animated SVG waves - spread apart for more wave effect */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        {/* Wave layer 1 - fastest, foreground */}
+        {/* Wave layer 1 - top wave, fastest */}
         <svg 
-          className="absolute w-[200%] h-full opacity-40"
+          className="absolute w-[200%] opacity-50"
+          style={{ top: "15%", height: "30%", animation: "oceanWaveFlow 8s linear infinite" }}
           viewBox="0 0 1200 60" 
           preserveAspectRatio="none"
-          style={{ animation: "oceanWaveFlow 8s linear infinite" }}
         >
           <path
-            d="M0,30 C150,45 300,15 450,30 C600,45 750,15 900,30 C1050,45 1200,30 1200,30 L1200,60 L0,60 Z"
-            fill="url(#waveGrad1)"
-            className="opacity-60"
-          />
-          <path
-            d="M0,35 C100,20 250,50 400,30 C550,10 700,50 850,30 C1000,10 1200,35 1200,35"
+            d="M0,30 C150,50 300,10 450,30 C600,50 750,10 900,30 C1050,50 1200,30 1200,30"
             fill="none"
             stroke="url(#waveStroke1)"
-            strokeWidth="2"
-            className="opacity-80"
+            strokeWidth="2.5"
+            className="opacity-90"
           />
           <defs>
-            <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="var(--neon-a)" stopOpacity="0" />
-              <stop offset="30%" stopColor="var(--neon-a)" stopOpacity="0.15" />
-              <stop offset="50%" stopColor="var(--neon-b)" stopOpacity="0.2" />
-              <stop offset="70%" stopColor="var(--neon-a)" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="var(--neon-a)" stopOpacity="0" />
-            </linearGradient>
             <linearGradient id="waveStroke1" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="var(--neon-a)" stopOpacity="0" />
-              <stop offset="25%" stopColor="var(--neon-a)" stopOpacity="0.6" />
-              <stop offset="50%" stopColor="var(--neon-b)" stopOpacity="0.8" />
-              <stop offset="75%" stopColor="var(--neon-a)" stopOpacity="0.6" />
+              <stop offset="20%" stopColor="var(--neon-a)" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="var(--neon-b)" stopOpacity="1" />
+              <stop offset="80%" stopColor="var(--neon-a)" stopOpacity="0.7" />
               <stop offset="100%" stopColor="var(--neon-a)" stopOpacity="0" />
             </linearGradient>
           </defs>
         </svg>
 
-        {/* Wave layer 2 - medium speed */}
+        {/* Wave layer 2 - middle wave, medium speed */}
         <svg 
-          className="absolute w-[200%] h-full opacity-30"
+          className="absolute w-[200%] opacity-40"
+          style={{ top: "40%", height: "30%", animation: "oceanWaveFlow 12s linear infinite", animationDelay: "-3s" }}
           viewBox="0 0 1200 60" 
           preserveAspectRatio="none"
-          style={{ animation: "oceanWaveFlow 12s linear infinite", animationDelay: "-4s" }}
         >
           <path
-            d="M0,32 C200,20 350,45 500,32 C650,19 800,48 950,32 C1100,16 1200,32 1200,32"
+            d="M0,30 C200,15 350,50 500,30 C650,10 800,55 950,30 C1100,5 1200,30 1200,30"
             fill="none"
             stroke="url(#waveStroke2)"
-            strokeWidth="1.5"
+            strokeWidth="2"
           />
           <defs>
             <linearGradient id="waveStroke2" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="var(--neon-b)" stopOpacity="0" />
-              <stop offset="30%" stopColor="var(--neon-b)" stopOpacity="0.5" />
-              <stop offset="50%" stopColor="var(--neon-a)" stopOpacity="0.7" />
-              <stop offset="70%" stopColor="var(--neon-b)" stopOpacity="0.5" />
+              <stop offset="25%" stopColor="var(--neon-b)" stopOpacity="0.6" />
+              <stop offset="50%" stopColor="var(--neon-a)" stopOpacity="0.9" />
+              <stop offset="75%" stopColor="var(--neon-b)" stopOpacity="0.6" />
               <stop offset="100%" stopColor="var(--neon-b)" stopOpacity="0" />
             </linearGradient>
           </defs>
         </svg>
 
-        {/* Wave layer 3 - slowest, subtle background */}
+        {/* Wave layer 3 - bottom wave, slowest, reverse direction */}
         <svg 
-          className="absolute w-[200%] h-full opacity-20"
+          className="absolute w-[200%] opacity-35"
+          style={{ top: "65%", height: "30%", animation: "oceanWaveFlow 16s linear infinite reverse" }}
           viewBox="0 0 1200 60" 
           preserveAspectRatio="none"
-          style={{ animation: "oceanWaveFlow 18s linear infinite reverse" }}
         >
           <path
-            d="M0,28 C180,40 320,18 480,30 C640,42 780,20 940,30 C1100,40 1200,28 1200,28"
+            d="M0,30 C180,45 320,15 480,30 C640,45 780,15 940,30 C1100,45 1200,30 1200,30"
             fill="none"
             stroke="url(#waveStroke3)"
-            strokeWidth="1"
+            strokeWidth="1.5"
           />
           <defs>
             <linearGradient id="waveStroke3" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="var(--neon-a)" stopOpacity="0" />
-              <stop offset="40%" stopColor="var(--neon-a)" stopOpacity="0.4" />
-              <stop offset="60%" stopColor="var(--neon-b)" stopOpacity="0.4" />
+              <stop offset="30%" stopColor="var(--neon-a)" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="var(--neon-b)" stopOpacity="0.7" />
+              <stop offset="70%" stopColor="var(--neon-a)" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="var(--neon-a)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Wave layer 4 - extra subtle background wave */}
+        <svg 
+          className="absolute w-[200%] opacity-20"
+          style={{ top: "25%", height: "50%", animation: "oceanWaveFlow 20s linear infinite", animationDelay: "-7s" }}
+          viewBox="0 0 1200 60" 
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,30 C250,55 400,5 600,30 C800,55 950,5 1200,30"
+            fill="none"
+            stroke="url(#waveStroke4)"
+            strokeWidth="1"
+          />
+          <defs>
+            <linearGradient id="waveStroke4" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="var(--neon-a)" stopOpacity="0" />
+              <stop offset="50%" stopColor="var(--neon-b)" stopOpacity="0.5" />
               <stop offset="100%" stopColor="var(--neon-a)" stopOpacity="0" />
             </linearGradient>
           </defs>
