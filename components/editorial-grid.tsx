@@ -1,13 +1,15 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { WaterFrame } from "@/components/ui/water-frame"
+
 export function EditorialGrid() {
   return (
     <section id="about" className="px-4 py-16 sm:px-8 md:py-20 scroll-mt-16">
       <div className="mx-auto max-w-[1200px]">
         {/* Asymmetric Bento Grid - Hypebeast editorial style */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)] md:col-span-7 md:aspect-auto md:h-[520px]">
+          <WaterFrame className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/18 md:col-span-7 md:aspect-auto md:h-[520px]">
             <Image
               src="/community-real-connections.jpg"
               alt="Real people connecting in a garden setting"
@@ -37,14 +39,15 @@ export function EditorialGrid() {
                 A timeline that makes it easy to pull up — and a community that makes it worth it.
               </p>
             </div>
-          </div>
+          </WaterFrame>
 
           {/* Stack of smaller cards */}
           <div className="flex flex-col gap-4 md:col-span-5">
-            <Link
-              href="/host/apply"
-              className="group relative block min-h-[240px] flex-1 overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 backdrop-blur transition hover:border-[color:var(--neon-a)]/35 hover:shadow-[0_0_26px_rgba(0,209,255,0.10)]"
-            >
+            <WaterFrame className="relative min-h-[240px] flex-1 rounded-2xl">
+              <Link
+                href="/host/apply"
+                className="group relative block h-full min-h-[240px] overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/18 backdrop-blur transition hover:shadow-[0_0_26px_rgba(0,209,255,0.10)]"
+              >
               <Image
                 src="/host-with-vibe-santa-bull.jpg"
                 alt="Host an event with VIZB"
@@ -77,8 +80,10 @@ export function EditorialGrid() {
                 </span>
               </div>
             </Link>
+            </WaterFrame>
 
-            <div className="group relative min-h-[240px] flex-1 overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18">
+            <WaterFrame className="relative min-h-[240px] flex-1 rounded-2xl">
+              <div className="group relative h-full min-h-[240px] overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/18">
               <Image
                 src="/curated-events-crowd.jpg"
                 alt="Curated events crowd"
@@ -99,6 +104,7 @@ export function EditorialGrid() {
                 </p>
               </div>
             </div>
+            </WaterFrame>
           </div>
         </div>
 
