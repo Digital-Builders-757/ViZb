@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import { ThreeBackgroundWrapper } from "@/components/three-background-wrapper"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 import { Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -274,7 +275,7 @@ export default async function EventsExplorePage({
                 <Link
                   key={cat}
                   href={href}
-                  className={`inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
+                  className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
                     isActive
                       ? "border-[color:var(--neon-a)]/55 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(0,209,255,0.16)]"
                       : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgba(0,209,255,0.10)]"
@@ -290,7 +291,7 @@ export default async function EventsExplorePage({
                   ? `/events${eventsListingQuery({ category: activeFilter ?? undefined })}`
                   : `/events${eventsListingQuery({ category: activeFilter ?? undefined, vibes: true })}`
               }
-              className={`inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
+              className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
                 vibesFilter
                   ? "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(157,77,255,0.14)]"
                   : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-b)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
@@ -302,10 +303,8 @@ export default async function EventsExplorePage({
         </div>
       </section>
 
-      {/* Divider line */}
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
-        <div className="border-t border-[color:var(--neon-hairline)]" />
-      </div>
+      {/* Ocean wave divider */}
+      <OceanDivider variant="hero" density="normal" />
 
       {/* Trending strip */}
       {trending.length > 0 ? (
@@ -377,6 +376,9 @@ export default async function EventsExplorePage({
           </div>
         </section>
       ) : null}
+
+      {/* Ocean wave divider before timeline */}
+      {trending.length > 0 && <OceanDivider variant="soft" density="sparse" />}
 
       {/* Timeline Section */}
       <section className="px-4 py-12 sm:px-8 md:py-20">

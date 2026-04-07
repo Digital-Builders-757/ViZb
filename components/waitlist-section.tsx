@@ -80,7 +80,7 @@ export function WaitlistSection() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="h-12 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 text-sm text-[color:var(--neon-text0)] backdrop-blur placeholder:text-[color:var(--neon-text2)] focus:outline-none focus:ring-2 focus:ring-[color:var(--neon-a)]/40 disabled:opacity-50"
+                  className="vibe-focus-ring h-12 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 text-sm text-[color:var(--neon-text0)] backdrop-blur placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/55 disabled:opacity-50"
                 />
                 <input
                   type="tel"
@@ -88,14 +88,14 @@ export function WaitlistSection() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={loading}
-                  className="h-12 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 text-sm text-[color:var(--neon-text0)] backdrop-blur placeholder:text-[color:var(--neon-text2)] focus:outline-none focus:ring-2 focus:ring-[color:var(--neon-a)]/40 disabled:opacity-50"
+                  className="vibe-focus-ring h-12 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 text-sm text-[color:var(--neon-text0)] backdrop-blur placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/55 disabled:opacity-50"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[color:var(--neon-a)] px-8 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[0_0_30px_rgba(0,209,255,0.26)] transition hover:brightness-110 disabled:opacity-50"
+                className="vibe-focus-ring inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[color:var(--neon-a)] px-8 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[0_0_30px_rgba(0,209,255,0.26)] transition hover:brightness-110 disabled:opacity-50"
               >
                 {loading ? (
                   <>
