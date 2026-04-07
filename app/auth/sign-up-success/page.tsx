@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AppShell } from "@/components/ui/app-shell";
 import { GlassCard } from "@/components/ui/glass-card";
 import { WaterFrame } from "@/components/ui/water-frame";
+import { SignUpSuccessPanel } from "@/components/auth/sign-up-success-panel";
 import { NeonLink } from "@/components/ui/neon-link";
 
 export default function SignUpSuccessPage() {
@@ -60,20 +61,23 @@ export default function SignUpSuccessPage() {
                   <div className="h-px flex-1 bg-[color:var(--neon-hairline)]" />
                 </div>
 
+                <SignUpSuccessPanel />
+
                 <div className="mt-10 space-y-4">
                   <NeonLink href="/login" fullWidth shape="xl">
                     GO TO SIGN IN
                   </NeonLink>
 
                   <p className="text-center text-xs text-[color:var(--neon-text2)]">
-                    Didn’t receive an email? Check your spam folder or{" "}
+                    Check spam and promotions. Use <span className="text-[color:var(--neon-text0)]">Resend confirmation email</span>{" "}
+                    above if you need a fresh link, or{" "}
                     <Link
                       href="/signup"
                       className="font-mono text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 transition hover:decoration-[color:var(--neon-a)]"
                     >
-                      try again
-                    </Link>
-                    .
+                      start over
+                    </Link>{" "}
+                    with a different address.
                   </p>
                 </div>
               </div>
