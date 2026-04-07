@@ -44,6 +44,22 @@ function firstEvent(raw: RegistrationRow["event"]): WalletEvent | null {
   return null
 }
 
+/**
+ * Door QR is valid while the event is upcoming, or up to this long after `starts_at`
+ * (late check-in / timezone / staff still at the door).
+ */
+const TICKET_QR_EVENT_WINDOW_AFTER_START_MS = 48 * 60 * 60 * 1000
+
+function ticketQrEligible(row: RegistrationRow, nowMs: number): boolean {
+  if (row.status !== "confirmed" && row.status !== "checked_in") return false
+  const e = firstEvent(row.event)
+  if (!e) return false
+  const t = new Date(e.starts_at).getTime()
+  if (Number.isNaN(t)) return true
+  if (t >= nowMs) return true
+  return nowMs - t <= TICKET_QR_EVENT_WINDOW_AFTER_START_MS
+}
+
 function partitionByStart(rows: RegistrationRow[], nowMs: number) {
   const upcoming: RegistrationRow[] = []
   const past: RegistrationRow[] = []
@@ -73,6 +89,7 @@ function TicketSection({
   walletGoogleEnabled,
   ticketSecret,
   qrIssuedAtUnixSeconds,
+  nowMs,
 }: {
   title: string
   subtitle?: string
@@ -82,6 +99,7 @@ function TicketSection({
   walletGoogleEnabled: boolean
   ticketSecret: string | null
   qrIssuedAtUnixSeconds: number
+  nowMs: number
 }) {
   if (rows.length === 0) return null
 
@@ -98,8 +116,10 @@ function TicketSection({
           const base = origin || ""
           const eventAbsoluteUrl = base ? `${base}/events/${e.slug}` : `/events/${e.slug}`
 
+          const signingOk = Boolean(ticketSecret && r.event_id)
+          const eligible = ticketQrEligible(r, nowMs)
           const qrToken =
-            ticketSecret && r.event_id
+            signingOk && eligible
               ? buildTicketQrToken(
                   {
                     v: 1,
@@ -107,7 +127,7 @@ function TicketSection({
                     eid: r.event_id,
                     exp: qrIssuedAtUnixSeconds + TICKET_QR_TTL_SECONDS,
                   },
-                  ticketSecret,
+                  ticketSecret!,
                 )
               : null
 
@@ -123,6 +143,8 @@ function TicketSection({
               event={e}
               eventAbsoluteUrl={eventAbsoluteUrl}
               qrToken={qrToken}
+              ticketSigningConfigured={Boolean(ticketSecret)}
+              ticketQrEligible={eligible}
             />
           )
         })}
@@ -218,6 +240,7 @@ export default async function TicketsPage() {
             walletGoogleEnabled={walletGoogleEnabled}
             ticketSecret={ticketSecret}
             qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
+            nowMs={nowMs}
           />
 
           <TicketSection
@@ -229,6 +252,7 @@ export default async function TicketsPage() {
             walletGoogleEnabled={walletGoogleEnabled}
             ticketSecret={ticketSecret}
             qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
+            nowMs={nowMs}
           />
         </div>
       ) : null}
