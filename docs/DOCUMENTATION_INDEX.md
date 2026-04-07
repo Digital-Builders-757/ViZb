@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** March 23, 2026
+**Last Updated:** April 7, 2026
 
 Single entry point for the **events + community + brand** platform (repo **ViZb**). Everything else is reference or archive.
 
@@ -51,6 +51,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `journeys/` | Layer 3 — `INDEX.md` + per-journey `.md` |
 | `guides/` | Setup how-tos — start with `guides/LOCAL_DEV_AND_AUTH.md` for dev + auth; auth email via Resend: `guides/SUPABASE_AUTH_EMAIL_RESEND.md` |
 | `audits/`, `community/`, `content/`, `events/`, `features/`, `marketing/`, `operations/`, `performance/`, `security/`, `tests/` | Topic READMEs — add docs as you build |
+| `operations/WALLET_PASSES_SETUP.md` | Apple + Google Wallet issuer/env checklist for ticket passes (`.pkpass`, save JWT) |
 | `troubleshooting/` | Errors (`COMMON_ERRORS_QUICK_REFERENCE.md`) |
 | `releasenotes/` | `/release` archive |
 | `plans/`, `archive/` | Plans + superseded docs |

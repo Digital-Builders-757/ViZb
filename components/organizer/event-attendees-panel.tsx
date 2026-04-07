@@ -1,5 +1,7 @@
-import { Users } from "lucide-react"
+import { Camera, Users } from "lucide-react"
+import Link from "next/link"
 import { OrganizerEventAttendeesTable } from "@/components/organizer/event-attendees-table"
+import { Button } from "@/components/ui/button"
 
 export function EventAttendeesPanel({
   total,
@@ -24,20 +26,28 @@ export function EventAttendeesPanel({
 }) {
   return (
     <div className="mt-6 form-card p-6 md:p-8">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">
             <Users className="w-4 h-4" />
             Attendees
           </h2>
           <p className="text-sm text-muted-foreground">
-            RSVP rollup for this event. (User display details come next.)
+            RSVP rollup, manual actions, and fast QR check-in at the door.
           </p>
         </div>
 
-        <div className="shrink-0 text-right">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Total</div>
-          <div className="mt-1 text-2xl font-bold font-mono text-brand-cyan">{total}</div>
+        <div className="flex flex-col gap-3 sm:shrink-0 sm:items-end">
+          <Button variant="outline" size="sm" className="font-mono text-[10px] uppercase tracking-widest" asChild>
+            <Link href={`/organizer/${orgSlug}/events/${eventSlug}/check-in`}>
+              <Camera className="mr-2 h-3.5 w-3.5" />
+              Door scanner
+            </Link>
+          </Button>
+          <div className="text-left sm:text-right">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Total</div>
+            <div className="mt-1 text-2xl font-bold font-mono text-brand-cyan">{total}</div>
+          </div>
         </div>
       </div>
 

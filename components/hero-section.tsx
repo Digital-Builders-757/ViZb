@@ -1,7 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 
 import { WaterFrame } from "@/components/ui/water-frame"
+import { NeonLink } from "@/components/ui/neon-link"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
@@ -94,24 +96,15 @@ export async function HeroSection() {
 
             {/* CTAs */}
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/events"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[color:var(--neon-a)] px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[0_0_28px_rgba(0,209,255,0.25)] transition hover:brightness-110"
-              >
+              <NeonLink href="/events" variant="primary" size="default" shape="pill">
                 Explore events
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur transition hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-a)]"
-              >
+              </NeonLink>
+              <NeonLink href="/signup" variant="secondary" size="default" shape="pill">
                 Join the community
-              </Link>
-              <Link
-                href="/host/apply"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)] transition hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)]"
-              >
+              </NeonLink>
+              <NeonLink href="/host/apply" variant="ghost" size="default" shape="pill">
                 Host with VIZB
-              </Link>
+              </NeonLink>
             </div>
 
             {trending.length > 0 ? (
@@ -226,6 +219,8 @@ export async function HeroSection() {
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[2]" />
+
+      <OceanDivider variant="hero" density="normal" withLine className="relative z-[3]" />
     </section>
   )
 }

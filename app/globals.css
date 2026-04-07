@@ -69,6 +69,19 @@
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
+
+  /* Ocean section dividers — caustic band + horizon line (landing transitions) */
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 14%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 10%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 6%, transparent);
+  --ocean-divider-horizon: color-mix(in srgb, var(--neon-hairline) 72%, var(--neon-a) 28%);
+  --ocean-divider-vignette: color-mix(in srgb, var(--background) 90%, transparent);
+
+  /* Branded keyboard focus (.vibe-focus-ring + .vibe-input-glass halo) */
+  --vibe-focus-outline: color-mix(in srgb, var(--neon-a) 88%, white 12%);
+  --vibe-focus-glow: 0 0 0 1px color-mix(in srgb, var(--background) 65%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
+    0 0 34px color-mix(in srgb, var(--neon-b) 18%, transparent);
 }
 
 .dark {
@@ -129,6 +142,17 @@
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
+
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 14%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 10%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 6%, transparent);
+  --ocean-divider-horizon: color-mix(in srgb, var(--neon-hairline) 72%, var(--neon-a) 28%);
+  --ocean-divider-vignette: color-mix(in srgb, var(--background) 90%, transparent);
+
+  --vibe-focus-outline: color-mix(in srgb, var(--neon-a) 88%, white 12%);
+  --vibe-focus-glow: 0 0 0 1px color-mix(in srgb, var(--background) 65%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
+    0 0 34px color-mix(in srgb, var(--neon-b) 18%, transparent);
 }
 
 @theme inline {
@@ -264,7 +288,31 @@
 .vibe-input-glass:focus-visible {
   outline: none;
   border-color: var(--vibe-neon-cyan);
-  box-shadow: 0 0 0 2px rgb(0 212 255 / 0.35);
+  box-shadow: var(--vibe-focus-glow);
+}
+
+/**
+ * Branded keyboard focus (focus-visible). Outline-only preserves component box-shadows.
+ */
+.vibe-focus-ring:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.vibe-focus-ring:focus-visible {
+  outline: 2px solid var(--vibe-focus-outline);
+  outline-offset: 3px;
+}
+
+@media (forced-colors: active) {
+  .vibe-focus-ring:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .vibe-input-glass:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 
 /* Editorial text styles */
@@ -329,10 +377,83 @@
   }
 }
 
+@keyframes neon-border-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-25px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .neon-gradient-text {
     animation: none;
     background-position: 50% center;
+  }
+}
+
+/* Ocean divider — caustic band drifts slowly; horizon line stays sharp */
+@keyframes ocean-divider-caustic-drift {
+  0% {
+    background-position: 0% 50%, 0 0;
+  }
+  100% {
+    background-position: 100% 50%, 0 0;
+  }
+}
+
+.ocean-divider__band {
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--ocean-divider-caustic-a) 24%,
+      var(--ocean-divider-caustic-b) 50%,
+      var(--ocean-divider-caustic-c) 76%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      var(--ocean-divider-vignette) 0%,
+      transparent 40%,
+      transparent 60%,
+      var(--ocean-divider-vignette) 100%
+    );
+  background-size: 240% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  animation: ocean-divider-caustic-drift 32s ease-in-out infinite alternate;
+}
+
+.ocean-divider[data-ocean-variant="hero"] {
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 19%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 13%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 9%, transparent);
+}
+
+.ocean-divider[data-ocean-variant="soft"] {
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 8%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 6%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 3.5%, transparent);
+}
+
+.ocean-divider[data-ocean-variant="soft"] .ocean-divider__horizon {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-divider__band {
+    animation: none;
+    background-position: 50% 50%, 0 0;
   }
 }
 

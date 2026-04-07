@@ -22,7 +22,7 @@ const BUDGET_LABELS: Record<(typeof BUDGET_OPTIONS)[number], string> = {
 }
 
 const inputClass =
-  "w-full border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+  "vibe-focus-ring w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[rgb(5_6_18/0.72)] px-4 py-3 text-sm text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/50 transition-all"
 
 interface AdvertiseContactFormProps {
   emailConfigured: boolean
@@ -49,7 +49,10 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
   return (
     <form id="advertise-inquiry-form" action={onSubmit} className="relative space-y-8">
       {!emailConfigured && (
-        <div className="border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-200">
+        <div
+          className="rounded-lg border-2 border-amber-400/50 bg-amber-500/15 px-4 py-3 text-sm font-medium text-amber-100 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
+          role="status"
+        >
           Outbound email is not configured (missing <span className="font-mono">RESEND_API_KEY</span>). The
           form still validates input; add your key in{" "}
           <span className="font-mono">.env.local</span> to deliver to the team inbox.
@@ -57,21 +60,32 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
       )}
 
       {state?.ok ? (
-        <div className="border border-primary/30 bg-primary/5 px-4 py-4 text-sm text-foreground">
-          {state.message}
+        <div
+          className="rounded-lg border-2 border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 px-4 py-4 text-sm font-medium text-[color:var(--neon-text0)] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
+          role="status"
+        >
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {state.message}
+          </div>
         </div>
       ) : null}
 
       {state && !state.ok && !fieldErrors?.companyWebsite ? (
-        <div className="border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <div
+          className="rounded-lg border-2 border-destructive/55 bg-destructive/15 px-4 py-3 text-sm font-medium text-destructive shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
+          role="alert"
+        >
           {state.error}
         </div>
       ) : null}
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="sm:col-span-1">
-          <label htmlFor="fullName" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Full name <span className="text-primary">*</span>
+          <label htmlFor="fullName" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Full name <span className="text-[color:var(--neon-a)]">*</span>
           </label>
           <input
             id="fullName"
@@ -88,8 +102,8 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
           ) : null}
         </div>
         <div className="sm:col-span-1">
-          <label htmlFor="email" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Work email <span className="text-primary">*</span>
+          <label htmlFor="email" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Work email <span className="text-[color:var(--neon-a)]">*</span>
           </label>
           <input
             id="email"
@@ -107,7 +121,7 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="company" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          <label htmlFor="company" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
             Organization / brand
           </label>
           <input
@@ -120,8 +134,8 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
           />
         </div>
         <div>
-          <label htmlFor="phone" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Phone <span className="text-muted-foreground/70">(optional)</span>
+          <label htmlFor="phone" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Phone <span className="text-[color:var(--neon-text2)]/80">(optional)</span>
           </label>
           <input
             id="phone"
@@ -141,8 +155,8 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
       </div>
 
       <div>
-        <label htmlFor="interestType" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-          What are you interested in? <span className="text-primary">*</span>
+        <label htmlFor="interestType" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+          What are you interested in? <span className="text-[color:var(--neon-a)]">*</span>
         </label>
         <select
           id="interestType"
@@ -167,7 +181,7 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
       </div>
 
       <div>
-        <label htmlFor="budgetRange" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+        <label htmlFor="budgetRange" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
           Rough budget (optional)
         </label>
         <select id="budgetRange" name="budgetRange" className={`${inputClass} mt-2`} defaultValue="">
@@ -181,10 +195,10 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
       </div>
 
       <div>
-        <label htmlFor="message" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-          Goals, timing & audience <span className="text-primary">*</span>
+        <label htmlFor="message" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+          Goals, timing & audience <span className="text-[color:var(--neon-a)]">*</span>
         </label>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-[color:var(--neon-text2)]">
           Share what you want to promote, ideal run dates, and who you are trying to reach in Virginia / DMV.
         </p>
         <textarea
@@ -192,23 +206,26 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
           name="message"
           required
           rows={6}
-          className={`${inputClass} mt-2 resize-y min-h-[140px]`}
-          placeholder="We’re launching … and want to reach …"
+          className={`${inputClass} mt-2 min-h-[140px] resize-y`}
+          placeholder="We're launching … and want to reach …"
           aria-invalid={!!fieldErrors?.message}
         />
         {fieldErrors?.message ? <p className="mt-1 text-xs text-destructive">{fieldErrors.message}</p> : null}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-border pt-6">
-        <p className="text-xs text-muted-foreground max-w-md">
+      <div className="flex flex-col gap-3 border-t border-[color:var(--neon-hairline)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-md text-xs text-[color:var(--neon-text2)]">
           Submissions go to our partnerships inbox. We typically reply within a few business days.
         </p>
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center justify-center bg-foreground text-background px-8 py-3 text-xs font-mono uppercase tracking-widest hover:bg-primary transition-colors disabled:opacity-50"
+          className="vibe-focus-ring group relative shrink-0 overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] transition-shadow duration-300 hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {pending ? "Sending…" : "Send inquiry"}
+          <span className="absolute inset-0 bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%] animate-[neon-border-flow_3s_linear_infinite]" />
+          <span className="relative z-10 flex items-center justify-center rounded-lg bg-[color:var(--neon-bg0)]/80 px-8 py-3 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors group-hover:bg-[color:var(--neon-bg0)]/60">
+            {pending ? "Sending…" : "Send inquiry"}
+          </span>
         </button>
       </div>
     </form>

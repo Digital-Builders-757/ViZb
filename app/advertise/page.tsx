@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { AdvertiseContactForm } from "@/components/advertise/advertise-contact-form"
+import { AppShell } from "@/components/ui/app-shell"
+import { GlassCard } from "@/components/ui/glass-card"
+import { WaterFrame } from "@/components/ui/water-frame"
 import { getAdminInboxEmail, isAdvertiseEmailConfigured } from "@/lib/email/project-env"
 
 export const metadata: Metadata = {
@@ -15,31 +18,45 @@ export default function AdvertisePage() {
   const inbox = getAdminInboxEmail()
 
   return (
-    <main className="min-h-screen bg-background">
+    <AppShell
+      withNeonBackdrop
+      className="min-h-[100dvh] overflow-x-hidden text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+    >
       <Navbar />
 
-      <section className="pt-24 sm:pt-28 pb-20 px-4 sm:px-8">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-xs font-mono uppercase tracking-widest text-primary">Partnerships</p>
-          <h1 className="mt-3 font-serif text-3xl sm:text-4xl font-bold text-foreground text-balance">
-            Advertise with VIZB
-          </h1>
-          <p className="mt-4 text-muted-foreground leading-relaxed">
-            Reach people who show up for culture in Virginia and the DMV — events, creative communities, and
-            local brands. Tell us what you have in mind; we route inquiries straight to{" "}
-            <a href={`mailto:${inbox}`} className="text-primary hover:underline font-mono text-sm">
-              {inbox}
-            </a>
-            .
-          </p>
+      <main>
+        <section className="px-4 pb-20 pt-24 sm:px-8 sm:pt-28">
+          <div className="mx-auto max-w-2xl">
+            <WaterFrame className="rounded-xl">
+              <div className="px-5 py-8 sm:px-8 sm:py-10">
+                <p className="text-xs font-mono uppercase tracking-[0.35em] text-[color:var(--neon-a)]">
+                  Partnerships
+                </p>
+                <h1 className="mt-3 text-balance font-serif text-3xl font-bold sm:text-4xl">
+                  <span className="neon-gradient-text">Advertise with VIZB</span>
+                </h1>
+                <p className="mt-4 leading-relaxed text-[color:var(--neon-text2)]">
+                  Reach people who show up for culture in Virginia and the DMV — events, creative communities, and
+                  local brands. Tell us what you have in mind; we route inquiries straight to{" "}
+                  <a
+                    href={`mailto:${inbox}`}
+                    className="font-mono text-sm text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 transition hover:decoration-[color:var(--neon-a)]"
+                  >
+                    {inbox}
+                  </a>
+                  .
+                </p>
+              </div>
+            </WaterFrame>
 
-          <div className="mt-12 border border-border bg-card/30 p-6 sm:p-8 relative">
-            <AdvertiseContactForm emailConfigured={emailConfigured} />
+            <GlassCard emphasis className="mt-10 p-6 sm:p-8">
+              <AdvertiseContactForm emailConfigured={emailConfigured} />
+            </GlassCard>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <Footer />
-    </main>
+    </AppShell>
   )
 }
