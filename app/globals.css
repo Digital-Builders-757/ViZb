@@ -351,6 +351,15 @@
   }
 }
 
+@keyframes wave {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-25px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .neon-gradient-text {
     animation: none;

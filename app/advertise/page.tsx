@@ -94,17 +94,6 @@ export default function AdvertisePage() {
       </section>
 
       <Footer />
-
-      <style jsx>{`
-        @keyframes wave {
-          0%, 100% {
-            transform: translateX(0);
-          }
-          50% {
-            transform: translateX(-25px);
-          }
-        }
-      `}</style>
     </main>
   )
 }
