@@ -1,18 +1,29 @@
 "use client"
 
-import React from "react"
-
 import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
+import { AuthAlert } from "@/components/auth/auth-alert"
+import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
+import { PENDING_VERIFY_EMAIL_KEY } from "@/lib/auth/pending-verify-email"
+import { supportMailtoHref } from "@/lib/auth/support-contact"
+
+const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
-  const [error, setError] = useState<string | null>(null)
+  const [authIssue, setAuthIssue] = useState<MappedAuthError | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<{
+    displayName?: string
+    email?: string
+    password?: string
+  }>({})
+  const [validationBanner, setValidationBanner] = useState<{ title: string; message: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -24,35 +35,64 @@ export default function SignUpPage() {
     duration: 8 + (i * 4.7 % 1) * 6,
   })), [])
 
+  function clearServerIssue() {
+    setAuthIssue(null)
+  }
+
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    setError(null)
+    setAuthIssue(null)
+    setFieldErrors({})
+    setValidationBanner(null)
 
+    const name = displayName.trim()
+    const em = email.trim()
+    const errs: typeof fieldErrors = {}
+    if (!name) errs.displayName = "Add the name you want other members to see."
+    if (!emailOk(em)) errs.email = "Enter a valid email address."
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.")
+      errs.password = "Use at least 6 characters for your password."
+    }
+    if (Object.keys(errs).length) {
+      setFieldErrors(errs)
+      setValidationBanner({
+        title: "Fix a few things",
+        message: "Check the highlighted fields and try again.",
+      })
       setLoading(false)
       return
     }
 
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
-      email,
+      email: em,
       password,
       options: {
         emailRedirectTo:
           process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
           `${window.location.origin}/auth/callback`,
         data: {
-          display_name: displayName || undefined,
+          display_name: name,
         },
       },
     })
 
     if (error) {
-      setError(error.message)
+      setAuthIssue(
+        mapAuthError(error, "signup", {
+          onNetworkRetry: () => setAuthIssue(null),
+          onGenericRetry: () => setAuthIssue(null),
+        }),
+      )
       setLoading(false)
       return
+    }
+
+    try {
+      sessionStorage.setItem(PENDING_VERIFY_EMAIL_KEY, em)
+    } catch {
+      /* ignore */
     }
 
     router.push("/auth/sign-up-success")
@@ -96,7 +136,7 @@ export default function SignUpPage() {
         {/* Ocean gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--neon-bg0)] via-[color:var(--neon-bg0)]/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-a)]/20 via-transparent to-[color:var(--neon-b)]/10" />
-        
+
         {/* Animated wave lines */}
         <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden">
           <svg className="absolute bottom-0 w-full h-24 opacity-30" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -117,7 +157,7 @@ export default function SignUpPage() {
 
         {/* Neon border accent */}
         <div className="absolute right-0 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-[color:var(--neon-a)]/50 to-transparent" />
-        
+
         <div className="relative z-10 px-16">
           <h1 className="headline-lg text-[color:var(--neon-text0)] uppercase">
             Join
@@ -129,7 +169,7 @@ export default function SignUpPage() {
           <p className="text-[color:var(--neon-text1)] mt-6 max-w-md leading-relaxed">
             Create your account and start discovering events, connecting with creators, and building community.
           </p>
-          
+
           {/* Decorative neon element */}
           <div className="mt-10 flex items-center gap-3">
             <span className="h-px w-12 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] shadow-[0_0_10px_rgba(0,209,255,0.5)]" />
@@ -142,7 +182,7 @@ export default function SignUpPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative">
         {/* Subtle glow behind form */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[color:var(--neon-a)]/5 rounded-full blur-[100px]" />
-        
+
         <div className="w-full max-w-md relative">
           {/* Logo with glow */}
           <Link href="/" className="inline-block mb-12 group">
@@ -173,24 +213,64 @@ export default function SignUpPage() {
 
           {/* Form with glass card */}
           <form onSubmit={handleSignUp} className="mt-10 space-y-6 p-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] backdrop-blur-sm">
-            {error && (
-              <div className="border border-destructive/50 bg-destructive/10 px-4 py-3 rounded-lg">
-                <p className="text-sm text-destructive">{error}</p>
-              </div>
-            )}
+            <div className="min-h-0 space-y-4">
+              {validationBanner ? (
+                <AuthAlert variant="warning" title={validationBanner.title} message={validationBanner.message} />
+              ) : null}
+
+              {authIssue ? (
+                <>
+                  <AuthAlert
+                    variant={authIssue.severity === "warning" ? "warning" : "error"}
+                    title={authIssue.title}
+                    message={authIssue.message}
+                    hint={authIssue.hint}
+                    mapped={{
+                      primaryAction: authIssue.primaryAction,
+                      secondaryAction: authIssue.secondaryAction,
+                    }}
+                  />
+                  {authIssue.code !== "account_exists" ? (
+                    <p className="text-center text-sm text-[color:var(--neon-text2)]">
+                      <button
+                        type="button"
+                        className="font-mono text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 hover:decoration-[color:var(--neon-a)]"
+                        onClick={clearServerIssue}
+                      >
+                        Try again
+                      </button>
+                      <span className="mx-2 text-[color:var(--neon-hairline)]" aria-hidden>
+                        ·
+                      </span>
+                      <a
+                        href={supportMailtoHref("VIZB sign-up help")}
+                        className="font-mono text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 hover:decoration-[color:var(--neon-a)]"
+                      >
+                        Contact support
+                      </a>
+                    </p>
+                  ) : null}
+                </>
+              ) : null}
+            </div>
 
             <div>
               <label htmlFor="display-name" className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-2">
-                Display Name
+                Display Name <span className="text-[color:var(--neon-a)]">*</span>
               </label>
               <input
                 id="display-name"
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
+                required
                 placeholder="What should we call you?"
+                aria-invalid={!!fieldErrors.displayName}
                 className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-a)]/50 transition-all"
               />
+              {fieldErrors.displayName ? (
+                <p className="mt-2 text-sm text-destructive">{fieldErrors.displayName}</p>
+              ) : null}
             </div>
 
             <div>
@@ -204,8 +284,12 @@ export default function SignUpPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
+                aria-invalid={!!fieldErrors.email}
                 className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-a)]/50 transition-all"
               />
+              {fieldErrors.email ? (
+                <p className="mt-2 text-sm text-destructive">{fieldErrors.email}</p>
+              ) : null}
             </div>
 
             <div>
@@ -219,8 +303,16 @@ export default function SignUpPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="At least 6 characters"
+                aria-invalid={!!fieldErrors.password}
                 className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-a)]/50 transition-all"
               />
+              {fieldErrors.password ? (
+                <p className="mt-2 text-sm text-destructive">{fieldErrors.password}</p>
+              ) : (
+                <p className="mt-2 text-xs text-[color:var(--neon-text2)] leading-relaxed">
+                  Use at least 6 characters. Longer phrases with numbers or symbols are more secure.
+                </p>
+              )}
             </div>
 
             <button

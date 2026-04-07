@@ -1,18 +1,20 @@
 "use client"
 
-import React from "react"
-
 import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
+
+import { AuthAlert } from "@/components/auth/auth-alert"
+import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
+import { supportMailtoHref } from "@/lib/auth/support-contact"
 import { getSafeRedirectPath } from "@/lib/utils"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
+  const [authIssue, setAuthIssue] = useState<MappedAuthError | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -29,7 +31,7 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    setError(null)
+    setAuthIssue(null)
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
@@ -38,7 +40,12 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setError(error.message)
+      setAuthIssue(
+        mapAuthError(error, "login", {
+          onNetworkRetry: () => setAuthIssue(null),
+          onGenericRetry: () => setAuthIssue(null),
+        }),
+      )
       setLoading(false)
       return
     }
@@ -85,7 +92,7 @@ export default function LoginPage() {
         {/* Ocean gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--neon-bg0)] via-[color:var(--neon-bg0)]/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-b)]/20 via-transparent to-[color:var(--neon-a)]/10" />
-        
+
         {/* Animated ripple rings */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className="absolute w-[200px] h-[200px] -top-[100px] -left-[100px] rounded-full border border-[color:var(--neon-b)]/20 animate-[ping_4s_ease-out_infinite]" style={{ animationDelay: "0s" }} />
@@ -95,7 +102,7 @@ export default function LoginPage() {
 
         {/* Neon border accent */}
         <div className="absolute right-0 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-[color:var(--neon-b)]/50 to-transparent" />
-        
+
         <div className="relative z-10 px-16">
           <h1 className="headline-lg text-[color:var(--neon-text0)] uppercase">
             Welcome
@@ -105,7 +112,7 @@ export default function LoginPage() {
           <p className="text-[color:var(--neon-text1)] mt-6 max-w-md leading-relaxed">
             Sign in to manage your events, connect with your community, and never miss a vibe.
           </p>
-          
+
           {/* Decorative neon element */}
           <div className="mt-10 flex items-center gap-3">
             <span className="h-px w-12 bg-gradient-to-r from-[color:var(--neon-b)] to-[color:var(--neon-a)] shadow-[0_0_10px_rgba(157,77,255,0.5)]" />
@@ -118,7 +125,7 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative">
         {/* Subtle glow behind form */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[color:var(--neon-b)]/5 rounded-full blur-[100px]" />
-        
+
         <div className="w-full max-w-md relative">
           {/* Logo with glow */}
           <Link href="/" className="inline-block mb-12 group">
@@ -149,11 +156,40 @@ export default function LoginPage() {
 
           {/* Form with glass card */}
           <form onSubmit={handleLogin} className="mt-10 space-y-6 p-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] backdrop-blur-sm">
-            {error && (
-              <div className="border border-destructive/50 bg-destructive/10 px-4 py-3 rounded-lg">
-                <p className="text-sm text-destructive">{error}</p>
-              </div>
-            )}
+            <div className="space-y-4">
+              {authIssue ? (
+                <>
+                  <AuthAlert
+                    variant={authIssue.severity === "warning" ? "warning" : "error"}
+                    title={authIssue.title}
+                    message={authIssue.message}
+                    hint={authIssue.hint}
+                    mapped={{
+                      primaryAction: authIssue.primaryAction,
+                      secondaryAction: authIssue.secondaryAction,
+                    }}
+                  />
+                  <p className="text-center text-sm text-[color:var(--neon-text2)]">
+                    <button
+                      type="button"
+                      className="font-mono text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 hover:decoration-[color:var(--neon-a)]"
+                      onClick={() => setAuthIssue(null)}
+                    >
+                      Try again
+                    </button>
+                    <span className="mx-2 text-[color:var(--neon-hairline)]" aria-hidden>
+                      ·
+                    </span>
+                    <a
+                      href={supportMailtoHref("VIZB sign-in help")}
+                      className="font-mono text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 hover:decoration-[color:var(--neon-a)]"
+                    >
+                      Contact support
+                    </a>
+                  </p>
+                </>
+              ) : null}
+            </div>
 
             <div>
               <label htmlFor="email" className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-2">
@@ -171,9 +207,17 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-2">
-                Password
-              </label>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <label htmlFor="password" className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:text-[color:var(--neon-b)] transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"
