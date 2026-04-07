@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
         "Content-Type": "text/calendar; charset=utf-8",
         "Content-Disposition": 'attachment; filename="vizb-my-vibes.ics"',
         "Cache-Control": "private, max-age=60",
+        Vary: "Cookie",
       },
     })
   }

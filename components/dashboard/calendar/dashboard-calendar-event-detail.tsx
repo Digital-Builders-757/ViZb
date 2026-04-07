@@ -16,6 +16,7 @@ export interface DashboardCalendarEventDetailProps {
   event: DashboardCalendarEvent
   onBack: () => void
   initialSaved: boolean
+  onSavedChange?: (nextSaved: boolean) => void
 }
 
 function hostedByLabel(event: DashboardCalendarEvent): string {
@@ -28,6 +29,7 @@ export function DashboardCalendarEventDetail({
   event,
   onBack,
   initialSaved,
+  onSavedChange,
 }: DashboardCalendarEventDetailProps) {
   const icsHref = `/api/calendar/ics?slug=${encodeURIComponent(event.slug)}`
   const vibeAuthHref = `/login?redirect=${encodeURIComponent(`/dashboard`)}`
@@ -117,12 +119,14 @@ export function DashboardCalendarEventDetail({
 
           <div className="flex flex-col gap-2 pt-1">
             <MyVibesButton
+              key={`${event.id}-${initialSaved}`}
               eventId={event.id}
               eventSlug={event.slug}
               isSignedIn
               initialSaved={initialSaved}
               authHref={vibeAuthHref}
               variant="dashboard"
+              onSavedChange={onSavedChange}
             />
             <Button
               asChild

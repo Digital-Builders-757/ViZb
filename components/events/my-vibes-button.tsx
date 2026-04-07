@@ -16,6 +16,7 @@ export function MyVibesButton({
   initialSaved,
   authHref,
   variant = "detail",
+  onSavedChange,
 }: {
   eventId: string
   eventSlug: string
@@ -23,6 +24,8 @@ export function MyVibesButton({
   initialSaved: boolean
   authHref: string
   variant?: MyVibesButtonVariant
+  /** When parent tracks optimistic overrides (e.g. dashboard calendar shell). */
+  onSavedChange?: (nextSaved: boolean) => void
 }) {
   const [isPending, startTransition] = useTransition()
   const [saved, setSaved] = useState(initialSaved)
@@ -71,6 +74,7 @@ export function MyVibesButton({
               return
             }
             setSaved(false)
+            onSavedChange?.(false)
             toast.success("Removed from My Vibes.")
             return
           }
@@ -81,6 +85,7 @@ export function MyVibesButton({
             return
           }
           setSaved(true)
+          onSavedChange?.(true)
           toast.success("Saved to My Vibes.")
         })
       }}

@@ -58,6 +58,7 @@ export function DashboardCalendarShell({
 
   const [selectedDayKey, setSelectedDayKey] = useState(defaultDay)
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined)
+  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)")
@@ -107,6 +108,8 @@ export function DashboardCalendarShell({
 
   const savedSet = useMemo(() => new Set(savedEventIds), [savedEventIds])
 
+  const isSavedLive = (id: string) => (id in savedOverrides ? savedOverrides[id] : savedSet.has(id))
+
   const panelContent =
     events.length === 0 ? (
       <div className="rounded-xl border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
@@ -121,7 +124,10 @@ export function DashboardCalendarShell({
       <DashboardCalendarEventDetail
         event={selectedEvent}
         onBack={clearEvent}
-        initialSaved={savedSet.has(selectedEvent.id)}
+        initialSaved={isSavedLive(selectedEvent.id)}
+        onSavedChange={(next) =>
+          setSavedOverrides((prev) => ({ ...prev, [selectedEvent.id]: next }))
+        }
       />
     ) : (
       <DashboardCalendarDayPanel
@@ -250,7 +256,10 @@ export function DashboardCalendarShell({
             <DashboardCalendarEventDetail
               event={selectedEvent}
               onBack={clearEvent}
-              initialSaved={savedSet.has(selectedEvent.id)}
+              initialSaved={isSavedLive(selectedEvent.id)}
+              onSavedChange={(next) =>
+                setSavedOverrides((prev) => ({ ...prev, [selectedEvent.id]: next }))
+              }
             />
           ) : null}
         </SheetContent>
