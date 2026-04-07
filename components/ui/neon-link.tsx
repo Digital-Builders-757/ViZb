@@ -33,7 +33,7 @@ export function NeonLink({
     return (
       <Link
         className={cn(
-          "group relative inline-flex p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--neon-bg0)] active:scale-[0.99]",
+          "group relative inline-flex p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300 vibe-focus-ring active:scale-[0.99]",
           round,
           fullWidth && "w-full",
           className,
@@ -58,7 +58,7 @@ export function NeonLink({
   return (
     <Link
       className={cn(
-        "group relative inline-flex min-h-11 items-center justify-center border px-8 py-3.5 text-[color:var(--neon-text0)] backdrop-blur-md transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--neon-bg0)] active:scale-[0.99] md:px-7 md:py-3",
+        "group relative inline-flex min-h-11 items-center justify-center border px-8 py-3.5 text-[color:var(--neon-text0)] backdrop-blur-md transition-all duration-300 vibe-focus-ring active:scale-[0.99] md:px-7 md:py-3",
         variant === "secondary"
           ? "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] shadow-[var(--vibe-neon-glow-subtle)] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/70"
           : "border-transparent bg-transparent hover:border-[color:var(--neon-hairline)] hover:bg-[color:var(--neon-surface)]/50",
