@@ -5,6 +5,7 @@ import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { TicketWalletCard } from "@/components/dashboard/tickets/ticket-wallet-card"
+import { buildTicketQrToken, getTicketQrSecret, TICKET_QR_TTL_SECONDS } from "@/lib/ticket-qr-token"
 import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib/wallet/env"
 
 type WalletEvent = {
@@ -18,6 +19,7 @@ type WalletEvent = {
 
 type RegistrationRow = {
   id: string
+  event_id: string
   status: string
   created_at: string
   checked_in_at: string | null
@@ -69,6 +71,8 @@ function TicketSection({
   origin,
   walletAppleEnabled,
   walletGoogleEnabled,
+  ticketSecret,
+  qrIssuedAtUnixSeconds,
 }: {
   title: string
   subtitle?: string
@@ -76,6 +80,8 @@ function TicketSection({
   origin: string
   walletAppleEnabled: boolean
   walletGoogleEnabled: boolean
+  ticketSecret: string | null
+  qrIssuedAtUnixSeconds: number
 }) {
   if (rows.length === 0) return null
 
@@ -83,9 +89,7 @@ function TicketSection({
     <section className="min-w-0 space-y-3">
       <div>
         <h2 className="font-serif text-lg font-bold text-[color:var(--neon-text0)] md:text-xl">{title}</h2>
-        {subtitle ? (
-          <p className="mt-1 text-sm text-[color:var(--neon-text2)]">{subtitle}</p>
-        ) : null}
+        {subtitle ? <p className="mt-1 text-sm text-[color:var(--neon-text2)]">{subtitle}</p> : null}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:gap-4">
         {rows.map((r) => {
@@ -93,6 +97,19 @@ function TicketSection({
           if (!e) return null
           const base = origin || ""
           const eventAbsoluteUrl = base ? `${base}/events/${e.slug}` : `/events/${e.slug}`
+
+          const qrToken =
+            ticketSecret && r.event_id
+              ? buildTicketQrToken(
+                  {
+                    v: 1,
+                    rid: r.id,
+                    eid: r.event_id,
+                    exp: qrIssuedAtUnixSeconds + TICKET_QR_TTL_SECONDS,
+                  },
+                  ticketSecret,
+                )
+              : null
 
           return (
             <TicketWalletCard
@@ -105,6 +122,7 @@ function TicketSection({
               checkedInAt={r.checked_in_at}
               event={e}
               eventAbsoluteUrl={eventAbsoluteUrl}
+              qrToken={qrToken}
             />
           )
         })}
@@ -116,6 +134,7 @@ function TicketSection({
 export default async function TicketsPage() {
   const { user, supabase } = await requireAuth()
   const origin = await siteOrigin()
+
   const walletAppleEnabled = isAppleWalletPassConfigured()
   const walletGoogleEnabled = isGoogleWalletPassConfigured()
 
@@ -126,7 +145,7 @@ export default async function TicketsPage() {
     const { data, error } = await supabase
       .from("event_registrations")
       .select(
-        "id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
+        "id, event_id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -139,24 +158,21 @@ export default async function TicketsPage() {
   }
 
   const list = rows ?? []
-  const active = list.filter((r) => {
-    if (r.status === "cancelled") return false
-    return firstEvent(r.event) != null
-  })
+  const active = list.filter((r) => firstEvent(r.event) != null)
 
-  // Request-time boundary for partitioning upcoming vs past (RSC; not a client re-render).
-  const nowMs = new Date().getTime()
+  // Single request-time clock snapshot (avoids multiple impure time calls in this RSC).
+  const clock = new Date()
+  const nowMs = clock.getTime()
+  const qrIssuedAtUnixSeconds = Math.floor(nowMs / 1000)
+  const ticketSecret = getTicketQrSecret()
+
   const { upcoming, past, undated } = partitionByStart(active, nowMs)
 
   return (
     <div className="min-w-0 space-y-8 md:space-y-10">
       <header className="min-w-0">
-        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-          Wallet
-        </span>
-        <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">
-          My tickets
-        </h1>
+        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Wallet</span>
+        <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">My tickets</h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
           Your RSVPs and check-ins in one place. Add events to your calendar so you don&apos;t miss a show.
         </p>
@@ -200,6 +216,8 @@ export default async function TicketsPage() {
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}
             walletGoogleEnabled={walletGoogleEnabled}
+            ticketSecret={ticketSecret}
+            qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
           />
 
           <TicketSection
@@ -209,6 +227,8 @@ export default async function TicketsPage() {
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}
             walletGoogleEnabled={walletGoogleEnabled}
+            ticketSecret={ticketSecret}
+            qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
           />
         </div>
       ) : null}
