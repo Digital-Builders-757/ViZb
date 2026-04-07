@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { WaterFrame } from "@/components/ui/water-frame"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 
 export function EditorialGrid() {
   return (
@@ -152,6 +153,8 @@ export function EditorialGrid() {
           ))}
         </div>
       </div>
+
+      <OceanDivider variant="soft" density="normal" withLine />
     </section>
   )
 }

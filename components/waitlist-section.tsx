@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import { subscribeToWaitlist } from "@/app/actions/subscribe"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 
 export function WaitlistSection() {
   const [email, setEmail] = useState("")
@@ -30,6 +31,8 @@ export function WaitlistSection() {
 
   return (
     <section id="waitlist" className="relative overflow-hidden px-4 py-20 sm:px-8 md:py-28">
+      <OceanDivider variant="soft" density="sparse" withLine className="relative z-[2]" />
+
       <div
         className="pointer-events-none absolute inset-0"
         style={{

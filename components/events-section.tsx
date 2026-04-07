@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { WaterFrame } from "@/components/ui/water-frame"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
 
@@ -195,6 +196,8 @@ export async function EventsSection() {
             </Link>
           </div>
         </div>
+
+        <OceanDivider variant="soft" density="sparse" withLine={false} className="mt-10" />
       </div>
     </section>
   )

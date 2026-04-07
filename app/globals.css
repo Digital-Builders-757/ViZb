@@ -69,6 +69,13 @@
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
+
+  /* Ocean section dividers — caustic band + horizon line (landing transitions) */
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 14%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 10%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 6%, transparent);
+  --ocean-divider-horizon: color-mix(in srgb, var(--neon-hairline) 72%, var(--neon-a) 28%);
+  --ocean-divider-vignette: color-mix(in srgb, var(--background) 90%, transparent);
 }
 
 .dark {
@@ -129,6 +136,12 @@
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
+
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 14%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 10%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 6%, transparent);
+  --ocean-divider-horizon: color-mix(in srgb, var(--neon-hairline) 72%, var(--neon-a) 28%);
+  --ocean-divider-vignette: color-mix(in srgb, var(--background) 90%, transparent);
 }
 
 @theme inline {
@@ -333,6 +346,61 @@
   .neon-gradient-text {
     animation: none;
     background-position: 50% center;
+  }
+}
+
+/* Ocean divider — caustic band drifts slowly; horizon line stays sharp */
+@keyframes ocean-divider-caustic-drift {
+  0% {
+    background-position: 0% 50%, 0 0;
+  }
+  100% {
+    background-position: 100% 50%, 0 0;
+  }
+}
+
+.ocean-divider__band {
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--ocean-divider-caustic-a) 24%,
+      var(--ocean-divider-caustic-b) 50%,
+      var(--ocean-divider-caustic-c) 76%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      var(--ocean-divider-vignette) 0%,
+      transparent 40%,
+      transparent 60%,
+      var(--ocean-divider-vignette) 100%
+    );
+  background-size: 240% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  animation: ocean-divider-caustic-drift 32s ease-in-out infinite alternate;
+}
+
+.ocean-divider[data-ocean-variant="hero"] {
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 19%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 13%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 9%, transparent);
+}
+
+.ocean-divider[data-ocean-variant="soft"] {
+  --ocean-divider-caustic-a: color-mix(in srgb, var(--neon-a) 8%, transparent);
+  --ocean-divider-caustic-b: color-mix(in srgb, var(--neon-b) 6%, transparent);
+  --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 3.5%, transparent);
+}
+
+.ocean-divider[data-ocean-variant="soft"] .ocean-divider__horizon {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-divider__band {
+    animation: none;
+    background-position: 50% 50%, 0 0;
   }
 }
 
