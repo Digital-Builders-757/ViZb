@@ -76,6 +76,12 @@
   --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 6%, transparent);
   --ocean-divider-horizon: color-mix(in srgb, var(--neon-hairline) 72%, var(--neon-a) 28%);
   --ocean-divider-vignette: color-mix(in srgb, var(--background) 90%, transparent);
+
+  /* Branded keyboard focus (.vibe-focus-ring + .vibe-input-glass halo) */
+  --vibe-focus-outline: color-mix(in srgb, var(--neon-a) 88%, white 12%);
+  --vibe-focus-glow: 0 0 0 1px color-mix(in srgb, var(--background) 65%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
+    0 0 34px color-mix(in srgb, var(--neon-b) 18%, transparent);
 }
 
 .dark {
@@ -142,6 +148,11 @@
   --ocean-divider-caustic-c: color-mix(in srgb, var(--neon-a) 6%, transparent);
   --ocean-divider-horizon: color-mix(in srgb, var(--neon-hairline) 72%, var(--neon-a) 28%);
   --ocean-divider-vignette: color-mix(in srgb, var(--background) 90%, transparent);
+
+  --vibe-focus-outline: color-mix(in srgb, var(--neon-a) 88%, white 12%);
+  --vibe-focus-glow: 0 0 0 1px color-mix(in srgb, var(--background) 65%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
+    0 0 34px color-mix(in srgb, var(--neon-b) 18%, transparent);
 }
 
 @theme inline {
@@ -277,7 +288,31 @@
 .vibe-input-glass:focus-visible {
   outline: none;
   border-color: var(--vibe-neon-cyan);
-  box-shadow: 0 0 0 2px rgb(0 212 255 / 0.35);
+  box-shadow: var(--vibe-focus-glow);
+}
+
+/**
+ * Branded keyboard focus (focus-visible). Outline-only preserves component box-shadows.
+ */
+.vibe-focus-ring:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.vibe-focus-ring:focus-visible {
+  outline: 2px solid var(--vibe-focus-outline);
+  outline-offset: 3px;
+}
+
+@media (forced-colors: active) {
+  .vibe-focus-ring:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .vibe-input-glass:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 
 /* Editorial text styles */
@@ -348,6 +383,15 @@
   }
   100% {
     background-position: 200% 50%;
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-25px);
   }
 }
 
