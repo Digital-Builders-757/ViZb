@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { WaterFrame } from "@/components/ui/water-frame"
-import { NeonButton } from "@/components/ui/neon-button"
+import { NeonLink } from "@/components/ui/neon-link"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
 
@@ -182,12 +182,12 @@ export async function EventsSection() {
             Want your event featured? Apply to host.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <NeonButton asChild variant="primary" size="sm">
-              <Link href="/events">Explore events</Link>
-            </NeonButton>
-            <NeonButton asChild variant="secondary" size="sm">
-              <Link href="/host/apply">Host with VIZB</Link>
-            </NeonButton>
+            <NeonLink href="/events" variant="primary" size="sm" shape="pill">
+              Explore events
+            </NeonLink>
+            <NeonLink href="/host/apply" variant="secondary" size="sm" shape="pill">
+              Host with VIZB
+            </NeonLink>
           </div>
         </div>
       </div>

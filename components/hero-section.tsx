@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { WaterFrame } from "@/components/ui/water-frame"
-import { NeonButton } from "@/components/ui/neon-button"
+import { NeonLink } from "@/components/ui/neon-link"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
@@ -95,15 +95,15 @@ export async function HeroSection() {
 
             {/* CTAs */}
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <NeonButton asChild variant="primary" size="default">
-                <Link href="/events">Explore events</Link>
-              </NeonButton>
-              <NeonButton asChild variant="secondary" size="default">
-                <Link href="/signup">Join the community</Link>
-              </NeonButton>
-              <NeonButton asChild variant="ghost" size="default">
-                <Link href="/host/apply">Host with VIZB</Link>
-              </NeonButton>
+              <NeonLink href="/events" variant="primary" size="default" shape="pill">
+                Explore events
+              </NeonLink>
+              <NeonLink href="/signup" variant="secondary" size="default" shape="pill">
+                Join the community
+              </NeonLink>
+              <NeonLink href="/host/apply" variant="ghost" size="default" shape="pill">
+                Host with VIZB
+              </NeonLink>
             </div>
 
             {trending.length > 0 ? (

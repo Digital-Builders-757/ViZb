@@ -63,14 +63,50 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
     { className, variant = "primary", fullWidth, shape = "pill", size = "default", neon = true, asChild = false, children, type = "button", ...props },
     ref,
   ) => {
-    const Comp = asChild ? Slot : "button"
+    const round = shape === "xl" ? "rounded-xl" : "rounded-full"
 
-    if (variant === "primary") {
-      const round = shape === "xl" ? "rounded-xl" : "rounded-full"
+    // For asChild, we wrap the child in a span structure that provides the neon effects
+    // The Slot component will merge props onto the single child element
+    if (asChild) {
+      if (variant === "primary") {
+        return (
+          <Slot
+            ref={ref}
+            className={cn(
+              "group relative inline-flex p-[2px] shadow-[var(--vibe-neon-glow)] focus-visible:shadow-[var(--vibe-neon-glow),0_0_0_3px_var(--vibe-neon-cyan)] active:scale-[0.99] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300",
+              round,
+              fullWidth && "w-full",
+              className,
+            )}
+            {...props}
+          >
+            {children}
+          </Slot>
+        )
+      }
       return (
-        <Comp
+        <Slot
           ref={ref}
-          type={asChild ? undefined : type}
+          className={cn(
+            "group relative",
+            neonButtonVariants({ variant, fullWidth, shape }),
+            size === "sm" && "min-h-9 px-5 py-2.5 text-sm",
+            size === "lg" && "min-h-12 px-10 py-4 text-base",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </Slot>
+      )
+    }
+
+    // Regular button rendering with full neon effects
+    if (variant === "primary") {
+      return (
+        <button
+          ref={ref}
+          type={type}
           className={cn(
             "group relative p-[2px] shadow-[var(--vibe-neon-glow)] focus-visible:shadow-[var(--vibe-neon-glow),0_0_0_3px_var(--vibe-neon-cyan)] active:scale-[0.99] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300",
             round,
@@ -89,14 +125,14 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           />
           {/* Inner content with background */}
           <span className={cn(neonButtonInner({ size, shape }), "bg-[color:var(--neon-bg0)]/80 group-hover:bg-[color:var(--neon-bg0)]/60 transition-colors duration-300", round)}>{children}</span>
-        </Comp>
+        </button>
       )
     }
 
     return (
-      <Comp
+      <button
         ref={ref}
-        type={asChild ? undefined : type}
+        type={type}
         className={cn(
           "group relative",
           neonButtonVariants({ variant, fullWidth, shape }),
@@ -122,7 +158,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
             aria-hidden
           />
         )}
-      </Comp>
+      </button>
     )
   },
 )
