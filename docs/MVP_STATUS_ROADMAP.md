@@ -57,9 +57,9 @@
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
 | Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
-| Phase 3 | Ticket Types + Free RSVP | NOT STARTED | 0% |
+| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS | ~25% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
-| Phase 5 | Door Check-In | NOT STARTED | 0% |
+| Phase 5 | Door Check-In | IN PROGRESS | ~40% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | 35% |
 
 ---
@@ -116,7 +116,7 @@
 | Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
 | Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
 | Member planner calendar | `components/dashboard/calendar/*` | Month / Week / Agenda + Eastern dates; day + event selection; detail panel (desktop) / Sheet (mobile); ICS via `app/api/calendar/ics`; org “Hosted by”; query still `getPublishedEventsForDashboardMonth` (widened window). Re-export: `dashboard-month-calendar.tsx` → shell. |
-| My Tickets page (temp) | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE -- empty state; **Note:** renders at `/dashboard/tickets` but canonical wallet route is `/tickets`. Will be replaced in Phase 3 when the real wallet is built at `/tickets`. |
+| My Tickets / wallet | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE (v1) -- RSVPs from `event_registrations` with tap-to-reveal **signed QR** (`lib/ticket-qr-token.ts`); requires `TICKET_QR_SECRET`. Canonical route remains `/dashboard/tickets` until a later `/tickets` migration. |
 | Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
 | Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |
 
@@ -391,6 +391,8 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Goal:** Organizers can check in attendees at the door on event day.
 
+**Shipped (v1 — April 2026):** `/organizer/[slug]/events/[eventSlug]/check-in` — camera + paste; `POST /api/checkin/scan`; signed member QR from `/dashboard/tickets`. Paid ticket tables still Phase 3/4.
+
 **Pages:**
 - [ ] `/organizer/[slug]/events/[id]/door` -- door check-in screen with attendee list and check-in toggle
 
@@ -475,7 +477,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | Subscribers table allowed public SELECT (email enumeration risk) | Medium | Phase 1.1 | **FIXED** (migration 009) | Replaced with admin-only read policy |
 | Profile `role_admin` column writable by authenticated users | Medium | Phase 1.1 | **FIXED** (migration 007) | Column-level REVOKE + selective GRANT on profiles |
 | Dashboard sidebar is desktop-only (fixed `w-64`, no mobile collapse) | Medium | Phase 6 | Open | Users on mobile cannot navigate the dashboard |
-| Tickets route mismatch: current page at `/dashboard/tickets`, canonical wallet at `/tickets` | Medium | Phase 3 | Open | Will be resolved when real wallet is built at `/tickets` |
+| Tickets route: wallet lives at `/dashboard/tickets` (not yet `/tickets`) | Low | Phase 3 | Open | v1 wallet + QR shipped; optional route alias later |
 | No loading.tsx in dashboard routes (except `/login`) | Low | Phase 6 | Open | No skeleton states during server component loading |
 | `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL` env var in signup page | Low | Phase 2 | Open | Should use origin consistently; dev-only var may cause issues |
 | No error boundaries in dashboard routes | Low | Phase 6 | Open | Unhandled errors show generic Next.js error page |
