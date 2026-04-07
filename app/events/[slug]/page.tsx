@@ -12,6 +12,7 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { NeonButton } from "@/components/ui/neon-button"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
+import { MyVibesButton } from "@/components/events/my-vibes-button"
 
 interface PublicEvent {
   id: string
@@ -119,6 +120,8 @@ export default async function PublicEventDetailPage({
   const isSignedIn = !!user
   let initialRsvpStatus: "confirmed" | "cancelled" | "checked_in" | null = null
 
+  let initialVibesSaved = false
+
   if (user) {
     try {
       const { data, error } = await supabase
@@ -135,6 +138,18 @@ export default async function PublicEventDetailPage({
     } catch {
       // In dev/staging, the migration may not be applied yet.
       initialRsvpStatus = null
+    }
+
+    try {
+      const { data: vibeRow } = await supabase
+        .from("event_saves")
+        .select("id")
+        .eq("event_id", event.id)
+        .eq("user_id", user.id)
+        .maybeSingle()
+      initialVibesSaved = !!vibeRow
+    } catch {
+      initialVibesSaved = false
     }
   }
 
@@ -302,6 +317,17 @@ export default async function PublicEventDetailPage({
                       <Ticket className="w-4 h-4" />
                       Tickets coming soon
                     </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <MyVibesButton
+                      eventId={event.id}
+                      eventSlug={event.slug}
+                      isSignedIn={isSignedIn}
+                      initialSaved={initialVibesSaved}
+                      authHref={authHref}
+                      variant="detail"
+                    />
                   </div>
 
                   <EventRsvpCta

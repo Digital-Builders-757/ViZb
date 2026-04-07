@@ -1,4 +1,5 @@
-import { buildPublishedEventIcs } from "@/lib/calendar/build-ics"
+import { buildPublishedEventIcs, buildPublishedEventsIcs } from "@/lib/calendar/build-ics"
+import { fetchMyVibesForIcs } from "@/lib/events/my-vibes-queries"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -17,13 +18,56 @@ async function resolveSiteOrigin(req: NextRequest): Promise<string> {
 }
 
 export async function GET(req: NextRequest) {
-  const slug = req.nextUrl.searchParams.get("slug")?.trim()
-  if (!slug) {
-    return NextResponse.json({ error: "Missing slug" }, { status: 400 })
-  }
-
   if (!isServerSupabaseConfigured()) {
     return NextResponse.json({ error: "Calendar unavailable" }, { status: 503 })
+  }
+
+  const myVibes = req.nextUrl.searchParams.get("myVibes")
+  const wantsMyVibes = myVibes === "1" || myVibes === "true"
+
+  if (wantsMyVibes) {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Sign in required" }, { status: 401 })
+    }
+
+    const events = await fetchMyVibesForIcs(supabase, user.id)
+    const base = await resolveSiteOrigin(req)
+
+    const payloads = events.map((row) => {
+      const eventUrl = base ? `${base}/events/${row.slug}` : `/events/${row.slug}`
+      return {
+        eventId: row.id,
+        title: row.title,
+        description: row.description,
+        startsAt: row.starts_at,
+        endsAt: row.ends_at,
+        venueName: row.venue_name,
+        city: row.city,
+        eventUrl,
+      }
+    })
+
+    const body = buildPublishedEventsIcs(payloads)
+
+    return new NextResponse(body, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/calendar; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="vizb-my-vibes.ics"',
+        "Cache-Control": "private, max-age=60",
+        Vary: "Cookie",
+      },
+    })
+  }
+
+  const slug = req.nextUrl.searchParams.get("slug")?.trim()
+  if (!slug) {
+    return NextResponse.json({ error: "Missing slug or myVibes" }, { status: 400 })
   }
 
   const supabase = await createClient()
