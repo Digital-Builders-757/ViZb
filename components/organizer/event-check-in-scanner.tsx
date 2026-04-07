@@ -229,12 +229,12 @@ export function EventCheckInScanner({
           fps: 10,
           qrbox: { width: 250, height: 250 },
         },
-        (decodedText) => {
+        (decodedText: string) => {
           submitToken(decodedText)
         },
         () => {},
       )
-      .catch((err) => {
+      .catch((err: unknown) => {
         setCameraOn(false)
         const msg = typeof err === "string" ? err : "Could not start camera"
         setLast({ kind: "error", title: "Camera", message: msg })
