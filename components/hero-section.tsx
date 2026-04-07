@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 
 import { WaterFrame } from "@/components/ui/water-frame"
 import { NeonLink } from "@/components/ui/neon-link"
@@ -218,6 +219,8 @@ export async function HeroSection() {
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[2]" />
+
+      <OceanDivider variant="hero" density="normal" withLine className="relative z-[3]" />
     </section>
   )
 }
