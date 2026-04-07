@@ -233,7 +233,7 @@ export function AppPreview() {
             <div className="absolute bottom-1/4 right-1/4 w-[150px] h-[150px] bg-[color:var(--neon-a)]/15 rounded-full blur-[60px] -z-10 animate-pulse" style={{ animationDelay: "1s" }} />
             
             {/* Decorative elements with gradient borders */}
-            <div className="absolute -top-4 -left-4 w-20 h-20 border-2 border-transparent bg-gradient-to-br from-[color:var(--neon-a)]/60 to-[color:var(--neon-b)]/40 bg-clip-border" style={{ backgroundClip: "padding-box", border: "2px solid transparent", backgroundImage: "linear-gradient(var(--neon-bg0), var(--neon-bg0)), linear-gradient(135deg, var(--neon-a), var(--neon-b))", backgroundOrigin: "border-box", backgroundClip: "padding-box, border-box" }} />
+            <div className="absolute -top-4 -left-4 w-20 h-20 border-2 border-transparent bg-gradient-to-br from-[color:var(--neon-a)]/60 to-[color:var(--neon-b)]/40 bg-clip-border" style={{ border: "2px solid transparent", backgroundImage: "linear-gradient(var(--neon-bg0), var(--neon-bg0)), linear-gradient(135deg, var(--neon-a), var(--neon-b))", backgroundOrigin: "border-box", backgroundClip: "padding-box, border-box" }} />
             <div className="absolute -bottom-4 -right-4 w-28 h-28 bg-gradient-to-br from-[color:var(--neon-a)]/20 to-[color:var(--neon-b)]/15" />
           </div>
         </div>
