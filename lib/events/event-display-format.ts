@@ -37,3 +37,10 @@ export function formatDashboardEventTimeShort(startsAt: string, endsAt: string |
   if (start === end) return start
   return `${start} – ${end}`
 }
+
+/** Single line: date/window + Eastern times with ET suffix. */
+export function formatDashboardEventEtDetailLines(startsAt: string, endsAt: string | null): string {
+  const dateLine = formatDashboardEventWhen(startsAt, endsAt)
+  const times = formatDashboardEventTimeShort(startsAt, endsAt)
+  return `${dateLine} · ${times} ET`
+}

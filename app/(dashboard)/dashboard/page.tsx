@@ -1,7 +1,7 @@
 import { getUserOrganizations } from "@/lib/auth-helpers"
 import { MemberHomeQuickActions } from "@/components/dashboard/member-home-quick-actions"
 import { MemberHomeTicketsSection } from "@/components/dashboard/member-home-tickets-section"
-import { DashboardMonthCalendar } from "@/components/dashboard/dashboard-month-calendar"
+import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
 import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
 import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
 import {
@@ -130,7 +130,8 @@ export default async function DashboardPage({
         <h2 id="dash-calendar-heading" className="sr-only">
           Events this month
         </h2>
-        <DashboardMonthCalendar
+        <DashboardCalendarShell
+          key={calKey}
           year={year}
           monthIndex={monthIndex}
           calKey={calKey}
