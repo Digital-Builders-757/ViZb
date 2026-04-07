@@ -69,6 +69,7 @@
 ### Landing Page (Pre-Phase 1 -- Live)
 
 - Full marketing homepage at `/` with hero, marquee, editorial grid, events preview, app mockup, waitlist form, footer
+- **Ocean impression packs** (see `docs/IMPRESSION_PACKS.md`): Pack 01 ships **ocean section dividers** (`OceanDivider` + tokens in `app/globals.css`). Pack 02 adds optional **`GlassCard` `interactive`** mode (subtle tilt + specular glare, reduced-motion safe) on **event timeline** cards (`/events`) and **latest post** cards on the homepage.
 - Global first-load screen (`app/loading.tsx`) uses CSS-only **WaterLoader**; hero, editorial grid, and events preview images use **WaterFrame** (liquid neon edge + inset hover glow; tokens `--water-a` / `--water-b` in `app/globals.css`)
 - 3D Three.js animated background (client-side)
 - Waitlist subscription via `subscribers` table (scripts 001-002)

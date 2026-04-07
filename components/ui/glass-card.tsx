@@ -1,13 +1,22 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { GlassCardInteractive } from "@/components/ui/glass-card-interactive"
 
 export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Slightly stronger border + shadow for hero cards */
   emphasis?: boolean
+  /** Tilt + specular highlight on pointer hover; keyboard gets focus-within glow. Respects reduced motion. */
+  interactive?: boolean
 }
 
-export function GlassCard({ className, emphasis, ...props }: GlassCardProps) {
+export function GlassCard({ className, emphasis, interactive, ...props }: GlassCardProps) {
+  if (interactive) {
+    return (
+      <GlassCardInteractive className={className} emphasis={emphasis} {...props} />
+    )
+  }
+
   return (
     <div
       className={cn(

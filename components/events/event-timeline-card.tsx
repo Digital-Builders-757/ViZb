@@ -5,6 +5,7 @@ import Link from "next/link"
 import { MapPin, Clock } from "lucide-react"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { GlassCard } from "@/components/ui/glass-card"
 
 interface EventTimelineCardProps {
   event: {
@@ -62,10 +63,12 @@ export function EventTimelineCard({
   const isEven = index % 2 === 0
 
   return (
-    <article
+    <GlassCard
+      interactive
+      role="article"
       className={`vibe-glass-panel relative flex flex-col ${
         isEven ? "md:flex-row" : "md:flex-row-reverse"
-      } gap-0 md:gap-8 overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)] transition-[border-color,box-shadow,transform] duration-500 hover:border-[color:var(--neon-a)]/35 hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.995]`}
+      } gap-0 md:gap-8 rounded-2xl bg-[color:var(--neon-surface)]/18 p-0 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)]`}
     >
       {/* Flyer Image */}
       <div
@@ -193,6 +196,6 @@ export function EventTimelineCard({
           </div>
         </Link>
       </div>
-    </article>
+    </GlassCard>
   )
 }
