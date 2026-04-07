@@ -22,7 +22,7 @@ const BUDGET_LABELS: Record<(typeof BUDGET_OPTIONS)[number], string> = {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[rgb(5_6_18/0.72)] px-4 py-3 text-sm text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
+  "vibe-focus-ring w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[rgb(5_6_18/0.72)] px-4 py-3 text-sm text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/50 transition-all"
 
 interface AdvertiseContactFormProps {
   emailConfigured: boolean
@@ -236,7 +236,7 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-[color:var(--neon-text0)] px-8 py-3 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[var(--vibe-neon-glow-subtle)] transition-[opacity,transform,box-shadow] hover:shadow-[0_0_28px_rgb(0_209_255/0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)] disabled:pointer-events-none disabled:opacity-50"
+          className="vibe-focus-ring inline-flex shrink-0 items-center justify-center rounded-xl bg-[color:var(--neon-text0)] px-8 py-3 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[var(--vibe-neon-glow-subtle)] transition-[opacity,transform,box-shadow] hover:shadow-[0_0_28px_rgb(0_209_255/0.35)] disabled:pointer-events-none disabled:opacity-50"
         >
           {pending ? "Sending…" : "Send inquiry"}
         </button>
