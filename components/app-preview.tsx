@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 
+// VIZB app mockup with ocean neon styling
 // Event data using real ViBE imagery
 const mockEvents = [
   {
