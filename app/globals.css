@@ -450,10 +450,53 @@
   opacity: 0.55;
 }
 
+/* Ocean wave flow animation */
+@keyframes oceanWaveFlow {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Flowing light along horizon line */
+@keyframes flowingLight {
+  0% {
+    left: -10%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 110%;
+    opacity: 0;
+  }
+}
+
+/* Sparkle particle animation */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ocean-divider__band {
     animation: none;
     background-position: 50% 50%, 0 0;
+  }
+  .ocean-divider svg {
+    animation: none !important;
   }
 }
 
