@@ -70,3 +70,59 @@ export function eventStartsInEasternMonth(iso: string, year: number, monthIndex:
   const m = Number(parts.find((p) => p.type === "month")?.value) - 1
   return y === year && m === monthIndex
 }
+
+/** Start of month as Eastern-style calendar key (matches `easternDateKey` / grid). */
+export function monthFirstDayKey(year: number, monthIndex: number): string {
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`
+}
+
+/**
+ * Picker/grid `Date` for a day key in the viewed month (local date parts = civil Y-M-D).
+ */
+export function dateFromDayKey(dayKey: string): Date {
+  const [ys, ms, ds] = dayKey.split("-").map(Number)
+  return new Date(ys, ms - 1, ds)
+}
+
+/**
+ * Default selected day: today if it has events (current Eastern month); else next event day in-month;
+ * else first of month. Past Eastern months → first of month; future → first day with an event.
+ */
+export function defaultSelectedDayKey(
+  year: number,
+  monthIndex: number,
+  eventsByDay: ReadonlyMap<string, DashboardCalendarEvent[]>,
+): string {
+  const firstOfMonth = monthFirstDayKey(year, monthIndex)
+  const eventDays = [...eventsByDay.keys()].sort()
+  if (eventDays.length === 0) return firstOfMonth
+
+  const todayKey = easternDateKey(new Date().toISOString())
+  const [ey, em] = todayKey.split("-").map(Number)
+  const easternNowMonthIndex = em - 1
+
+  const viewedBeforeEasternMonth =
+    year < ey || (year === ey && monthIndex < easternNowMonthIndex)
+  const viewedAfterEasternMonth =
+    year > ey || (year === ey && monthIndex > easternNowMonthIndex)
+
+  if (viewedBeforeEasternMonth) return firstOfMonth
+  if (viewedAfterEasternMonth) return eventDays[0] ?? firstOfMonth
+
+  if (eventsByDay.has(todayKey)) return todayKey
+  const next = eventDays.find((d) => d >= todayKey)
+  if (next) return next
+  return firstOfMonth
+}
+
+/** Panel title like "Mon, Apr 7 + 3 events". */
+export function formatDashboardDayPanelHeading(dayKey: string, eventCount: number): string {
+  const [ys, ms, ds] = dayKey.split("-").map(Number)
+  const date = new Date(ys, ms - 1, ds)
+  const label = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(date)
+  return `${label} + ${eventCount} event${eventCount === 1 ? "" : "s"}`
+}

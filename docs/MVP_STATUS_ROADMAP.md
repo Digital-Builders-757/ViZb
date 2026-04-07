@@ -114,6 +114,7 @@
 | Dashboard layout | `app/(dashboard)/layout.tsx` | DONE -- server component fetches profile + orgs, renders sidebar |
 | Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
 | Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
+| Member month calendar | `components/dashboard/dashboard-month-calendar.tsx` | DONE -- Eastern month grid, neon rings + stacked event dots, selected-day detail panel (title/time/venue/category chips; stacks below calendar on small screens) |
 | My Tickets page (temp) | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE -- empty state; **Note:** renders at `/dashboard/tickets` but canonical wallet route is `/tickets`. Will be replaced in Phase 3 when the real wallet is built at `/tickets`. |
 | Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
 | Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |

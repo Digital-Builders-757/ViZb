@@ -23,3 +23,17 @@ export function formatCategoryLabels(categories: string[] | null | undefined): s
   if (!categories || categories.length === 0) return "Event"
   return categories.map((c) => formatCategoryLabel(c)).join(" · ")
 }
+
+/** Compact Eastern time (and range) for dashboard day rows. */
+export function formatDashboardEventTimeShort(startsAt: string, endsAt: string | null): string {
+  const tf = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+  })
+  const start = tf.format(new Date(startsAt))
+  if (!endsAt) return start
+  const end = tf.format(new Date(endsAt))
+  if (start === end) return start
+  return `${start} – ${end}`
+}
