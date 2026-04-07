@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { WaterFrame } from "@/components/ui/water-frame"
+import { NeonButton } from "@/components/ui/neon-button"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
@@ -94,24 +95,15 @@ export async function HeroSection() {
 
             {/* CTAs */}
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/events"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[color:var(--neon-a)] px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[0_0_28px_rgba(0,209,255,0.25)] transition hover:brightness-110"
-              >
-                Explore events
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur transition hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-a)]"
-              >
-                Join the community
-              </Link>
-              <Link
-                href="/host/apply"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] px-7 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)] transition hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)]"
-              >
-                Host with VIZB
-              </Link>
+              <NeonButton asChild variant="primary" size="default">
+                <Link href="/events">Explore events</Link>
+              </NeonButton>
+              <NeonButton asChild variant="secondary" size="default">
+                <Link href="/signup">Join the community</Link>
+              </NeonButton>
+              <NeonButton asChild variant="ghost" size="default">
+                <Link href="/host/apply">Host with VIZB</Link>
+              </NeonButton>
             </div>
 
             {trending.length > 0 ? (
