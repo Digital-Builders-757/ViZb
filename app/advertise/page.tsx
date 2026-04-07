@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { AdvertiseContactForm } from "@/components/advertise/advertise-contact-form"
+import { AppShell } from "@/components/ui/app-shell"
+import { GlassCard } from "@/components/ui/glass-card"
+import { WaterFrame } from "@/components/ui/water-frame"
 import { getAdminInboxEmail, isAdvertiseEmailConfigured } from "@/lib/email/project-env"
 
 export const metadata: Metadata = {
@@ -15,108 +18,45 @@ export default function AdvertisePage() {
   const inbox = getAdminInboxEmail()
 
   return (
-    <main className="min-h-screen bg-[color:var(--neon-bg0)] relative overflow-hidden">
-      {/* Brighter ocean gradient background */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--neon-a)]/15 via-[color:var(--neon-a)]/5 to-[color:var(--neon-b)]/15" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_10%,rgba(0,209,255,0.18),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_80%_70%,rgba(157,77,255,0.12),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_50%,rgba(0,209,255,0.10),transparent)]" />
-      </div>
-
-      {/* Animated wave at bottom - brighter */}
-      <div className="fixed bottom-0 left-0 right-0 h-40 overflow-hidden pointer-events-none -z-5">
-        <svg className="absolute bottom-0 w-full h-32 opacity-40" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path
-            d="M0,60 C150,90 350,30 500,60 C650,90 850,30 1000,60 C1150,90 1200,60 1200,60 L1200,120 L0,120 Z"
-            fill="url(#advertiseWaveGradient)"
-            style={{ animation: "wave 8s ease-in-out infinite" }}
-          />
-          <defs>
-            <linearGradient id="advertiseWaveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="var(--neon-a)" />
-              <stop offset="50%" stopColor="var(--neon-b)" />
-              <stop offset="100%" stopColor="var(--neon-a)" />
-            </linearGradient>
-          </defs>
-        </svg>
-        {/* Second wave layer for depth */}
-        <svg className="absolute bottom-0 w-full h-24 opacity-25" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path
-            d="M0,80 C200,50 400,100 600,70 C800,40 1000,90 1200,60 L1200,120 L0,120 Z"
-            fill="url(#advertiseWaveGradient2)"
-            style={{ animation: "wave 6s ease-in-out infinite reverse" }}
-          />
-          <defs>
-            <linearGradient id="advertiseWaveGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="var(--neon-b)" />
-              <stop offset="50%" stopColor="var(--neon-a)" />
-              <stop offset="100%" stopColor="var(--neon-b)" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* Floating light orbs */}
-      <div className="absolute top-20 left-1/4 w-64 h-64 bg-[color:var(--neon-a)]/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute top-40 right-1/4 w-48 h-48 bg-[color:var(--neon-b)]/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
-
+    <AppShell
+      withNeonBackdrop
+      className="min-h-[100dvh] overflow-x-hidden text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+    >
       <Navbar />
 
-      <section className="pt-24 sm:pt-28 pb-20 px-4 sm:px-8 relative">
-        {/* Decorative elements - brighter */}
-        <div className="absolute top-32 left-10 w-40 h-40 bg-[color:var(--neon-a)]/20 rounded-full blur-[80px] animate-pulse" />
-        <div className="absolute top-64 right-10 w-48 h-48 bg-[color:var(--neon-b)]/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
-
-        <div className="max-w-2xl mx-auto relative">
-          {/* Header with neon styling */}
-          <div className="flex items-center gap-3 mb-4">
-            <span className="h-px w-10 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] shadow-[0_0_10px_rgba(0,209,255,0.5)]" />
-            <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)]">Partnerships</p>
-          </div>
-          
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[color:var(--neon-text0)] text-balance">
-            Advertise with{" "}
-            <span className="neon-gradient-text">VIZB</span>
-          </h1>
-          
-          <p className="mt-6 text-[color:var(--neon-text1)] leading-relaxed text-lg">
-            Reach people who show up for culture in Virginia and the DMV — events, creative communities, and
-            local brands. Tell us what you have in mind; we route inquiries straight to{" "}
-            <a href={`mailto:${inbox}`} className="text-[color:var(--neon-a)] hover:text-[color:var(--neon-b)] transition-colors font-mono text-sm">
-              {inbox}
-            </a>
-            .
-          </p>
-
-          {/* Features list */}
-          <div className="mt-8 flex flex-wrap gap-4">
-            {["Event Sponsorships", "Newsletter Features", "Brand Collaborations"].map((feature, i) => (
-              <div 
-                key={i}
-                className="group flex items-center gap-2 px-4 py-2 rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] hover:border-[color:var(--neon-a)]/40 transition-all"
-              >
-                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)]" />
-                <span className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">{feature}</span>
+      <main>
+        <section className="px-4 pb-20 pt-24 sm:px-8 sm:pt-28">
+          <div className="mx-auto max-w-2xl">
+            <WaterFrame className="rounded-xl">
+              <div className="px-5 py-8 sm:px-8 sm:py-10">
+                <p className="text-xs font-mono uppercase tracking-[0.35em] text-[color:var(--neon-a)]">
+                  Partnerships
+                </p>
+                <h1 className="mt-3 text-balance font-serif text-3xl font-bold sm:text-4xl">
+                  <span className="neon-gradient-text">Advertise with VIZB</span>
+                </h1>
+                <p className="mt-4 leading-relaxed text-[color:var(--neon-text2)]">
+                  Reach people who show up for culture in Virginia and the DMV — events, creative communities, and
+                  local brands. Tell us what you have in mind; we route inquiries straight to{" "}
+                  <a
+                    href={`mailto:${inbox}`}
+                    className="font-mono text-sm text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 transition hover:decoration-[color:var(--neon-a)]"
+                  >
+                    {inbox}
+                  </a>
+                  .
+                </p>
               </div>
-            ))}
-          </div>
+            </WaterFrame>
 
-          {/* Form card with enhanced glass effect */}
-          <div className="mt-12 rounded-2xl border border-[color:var(--neon-a)]/20 bg-gradient-to-b from-[color:var(--neon-surface)] to-[color:var(--neon-bg0)]/80 backdrop-blur-md p-6 sm:p-8 relative overflow-hidden shadow-[0_0_60px_rgba(0,209,255,0.1),0_0_120px_rgba(157,77,255,0.05)]">
-            {/* Brighter glow at top of card */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:var(--neon-a)]/70 to-transparent" />
-            <div className="absolute top-0 left-1/4 right-1/4 h-32 bg-gradient-to-b from-[color:var(--neon-a)]/20 to-transparent blur-2xl" />
-            {/* Side glows */}
-            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-40 h-40 bg-[color:var(--neon-a)]/15 rounded-full blur-[60px]" />
-            <div className="absolute -right-20 top-1/3 w-32 h-32 bg-[color:var(--neon-b)]/15 rounded-full blur-[50px]" />
-            
-            <AdvertiseContactForm emailConfigured={emailConfigured} />
+            <GlassCard emphasis className="mt-10 p-6 sm:p-8">
+              <AdvertiseContactForm emailConfigured={emailConfigured} />
+            </GlassCard>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <Footer />
-    </main>
+    </AppShell>
   )
 }
