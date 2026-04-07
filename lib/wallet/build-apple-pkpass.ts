@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import { PKPass } from "passkit-generator"
+import { PKPass, type Barcode } from "passkit-generator"
 import { buildTicketBarcodeMessage } from "@/lib/tickets/barcode-token"
 import { getApplePassStaticIds, getBarcodeSecretOrThrow, loadAppleSignerMaterial } from "@/lib/wallet/env"
 
@@ -81,7 +81,14 @@ export function buildRsvpAppleWalletPkPass(input: {
     },
   )
 
-  pass.setBarcodes(barcode)
+  /** Explicit QR barcode (library also accepts a string and expands to all formats). */
+  const qrBarcode: Barcode = {
+    format: "PKBarcodeFormatQR",
+    message: barcode,
+    messageEncoding: "iso-8859-1",
+    altText: "Check-in",
+  }
+  pass.setBarcodes(qrBarcode)
   const relevant = new Date(input.startsAtIso)
   if (!Number.isNaN(relevant.getTime())) {
     pass.setRelevantDate(relevant)
