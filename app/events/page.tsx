@@ -5,6 +5,7 @@ import { ThreeBackgroundWrapper } from "@/components/three-background-wrapper"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
 import { Calendar } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
@@ -145,12 +146,17 @@ export default async function EventsExplorePage({
     return new Date(e.starts_at).getTime() >= now.getTime()
   }
 
-  const flatUpcoming = allFlat.filter(isUpcomingOrOngoing).sort(
-    (a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
-  )
-  const flatPast = allFlat.filter((e) => !isUpcomingOrOngoing(e)).sort(
-    (a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()
-  ).slice(0, 12)
+  const flatUpcoming = allFlat
+    .filter(isUpcomingOrOngoing)
+    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+
+  const flatPast = allFlat
+    .filter((e) => !isUpcomingOrOngoing(e))
+    .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
+    .slice(0, 12)
+
+  // Simple “Trending” strip: earliest upcoming items (no extra query)
+  const trending = flatUpcoming.slice(0, 3)
 
   // ET timezone formatter for date grouping (Virginia audience)
   const etDateFormatter = new Intl.DateTimeFormat("en-CA", {
@@ -214,7 +220,7 @@ export default async function EventsExplorePage({
           </p>
 
           {/* Filter bar */}
-          <div className="flex items-center gap-3 mt-8 md:mt-10 overflow-x-auto pb-2 scrollbar-none">
+          <div className="mt-8 flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none md:mt-10">
             {FILTER_CATEGORIES.map((cat) => {
               const isActive = cat === "All"
                 ? !activeFilter || activeFilter === "all"
@@ -225,10 +231,10 @@ export default async function EventsExplorePage({
                 <Link
                   key={cat}
                   href={href}
-                  className={`rounded-full text-[10px] sm:text-xs font-mono uppercase tracking-widest px-3 sm:px-4 py-2 border backdrop-blur transition-all whitespace-nowrap ${
+                  className={`inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
                     isActive
-                      ? "border-[color:var(--neon-a)]/45 text-[color:var(--neon-text0)] bg-[color:var(--neon-surface)]/65 shadow-[var(--vibe-neon-glow-subtle)]"
-                      : "border-[color:var(--neon-hairline)] text-[color:var(--neon-text2)] bg-[color:var(--neon-surface)]/20 hover:border-[color:var(--neon-a)]/35 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgb(0_209_255/0.08)]"
+                      ? "border-[color:var(--neon-a)]/55 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(0,209,255,0.16)]"
+                      : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgba(0,209,255,0.10)]"
                   }`}
                 >
                   {cat}
@@ -244,8 +250,79 @@ export default async function EventsExplorePage({
         <div className="border-t border-[color:var(--neon-hairline)]" />
       </div>
 
+      {/* Trending strip */}
+      {trending.length > 0 ? (
+        <section className="px-4 pt-10 sm:px-8 md:pt-12">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                Trending this weekend
+              </p>
+              <Link
+                href="/events"
+                className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] hover:brightness-110"
+              >
+                Timeline →
+              </Link>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {trending.map((e) => (
+                <Link
+                  key={e.id}
+                  href={`/events/${e.slug}`}
+                  className="group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-3 backdrop-blur transition hover:border-[color:var(--neon-a)]/35 hover:shadow-[0_0_24px_rgba(0,209,255,0.10)]"
+                >
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                    style={{
+                      background:
+                        "radial-gradient(900px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)",
+                    }}
+                    aria-hidden
+                  />
+
+                  <div className="relative z-[1] flex items-center gap-3">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                      {e.flyer_url ? (
+                        <Image
+                          src={e.flyer_url}
+                          alt={e.title}
+                          fill
+                          sizes="56px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      ) : null}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-[color:var(--neon-text0)]">
+                        {e.title}
+                      </p>
+                      <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                        {e.city} · {new Intl.DateTimeFormat("en-US", {
+                          timeZone: "America/New_York",
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        }).format(new Date(e.starts_at))}
+                      </p>
+                    </div>
+
+                    <span className="shrink-0 rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
+                      {e.categories[0] ?? "Event"}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* Timeline Section */}
-      <section className="py-12 md:py-20 px-4 sm:px-8">
+      <section className="px-4 py-12 sm:px-8 md:py-20">
         <div className="max-w-[1200px] mx-auto">
           {hasEvents ? (
             <>

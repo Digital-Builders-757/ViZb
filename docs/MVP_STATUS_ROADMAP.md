@@ -114,6 +114,7 @@
 | Dashboard layout | `app/(dashboard)/layout.tsx` | DONE -- server component fetches profile + orgs, renders sidebar |
 | Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
 | Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
+| Member planner calendar | `components/dashboard/calendar/*` | Month / Week / Agenda + Eastern dates; day + event selection; detail panel (desktop) / Sheet (mobile); ICS via `app/api/calendar/ics`; org “Hosted by”; query still `getPublishedEventsForDashboardMonth` (widened window). Re-export: `dashboard-month-calendar.tsx` → shell. |
 | My Tickets page (temp) | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE -- empty state; **Note:** renders at `/dashboard/tickets` but canonical wallet route is `/tickets`. Will be replaced in Phase 3 when the real wallet is built at `/tickets`. |
 | Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
 | Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |

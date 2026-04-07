@@ -30,30 +30,36 @@ const mockEvents = [
 
 export function AppPreview() {
   return (
-    <section className="py-24 px-4 sm:px-8 overflow-hidden">
-      <div className="max-w-[1800px] mx-auto">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
+    <section className="overflow-hidden px-4 py-20 sm:px-8 md:py-28">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="grid items-center gap-12 md:grid-cols-2 md:gap-16">
           {/* Content */}
           <div>
-            <span className="text-xs uppercase tracking-widest text-primary font-mono">Coming Soon</span>
-            <h2 className="headline-lg text-foreground uppercase mt-4">
+            <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Coming soon</span>
+            <h2 className="mt-4 font-serif text-5xl font-bold leading-[0.92] text-[color:var(--neon-text0)] sm:text-6xl">
               The
               <br />
               <span className="neon-gradient-text">VIZB</span>
               <br />
-              App
+              app
             </h2>
-            <p className="text-lg text-muted-foreground mt-8 max-w-md leading-relaxed">
+            <p className="mt-7 max-w-md text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
               Discover events, connect with creators, and never miss a vibe. The VIZB app is launching soon — be the
               first to know.
             </p>
 
             {/* Feature list - minimal */}
-            <div className="mt-12 space-y-4">
-              {["Discover local events", "Connect with creators", "Exclusive drops & access"].map((feature, i) => (
+            <div className="mt-10 space-y-4">
+              {[
+                "Discover local events",
+                "Connect with creators",
+                "Exclusive drops & access",
+              ].map((feature, i) => (
                 <div key={i} className="flex items-center gap-4">
-                  <span className="w-8 h-px bg-primary" />
-                  <span className="text-sm uppercase tracking-widest text-foreground">{feature}</span>
+                  <span className="h-px w-10 bg-[color:var(--neon-a)]/70 shadow-[0_0_14px_rgba(0,209,255,0.22)]" />
+                  <span className="font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-text0)]">
+                    {feature}
+                  </span>
                 </div>
               ))}
             </div>

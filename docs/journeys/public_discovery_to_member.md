@@ -26,7 +26,7 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 
 ### Member (login required)
 
-- `/dashboard` — member home (calendar + trending + culture picks + tickets)
+- `/dashboard` — member home (month calendar with per-day detail panel + trending + culture picks + tickets)
 - `/dashboard/tickets` — member tickets
 - `/profile`
 
