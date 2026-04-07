@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 
+// Ocean-themed loading screen with water animations
+
 // Animated text component with wave effect
 function AnimatedText({ 
   children, 
