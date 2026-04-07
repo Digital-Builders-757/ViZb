@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { GlassCard } from "@/components/ui/glass-card"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
+import { TicketWalletPassActions } from "@/components/dashboard/tickets/ticket-wallet-actions"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export type TicketWalletEvent = {
   title: string
@@ -12,12 +13,18 @@ export type TicketWalletEvent = {
 }
 
 export function TicketWalletCard({
+  registrationId,
+  walletAppleEnabled,
+  walletGoogleEnabled,
   status,
   createdAt,
   checkedInAt,
   event: e,
   eventAbsoluteUrl,
 }: {
+  registrationId: string
+  walletAppleEnabled: boolean
+  walletGoogleEnabled: boolean
   status: string
   createdAt: string
   checkedInAt: string | null
@@ -100,6 +107,12 @@ export function TicketWalletCard({
           eventUrl={eventAbsoluteUrl}
         />
       ) : null}
+
+      <TicketWalletPassActions
+        registrationId={registrationId}
+        appleEnabled={walletAppleEnabled}
+        googleEnabled={walletGoogleEnabled}
+      />
     </GlassCard>
   )
 }

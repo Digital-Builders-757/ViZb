@@ -1,156 +1,107 @@
-# Wallet Passes Setup (Apple Wallet + Google Wallet)
+# Wallet passes setup (Apple Wallet + Google Wallet)
 
-This doc covers the external setup and environment variables needed to ship **Add to Apple Wallet** + **Add to Google Wallet** for ViZb tickets.
+This document is for operators enabling **Tickets v2** wallet passes on ViZb. Application code reads **only environment variables**; no signing keys or service account JSON belong in the repo.
 
-Scope
-- **Tickets v2**: passes are for *free RSVP tickets* (no price/seat assumptions).
-- QR/barcode payload must remain **non-PII** and **signed** (use the app’s ticket QR token).
+## Feature flags (when buttons appear)
 
-Non-goals
-- Payments
-- Seating maps
-- Transfer/secondary market
+On `/dashboard/tickets`, **Add to Apple Wallet** / **Add to Google Wallet** show only when the relevant env block is complete. If neither platform is configured, users see **coming soon**.
 
----
+Shared requirement:
 
-## 0) Key decisions (recommended defaults)
-- Passes are **per registration** (1 pass = 1 RSVP)
-- QR/barcode encodes a **signed token** with:
-  - event_id
-  - registration_id
-  - expiry
-- Pass endpoints require:
-  - authenticated user
-  - ownership check: `event_registrations.user_id = auth.uid()`
+- `TICKET_BARCODE_HMAC_SECRET` — long random secret used to HMAC signage for barcode/QR payloads. Must **not** contain personal data; payload is only registration id + event id.
 
 ---
 
-## 1) Environment variable checklist
+## Env var checklist
 
-### Shared
-- `NEXT_PUBLIC_SITE_URL` — must be set correctly in prod
+| Variable | Used for |
+|----------|-----------|
+| `TICKET_BARCODE_HMAC_SECRET` | Apple + Google barcode message (required for both) |
+| `APPLE_WALLET_TEAM_ID` | Apple |
+| `APPLE_WALLET_PASS_TYPE_ID` | Apple |
+| `APPLE_WALLET_CERT_P12_BASE64` | Apple (base64 of `.p12`) |
+| `APPLE_WALLET_CERT_PASSWORD` | Apple |
+| `APPLE_WALLET_WWDR_PEM_BASE64` | Apple (base64 of PEM) |
+| `APPLE_WALLET_ORG_NAME` | Apple (optional, default `ViZb`) |
+| `GOOGLE_WALLET_ISSUER_ID` | Google (numeric issuer id from console) |
+| `GOOGLE_WALLET_CLASS_ID` | Google (full `issuerId.classId` **or** suffix; code prefixes issuer if no dot) |
+| `GOOGLE_WALLET_SERVICE_ACCOUNT_JSON_BASE64` | Google (base64 of single service account JSON file) |
 
-### Ticket signing
-- `TICKET_QR_SECRET`
-  - Server-only HMAC secret used for ticket QR tokens.
-  - **Rotate carefully** (rotation invalidates existing QR codes unless you support multi-secret verification).
-
-### Apple Wallet (.pkpass)
-- `APPLE_WALLET_TEAM_ID`
-- `APPLE_WALLET_PASS_TYPE_ID` (e.g., `pass.com.yourcompany.vizb`)
-- `APPLE_WALLET_CERT_P12_BASE64`
-- `APPLE_WALLET_CERT_PASSWORD`
-- `APPLE_WALLET_WWDR_PEM_BASE64`
-
-### Google Wallet
-- `GOOGLE_WALLET_ISSUER_ID`
-- `GOOGLE_WALLET_CLASS_ID` (or a prefix to derive class IDs)
-- `GOOGLE_WALLET_SERVICE_ACCOUNT_JSON_BASE64`
-
-Security notes
-- Never commit certs or service account JSON.
-- Prefer storing base64 versions of secrets in your hosting provider secret store.
+Copy names from `.env.example` into the host’s secret store (e.g. Vercel / Supabase Edge secrets / your vault).
 
 ---
 
-## 2) Apple Wallet setup (Pass Type ID + cert)
+## API (for QA)
 
-### 2.1 Enroll in Apple Developer Program
-You need an Apple Developer account for the organization.
+Both routes require a logged-in **Supabase** session (cookie). The registration must belong to `auth.uid()`.
 
-### 2.2 Create a Pass Type Identifier
-Apple Developer portal → **Certificates, Identifiers & Profiles**
-- Identifiers → **Pass Type IDs** → Create
-- Name: `ViZb Tickets`
-- Identifier: `pass.com.<org>.vizb` (example)
+- `GET /api/tickets/pass/apple?rid=<event_registrations.id>` — returns `application/vnd.apple.pkpass`
+- `GET /api/tickets/pass/google?rid=<event_registrations.id>` — **302** redirect to Google’s save URL
+- `GET /api/tickets/pass/google?rid=...&format=json` — `{ "saveUrl", "jwt" }` for tooling
 
-### 2.3 Create a Pass certificate
-In the same portal:
-- Certificates → “+” → **Pass Type ID Certificate**
-- Pick the Pass Type ID you created
-- Generate / download the certificate
+Expected HTTP:
 
-Export as **.p12**
-- Add to Keychain
-- Export certificate + private key as `.p12`
-- Set a strong password
-
-Convert to base64
-- Base64 encode the `.p12` file and store as `APPLE_WALLET_CERT_P12_BASE64`
-
-WWDR certificate
-- Apple Wallet signing requires the WWDR intermediate certificate.
-- Download WWDR certificate from Apple and store PEM as base64 in `APPLE_WALLET_WWDR_PEM_BASE64`.
-
-### 2.4 Pass metadata
-You’ll need values for:
-- `teamIdentifier` = `APPLE_WALLET_TEAM_ID`
-- `passTypeIdentifier` = `APPLE_WALLET_PASS_TYPE_ID`
-- `organizationName` = `ViZb`
-- `description` = `ViZb RSVP Ticket`
+- `401` — not signed in  
+- `404` — no such registration **for this user** (or missing join)  
+- `403` — registration cancelled  
+- `503` — wallet stack not configured on this environment  
 
 ---
 
-## 3) Google Wallet setup (Issuer + service account)
+## Apple Wallet
 
-### 3.1 Create / access Google Wallet issuer
-- Google Pay & Wallet Console: create an issuer for ViZb
-- Note the **Issuer ID** → `GOOGLE_WALLET_ISSUER_ID`
+### One-time (Apple Developer)
 
-### 3.2 Create a Google Cloud project + service account
-- In Google Cloud Console:
-  - Create project
-  - Create **service account**
-  - Create JSON key
-- Base64 encode JSON → `GOOGLE_WALLET_SERVICE_ACCOUNT_JSON_BASE64`
+1. Enroll in the **Apple Developer Program**.
+2. Create a **Pass Type ID** (Identifiers → Pass Type IDs) matching `APPLE_WALLET_PASS_TYPE_ID` (e.g. `pass.com.yourco.vizb.tickets`).
+3. Create a **Signing Certificate** for that pass type (Certificates → Pass Type ID Certificate). Export as `.p12` with a password → base64 for `APPLE_WALLET_CERT_P12_BASE64`.
+4. Download **Apple Worldwide Developer Relations (WWDR) G4** certificate, export as **PEM** → base64 for `APPLE_WALLET_WWDR_PEM_BASE64`.
+5. Note your **Team ID** (10 characters) → `APPLE_WALLET_TEAM_ID`.
 
-### 3.3 Create pass Class
-- Define an “Event Ticket” class (or generic pass class)
-- Save the class ID → `GOOGLE_WALLET_CLASS_ID`
+### Base64 on your machine (examples)
 
----
+**PowerShell**
 
-## 4) Product UX expectations
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes(".\signer.p12"))
+[Convert]::ToBase64String([IO.File]::ReadAllBytes(".\wwdr.pem"))
+```
 
-Member ticket wallet
-- Buttons appear only when configured:
-  - Apple Wallet button shown primarily on iOS/Safari; still ok to show everywhere as download link.
-  - Google Wallet shown on Android/Chrome.
+**macOS / Linux**
 
-Organizer door ops
-- Scanner supports:
-  - camera scan
-  - paste fallback
-  - clear success/failure states
+```bash
+base64 -i signer.p12 | tr -d '\n'
+base64 -i wwdr.pem | tr -d '\n'
+```
 
----
+Paste the single-line result into the env var (no newlines).
 
-## 5) Operational checklist (before enabling in production)
+### QA
 
-1) Confirm `TICKET_QR_SECRET` set
-2) Confirm Apple variables set (cert + WWDR)
-3) Confirm Google variables set (issuer + service account)
-4) Smoke test on:
-   - iPhone Safari: add to Apple Wallet
-   - Android Chrome: save to Google Wallet
-5) Confirm QR scan works:
-   - scan from Wallet pass
-   - scan from in-app QR
+- Signed-in user: download opens Wallet on iOS / adds pass on macOS.
+- Wrong `rid` or another user’s id: `404`.
 
 ---
 
-## 6) Troubleshooting
+## Google Wallet
 
-Apple
-- “Invalid pass” usually means signing/cert mismatch or missing WWDR chain.
-- Ensure your `pass.json` has consistent `passTypeIdentifier` and `teamIdentifier`.
+### One-time (Google Cloud + Wallet Console)
 
-Google
-- Most failures are issuer permissions, class/object schema mismatch, or service account not authorized.
+1. In **Google Cloud**, create or select a project; enable **Google Wallet API**.
+2. Create a **service account** with permission to issue passes; download **JSON key** → base64 entire file for `GOOGLE_WALLET_SERVICE_ACCOUNT_JSON_BASE64`.
+3. In **Google Pay & Wallet Console**, create an **issuer** and note the numeric **issuer id** → `GOOGLE_WALLET_ISSUER_ID`.
+4. Link the service account as a **Wallet API issuer user** (Google’s docs: “Authorize requests” for the issuer).
+5. Create an **Event ticket** (or compatible) **class** with id `issuerId.yourClassSuffix` — set `GOOGLE_WALLET_CLASS_ID` to that **full** id (or suffix only; the app prepends `issuerId.` when the value has no dot).
+
+### QA
+
+- Hit the **Google** route while signed in; you should land on Google’s add-to-wallet flow.
+- JSON variant: `format=json` returns `saveUrl` for testing.
 
 ---
 
-## 7) Future enhancements (optional)
-- Pass updates (push) when event changes time/location
-- Multi-secret verification for QR rotation
-- Ticket transfer flows
+## Operations notes
+
+- Rotating `TICKET_BARCODE_HMAC_SECRET` invalidates existing barcodes on **printed or saved** passes; plan rotation with a new format version in code if you need a migration.
+- Pass imagery ships from `lib/wallet/assets/` (icon/logo); replace files there if branding changes (keep Apple’s recommended sizes).
+- Never commit `.p12`, PEM, or service account JSON to git.

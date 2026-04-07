@@ -5,6 +5,7 @@ import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { TicketWalletCard } from "@/components/dashboard/tickets/ticket-wallet-card"
+import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib/wallet/env"
 
 type WalletEvent = {
   title: string
@@ -16,6 +17,7 @@ type WalletEvent = {
 }
 
 type RegistrationRow = {
+  id: string
   status: string
   created_at: string
   checked_in_at: string | null
@@ -65,11 +67,15 @@ function TicketSection({
   subtitle,
   rows,
   origin,
+  walletAppleEnabled,
+  walletGoogleEnabled,
 }: {
   title: string
   subtitle?: string
   rows: RegistrationRow[]
   origin: string
+  walletAppleEnabled: boolean
+  walletGoogleEnabled: boolean
 }) {
   if (rows.length === 0) return null
 
@@ -90,7 +96,10 @@ function TicketSection({
 
           return (
             <TicketWalletCard
-              key={`${e.slug}-${r.created_at}`}
+              key={r.id}
+              registrationId={r.id}
+              walletAppleEnabled={walletAppleEnabled}
+              walletGoogleEnabled={walletGoogleEnabled}
               status={r.status}
               createdAt={r.created_at}
               checkedInAt={r.checked_in_at}
@@ -107,6 +116,8 @@ function TicketSection({
 export default async function TicketsPage() {
   const { user, supabase } = await requireAuth()
   const origin = await siteOrigin()
+  const walletAppleEnabled = isAppleWalletPassConfigured()
+  const walletGoogleEnabled = isGoogleWalletPassConfigured()
 
   let rows: RegistrationRow[] | null = null
   let loadError: string | null = null
@@ -115,7 +126,7 @@ export default async function TicketsPage() {
     const { data, error } = await supabase
       .from("event_registrations")
       .select(
-        "status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
+        "id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -187,6 +198,8 @@ export default async function TicketsPage() {
             subtitle="Events on your calendar from today forward."
             rows={[...upcoming, ...undated]}
             origin={origin}
+            walletAppleEnabled={walletAppleEnabled}
+            walletGoogleEnabled={walletGoogleEnabled}
           />
 
           <TicketSection
@@ -194,6 +207,8 @@ export default async function TicketsPage() {
             subtitle="Earlier RSVPs for your records."
             rows={past}
             origin={origin}
+            walletAppleEnabled={walletAppleEnabled}
+            walletGoogleEnabled={walletGoogleEnabled}
           />
         </div>
       ) : null}
