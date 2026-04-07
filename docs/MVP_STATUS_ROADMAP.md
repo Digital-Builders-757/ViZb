@@ -59,7 +59,7 @@
 | Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
 | Phase 3 | Ticket Types + Free RSVP | IN PROGRESS | ~25% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
-| Phase 5 | Door Check-In | IN PROGRESS | ~40% |
+| Phase 5 | Door Check-In | IN PROGRESS | ~55% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | 35% |
 
 ---
@@ -116,7 +116,7 @@
 | Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
 | Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
 | Member planner calendar | `components/dashboard/calendar/*` | Month / Week / Agenda + Eastern dates; day + event selection; detail panel (desktop) / Sheet (mobile); ICS via `app/api/calendar/ics`; org “Hosted by”; query still `getPublishedEventsForDashboardMonth` (widened window). Re-export: `dashboard-month-calendar.tsx` → shell. |
-| My Tickets / wallet | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE (v1) -- RSVPs from `event_registrations` with tap-to-reveal **signed QR** (`lib/ticket-qr-token.ts`); requires `TICKET_QR_SECRET`. Canonical route remains `/dashboard/tickets` until a later `/tickets` migration. |
+| My Tickets / wallet | `app/(dashboard)/dashboard/tickets/page.tsx` | DONE (v1 door-ready) -- RSVPs from `event_registrations`; **signed QR** only when status is confirmed/checked-in and the event is upcoming or within **48h after start**; backup code (masked) + copy; **30-day** token TTL (`lib/ticket-qr-token.ts`). Requires `TICKET_QR_SECRET`. Route `/dashboard/tickets`. |
 | Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
 | Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |
 
@@ -391,7 +391,9 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Goal:** Organizers can check in attendees at the door on event day.
 
-**Shipped (v1 — April 2026):** `/organizer/[slug]/events/[eventSlug]/check-in` — camera + paste; `POST /api/checkin/scan`; signed member QR from `/dashboard/tickets`. Paid ticket tables still Phase 3/4.
+**Shipped (v1 — April 2026):** `/organizer/[slug]/events/[eventSlug]/check-in` — camera + paste; **`POST /api/checkin/scan`** returns a structured JSON contract (`ok` + `status` on success, `error` + `code` on failure), sets **`Vary: Cookie`** and **no-store** caching; scanner shows **recent scans (5)** and maps **token_expired** / **wrong_event** / auth errors. Member wallet mints **30-day** HMAC tokens with max-expiry validation. Paid ticket tables still Phase 3/4.
+
+**P1 next:** dedicated **door** screen with attendee list + search (still Phase 5); optional Realtime counter.
 
 **Pages:**
 - [ ] `/organizer/[slug]/events/[id]/door` -- door check-in screen with attendee list and check-in toggle
@@ -408,8 +410,8 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [ ] Ticket search by name or ticket code
 
 **Key decisions:**
-- Manual tap check-in (no QR scanning for MVP)
-- Check-in sets `checked_in_at = now()` -- idempotent (tapping twice is a no-op)
+- **QR + manual code** at door (html5-qrcode + paste); tap check-in also exists elsewhere in product
+- Check-in sets `checked_in_at = now()` -- idempotent for duplicate scans
 - Requires active internet connection
 
 **Acceptance criteria:**
@@ -459,9 +461,9 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, account deletion | 75% |
 | **Organizations** | Create org, auto-slug, type selection, membership check, sidebar display | Org settings page, member management, logo upload | 40% |
 | **Events** | None | Entire events system (CRUD, feed, detail, media) | 0% |
-| **Ticketing** | Empty state pages exist | Entire ticketing system (types, orders, tickets, wallet) | 0% |
+| **Ticketing** | Free RSVP + `/dashboard/tickets` wallet + signed door QR (RSVP rows) | Paid orders, `ticket_types` / inventory, `/tickets` canonical route | ~15% |
 | **Payments** | None | Stripe integration, checkout, webhooks | 0% |
-| **Door Check-In** | None | Check-in screen, attendee list, live counter | 0% |
+| **Door Check-In** | Organizer scanner route + scan API + member QR | Full door screen with list/search, Realtime counter, Phase-3 ticket rows | ~55% |
 | **Admin** | Placeholder with live counts | Approval queues, user moderation, full metrics | 15% |
 | **Responsive Design** | Landing page responsive, dashboard desktop-only | Mobile sidebar, responsive dashboard | 50% |
 | **Documentation** | Full spec, brand system, architecture, coding standards, onboarding | Domain contracts (Layer 2), user journeys (Layer 3) | 70% |

@@ -16,5 +16,6 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | `head` / bash command not found on Windows | Using unix utilities in PowerShell | Use `Select-Object -First N` or `cmd/findstr` |
 | Sign-up confirmation never arrives; Supabase shows **Email address not authorized** | Default Supabase mail is **team-only** until you add **custom SMTP** | `docs/guides/SUPABASE_AUTH_EMAIL_RESEND.md` (Resend SMTP in Supabase); confirm **Authentication → URL Configuration** |
 | Door scan API returns **503** / wallet shows “QR unavailable” | `TICKET_QR_SECRET` missing or shorter than 16 chars | Set in `.env.local` (see `.env.example`); restart dev server; same secret server-wide |
+| Scan API returns **400** with **`ok: false`** / code **`token_expired`** (or wallet hid code) | Signed QR passed **30-day** `exp` or guest outside **show-at-door** window | Guest opens **My tickets** to refresh the code; for past events past the grace window, use organizer manual check-in if offered |
 
 _Add rows as recurring issues appear._ `/ship` should append here when a fix addresses a repeatable failure mode.
