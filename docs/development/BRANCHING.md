@@ -116,6 +116,14 @@ If two streams are active, **do not** both push to **`develop`**; use branches.
   - **`main`:** require PR before merge; require CI; use **`develop` → `main`** for releases; allow **hotfix** PRs from a branch off **`main`** only when documented, then **backport to `develop`**.
 - **CI:** `.github/workflows/pr-ci.yml` runs for PRs into **`develop`** and **`main`**, and on pushes to **`develop`**, so integration and release PRs both stay gated.
 
+### Repository rulesets (push rejected / wrong required check)
+
+If **`git push`** fails with **GH013** (*repository rule violations*) or a required check named **`main`** (or anything that never appears on PRs), the ruleset is misconfigured:
+
+1. Open **GitHub → Repository → Settings → Rules → Rulesets** (or **Branch protection rules**) and inspect the rule that applies to your feature branches.
+2. Under **Required status checks**, pick the check that actually runs on PRs. For this repo, open any green PR and copy the check name from the merge box — it must match the workflow in **`.github/workflows/pr-ci.yml`** (workflow **`PR CI`**, job display name **`typecheck / test / lint / build / e2e`**). A check literally named **`main`** will never pass.
+3. If you want contributors to **push updates to `fix/*` / `feat/*`**, allow that in the ruleset (or exclude those patterns from “Block pushes”) so PR heads can be updated without always using “bypass”.
+
 ## GitHub default branch
 
 The repo **default branch** on GitHub may be **`main`**. That is fine: **new work still merges into `develop` first**. Optionally set the **default branch** to **`develop`** in repo settings if you want clones and “base branch” UX to center on integration.
