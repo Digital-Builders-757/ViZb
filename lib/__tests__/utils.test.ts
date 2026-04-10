@@ -70,8 +70,11 @@ describe("getSafeRedirectPath", () => {
     expect(getSafeRedirectPath("/invite/claim?code=abc123")).toBe("/invite/claim?code=abc123")
   })
 
-  it("allows /tickets subpath", () => {
+  it("allows /tickets and ticket detail paths", () => {
     expect(getSafeRedirectPath("/tickets")).toBe("/tickets")
+    expect(
+      getSafeRedirectPath("/tickets/550e8400-e29b-41d4-a716-446655440000"),
+    ).toBe("/tickets/550e8400-e29b-41d4-a716-446655440000")
   })
 
   it("allows /events and detail slug", () => {

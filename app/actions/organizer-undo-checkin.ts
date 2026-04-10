@@ -51,5 +51,7 @@ export async function organizerUndoCheckInRegistration(params: {
   }
 
   revalidatePath(`/organizer/${orgSlug}/events/${eventSlug}`)
+  revalidatePath("/tickets")
+  revalidatePath("/dashboard/tickets")
   return { success: true }
 }

@@ -117,7 +117,7 @@
 | Sidebar navigation | `components/dashboard/sidebar.tsx` | DONE -- personal links, org links (dynamic), admin link (conditional) |
 | Attendee home page | `app/(dashboard)/dashboard/page.tsx` | DONE -- welcome, stats (0s), first-run prompt, create org CTA, tickets empty state |
 | Member planner calendar | `components/dashboard/calendar/*` | Month / Week / Agenda + Eastern dates; day + event selection; detail panel (desktop) / Sheet (mobile); ICS via `app/api/calendar/ics`; org “Hosted by”; query still `getPublishedEventsForDashboardMonth` (widened window). Re-export: `dashboard-month-calendar.tsx` → shell. |
-| My Tickets / wallet | `app/(dashboard)/dashboard/tickets/page.tsx`, `components/dashboard/tickets/*` | DONE (v1) -- RSVPs from `event_registrations`, calendar actions, **Add to Apple Wallet / Add to Google Wallet** when env is configured (see `docs/operations/WALLET_PASSES_SETUP.md`). APIs: `GET /api/tickets/pass/apple`, `GET /api/tickets/pass/google`. Canonical top-level `/tickets` wallet route remains future if product wants it. |
+| My Tickets / wallet | `app/(dashboard)/dashboard/tickets/page.tsx`, `app/(dashboard)/tickets/*` (canonical **`/tickets`**), `components/dashboard/tickets/*` | DONE (v1) -- tickets from `tickets` + registration embed; **`/dashboard/tickets`** remains an alias. Calendar actions, **Add to Apple Wallet / Add to Google Wallet** when env is configured (see `docs/operations/WALLET_PASSES_SETUP.md`). APIs: `GET /api/tickets/pass/apple`, `GET /api/tickets/pass/google`. |
 | Profile page | `app/(dashboard)/profile/page.tsx` | DONE -- display name edit form with server-side save |
 | Profile form component | `components/dashboard/profile-form.tsx` | DONE -- client form with success/error states |
 
@@ -333,7 +333,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
 - [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
 
-**P0 next:** Paid Stripe checkout (Phase 4) + organizer **paid** tier editor. **P1:** Public **`/tickets`** wallet route parity (non-dashboard).
+**P0 next:** Paid Stripe checkout (Phase 4) + organizer **paid** tier editor. **P1:** *(shipped)* Canonical signed-in wallet at **`/tickets`** and **`/tickets/[ticketId]`** (same shell as dashboard; **`/dashboard/tickets`** kept as alias).
 
 **Shipped (ticket tiers v1):** Organizer **Free RSVP tiers** UI on organizer event page; optional per-tier capacity + sale window; public event page tier **chooser** when multiple free tiers are on sale; mint RPC accepts optional tier id.
 
@@ -345,8 +345,8 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Pages:**
 - [x] **`/events/[slug]`** — free tier selector when multiple $0 tiers on sale; single tier shows label
-- [x] **`/dashboard/tickets`** — wallet list from `tickets` + registration/event embed
-- [x] **`/dashboard/tickets/[ticketId]`** — individual ticket with code + same door QR / wallet actions as list
+- [x] **`/tickets`** and **`/tickets/[ticketId]`** — canonical wallet paths (shared implementation with dashboard alias)
+- [x] **`/dashboard/tickets`** — same list/detail as **`/tickets`** (deep links and bookmarks still work)
 - [x] Organizer event page — **ticket type panel** (free tiers: name, sort, capacity, sale window; seed default `RSVP` row when none)
 
 **Components:**
@@ -472,7 +472,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, account deletion | 75% |
 | **Organizations** | Create org, auto-slug, type selection, membership check, sidebar display | Org settings page, member management, logo upload | 40% |
 | **Events** | None | Entire events system (CRUD, feed, detail, media) | 0% |
-| **Ticketing** | Free RSVP via `event_registrations`; attendee wallet UI at `/dashboard/tickets`; signed barcode + Apple `.pkpass` + Google save JWT (env-gated) | Paid tiers, `orders`/`tickets` tables, `/tickets` top-level route, capacity enforcement | ~25% |
+| **Ticketing** | Free RSVP → `$0` tickets; wallet at **`/tickets`** (and **`/dashboard/tickets`**); signed barcode + Apple `.pkpass` + Google save JWT (env-gated) | Paid Stripe checkout, organizer paid tier editor, webhook mint | ~35% |
 | **Payments** | None | Stripe integration, checkout, webhooks | 0% |
 | **Door Check-In** | None | Check-in screen, attendee list, live counter | 0% |
 | **Admin** | Placeholder with live counts | Approval queues, user moderation, full metrics | 15% |
@@ -490,7 +490,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | Subscribers table allowed public SELECT (email enumeration risk) | Medium | Phase 1.1 | **FIXED** (migration 009) | Replaced with admin-only read policy |
 | Profile `role_admin` column writable by authenticated users | Medium | Phase 1.1 | **FIXED** (migration 007) | Column-level REVOKE + selective GRANT on profiles |
 | Dashboard sidebar is desktop-only (fixed `w-64`, no mobile collapse) | Medium | Phase 6 | Open | Users on mobile cannot navigate the dashboard |
-| Tickets route mismatch: current page at `/dashboard/tickets`, canonical wallet at `/tickets` | Medium | Phase 3 | Open | Will be resolved when real wallet is built at `/tickets` |
+| Tickets route mismatch | — | Phase 3 | **Resolved** | **`/tickets`** + **`/tickets/[id]`** live; sidebar/nav use canonical paths; `/dashboard/tickets` alias retained |
 | No loading.tsx in dashboard routes (except `/login`) | Low | Phase 6 | Open | No skeleton states during server component loading |
 | `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL` env var in signup page | Low | Phase 2 | Open | Should use origin consistently; dev-only var may cause issues |
 | No error boundaries in dashboard routes | Low | Phase 6 | Open | Unhandled errors show generic Next.js error page |

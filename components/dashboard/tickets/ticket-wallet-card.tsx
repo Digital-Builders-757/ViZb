@@ -115,7 +115,7 @@ export function TicketWalletCard({
             Code <span className="select-all text-[color:var(--neon-text0)]">{ticketCode}</span>
           </p>
           <Link
-            href={`/dashboard/tickets/${ticketId}`}
+            href={`/tickets/${ticketId}`}
             className="mt-2 inline-block text-xs font-medium text-[color:var(--neon-a)] underline-offset-4 hover:underline"
           >
             View full ticket
