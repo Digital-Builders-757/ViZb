@@ -3,6 +3,7 @@ import Link from "next/link"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { isServiceRoleConfigured } from "@/lib/supabase/project-env"
 import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Settings2, Newspaper } from "lucide-react"
 import { NotificationSeedCard } from "@/components/admin/notification-seed-card"
 import { CreateOrgForm } from "@/components/admin/create-org-form"
@@ -26,7 +27,7 @@ function normalizeOrganization(
 }
 
 export default async function AdminPage() {
-  await requireAdmin()
+  const { user: adminUser } = await requireAdmin()
 
   // If Supabase env isn't configured (e.g. some preview envs), still render the page shell.
   if (!isServerSupabaseConfigured()) {
@@ -273,7 +274,11 @@ export default async function AdminPage() {
         title="All Users"
         description="Everyone who has signed up on the platform."
       >
-        <UsersTable users={allUsers} />
+        <UsersTable
+          users={allUsers}
+          currentUserId={adminUser.id}
+          userDeletionEnabled={isServiceRoleConfigured()}
+        />
       </AdminSection>
 
       <AdminSection

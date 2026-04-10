@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Users, Search, Shield, Building2 } from "lucide-react"
 
+import { AdminDeleteUserButton } from "@/components/admin/admin-delete-user-button"
+
 const BRAND_COLORS = ["#0D40FF", "#0C74E8", "#00BDFF", "#00E5FF"]
 function getAvatarColor(name: string | null) {
   const char = (name || "?").charCodeAt(0)
@@ -20,7 +22,15 @@ type UserRow = {
   org_count: number
 }
 
-export function UsersTable({ users }: { users: UserRow[] }) {
+export function UsersTable({
+  users,
+  currentUserId,
+  userDeletionEnabled,
+}: {
+  users: UserRow[]
+  currentUserId: string
+  userDeletionEnabled: boolean
+}) {
   const [search, setSearch] = useState("")
 
   const filtered = users.filter((u) => {
@@ -46,6 +56,12 @@ export function UsersTable({ users }: { users: UserRow[] }) {
         />
       </div>
 
+      {!userDeletionEnabled && (
+        <p className="mb-3 text-xs leading-relaxed text-amber-500/95">
+          User deletion is unavailable: add <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">SUPABASE_SERVICE_ROLE_KEY</code> to the server environment (never expose it to the browser).
+        </p>
+      )}
+
       {/* Count */}
       <div className="flex items-center gap-2 mb-4">
         <Users className="w-4 h-4 text-muted-foreground" />
@@ -66,6 +82,11 @@ export function UsersTable({ users }: { users: UserRow[] }) {
               <th className="text-left px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Orgs</th>
               <th className="text-left px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Joined</th>
               <th className="text-left px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Last Seen</th>
+              {userDeletionEnabled ? (
+                <th className="text-right px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                  Actions
+                </th>
+              ) : null}
             </tr>
           </thead>
           <tbody>
@@ -102,6 +123,19 @@ export function UsersTable({ users }: { users: UserRow[] }) {
                 <td className="px-4 py-3 text-xs text-muted-foreground">
                   {user.last_sign_in_at ? formatRelative(user.last_sign_in_at) : "Never"}
                 </td>
+                {userDeletionEnabled ? (
+                  <td className="px-4 py-3 text-right">
+                    {user.platform_role === "staff_admin" || user.id === currentUserId ? (
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">—</span>
+                    ) : (
+                      <AdminDeleteUserButton
+                        userId={user.id}
+                        email={user.email}
+                        displayLabel={user.display_name ?? "Unnamed"}
+                      />
+                    )}
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>
@@ -141,6 +175,17 @@ export function UsersTable({ users }: { users: UserRow[] }) {
                 {user.last_sign_in_at ? formatRelative(user.last_sign_in_at) : "Never seen"}
               </span>
             </div>
+            {userDeletionEnabled &&
+            user.platform_role !== "staff_admin" &&
+            user.id !== currentUserId ? (
+              <div className="mt-3 flex justify-end border-t border-border pt-3">
+                <AdminDeleteUserButton
+                  userId={user.id}
+                  email={user.email}
+                  displayLabel={user.display_name ?? "Unnamed"}
+                />
+              </div>
+            ) : null}
           </div>
         ))}
       </div>

@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 7, 2026
+**Last updated:** April 10, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -19,5 +19,7 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | `tsc` / VS Code: **Cannot find module** for a package listed in **`package.json`** (e.g. scanner / QR libs) | `node_modules` not installed or incomplete | Run **`npm install`**, then **`npm run typecheck`** |
 | **`next build`**: lock at **`.next/lock`** or **ENOENT** under **`.next/server/`** | Parallel builds or interrupted build left `.next` partial | Stop other Next processes; delete **`.next`**, run **`npm run build`** (or **`npm run ci`**) once |
 | GitHub Actions: weird **concurrency** / duplicate or stuck **PR CI** groups | Workflow used **`github.event.pull_request.number`** in `concurrency.group` but the workflow also runs on **`push`** (no PR payload) | Use **`${{ github.workflow }}-${{ github.ref }}`** (or another field defined for both event types); see merged fix in `.github/workflows/pr-ci.yml` |
+| **Admin → All Users**: no **Delete** / error says service role missing | **`SUPABASE_SERVICE_ROLE_KEY`** not loaded on the server | Set in `.env.local` per **`.env.example`**; never expose to the client; restart `npm run dev` |
+| **Delete user** fails (500 / FK / cannot delete from `auth.users`) | Public tables still reference **`auth.users`** with default **`NO ACTION`** (e.g. `events.created_by`, `org_invites`) | Apply **`supabase/migrations/20260410200000_auth_user_delete_foreign_keys.sql`** (`supabase db push` or run SQL on the project) |
 
 _Add rows as recurring issues appear._ `/ship` should append here when a fix addresses a repeatable failure mode.

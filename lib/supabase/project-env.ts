@@ -21,3 +21,12 @@ export function getSupabaseProjectAnonKey(): string {
 export function isProjectSupabaseConfigured(): boolean {
   return Boolean(getSupabaseProjectUrl() && getSupabaseProjectAnonKey())
 }
+
+/** Server-only. Used for Auth Admin API (e.g. staff deleting a user). Never expose to the client. */
+export function getSupabaseServiceRoleKey(): string {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || ""
+}
+
+export function isServiceRoleConfigured(): boolean {
+  return Boolean(getSupabaseProjectUrl() && getSupabaseServiceRoleKey())
+}
