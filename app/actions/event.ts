@@ -31,6 +31,19 @@ async function isStaffOrHasOrgRole(
 const MAX_FLYER_SIZE = 5 * 1024 * 1024
 const ALLOWED_FLYER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
+function parseRsvpCapacityField(formData: FormData): { capacity: number | null; error?: string } {
+  const raw = formData.get("rsvp_capacity")
+  if (raw == null || String(raw).trim() === "") return { capacity: null }
+  const n = Number.parseInt(String(raw).trim(), 10)
+  if (!Number.isFinite(n) || n < 1) {
+    return { capacity: null, error: "RSVP cap must be a positive whole number, or leave blank for no limit." }
+  }
+  if (n > 1_000_000) {
+    return { capacity: null, error: "RSVP cap is too large." }
+  }
+  return { capacity: n }
+}
+
 export async function createEvent(formData: FormData) {
   const { user, supabase } = await requireAuth()
 
@@ -51,6 +64,9 @@ export async function createEvent(formData: FormData) {
   if (!categories) {
     return { error: "Select at least one valid category." }
   }
+
+  const parsedCap = parseRsvpCapacityField(formData)
+  if (parsedCap.error) return { error: parsedCap.error }
 
   const canCreate = await isStaffOrHasOrgRole(supabase, user.id, orgId, ["owner", "admin", "editor"])
   if (!canCreate) {
@@ -96,6 +112,7 @@ export async function createEvent(formData: FormData) {
       address,
       city,
       categories,
+      rsvp_capacity: parsedCap.capacity,
       status: "draft" as const,
       created_by: user.id,
     })
@@ -447,6 +464,9 @@ export async function updateEventDetails(formData: FormData) {
     return { error: "Select at least one valid category." }
   }
 
+  const parsedCap = parseRsvpCapacityField(formData)
+  if (parsedCap.error) return { error: parsedCap.error }
+
   const startDate = new Date(startsAt)
   if (Number.isNaN(startDate.getTime())) {
     return { error: "Invalid start date." }
@@ -456,6 +476,24 @@ export async function updateEventDetails(formData: FormData) {
     const endDate = new Date(endsAt)
     if (Number.isNaN(endDate.getTime()) || endDate <= startDate) {
       return { error: "End date must be after start date." }
+    }
+  }
+
+  if (parsedCap.capacity != null) {
+    const { count, error: cntErr } = await supabase
+      .from("event_registrations")
+      .select("*", { count: "exact", head: true })
+      .eq("event_id", eventId)
+      .in("status", ["confirmed", "checked_in"])
+
+    if (cntErr) {
+      return { error: `Could not verify RSVP count: ${cntErr.message}` }
+    }
+    const active = count ?? 0
+    if (parsedCap.capacity < active) {
+      return {
+        error: `RSVP cap must be at least ${active} (current confirmed RSVPs and check-ins).`,
+      }
     }
   }
 
@@ -471,6 +509,7 @@ export async function updateEventDetails(formData: FormData) {
       address,
       city,
       categories,
+      rsvp_capacity: parsedCap.capacity,
       updated_at: now,
     })
     .eq("id", eventId)

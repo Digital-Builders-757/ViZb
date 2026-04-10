@@ -210,6 +210,27 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                 />
                 <p className="text-[11px] text-[#555555]">Markdown is not supported yet. Keep it plain text for now.</p>
               </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="rsvp_capacity"
+                  className="text-xs font-mono uppercase tracking-widest text-[#888888]"
+                >
+                  RSVP capacity
+                </label>
+                <input
+                  id="rsvp_capacity"
+                  name="rsvp_capacity"
+                  type="number"
+                  min={1}
+                  step={1}
+                  placeholder="Leave blank for no limit"
+                  className={inputClass}
+                />
+                <p className="text-[11px] text-[#555555]">
+                  Optional max for free RSVPs once the event is published. You can change this later.
+                </p>
+              </div>
             </div>
           </section>
 
