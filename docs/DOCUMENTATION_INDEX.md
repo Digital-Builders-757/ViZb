@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** April 7, 2026
+**Last Updated:** April 10, 2026
 
 Single entry point for the **events + community + brand** platform (repo **ViZb**). Everything else is reference or archive.
 
@@ -44,7 +44,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `development/ENGINEERING_COMMANDS.md` | **Canonical Cursor command doctrine** |
 | `development/LLM_GUARDRAILS.md` | **How to contribute cleanly (LLMs + humans)** — preflight + footguns |
 | `development/PUSH_FORWARD_ROADMAP.md` | Priorities after env/Supabase hardening — what to do next |
-| `development/BRANCHING.md` | `develop` / `main` |
+| `development/BRANCHING.md` | **`develop` first** — feature PRs → `develop`, releases → `main`; GitHub + CI expectations |
 | `brand/` | Voice, content, social, event creative patterns |
 | `diagrams/` | Conceptual architecture maps |
 | `contracts/` | Layer 2 — `INDEX.md` + per-domain `.md` |
@@ -67,7 +67,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
   - `/p` (all posts)
   - `/p/[slug]` (post detail)
 - Admin routes (staff admin):
-  - `/admin` (overview → Posts card)
+  - `/admin` (overview → Posts card; **All Users** table with optional **Delete user** when `SUPABASE_SERVICE_ROLE_KEY` is set server-side; apply migration `supabase/migrations/20260410200000_auth_user_delete_foreign_keys.sql` so deletes are not blocked by FKs)
   - `/admin/posts` (list + filters)
   - `/admin/posts/new` (create)
   - `/admin/posts/[id]` (edit)

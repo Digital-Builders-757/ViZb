@@ -1,20 +1,30 @@
+# ViZb integration: product work merges into `develop` first; `main` updates only via
+# release PRs `develop` → `main`. This workflow runs CI when:
+# - a PR targets `develop` (normal feature/fix integration), or
+# - a PR targets `main` (release or hotfix PRs), or
+# - commits land on `develop` (push after merge).
 name: PR CI
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [develop, main]
   push:
     branches: [develop]
 
+permissions:
+  contents: read
+
+# Use github.ref so the group is valid for both pull_request and push
+# (github.event.pull_request.number is empty on push and breaks concurrency).
 concurrency:
-  group: pr-ci-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   ci:
-    name: typecheck / test / lint / build
+    name: typecheck / test / lint / build / e2e
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -23,14 +33,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: npm
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
 
-      - name: CI + E2E
+      - name: CI and E2E
         run: npm run ci && npm run test:e2e

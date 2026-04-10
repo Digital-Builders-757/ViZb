@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 7, 2026
+**Last updated:** April 10, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -18,5 +18,12 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | `tsc` errors: **Cannot find module** `../../app/.../page.js` under `.next/types/validator.ts` | Stale Next.js generated types after removing/renaming routes | Delete the `.next` folder, run `npm run build` or `npm run ci` |
 | `tsc` / VS Code: **Cannot find module** for a package listed in **`package.json`** (e.g. scanner / QR libs) | `node_modules` not installed or incomplete | Run **`npm install`**, then **`npm run typecheck`** |
 | **`next build`**: lock at **`.next/lock`** or **ENOENT** under **`.next/server/`** | Parallel builds or interrupted build left `.next` partial | Stop other Next processes; delete **`.next`**, run **`npm run build`** (or **`npm run ci`**) once |
+| GitHub Actions: weird **concurrency** / duplicate or stuck **PR CI** groups | Workflow used **`github.event.pull_request.number`** in `concurrency.group` but the workflow also runs on **`push`** (no PR payload) | Use **`${{ github.workflow }}-${{ github.ref }}`** (or another field defined for both event types); see merged fix in `.github/workflows/pr-ci.yml` |
+| RSVP fails or **public event page** errors after deploy; **`published_event_rsvp_occupied_count`** missing | Migration **`20260410120000_event_rsvp_capacity.sql`** / `scripts/026_event_rsvp_capacity.sql` not applied on the target DB | Run **`supabase db push`** (or apply SQL in Dashboard); confirm `events.rsvp_capacity` column and function exist |
+| **My tickets** empty or **`mint_free_rsvp_ticket_for_registration`** missing after RSVP | Tickets migration not applied | Apply **`20260410142142_tickets_core_free_rsvp.sql`** / **`scripts/028_tickets_core_free_rsvp.sql`**; confirm `public.tickets` and RPC exist |
+| Organizer **cannot save** ticket types; or anon **cannot** load public tier list | Migration **`20260410144936_ticket_types_org_crud_and_mint_tier.sql`** / **`029`** not applied | Run **`supabase db push`**; confirm `ticket_types` columns + INSERT/UPDATE/DELETE policies + anon SELECT on published events |
+| **Admin → All Users**: no **Delete** / error says service role missing | **`SUPABASE_SERVICE_ROLE_KEY`** not loaded on the server | Set in `.env.local` per **`.env.example`**; never expose to the client; restart `npm run dev` |
+| **Delete user** fails (500 / FK / cannot delete from `auth.users`) | Public tables still reference **`auth.users`** with default **`NO ACTION`** (e.g. `events.created_by`, `org_invites`) | Apply **`supabase/migrations/20260410200000_auth_user_delete_foreign_keys.sql`** (`supabase db push` or run SQL on the project) |
+| **`git push`** rejected: **GH013** / **Required status check "main"** | Ruleset references a **check name that does not exist** (e.g. branch name mistaken for a check) or blocks all pushes | Set required checks to the real workflow job from **`.github/workflows/pr-ci.yml`**; see **`docs/development/BRANCHING.md`** (“Repository rulesets”) |
 
 _Add rows as recurring issues appear._ `/ship` should append here when a fix addresses a repeatable failure mode.

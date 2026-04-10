@@ -14,6 +14,8 @@ export type TicketWalletEvent = {
 }
 
 export function TicketWalletCard({
+  ticketId,
+  ticketCode,
   registrationId,
   walletAppleEnabled,
   walletGoogleEnabled,
@@ -26,6 +28,9 @@ export function TicketWalletCard({
   ticketSigningConfigured,
   ticketQrEligible,
 }: {
+  ticketId: string
+  /** Public-facing ticket reference (16-char hex); not used for door QR. */
+  ticketCode: string
   registrationId: string
   walletAppleEnabled: boolean
   walletGoogleEnabled: boolean
@@ -106,6 +111,15 @@ export function TicketWalletCard({
               year: "numeric",
             })}
           </p>
+          <p className="mt-2 text-[11px] font-mono tracking-wider text-[color:var(--neon-text1)]">
+            Code <span className="select-all text-[color:var(--neon-text0)]">{ticketCode}</span>
+          </p>
+          <Link
+            href={`/dashboard/tickets/${ticketId}`}
+            className="mt-2 inline-block text-xs font-medium text-[color:var(--neon-a)] underline-offset-4 hover:underline"
+          >
+            View full ticket
+          </Link>
         </div>
       </div>
 

@@ -28,6 +28,7 @@ export function EventDetailsEditForm({
     city: string
     categories: string[]
     status: string
+    rsvp_capacity?: number | null
   }
 }) {
   const [isPending, startTransition] = useTransition()
@@ -128,6 +129,28 @@ export function EventDetailsEditForm({
             className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
           />
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          RSVP capacity (optional)
+        </label>
+        <input
+          name="rsvp_capacity"
+          type="number"
+          min={1}
+          step={1}
+          placeholder="Leave blank for no limit"
+          defaultValue={
+            event.rsvp_capacity != null && event.rsvp_capacity > 0
+              ? String(event.rsvp_capacity)
+              : ""
+          }
+          className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Caps free RSVPs (confirmed + checked-in). Leave empty for unlimited.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

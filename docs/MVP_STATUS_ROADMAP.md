@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 7, 2026 |
+| **Last Audited** | April 10, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | 001–023 exist in repo; events + posts migrations applied in production (per release work) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 (Events + admin review) largely implemented; Posts MVP shipped |
@@ -60,7 +60,7 @@
 | Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (RSVP + wallet passes slice) | ~20% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | IN PROGRESS | 35% |
+| Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
 
 ---
 
@@ -71,7 +71,7 @@
 - Full marketing homepage at `/` with hero, marquee, editorial grid, events preview, app mockup, waitlist form, footer
 - **Ocean impression packs** (see `docs/IMPRESSION_PACKS.md`): Pack 01 ships **ocean section dividers** (`OceanDivider` + tokens in `app/globals.css`). Pack 02 adds optional **`GlassCard` `interactive`** mode (subtle tilt + specular glare, reduced-motion safe) on **event timeline** cards (`/events`) and **latest post** cards on the homepage. Pack 03 adds **`.vibe-focus-ring`** (keyboard-only branded outline + shared glow tokens for `.vibe-input-glass`) on **NeonButton**, **NeonLink**, login/signup, waitlist, **events** filter chips, and **`/advertise`** form controls.
 - Global first-load screen (`app/loading.tsx`) uses CSS-only **WaterLoader**; hero, editorial grid, and events preview images use **WaterFrame** (liquid neon edge + inset hover glow; tokens `--water-a` / `--water-b` in `app/globals.css`)
-- 3D Three.js animated background (client-side)
+- 3D Three.js animated background (client-side); homepage uses **`AppShell` + neon dashboard backdrop** for parity with `/advertise` and signed-in shells (marketing polish)
 - Waitlist subscription via `subscribers` table (scripts 001-002)
 - ViBE brand system fully implemented: dark mode, zero radius, Space Grotesk + Playfair Display + JetBrains Mono typography
 - Responsive navbar with mobile toggle
@@ -136,6 +136,7 @@
 |---------|---------|--------|
 | Admin gate | `lib/auth-helpers.ts` `requireAdmin()` | DONE -- checks `role_admin`, redirects non-admins to `/dashboard` |
 | Admin overview page | `app/(dashboard)/admin/page.tsx` | DONE -- live counts (users, orgs, pending orgs), placeholder approval queue |
+| Delete users (staff) | `app/actions/admin-users.ts`, `components/admin/users-table.tsx`, `lib/supabase/service-role.ts`, migration `20260410200000_auth_user_delete_foreign_keys.sql` | DONE -- `auth.admin.deleteUser` with server-only `SUPABASE_SERVICE_ROLE_KEY`; cannot delete self or `staff_admin`; migration relaxes FKs so `auth.users` deletion succeeds |
 
 ### Known Deviations from Architecture Laws
 
@@ -201,7 +202,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - No loading skeletons -- pages may flash while server components load. Tracked for Phase 6.
 - Wallet pass issuance requires operator setup (Apple Pass Type ID + Google issuer); without env, dashboard shows “coming soon” for wallet buttons.
 
-> **Note:** This is a manual checklist. Automated E2E tests are post-MVP scope. Until then, run this checklist after every migration batch.
+> **Note:** This manual checklist still covers full product flows. **GitHub PR CI** (`.github/workflows/pr-ci.yml`) runs Vitest, lint, build, and **Playwright** auth UX tests (`tests/e2e/auth-errors.spec.ts`, mocked Supabase). Keep running this checklist after migration batches either way.
 
 ### Documentation (Layer 1 Complete; Layers 2-3 Pending)
 
@@ -329,21 +330,24 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] Google Wallet “save” redirect + `format=json` — `app/api/tickets/pass/google/route.ts`
 - [x] Dashboard wallet buttons — `components/dashboard/tickets/ticket-wallet-actions.tsx`
 - [x] Operator doc — `docs/operations/WALLET_PASSES_SETUP.md`
+- [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
+- [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
 
-**P0 next:** Orders + `tickets` table model (or formalize free RSVP + check-in on `event_registrations` only). **P1:** Capacity limits, `/tickets` public wallet route parity, paid Stripe flow (Phase 4).
+**P0 next:** Paid Stripe checkout (Phase 4) + organizer **paid** tier editor. **P1:** Public **`/tickets`** wallet route parity (non-dashboard).
+
+**Shipped (ticket tiers v1):** Organizer **Free RSVP tiers** UI on organizer event page; optional per-tier capacity + sale window; public event page tier **chooser** when multiple free tiers are on sale; mint RPC accepts optional tier id.
 
 **Database work:**
-- [ ] Write `scripts/011_create_tickets.sql` -- `ticket_types`, `orders`, `order_items`, `tickets` tables, indexes, RLS policies
+- [x] `ticket_types`, `orders`, `order_items`, `tickets` + RLS + mint RPC — `028_tickets_core_free_rsvp.sql` / migration `20260410142142_tickets_core_free_rsvp.sql`
 
 **Server actions:**
-- [ ] `app/actions/orders.ts` -- `createFreeRSVP()` (creates $0 order + mints ticket instantly)
-- [ ] `app/actions/tickets.ts` -- helper functions for ticket queries
+- [x] Mint after RSVP — `mint_free_rsvp_ticket_for_registration` invoked from `app/actions/registrations.ts` (replaces separate `createFreeRSVP` action for v1)
 
 **Pages:**
-- [ ] Enhance `/events/[id]` -- add ticket type selector and RSVP button for free events
-- [ ] `/tickets` -- ticket wallet showing all upcoming + past tickets (replace current empty state)
-- [ ] `/tickets/[id]` -- individual ticket view with large ticket code (QR-ready for future)
-- [ ] Enhance organizer event form -- add ticket type builder (name, price, capacity, sale window)
+- [x] **`/events/[slug]`** — free tier selector when multiple $0 tiers on sale; single tier shows label
+- [x] **`/dashboard/tickets`** — wallet list from `tickets` + registration/event embed
+- [x] **`/dashboard/tickets/[ticketId]`** — individual ticket with code + same door QR / wallet actions as list
+- [x] Organizer event page — **ticket type panel** (free tiers: name, sort, capacity, sale window; seed default `RSVP` row when none)
 
 **Components:**
 - [ ] `components/tickets/ticket-card.tsx` -- ticket in the wallet view
@@ -435,7 +439,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Pages:**
 - [ ] `/admin/orgs` -- organization approval queue (pending list, approve/reject with notes)
-- [ ] `/admin/users` -- user management table (search, view profiles, moderate)
+- [ ] `/admin/users` -- user management table (search, view profiles, moderate) *(partial: delete non-staff users from **All Users** on `/admin`)* 
 - [ ] Enhance `/admin` -- real metrics dashboard (total users, events, tickets sold, revenue)
 - [ ] `/admin/events` -- enhanced event management (beyond just approval)
 

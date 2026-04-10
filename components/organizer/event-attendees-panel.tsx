@@ -13,6 +13,7 @@ export function EventAttendeesPanel({
   eventSlug,
   eventId,
   profileById,
+  rsvpCapacity = null,
 }: {
   total: number
   confirmed: number
@@ -23,6 +24,8 @@ export function EventAttendeesPanel({
   eventSlug: string
   eventId: string
   profileById: Record<string, { display_name: string | null }>
+  /** Max confirmed + checked-in RSVPs; null = no limit */
+  rsvpCapacity?: number | null
 }) {
   return (
     <div className="mt-6 form-card p-6 md:p-8">
@@ -69,6 +72,18 @@ export function EventAttendeesPanel({
           <div className="mt-1 text-lg font-bold font-mono text-foreground">{rows.length}</div>
         </div>
       </div>
+
+      <p className="mt-3 text-[11px] font-mono text-muted-foreground">
+        RSVP cap:{" "}
+        {rsvpCapacity != null && rsvpCapacity > 0 ? (
+          <span className="text-foreground">{rsvpCapacity}</span>
+        ) : (
+          <span className="text-foreground">none set (unlimited)</span>
+        )}
+        {rsvpCapacity != null && rsvpCapacity > 0 ? (
+          <span> — confirmed + checked-in count toward this limit.</span>
+        ) : null}
+      </p>
 
       {rows.length === 0 ? (
         <div className="mt-5 border border-dashed border-border p-6 text-center">

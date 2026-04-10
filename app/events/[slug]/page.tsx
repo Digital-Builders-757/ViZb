@@ -28,6 +28,7 @@ interface PublicEvent {
   flyer_url: string | null
   org_name: string
   org_slug: string
+  rsvp_capacity: number | null
 }
 
 export async function generateMetadata({
@@ -80,7 +81,7 @@ export default async function PublicEventDetailPage({
     .from("events")
     .select(`
       id, title, slug, description, starts_at, ends_at,
-      venue_name, address, city, categories, flyer_url,
+      venue_name, address, city, categories, flyer_url, rsvp_capacity,
       organizations!inner ( name, slug )
     `)
     .eq("slug", slug)
@@ -93,6 +94,9 @@ export default async function PublicEventDetailPage({
 
   // Supabase returns the !inner join as an object { name, slug }
   const org = rawEvent.organizations as unknown as { name: string; slug: string }
+
+  const cap = (rawEvent as { rsvp_capacity?: number | null }).rsvp_capacity
+  const rsvp_capacity = cap == null || typeof cap !== "number" ? null : cap
 
   const event: PublicEvent = {
     id: rawEvent.id,
@@ -108,6 +112,46 @@ export default async function PublicEventDetailPage({
     flyer_url: rawEvent.flyer_url,
     org_name: org.name,
     org_slug: org.slug,
+    rsvp_capacity,
+  }
+
+  let rsvpOccupied = 0
+  try {
+    const { data: occ, error: occErr } = await supabase.rpc("published_event_rsvp_occupied_count", {
+      p_event_id: event.id,
+    })
+    if (!occErr && occ != null && Number.isFinite(Number(occ))) {
+      rsvpOccupied = Number(occ)
+    }
+  } catch {
+    rsvpOccupied = 0
+  }
+
+  type PublicFreeTier = { id: string; name: string }
+  let freeTicketTiers: PublicFreeTier[] = []
+  try {
+    const { data: ttRows } = await supabase
+      .from("ticket_types")
+      .select("id, name, price_cents, sort_order, sales_starts_at, sales_ends_at")
+      .eq("event_id", event.id)
+      .order("sort_order", { ascending: true })
+
+    const now = new Date()
+    for (const row of ttRows ?? []) {
+      const pr = row as {
+        id: string
+        name: string
+        price_cents: number | null
+        sales_starts_at: string | null
+        sales_ends_at: string | null
+      }
+      if (pr.price_cents !== 0) continue
+      if (pr.sales_starts_at && new Date(pr.sales_starts_at) > now) continue
+      if (pr.sales_ends_at && new Date(pr.sales_ends_at) < now) continue
+      freeTicketTiers.push({ id: pr.id, name: pr.name })
+    }
+  } catch {
+    freeTicketTiers = []
   }
 
   const startsAt = new Date(event.starts_at)
@@ -331,14 +375,18 @@ export default async function PublicEventDetailPage({
                   </div>
 
                   <EventRsvpCta
+                    key={freeTicketTiers.map((t) => t.id).join("-")}
                     eventId={event.id}
                     isSignedIn={isSignedIn}
                     initialStatus={initialRsvpStatus}
                     authHref={authHref}
+                    rsvpCapacity={event.rsvp_capacity}
+                    rsvpOccupied={rsvpOccupied}
+                    freeTicketTiers={freeTicketTiers}
                   />
 
                   <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
-                    Tickets are coming next. Free RSVP is live for published events.
+                    Free RSVP is live. Paid checkout will arrive in a later release.
                   </p>
                 </GlassCard>
               </div>

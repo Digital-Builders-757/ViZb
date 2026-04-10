@@ -1,9 +1,37 @@
 "use server"
 
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { requireAuth } from "@/lib/auth-helpers"
 import { revalidatePath } from "next/cache"
 
-export async function rsvpToEvent(eventId: string) {
+function isRsvpCapacityError(message: string) {
+  return (
+    message.includes("RSVP capacity is full") ||
+    message.includes("capacity is full") ||
+    message.includes("Ticket type is full") ||
+    message.includes("ticket type is full") ||
+    message.includes("This ticket type is full") ||
+    message.toLowerCase().includes("check constraint") ||
+    message.includes("23514")
+  )
+}
+
+async function mintFreeRsvpTicketRow(
+  supabase: SupabaseClient,
+  registrationId: string,
+  ticketTypeId?: string | null,
+) {
+  const payload: { p_registration_id: string; p_ticket_type_id?: string } = {
+    p_registration_id: registrationId,
+  }
+  if (ticketTypeId) payload.p_ticket_type_id = ticketTypeId
+
+  const { error } = await supabase.rpc("mint_free_rsvp_ticket_for_registration", payload)
+  if (error) return { error: `Could not issue ticket: ${error.message}` }
+  return {}
+}
+
+export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null) {
   const { user, supabase } = await requireAuth()
 
   if (!eventId) return { error: "Missing event ID." }
@@ -23,14 +51,53 @@ export async function rsvpToEvent(eventId: string) {
   }
 
   if (existing?.status === "checked_in" || existing?.status === "confirmed") {
+    const { data: regRow } = await supabase
+      .from("event_registrations")
+      .select("id")
+      .eq("event_id", eventId)
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    if (regRow?.id) {
+      const minted = await mintFreeRsvpTicketRow(supabase, regRow.id, ticketTypeId ?? null)
+      if (minted.error) return { error: minted.error }
+    }
+
     revalidatePath("/dashboard/tickets")
     revalidatePath("/events")
     return { success: true }
   }
 
+  const { data: eventMeta, error: metaErr } = await supabase
+    .from("events")
+    .select("status, rsvp_capacity, slug")
+    .eq("id", eventId)
+    .maybeSingle()
+
+  if (metaErr || !eventMeta) {
+    return { error: metaErr ? `Failed to RSVP: ${metaErr.message}` : "Event not found." }
+  }
+
+  if (eventMeta.status !== "published") {
+    return { error: "RSVP is only available for published events." }
+  }
+
+  if (eventMeta.rsvp_capacity != null) {
+    const { data: occupiedRaw, error: occErr } = await supabase.rpc("published_event_rsvp_occupied_count", {
+      p_event_id: eventId,
+    })
+    if (occErr) {
+      return { error: `Failed to RSVP: ${occErr.message}` }
+    }
+    const occupied = typeof occupiedRaw === "number" ? occupiedRaw : Number(occupiedRaw)
+    if (Number.isFinite(occupied) && occupied >= eventMeta.rsvp_capacity) {
+      return { error: "This event is at RSVP capacity." }
+    }
+  }
+
   const now = new Date().toISOString()
 
-  const { error } = await supabase
+  const { data: upserted, error } = await supabase
     .from("event_registrations")
     .upsert(
       {
@@ -43,13 +110,24 @@ export async function rsvpToEvent(eventId: string) {
       },
       { onConflict: "event_id,user_id" },
     )
+    .select("id")
+    .single()
 
   if (error) {
+    if (isRsvpCapacityError(error.message)) {
+      return { error: "This event is at RSVP capacity." }
+    }
     return { error: `Failed to RSVP: ${error.message}` }
+  }
+
+  if (upserted?.id) {
+    const minted = await mintFreeRsvpTicketRow(supabase, upserted.id, ticketTypeId ?? null)
+    if (minted.error) return { error: minted.error }
   }
 
   revalidatePath("/dashboard/tickets")
   revalidatePath("/events")
+  if (eventMeta.slug) revalidatePath(`/events/${eventMeta.slug}`)
   return { success: true }
 }
 
@@ -75,6 +153,8 @@ export async function cancelRsvp(eventId: string) {
   if (!existing || existing.status === "cancelled") {
     revalidatePath("/dashboard/tickets")
     revalidatePath("/events")
+    const { data: ev } = await supabase.from("events").select("slug").eq("id", eventId).maybeSingle()
+    if (ev?.slug) revalidatePath(`/events/${ev.slug}`)
     return { success: true }
   }
 
@@ -96,6 +176,8 @@ export async function cancelRsvp(eventId: string) {
 
   revalidatePath("/dashboard/tickets")
   revalidatePath("/events")
+  const { data: ev } = await supabase.from("events").select("slug").eq("id", eventId).maybeSingle()
+  if (ev?.slug) revalidatePath(`/events/${ev.slug}`)
   return { success: true }
 }
 
