@@ -333,7 +333,9 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
 - [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
 
-**P0 next:** Organizer ticket type builder (multiple tiers, sale windows). **P1:** Public **`/tickets`** wallet route parity (non-dashboard), paid Stripe flow (Phase 4).
+**P0 next:** Paid Stripe checkout (Phase 4) + organizer **paid** tier editor. **P1:** Public **`/tickets`** wallet route parity (non-dashboard).
+
+**Shipped (ticket tiers v1):** Organizer **Free RSVP tiers** UI on organizer event page; optional per-tier capacity + sale window; public event page tier **chooser** when multiple free tiers are on sale; mint RPC accepts optional tier id.
 
 **Database work:**
 - [x] `ticket_types`, `orders`, `order_items`, `tickets` + RLS + mint RPC — `028_tickets_core_free_rsvp.sql` / migration `20260410142142_tickets_core_free_rsvp.sql`
@@ -342,10 +344,10 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] Mint after RSVP — `mint_free_rsvp_ticket_for_registration` invoked from `app/actions/registrations.ts` (replaces separate `createFreeRSVP` action for v1)
 
 **Pages:**
-- [ ] Enhance `/events/[id]` -- add ticket type selector and RSVP button for free events (multi-tier)
+- [x] **`/events/[slug]`** — free tier selector when multiple $0 tiers on sale; single tier shows label
 - [x] **`/dashboard/tickets`** — wallet list from `tickets` + registration/event embed
 - [x] **`/dashboard/tickets/[ticketId]`** — individual ticket with code + same door QR / wallet actions as list
-- [ ] Enhance organizer event form -- add ticket type builder (name, price, capacity, sale window)
+- [x] Organizer event page — **ticket type panel** (free tiers: name, sort, capacity, sale window; seed default `RSVP` row when none)
 
 **Components:**
 - [ ] `components/tickets/ticket-card.tsx` -- ticket in the wallet view

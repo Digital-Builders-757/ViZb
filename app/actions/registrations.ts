@@ -8,20 +8,30 @@ function isRsvpCapacityError(message: string) {
   return (
     message.includes("RSVP capacity is full") ||
     message.includes("capacity is full") ||
+    message.includes("Ticket type is full") ||
+    message.includes("ticket type is full") ||
+    message.includes("This ticket type is full") ||
     message.toLowerCase().includes("check constraint") ||
     message.includes("23514")
   )
 }
 
-async function mintFreeRsvpTicketRow(supabase: SupabaseClient, registrationId: string) {
-  const { error } = await supabase.rpc("mint_free_rsvp_ticket_for_registration", {
+async function mintFreeRsvpTicketRow(
+  supabase: SupabaseClient,
+  registrationId: string,
+  ticketTypeId?: string | null,
+) {
+  const payload: { p_registration_id: string; p_ticket_type_id?: string } = {
     p_registration_id: registrationId,
-  })
+  }
+  if (ticketTypeId) payload.p_ticket_type_id = ticketTypeId
+
+  const { error } = await supabase.rpc("mint_free_rsvp_ticket_for_registration", payload)
   if (error) return { error: `Could not issue ticket: ${error.message}` }
   return {}
 }
 
-export async function rsvpToEvent(eventId: string) {
+export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null) {
   const { user, supabase } = await requireAuth()
 
   if (!eventId) return { error: "Missing event ID." }
@@ -49,7 +59,7 @@ export async function rsvpToEvent(eventId: string) {
       .maybeSingle()
 
     if (regRow?.id) {
-      const minted = await mintFreeRsvpTicketRow(supabase, regRow.id)
+      const minted = await mintFreeRsvpTicketRow(supabase, regRow.id, ticketTypeId ?? null)
       if (minted.error) return { error: minted.error }
     }
 
@@ -111,7 +121,7 @@ export async function rsvpToEvent(eventId: string) {
   }
 
   if (upserted?.id) {
-    const minted = await mintFreeRsvpTicketRow(supabase, upserted.id)
+    const minted = await mintFreeRsvpTicketRow(supabase, upserted.id, ticketTypeId ?? null)
     if (minted.error) return { error: minted.error }
   }
 

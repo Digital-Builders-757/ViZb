@@ -127,6 +127,33 @@ export default async function PublicEventDetailPage({
     rsvpOccupied = 0
   }
 
+  type PublicFreeTier = { id: string; name: string }
+  let freeTicketTiers: PublicFreeTier[] = []
+  try {
+    const { data: ttRows } = await supabase
+      .from("ticket_types")
+      .select("id, name, price_cents, sort_order, sales_starts_at, sales_ends_at")
+      .eq("event_id", event.id)
+      .order("sort_order", { ascending: true })
+
+    const now = new Date()
+    for (const row of ttRows ?? []) {
+      const pr = row as {
+        id: string
+        name: string
+        price_cents: number | null
+        sales_starts_at: string | null
+        sales_ends_at: string | null
+      }
+      if (pr.price_cents !== 0) continue
+      if (pr.sales_starts_at && new Date(pr.sales_starts_at) > now) continue
+      if (pr.sales_ends_at && new Date(pr.sales_ends_at) < now) continue
+      freeTicketTiers.push({ id: pr.id, name: pr.name })
+    }
+  } catch {
+    freeTicketTiers = []
+  }
+
   const startsAt = new Date(event.starts_at)
   const endsAt = event.ends_at ? new Date(event.ends_at) : null
 
@@ -348,16 +375,18 @@ export default async function PublicEventDetailPage({
                   </div>
 
                   <EventRsvpCta
+                    key={freeTicketTiers.map((t) => t.id).join("-")}
                     eventId={event.id}
                     isSignedIn={isSignedIn}
                     initialStatus={initialRsvpStatus}
                     authHref={authHref}
                     rsvpCapacity={event.rsvp_capacity}
                     rsvpOccupied={rsvpOccupied}
+                    freeTicketTiers={freeTicketTiers}
                   />
 
                   <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
-                    Tickets are coming next. Free RSVP is live for published events.
+                    Free RSVP is live. Paid checkout will arrive in a later release.
                   </p>
                 </GlassCard>
               </div>
