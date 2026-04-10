@@ -16,6 +16,7 @@ Create or update a PR as appropriate.
 IMPORTANT:
 
 - Check for an **open PR** with the same head/base before creating a duplicate.
+- **Feature/fix PRs:** base **`develop`** only. **`main`** is for **`develop` → `main` releases** and documented **hotfixes** — see `docs/development/BRANCHING.md`.
 - If `gh pr edit` fails (GraphQL / project metadata), fall back to `gh api` REST PATCH.
 - Describe the **full** branch delta honestly — not “this session only” unless true.
 

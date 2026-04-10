@@ -17,8 +17,8 @@ Use **npm only** for this repo (`package-lock.json`). Do not add `bun.lock` or `
 
 ## Branching
 
-- **`develop`** — integration branch; land work via **PRs** from short-lived branches (`feat/*`, `fix/*`, …). Avoid multiple people pushing large changes straight to **`develop`** at once.
-- **`main`** — production/release; promote via PR **`develop` → `main`** (merge commit) when cutting a release.
+- **`develop`** — **integration branch (required on GitHub).** All routine feature/fix PRs target **`develop`** first. Land work via **PRs** from short-lived branches (`feat/*`, `fix/*`, …). Avoid multiple people pushing large changes straight to **`develop`** at once.
+- **`main`** — production/release; promote **only** via PR **`develop` → `main`** (merge commit) when cutting a release. PR **CI** runs for both integration (`develop`) and release (`main`) targets (see `.github/workflows/pr-ci.yml`).
 
 Details, merge policy, and hotfixes: [`docs/development/BRANCHING.md`](docs/development/BRANCHING.md).
 
