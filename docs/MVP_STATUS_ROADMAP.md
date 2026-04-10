@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 7, 2026 |
+| **Last Audited** | April 10, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | 001–023 exist in repo; events + posts migrations applied in production (per release work) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 (Events + admin review) largely implemented; Posts MVP shipped |
@@ -60,7 +60,7 @@
 | Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (RSVP + wallet passes slice) | ~20% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | IN PROGRESS | 35% |
+| Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
 
 ---
 
@@ -136,6 +136,7 @@
 |---------|---------|--------|
 | Admin gate | `lib/auth-helpers.ts` `requireAdmin()` | DONE -- checks `role_admin`, redirects non-admins to `/dashboard` |
 | Admin overview page | `app/(dashboard)/admin/page.tsx` | DONE -- live counts (users, orgs, pending orgs), placeholder approval queue |
+| Delete users (staff) | `app/actions/admin-users.ts`, `components/admin/users-table.tsx`, `lib/supabase/service-role.ts`, migration `20260410200000_auth_user_delete_foreign_keys.sql` | DONE -- `auth.admin.deleteUser` with server-only `SUPABASE_SERVICE_ROLE_KEY`; cannot delete self or `staff_admin`; migration relaxes FKs so `auth.users` deletion succeeds |
 
 ### Known Deviations from Architecture Laws
 
@@ -436,7 +437,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Pages:**
 - [ ] `/admin/orgs` -- organization approval queue (pending list, approve/reject with notes)
-- [ ] `/admin/users` -- user management table (search, view profiles, moderate)
+- [ ] `/admin/users` -- user management table (search, view profiles, moderate) *(partial: delete non-staff users from **All Users** on `/admin`)* 
 - [ ] Enhance `/admin` -- real metrics dashboard (total users, events, tickets sold, revenue)
 - [ ] `/admin/events` -- enhanced event management (beyond just approval)
 
