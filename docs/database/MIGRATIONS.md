@@ -23,6 +23,7 @@ At minimum, shared environments used for event workflows should have applied:
 - `024_allow_staff_update_archived.sql` (fix: staff can update archived events to restore/moderate)
 - `025_create_event_registrations.sql` (free RSVP foundation)
 - `026_event_rsvp_capacity.sql` (optional `events.rsvp_capacity`, occupancy RPC, RSVP cap trigger)
+- `028_tickets_core_free_rsvp.sql` (`ticket_types`, `orders`, `order_items`, `tickets`, `mint_free_rsvp_ticket_for_registration` RPC; free RSVP = $0 completed order)
 
 ## Quick verification
 

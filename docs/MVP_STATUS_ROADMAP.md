@@ -331,20 +331,20 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] Dashboard wallet buttons — `components/dashboard/tickets/ticket-wallet-actions.tsx`
 - [x] Operator doc — `docs/operations/WALLET_PASSES_SETUP.md`
 - [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
+- [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
 
-**P0 next:** Orders + `tickets` table model (or formalize free RSVP + check-in on `event_registrations` only). **P1:** `/tickets` public wallet route parity, paid Stripe flow (Phase 4).
+**P0 next:** Organizer ticket type builder (multiple tiers, sale windows). **P1:** Public **`/tickets`** wallet route parity (non-dashboard), paid Stripe flow (Phase 4).
 
 **Database work:**
-- [ ] Write `scripts/011_create_tickets.sql` -- `ticket_types`, `orders`, `order_items`, `tickets` tables, indexes, RLS policies
+- [x] `ticket_types`, `orders`, `order_items`, `tickets` + RLS + mint RPC — `028_tickets_core_free_rsvp.sql` / migration `20260410142142_tickets_core_free_rsvp.sql`
 
 **Server actions:**
-- [ ] `app/actions/orders.ts` -- `createFreeRSVP()` (creates $0 order + mints ticket instantly)
-- [ ] `app/actions/tickets.ts` -- helper functions for ticket queries
+- [x] Mint after RSVP — `mint_free_rsvp_ticket_for_registration` invoked from `app/actions/registrations.ts` (replaces separate `createFreeRSVP` action for v1)
 
 **Pages:**
-- [ ] Enhance `/events/[id]` -- add ticket type selector and RSVP button for free events
-- [ ] `/tickets` -- ticket wallet showing all upcoming + past tickets (replace current empty state)
-- [ ] `/tickets/[id]` -- individual ticket view with large ticket code (QR-ready for future)
+- [ ] Enhance `/events/[id]` -- add ticket type selector and RSVP button for free events (multi-tier)
+- [x] **`/dashboard/tickets`** — wallet list from `tickets` + registration/event embed
+- [x] **`/dashboard/tickets/[ticketId]`** — individual ticket with code + same door QR / wallet actions as list
 - [ ] Enhance organizer event form -- add ticket type builder (name, price, capacity, sale window)
 
 **Components:**

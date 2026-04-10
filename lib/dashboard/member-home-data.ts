@@ -1,4 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
+import {
+  coalesceRelation,
+  firstWalletEvent,
+  type WalletEvent,
+} from "@/lib/dashboard/ticket-wallet-shared"
 
 function isUpcomingOrOngoing(startsAt: string, endsAt: string | null, now: Date): boolean {
   if (endsAt) return new Date(endsAt).getTime() >= now.getTime()
@@ -6,6 +11,7 @@ function isUpcomingOrOngoing(startsAt: string, endsAt: string | null, now: Date)
 }
 
 export interface MemberHomeTicketPreview {
+  ticketId: string
   registrationKey: string
   status: string
   title: string
@@ -31,7 +37,7 @@ const emptySummary = (): MemberHomeRsvpSummary => ({
 })
 
 /**
- * RSVP rollup for member home: explicit select; mirrors `/dashboard/tickets` shape + `ends_at` for ongoing events.
+ * Ticket rollup for member home: rows from `tickets` + registration status; mirrors `/dashboard/tickets` + `ends_at`.
  */
 export async function loadMemberHomeRsvpSummary(
   supabase: SupabaseClient,
@@ -39,9 +45,9 @@ export async function loadMemberHomeRsvpSummary(
 ): Promise<MemberHomeRsvpSummary> {
   try {
     const { data, error } = await supabase
-      .from("event_registrations")
+      .from("tickets")
       .select(
-        "status, created_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url )",
+        "id, created_at, event_registrations!inner ( status, created_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url ) )",
       )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
@@ -53,33 +59,50 @@ export async function loadMemberHomeRsvpSummary(
     const now = new Date()
     const rows = data ?? []
 
-    type Row = (typeof rows)[number]
+    type RegRow = {
+      status: string
+      created_at: string
+      event: WalletEvent | WalletEvent[] | null
+    }
 
-    const active = rows.filter(
-      (r: Row) =>
-        r.status !== "cancelled" &&
-        r.event &&
-        Array.isArray(r.event) &&
-        r.event.length > 0,
-    )
+    type RawRow = {
+      id: string
+      created_at: string
+      event_registrations: RegRow | RegRow[]
+    }
 
-    const attendedCount = active.filter((r: Row) => r.status === "checked_in").length
+    const normalized = (rows as RawRow[])
+      .map((r) => {
+        const er = coalesceRelation(r.event_registrations)
+        return er ? { id: r.id, created_at: r.created_at, event_registrations: er } : null
+      })
+      .filter((r): r is { id: string; created_at: string; event_registrations: RegRow } => r != null)
 
-    const upcomingRows = active.filter((r: Row) => {
-      const e = r.event![0]
+    const active = normalized.filter((r) => {
+      if (r.event_registrations.status === "cancelled") return false
+      return firstWalletEvent(coalesceRelation(r.event_registrations.event)) != null
+    })
+
+    const attendedCount = active.filter((r) => r.event_registrations.status === "checked_in").length
+
+    const upcomingRows = active.filter((r) => {
+      const e = firstWalletEvent(coalesceRelation(r.event_registrations.event))
+      if (!e) return false
       return isUpcomingOrOngoing(e.starts_at, e.ends_at ?? null, now)
     })
 
-    upcomingRows.sort(
-      (a: Row, b: Row) =>
-        new Date(a.event![0].starts_at).getTime() - new Date(b.event![0].starts_at).getTime(),
-    )
+    upcomingRows.sort((a, b) => {
+      const ae = firstWalletEvent(coalesceRelation(a.event_registrations.event))!
+      const be = firstWalletEvent(coalesceRelation(b.event_registrations.event))!
+      return new Date(ae.starts_at).getTime() - new Date(be.starts_at).getTime()
+    })
 
-    const upcomingPreviews: MemberHomeTicketPreview[] = upcomingRows.slice(0, 3).map((r: Row) => {
-      const e = r.event![0]
+    const upcomingPreviews: MemberHomeTicketPreview[] = upcomingRows.slice(0, 3).map((r) => {
+      const e = firstWalletEvent(coalesceRelation(r.event_registrations.event))!
       return {
-        registrationKey: `${e.slug}-${r.created_at}`,
-        status: r.status,
+        ticketId: r.id,
+        registrationKey: r.id,
+        status: r.event_registrations.status,
         title: e.title,
         slug: e.slug,
         startsAt: e.starts_at,

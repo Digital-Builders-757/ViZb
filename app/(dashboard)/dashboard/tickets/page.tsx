@@ -7,23 +7,20 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { TicketWalletCard } from "@/components/dashboard/tickets/ticket-wallet-card"
 import { buildTicketQrToken, getTicketQrSecret, TICKET_QR_TTL_SECONDS } from "@/lib/ticket-qr-token"
 import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib/wallet/env"
+import {
+  coalesceRelation,
+  firstWalletEvent,
+  normalizeTicketWalletRow,
+  partitionWalletRowsByStart,
+  ticketQrEligibleFromRegistration,
+  type TicketWalletRow,
+  type TicketWalletRowRaw,
+  type WalletEvent,
+} from "@/lib/dashboard/ticket-wallet-shared"
 
-type WalletEvent = {
-  title: string
-  slug: string
-  starts_at: string
-  city: string
-  venue_name: string
-  flyer_url: string | null
-}
-
-type RegistrationRow = {
-  id: string
-  event_id: string
-  status: string
-  created_at: string
-  checked_in_at: string | null
-  event: WalletEvent[] | WalletEvent | null
+type TicketRowParsed = TicketWalletRow & {
+  event: WalletEvent
+  eventStartMs: number | null
 }
 
 async function siteOrigin(): Promise<string> {
@@ -37,47 +34,20 @@ async function siteOrigin(): Promise<string> {
   return `${proto}://${host}`
 }
 
-function firstEvent(raw: RegistrationRow["event"]): WalletEvent | null {
-  if (!raw) return null
-  if (Array.isArray(raw)) return raw[0] ?? null
-  if (typeof raw === "object" && "slug" in raw) return raw as WalletEvent
-  return null
-}
-
-/**
- * Door QR is valid while the event is upcoming, or up to this long after `starts_at`
- * (late check-in / timezone / staff still at the door).
- */
-const TICKET_QR_EVENT_WINDOW_AFTER_START_MS = 48 * 60 * 60 * 1000
-
-function ticketQrEligible(row: RegistrationRow, nowMs: number): boolean {
-  if (row.status !== "confirmed" && row.status !== "checked_in") return false
-  const e = firstEvent(row.event)
-  if (!e) return false
-  const t = new Date(e.starts_at).getTime()
-  if (Number.isNaN(t)) return true
-  if (t >= nowMs) return true
-  return nowMs - t <= TICKET_QR_EVENT_WINDOW_AFTER_START_MS
-}
-
-function partitionByStart(rows: RegistrationRow[], nowMs: number) {
-  const upcoming: RegistrationRow[] = []
-  const past: RegistrationRow[] = []
-  const undated: RegistrationRow[] = []
-
-  for (const r of rows) {
-    const e = firstEvent(r.event)
+function parseTicketRows(raw: TicketWalletRow[] | null): TicketRowParsed[] {
+  if (!raw?.length) return []
+  const out: TicketRowParsed[] = []
+  for (const row of raw) {
+    const e = firstWalletEvent(coalesceRelation(row.event_registrations.event))
     if (!e) continue
     const t = new Date(e.starts_at).getTime()
-    if (Number.isNaN(t)) {
-      undated.push(r)
-      continue
-    }
-    if (t >= nowMs) upcoming.push(r)
-    else past.push(r)
+    out.push({
+      ...row,
+      event: e,
+      eventStartMs: Number.isNaN(t) ? null : t,
+    })
   }
-
-  return { upcoming, past, undated }
+  return out
 }
 
 function TicketSection({
@@ -93,7 +63,7 @@ function TicketSection({
 }: {
   title: string
   subtitle?: string
-  rows: RegistrationRow[]
+  rows: TicketRowParsed[]
   origin: string
   walletAppleEnabled: boolean
   walletGoogleEnabled: boolean
@@ -111,19 +81,22 @@ function TicketSection({
       </div>
       <div className="grid grid-cols-1 gap-3 sm:gap-4">
         {rows.map((r) => {
-          const e = firstEvent(r.event)
-          if (!e) return null
+          const e = r.event
           const base = origin || ""
           const eventAbsoluteUrl = base ? `${base}/events/${e.slug}` : `/events/${e.slug}`
 
           const signingOk = Boolean(ticketSecret && r.event_id)
-          const eligible = ticketQrEligible(r, nowMs)
+          const eligible = ticketQrEligibleFromRegistration({
+            registrationStatus: r.event_registrations.status,
+            eventStartsAtIso: e.starts_at,
+            nowMs,
+          })
           const qrToken =
             signingOk && eligible
               ? buildTicketQrToken(
                   {
                     v: 1,
-                    rid: r.id,
+                    rid: r.event_registrations.id,
                     eid: r.event_id,
                     exp: qrIssuedAtUnixSeconds + TICKET_QR_TTL_SECONDS,
                   },
@@ -134,12 +107,14 @@ function TicketSection({
           return (
             <TicketWalletCard
               key={r.id}
-              registrationId={r.id}
+              ticketId={r.id}
+              ticketCode={r.ticket_code}
+              registrationId={r.event_registrations.id}
               walletAppleEnabled={walletAppleEnabled}
               walletGoogleEnabled={walletGoogleEnabled}
-              status={r.status}
-              createdAt={r.created_at}
-              checkedInAt={r.checked_in_at}
+              status={r.event_registrations.status}
+              createdAt={r.event_registrations.created_at}
+              checkedInAt={r.event_registrations.checked_in_at}
               event={e}
               eventAbsoluteUrl={eventAbsoluteUrl}
               qrToken={qrToken}
@@ -160,35 +135,35 @@ export default async function TicketsPage() {
   const walletAppleEnabled = isAppleWalletPassConfigured()
   const walletGoogleEnabled = isGoogleWalletPassConfigured()
 
-  let rows: RegistrationRow[] | null = null
+  let rows: TicketWalletRow[] | null = null
   let loadError: string | null = null
 
   try {
     const { data, error } = await supabase
-      .from("event_registrations")
+      .from("tickets")
       .select(
-        "id, event_id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url )",
+        `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url ) )`,
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
 
     if (error) loadError = error.message
-    rows = (data as RegistrationRow[]) ?? null
+    else {
+      const raw = (data ?? []) as TicketWalletRowRaw[]
+      rows = raw.map(normalizeTicketWalletRow).filter((r): r is TicketWalletRow => r != null)
+    }
   } catch {
     loadError = "Ticketing is not fully configured on this environment yet."
     rows = null
   }
 
-  const list = rows ?? []
-  const active = list.filter((r) => firstEvent(r.event) != null)
-
-  // Single request-time clock snapshot (avoids multiple impure time calls in this RSC).
+  const parsed = parseTicketRows(rows)
   const clock = new Date()
   const nowMs = clock.getTime()
   const qrIssuedAtUnixSeconds = Math.floor(nowMs / 1000)
   const ticketSecret = getTicketQrSecret()
 
-  const { upcoming, past, undated } = partitionByStart(active, nowMs)
+  const { upcoming, past, undated } = partitionWalletRowsByStart(parsed, nowMs)
 
   return (
     <div className="min-w-0 space-y-8 md:space-y-10">
@@ -196,7 +171,8 @@ export default async function TicketsPage() {
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Wallet</span>
         <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">My tickets</h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Your RSVPs and check-ins in one place. Add events to your calendar so you don&apos;t miss a show.
+          Free RSVPs are issued as $0 tickets with a code for your records. Add events to your calendar so you
+          don&apos;t miss a show.
         </p>
       </header>
 
@@ -204,16 +180,19 @@ export default async function TicketsPage() {
         <GlassCard className="p-4">
           <p className="text-sm text-amber-200/90">{loadError}</p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Apply <span className="font-mono">scripts/025_create_event_registrations.sql</span> to enable RSVP.
+            Apply migrations through{" "}
+            <span className="font-mono">supabase/migrations/20260410142142_tickets_core_free_rsvp.sql</span> (or{" "}
+            <span className="font-mono">scripts/028_tickets_core_free_rsvp.sql</span>) after event registrations (
+            <span className="font-mono">025</span>).
           </p>
         </GlassCard>
       ) : null}
 
-      {active.length === 0 && !loadError ? (
+      {parsed.length === 0 && !loadError ? (
         <EmptyStateCard
           kicker="No tickets yet"
           title="Nothing in your wallet"
-          description="RSVP to a published event and it will show up here with date, venue, and calendar actions."
+          description="RSVP to a published event and a free ticket will show up here with date, venue, and calendar actions."
         >
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
             <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
@@ -229,7 +208,7 @@ export default async function TicketsPage() {
         </EmptyStateCard>
       ) : null}
 
-      {active.length > 0 ? (
+      {parsed.length > 0 ? (
         <div className="min-w-0 space-y-10">
           <TicketSection
             title="Upcoming"
@@ -245,7 +224,7 @@ export default async function TicketsPage() {
 
           <TicketSection
             title="Past"
-            subtitle="Earlier RSVPs for your records."
+            subtitle="Earlier tickets for your records."
             rows={past}
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}
