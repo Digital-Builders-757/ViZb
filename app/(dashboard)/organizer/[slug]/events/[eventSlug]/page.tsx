@@ -244,6 +244,9 @@ export default async function EventDetailPage({
         eventSlug={eventSlug}
         eventId={event.id}
         profileById={profileById}
+        rsvpCapacity={
+          (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null
+        }
       />
 
       {/* Event details card */}
