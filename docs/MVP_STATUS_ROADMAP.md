@@ -330,8 +330,9 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] Google Wallet “save” redirect + `format=json` — `app/api/tickets/pass/google/route.ts`
 - [x] Dashboard wallet buttons — `components/dashboard/tickets/ticket-wallet-actions.tsx`
 - [x] Operator doc — `docs/operations/WALLET_PASSES_SETUP.md`
+- [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
 
-**P0 next:** Orders + `tickets` table model (or formalize free RSVP + check-in on `event_registrations` only). **P1:** Capacity limits, `/tickets` public wallet route parity, paid Stripe flow (Phase 4).
+**P0 next:** Orders + `tickets` table model (or formalize free RSVP + check-in on `event_registrations` only). **P1:** `/tickets` public wallet route parity, paid Stripe flow (Phase 4).
 
 **Database work:**
 - [ ] Write `scripts/011_create_tickets.sql` -- `ticket_types`, `orders`, `order_items`, `tickets` tables, indexes, RLS policies
