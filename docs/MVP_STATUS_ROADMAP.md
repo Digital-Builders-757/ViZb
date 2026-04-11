@@ -10,10 +10,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 10, 2026 |
+| **Last Audited** | April 11, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
-| **Migrations Applied** | 001–023 exist in repo; events + posts migrations applied in production (per release work) |
-| **Overall MVP Progress** | Phase 1 complete; Phase 2 (Events + admin review) largely implemented; Posts MVP shipped |
+| **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor) |
+| **Overall MVP Progress** | Phase 1 complete; Phase 2 largely shipped; Posts MVP shipped; Phase 3 (free RSVP + $0 tickets) largely shipped |
 | **Security Audit** | 8/8 checks passed; see Security section + Known Issues |
 | **Open Redirect Protection** | PASS -- `auth/callback` validates redirect targets against allowlist |
 | **Subscribers Privacy** | PASS -- public SELECT disabled (migration 009); insert-only for waitlist |
@@ -47,7 +47,12 @@
 | 021 | `021_seed_design_events.sql` | Seed data |
 | 022 | `022_add_event_archived.sql` | Archived status for events (soft-delete) |
 | 023 | `023_lock_archived_events.sql` | Lock archived events read-only for org members |
-| 024 | *`024_create_tickets.sql`* | Ticket types, orders, tickets *(Phase 3 — planned)* |
+| 024 | `024_allow_staff_update_archived.sql` | Staff may update archived events (moderation / restore) |
+| 025 | `025_create_event_registrations.sql` | `event_registrations` + RSVP policies |
+| 026 | `026_event_rsvp_capacity.sql` / `20260410120000_event_rsvp_capacity.sql` | Optional `events.rsvp_capacity` + occupancy RPC |
+| 028 | `028_tickets_core_free_rsvp.sql` / `20260410142142_tickets_core_free_rsvp.sql` | `ticket_types`, `orders`, `order_items`, `tickets`, mint RPC |
+| 029 | `029_ticket_types_org_crud_and_mint_tier.sql` / `20260410144936_ticket_types_org_crud_and_mint_tier.sql` | Tier capacity / sale window; org CRUD; mint accepts tier id |
+| … | Other timestamped `supabase/migrations/*` | Full order + mirrors: `docs/database/MIGRATIONS.md` |
 
 ---
 
@@ -57,8 +62,8 @@
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
 | Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
-| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (RSVP + wallet passes slice) | ~20% |
-| Phase 4 | Paid Tickets (Stripe Checkout) | NOT STARTED | 0% |
+| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet shipped; paid tiers next) | ~65% |
+| Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
 
@@ -91,8 +96,11 @@
 | `008_fix_enum_values.sql` | Adds missing enum values: `pending_review` to org/event status, `collective`/`brand`/`nonprofit`/`independent` to org_type, `rejected` to event_status | Executed |
 | `009_fix_subscribers_rls.sql` | Locks down subscribers table: replaces public SELECT with admin-only read | Executed |
 
-**Tables that exist (now):** `subscribers`, `profiles`, `organizations`, `organization_members`, `events`, `event_media`, `posts`
-**Tables still needed (Phase 3+):** `ticket_types`, `orders`, `order_items`, `tickets`
+**Tables that exist (now):** `subscribers`, `profiles`, `organizations`, `organization_members`, `events`, `event_media`, `posts`, `event_registrations`, `ticket_types`, `orders`, `order_items`, `tickets` (plus saves/notifications per your env — confirm with `docs/database/MIGRATIONS.md`)
+
+**Still outstanding for Phase 4+:** Stripe Tax / partial refunds automation; Connect payouts; dedicated door UI polish (Phase 5)
+
+**Shipped (Phase 4 slice — April 2026):** `createTicketCheckoutSession` (`app/actions/ticket-checkout.ts`), `POST /api/stripe/webhook`, `fulfill_stripe_checkout_for_ticket` RPC (`20260411120000_stripe_checkout_fulfillment.sql` / `scripts/030_stripe_checkout_fulfillment.sql`), paid tier pricing in organizer panel, public **Buy ticket** on `/events/[slug]`.
 
 ### Authentication System (Phase 1 -- Complete)
 
@@ -218,48 +226,34 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 ---
 
-## What Does NOT Exist Yet
+## What does not exist yet (snapshot)
 
-### Database Tables Still Needed
+> **Note:** The tables below used to mirror an older file plan (`010_create_events.sql`, `011_create_tickets.sql`). The repo now ships **`013_create_events.sql`** + later numbered scripts and timestamped **`supabase/migrations/*`**. Treat **`docs/database/MIGRATIONS.md`** + **`database_schema_audit.md`** as the apply checklist.
 
-| Table | Purpose | Migration Needed | Phase |
-|-------|---------|------------------|-------|
-| `events` | Core event listings | `010_create_events.sql` | Phase 2 |
-| `event_media` | Flyers and gallery images | `010_create_events.sql` | Phase 2 |
-| `ticket_types` | Ticket tiers per event | `011_create_tickets.sql` | Phase 3 |
-| `orders` | Purchase records | `011_create_tickets.sql` | Phase 3 |
-| `order_items` | Line items within orders | `011_create_tickets.sql` | Phase 3 |
-| `tickets` | Attendee door-pass records | `011_create_tickets.sql` | Phase 3 |
+### Database gaps (Phase 4+)
 
-### Features Not Yet Built
+| Gap | Phase | Notes |
+|-----|-------|--------|
+| Stripe Tax / amount_total vs list price | 4 | Fulfillment RPC expects **no tax** (or match `amount_total` to tier); adjust when enabling Stripe Tax |
+| Organizer **paid** tier editor | 4 | **Shipped:** USD price on create/update; price locked after first issued ticket |
 
-| Feature | Route | Phase | Dependency |
-|---------|-------|-------|------------|
-| Public event feed | `/events` | Phase 2 | `events` table |
-| Event detail page | `/events/[id]` | Phase 2 | `events` + `event_media` tables |
-| Event creation form | `/organizer/[slug]/events/new` | Phase 2 | `events` table + Supabase Storage |
-| Event edit/manage | `/organizer/[slug]/events/[id]` | Phase 2 | `events` table |
-| Flyer upload | Supabase Storage | Phase 2 | `event-flyers` bucket |
-| Admin event approval queue | `/admin/events` | Phase 2 | `events` table |
-| Ticket type management | Part of event form | Phase 3 | `ticket_types` table |
-| Free RSVP flow | Part of event detail | Phase 3 | `orders` + `tickets` tables |
-| Ticket wallet | `/tickets` | Phase 3 | `tickets` table |
-| Individual ticket view | `/tickets/[id]` | Phase 3 | `tickets` table |
-| Stripe Checkout integration | `/api/stripe/create-checkout-session` | Phase 4 | Stripe keys + `orders` table |
-| Stripe webhook handler | `/api/stripe/webhook` | Phase 4 | Stripe webhook secret |
-| Door check-in screen | `/organizer/[slug]/events/[id]/door` | Phase 5 | `tickets` table |
-| Admin org approval queue | `/admin/orgs` | Phase 6 | `organizations` table (exists) |
-| Admin user moderation | `/admin/users` | Phase 6 | `profiles` table (exists) |
-| Platform metrics dashboard | `/admin` (enhanced) | Phase 6 | All tables |
-| Mobile-responsive sidebar | `components/dashboard/sidebar.tsx` | Phase 6 | None (currently desktop-only) |
+### Features not yet built (selected)
 
-### Integrations Not Yet Configured
+| Feature | Route / area | Phase |
+|---------|----------------|-------|
+| Stripe Checkout + webhook | `app/actions/ticket-checkout.ts`, `/api/stripe/webhook` | 4 — **partially shipped** |
+| Dedicated door / scanner screen | `/organizer/.../door` (planned path) | 5 |
+| Live Realtime check-in counters | organizer UI | 5 |
+| Admin org approval queue polish | `/admin/orgs` | 6 |
+| Platform metrics dashboard (enhanced) | `/admin` | 6 |
+| Mobile-first sidebar parity | `components/dashboard/sidebar.tsx` | 6 |
+
+### Integrations not yet configured
 
 | Integration | Purpose | Phase |
 |-------------|---------|-------|
-| Stripe | Paid ticket purchases | Phase 4 |
-| Supabase Storage | Flyer/image uploads | Phase 2 |
-| Supabase Realtime | Live check-in counters | Phase 5 |
+| Stripe | Paid ticket purchases | 4 |
+| Supabase Realtime (optional) | Live check-in counters | 5 |
 
 ---
 
@@ -333,7 +327,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
 - [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
 
-**P0 next:** Paid Stripe checkout (Phase 4) + organizer **paid** tier editor. **P1:** *(shipped)* Canonical signed-in wallet at **`/tickets`** and **`/tickets/[ticketId]`** (same shell as dashboard; **`/dashboard/tickets`** kept as alias).
+**P0 next:** Harden paid flow (Stripe Tax, refund hooks, monitoring) + revenue reporting. **P1:** *(shipped)* Canonical wallet **`/tickets`**; *(shipped)* Stripe Checkout + webhook mint + paid tier editor (requires env + migration **`030`**).
 
 **Shipped (ticket tiers v1):** Organizer **Free RSVP tiers** UI on organizer event page; optional per-tier capacity + sale window; public event page tier **chooser** when multiple free tiers are on sale; mint RPC accepts optional tier id.
 
@@ -349,11 +343,10 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] **`/dashboard/tickets`** — same list/detail as **`/tickets`** (deep links and bookmarks still work)
 - [x] Organizer event page — **ticket type panel** (free tiers: name, sort, capacity, sale window; seed default `RSVP` row when none)
 
-**Components:**
-- [ ] `components/tickets/ticket-card.tsx` -- ticket in the wallet view
-- [ ] `components/tickets/ticket-detail.tsx` -- full ticket with code
-- [ ] `components/events/ticket-type-selector.tsx` -- select ticket tier + quantity on event page
-- [ ] `components/events/rsvp-button.tsx` -- one-click RSVP for free events
+**Components (as implemented in repo):**
+- [x] Wallet list card — `components/dashboard/tickets/ticket-wallet-card.tsx`
+- [x] Wallet detail — `components/dashboard/tickets/ticket-wallet-detail-view.tsx`
+- [x] RSVP + tier UX — `components/events/event-rsvp-cta.tsx` (quantity = 1 for free v1)
 
 **Key decisions:**
 - Free RSVPs are `$0` tickets -- one unified model for all door-check scenarios
@@ -361,11 +354,12 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - `checked_in_at` being non-null = attendee was checked in
 
 **Acceptance criteria:**
-- [ ] An organizer can add ticket types (free or paid) to their event
-- [ ] An attendee can RSVP to a free event and receive a ticket instantly
-- [ ] Tickets appear in the attendee's wallet at `/tickets`
-- [ ] Each ticket shows a unique ticket code
-- [ ] Ticket capacity is enforced (RSVP fails when sold out)
+- [x] An organizer can add **free** ticket types (name, sort, capacity, sale window) to their event
+- [x] An organizer can add **paid** ticket types (USD) and attendees can check out with Stripe when env + webhook + DB **`030`** are applied
+- [x] An attendee can RSVP to a free event and receive a ticket instantly
+- [x] Tickets appear in the attendee's wallet at `/tickets`
+- [x] Each ticket shows a unique ticket code
+- [x] RSVP / tier capacity is enforced (RSVP fails when whole-event or tier cap is full)
 
 ---
 
@@ -374,18 +368,15 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 **Goal:** Attendees can purchase paid tickets via Stripe Checkout.
 
 **Integration setup:**
-- [ ] Connect Stripe integration (get `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`)
+- [x] Stripe env vars documented (`.env.example`): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`
 
-**API routes:**
-- [ ] `app/api/stripe/create-checkout-session/route.ts` -- creates Stripe Checkout session with line items
-- [ ] `app/api/stripe/webhook/route.ts` -- handles `checkout.session.completed`, updates order status, mints tickets
-
-**Server actions:**
-- [ ] `app/actions/orders.ts` -- `createPaidOrder()` (creates pending order, returns Stripe session URL)
+**API routes / actions:**
+- [x] `app/actions/ticket-checkout.ts` — `createTicketCheckoutSession` (server action creates Checkout Session)
+- [x] `app/api/stripe/webhook/route.ts` — `checkout.session.completed` → `fulfill_stripe_checkout_for_ticket` (service role)
 
 **Page enhancements:**
-- [ ] Enhance `/events/[id]` -- add "Buy Tickets" flow that redirects to Stripe Checkout
-- [ ] Add success/cancel pages for Stripe redirect returns
+- [x] `/events/[slug]` — paid tier picker + **Buy ticket**; return handling via `EventStripeReturn`
+- [ ] Optional dedicated `/checkout/success` page (currently query param + toast)
 
 **Key decisions:**
 - Stripe Checkout (hosted page) -- no custom payment forms
@@ -472,8 +463,8 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, account deletion | 75% |
 | **Organizations** | Create org, auto-slug, type selection, membership check, sidebar display | Org settings page, member management, logo upload | 40% |
 | **Events** | None | Entire events system (CRUD, feed, detail, media) | 0% |
-| **Ticketing** | Free RSVP → `$0` tickets; wallet at **`/tickets`** (and **`/dashboard/tickets`**); signed barcode + Apple `.pkpass` + Google save JWT (env-gated) | Paid Stripe checkout, organizer paid tier editor, webhook mint | ~35% |
-| **Payments** | None | Stripe integration, checkout, webhooks | 0% |
+| **Ticketing** | Free RSVP + paid Stripe Checkout (when configured); wallet **`/tickets`**; wallet passes (env-gated) | Tax, Connect, automated refunds | ~75% |
+| **Payments** | Stripe Checkout + webhook mint (USD, migration **`030`**) | Payouts, reporting, dispute automation | ~35% |
 | **Door Check-In** | None | Check-in screen, attendee list, live counter | 0% |
 | **Admin** | Placeholder with live counts | Approval queues, user moderation, full metrics | 15% |
 | **Responsive Design** | Landing page responsive, dashboard desktop-only | Mobile sidebar, responsive dashboard | 50% |

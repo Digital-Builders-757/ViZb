@@ -2,6 +2,8 @@
 
 This repo uses **numbered SQL scripts** in `scripts/` as a **manual mirror** and **`supabase/migrations/*.sql`** as the **CLI-applied** history for linked projects.
 
+**CLI twins (examples):** `026_event_rsvp_capacity.sql` ↔ `20260410120000_event_rsvp_capacity.sql`; `028_tickets_core_free_rsvp.sql` ↔ `20260410142142_tickets_core_free_rsvp.sql`; `029_ticket_types_org_crud_and_mint_tier.sql` ↔ `20260410144936_ticket_types_org_crud_and_mint_tier.sql`; `030_stripe_checkout_fulfillment.sql` ↔ `20260411120000_stripe_checkout_fulfillment.sql`.
+
 **Deploy / verify on a remote Supabase project:** see **`docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md`** (`supabase migration list`, `supabase db push`, post-checks).
 
 ## Apply order
@@ -25,6 +27,7 @@ At minimum, shared environments used for event workflows should have applied:
 - `026_event_rsvp_capacity.sql` (optional `events.rsvp_capacity`, occupancy RPC, RSVP cap trigger)
 - `028_tickets_core_free_rsvp.sql` (`ticket_types`, `orders`, `order_items`, `tickets`, `mint_free_rsvp_ticket_for_registration` RPC; free RSVP = $0 completed order)
 - `029_ticket_types_org_crud_and_mint_tier.sql` (per-tier `capacity` / sale window; org CRUD policies on `ticket_types`; anon read tiers for published events; mint RPC optional `p_ticket_type_id`)
+- `030_stripe_checkout_fulfillment.sql` / `20260411120000_stripe_checkout_fulfillment.sql` (unique `orders.stripe_checkout_session_id`; `fulfill_stripe_checkout_for_ticket` RPC for webhook mint after Stripe Checkout)
 
 ## Quick verification
 

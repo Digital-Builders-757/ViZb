@@ -3,6 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { requireOrgMember } from "@/lib/auth-helpers"
 import { revalidatePath } from "next/cache"
+import { parseUsdStringToCents } from "@/lib/money/usd"
 
 function parseOptionalInt(formData: FormData, key: string): number | null {
   const raw = formData.get(key)
@@ -62,6 +63,12 @@ export async function createEventTicketType(formData: FormData) {
     return { error: "Sale start must be before sale end." }
   }
 
+  const priceRaw = String(formData.get("price_usd") ?? "").trim()
+  const parsedPrice = parseUsdStringToCents(priceRaw === "" ? "0" : priceRaw)
+  if ("error" in parsedPrice) return { error: parsedPrice.error }
+  const priceCents = parsedPrice.cents
+  if (priceCents < 0) return { error: "Price cannot be negative." }
+
   const { data: maxRow } = await supabase
     .from("ticket_types")
     .select("sort_order")
@@ -75,7 +82,7 @@ export async function createEventTicketType(formData: FormData) {
   const { error } = await supabase.from("ticket_types").insert({
     event_id: eventId,
     name,
-    price_cents: 0,
+    price_cents: priceCents,
     is_default_rsvp: false,
     sort_order: nextSort,
     capacity: cap,
@@ -108,6 +115,17 @@ export async function updateEventTicketType(formData: FormData) {
   const ev = await loadEventForOrg(supabase, org.id, eventId)
   if (!ev) return { error: "Event not found." }
 
+  const { data: existingType, error: loadTypeErr } = await supabase
+    .from("ticket_types")
+    .select("id, is_default_rsvp, price_cents")
+    .eq("id", ticketTypeId)
+    .eq("event_id", eventId)
+    .maybeSingle()
+
+  if (loadTypeErr || !existingType) {
+    return { error: loadTypeErr?.message ?? "Ticket type not found." }
+  }
+
   const cap = parseOptionalInt(formData, "capacity")
   if (cap != null && cap < 1) return { error: "Capacity must be at least 1, or leave blank." }
 
@@ -125,10 +143,34 @@ export async function updateEventTicketType(formData: FormData) {
     sortOrder = s
   }
 
+  let nextPriceCents: number | undefined
+  if (existingType.is_default_rsvp) {
+    nextPriceCents = 0
+  } else {
+    const priceRaw = String(formData.get("price_usd") ?? "").trim()
+    const parsedPrice = parseUsdStringToCents(priceRaw === "" ? "0" : priceRaw)
+    if ("error" in parsedPrice) return { error: parsedPrice.error }
+    nextPriceCents = parsedPrice.cents
+    if (nextPriceCents < 0) return { error: "Price cannot be negative." }
+  }
+
+  if (nextPriceCents !== undefined && nextPriceCents !== existingType.price_cents) {
+    const { count: issued, error: cntErr } = await supabase
+      .from("tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("ticket_type_id", ticketTypeId)
+
+    if (cntErr) return { error: cntErr.message }
+    if ((issued ?? 0) > 0) {
+      return { error: "Cannot change price after tickets have been issued for this tier." }
+    }
+  }
+
   const { error } = await supabase
     .from("ticket_types")
     .update({
       name,
+      price_cents: nextPriceCents ?? existingType.price_cents,
       capacity: cap,
       sales_starts_at: salesStartsAt,
       sales_ends_at: salesEndsAt,

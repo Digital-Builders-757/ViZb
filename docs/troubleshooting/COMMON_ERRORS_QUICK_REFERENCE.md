@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 10, 2026
+**Last updated:** April 11, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -22,6 +22,8 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | RSVP fails or **public event page** errors after deploy; **`published_event_rsvp_occupied_count`** missing | Migration **`20260410120000_event_rsvp_capacity.sql`** / `scripts/026_event_rsvp_capacity.sql` not applied on the target DB | Run **`supabase db push`** (or apply SQL in Dashboard); confirm `events.rsvp_capacity` column and function exist |
 | **My tickets** empty or **`mint_free_rsvp_ticket_for_registration`** missing after RSVP | Tickets migration not applied | Apply **`20260410142142_tickets_core_free_rsvp.sql`** / **`scripts/028_tickets_core_free_rsvp.sql`**; confirm `public.tickets` and RPC exist |
 | Organizer **cannot save** ticket types; or anon **cannot** load public tier list | Migration **`20260410144936_ticket_types_org_crud_and_mint_tier.sql`** / **`029`** not applied | Run **`supabase db push`**; confirm `ticket_types` columns + INSERT/UPDATE/DELETE policies + anon SELECT on published events |
+| **Paid** checkout succeeds in Stripe but **no ticket** / webhook logs show RPC error | Migration **`20260411120000_stripe_checkout_fulfillment.sql`** / **`030`** not applied, or **`SUPABASE_SERVICE_ROLE_KEY`** missing on server | Apply **`030`**; set service role in host env; confirm Stripe webhook URL **`/api/stripe/webhook`** and signing secret match **`STRIPE_WEBHOOK_SECRET`** |
+| **Buy ticket** disabled or “not configured” on event page | Missing **`STRIPE_SECRET_KEY`** or **`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`** | Copy from **`.env.example`**; restart Next.js |
 | **Admin → All Users**: no **Delete** / error says service role missing | **`SUPABASE_SERVICE_ROLE_KEY`** not loaded on the server | Set in `.env.local` per **`.env.example`**; never expose to the client; restart `npm run dev` |
 | **Delete user** fails (500 / FK / cannot delete from `auth.users`) | Public tables still reference **`auth.users`** with default **`NO ACTION`** (e.g. `events.created_by`, `org_invites`) | Apply **`supabase/migrations/20260410200000_auth_user_delete_foreign_keys.sql`** (`supabase db push` or run SQL on the project) |
 | **`git push`** rejected: **GH013** / **Required status check "main"** | Ruleset references a **check name that does not exist** (e.g. branch name mistaken for a check) or blocks all pushes | Set required checks to the real workflow job from **`.github/workflows/pr-ci.yml`**; see **`docs/development/BRANCHING.md`** (“Repository rulesets”) |

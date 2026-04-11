@@ -61,7 +61,7 @@ Aligned with **`docs/MVP_STATUS_ROADMAP.md`** / **`docs/VIBE_APP_SPECIFICATION.m
 | Priority | Focus | Done when |
 |----------|--------|-----------|
 | **C1** | **Events lifecycle** | Published feed, organizer create/edit, flyer storage, admin/staff review if that is in schema — all consistent with RLS. |
-| **C2** | **Ticketing v1** | Free RSVP (and data model for ticket types / attendance) as per spec Phase 3. |
+| **C2** | **Ticketing v1 (free)** | **Shipped:** free RSVP → **`tickets`** + **`/tickets`** wallet, tier editor for $0 types, optional caps — see **`docs/contracts/rsvps.md`**. **Next:** paid tiers (C3). |
 | **C3** | **Paid flow** | Stripe Checkout + webhooks, idempotent order handling (Phase 4). |
 | **C4** | **Door / check-in** | Staff or organizer check-in UX (Phase 5). |
 | **C5** | **Admin + polish** | Approval queues, metrics, mobile dashboard debt, loading states (Phase 6). |

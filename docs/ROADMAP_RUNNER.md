@@ -77,7 +77,7 @@ Goal
 - Members get a ticket wallet with signed QR codes; organizers check people in quickly on-site.
 
 Definition of Done (v1)
-A) Ticket wallet (member): `/dashboard/tickets` shows RSVPs as tickets with event details, tap-to-reveal QR, status (Confirmed / Checked in / Cancelled).
+A) Ticket wallet (member): **`/tickets`** (canonical; `/dashboard/tickets` alias) shows RSVP-backed tickets with event details, tap-to-reveal QR, status (Confirmed / Checked in / Cancelled).
 B) QR payload: signed HMAC token (not raw IDs); `POST /api/checkin/scan` verifies signature + event match and performs check-in.
 C) Organizer scanner: `/organizer/[slug]/events/[eventSlug]/check-in` — camera (best effort) + paste fallback; clear success/failure states; attendee display name when available.
 D) Permissions: RLS / app layer — staff_admin or org owner/admin for that event (existing `event_registrations` update policy + scan gate).
