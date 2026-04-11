@@ -19,7 +19,9 @@ export function EventStripeReturn({ eventPath }: { eventPath: string }) {
 
     if (sessionId) {
       handled.current = true
-      toast.success("Payment received. Your ticket will appear in My Tickets in a moment.")
+      toast.success(
+        "Payment received. Your ticket should appear in My Tickets shortly—refresh the page if it is not there yet.",
+      )
       router.replace(eventPath)
       router.refresh()
       return

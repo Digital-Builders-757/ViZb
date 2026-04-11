@@ -214,7 +214,7 @@ BEGIN
       RAISE EXCEPTION 'Could not allocate ticket_code';
     END IF;
 
-    new_code := encode(gen_random_bytes(8), 'hex');
+    new_code := encode(extensions.gen_random_bytes(8), 'hex');
 
     BEGIN
       INSERT INTO public.tickets (
@@ -294,7 +294,7 @@ BEGIN
         RAISE EXCEPTION 'Backfill: could not allocate ticket_code for registration %', r.reg_id;
       END IF;
 
-      new_code := encode(gen_random_bytes(8), 'hex');
+      new_code := encode(extensions.gen_random_bytes(8), 'hex');
 
       BEGIN
         INSERT INTO public.tickets (
