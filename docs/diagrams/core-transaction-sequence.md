@@ -15,7 +15,7 @@ This is **not** a substitute for **`docs/VIBE_APP_SPECIFICATION.md`** or **`scri
 | 1. Discover | Attendee | Browse **Manifest** (`/events`), filters *(as built)* | Terminal + Locks (read policies) |
 | 2. Detail | Attendee | Open event page; see flyer, time, ticket types *(as built)* | Manifest |
 | 3. Commit | Attendee | Free RSVP or paid checkout *(paid = roadmap)* | Staff (actions) + Ticketing (future) |
-| 4. Proof | Attendee | Ticket in **`/dashboard/tickets`**, show at door *(check-in roadmap)* | Terminal + Staff |
+| 4. Proof | Attendee | Ticket in **`/tickets`**, show at door *(check-in roadmap)* | Terminal + Staff |
 
 **Failure modes to design for:** sold out, auth required, RLS denial, payment canceled webhook *(later)*.
 

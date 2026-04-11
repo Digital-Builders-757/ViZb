@@ -29,3 +29,9 @@ Current `event_status` values (see `scripts/003_create_enums.sql` + `scripts/008
 - `scripts/022_add_event_archived.sql`
 - `scripts/023_lock_archived_events.sql`
 - `scripts/024_allow_staff_update_archived.sql` (fix: allow staff to update archived for unarchive/moderation)
+
+## RSVP capacity (optional)
+
+- Column **`events.rsvp_capacity`** (nullable integer): whole-event cap on confirmed/check-in RSVPs.
+- Applied via `scripts/026_event_rsvp_capacity.sql` / `supabase/migrations/20260410120000_event_rsvp_capacity.sql`.
+- Organizer create/edit validates the cap is not below current occupancy; public RSVP uses the occupancy RPC. See **`docs/contracts/rsvps.md`**.

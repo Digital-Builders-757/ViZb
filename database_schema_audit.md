@@ -1,6 +1,6 @@
 # Database schema audit — ViBE / ViZb
 
-**Last updated:** March 23, 2026
+**Last updated:** April 11, 2026
 
 ## Purpose
 
@@ -22,6 +22,10 @@ Scripts are applied in **numeric order** (see `docs/MVP_STATUS_ROADMAP.md` migra
 
 **Recent script (verify against your Supabase project):**
 
+- `20260410120000_event_rsvp_capacity.sql` — optional `events.rsvp_capacity`, `published_event_rsvp_occupied_count`, RSVP cap enforcement (mirror: `scripts/026_event_rsvp_capacity.sql`).
+- `20260410142142_tickets_core_free_rsvp.sql` — `ticket_types`, `orders`, `order_items`, `tickets`, `mint_free_rsvp_ticket_for_registration` (mirror: `scripts/028_tickets_core_free_rsvp.sql`).
+- `20260410144936_ticket_types_org_crud_and_mint_tier.sql` — tier capacity / sale window, org CRUD on `ticket_types`, mint RPC optional tier id (mirror: `scripts/029_ticket_types_org_crud_and_mint_tier.sql`).
+- `20260411120000_stripe_checkout_fulfillment.sql` — Stripe Checkout fulfillment RPC + unique `orders.stripe_checkout_session_id` (mirror: `scripts/030_stripe_checkout_fulfillment.sql`).
 - `20260407120000_event_saves.sql` (`supabase/migrations/`) — `event_saves` (per-user saved published events): RLS select/insert/delete own rows; unique `(user_id, event_id)`; indexes `(user_id, created_at DESC)` and `(event_id)`.
 - `019_staff_event_create_and_flyer_storage.sql` — `events_insert_staff` RLS; storage `event-flyers` INSERT/UPDATE also allows `staff_admin` (path still `org_id/event_id/...`).
 - `020_event_categories_array.sql` — replaces `events.category` with `events.categories TEXT[]` (validated set + GIN index).

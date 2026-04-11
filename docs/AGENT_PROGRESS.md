@@ -2,7 +2,7 @@
 
 Living progress + audit log for autonomous shipping work.
 
-Last updated: 2026-04-04
+Last updated: 2026-04-11
 
 ## Phase 1 — Truth + Stability (audit)
 
@@ -23,7 +23,7 @@ Last updated: 2026-04-04
 
 ### Risk/Gap scan (what matters most for launch)
 1) **Schema parity / drift risk:** strong likelihood across envs unless `scripts/*` are applied in order. We need a clearer “applied migrations” checklist + verification steps.
-2) **Ticketing / RSVP flow:** currently not represented as a first-class end-to-end flow (tables + CTA + wallet + organizer visibility).
+2) **Ticketing / RSVP flow:** free RSVP → **`tickets`** row + wallet at **`/tickets`** is shipped; paid Stripe path still open.
 3) Payments/Stripe readiness: likely absent or partial; should build clean seams even if keys aren’t available.
 4) Ops/check-in: absent; can be layered after RSVP.
 5) Polish: ongoing (mobile, nav, empty/loading states).
@@ -57,7 +57,7 @@ Last updated: 2026-04-04
   - DB migration: `scripts/025_create_event_registrations.sql`
   - Server actions: `app/actions/registrations.ts` (RSVP + cancel)
   - Public event detail CTA wired to RSVP (tickets still “coming soon”)
-  - Member wallet: `/dashboard/tickets` now lists RSVP’d events
+  - Member wallet: **`/tickets`** (canonical) lists ticket-backed passes; **`/dashboard/tickets`** alias retained
 - Next expansions:
   - ✅ Organizer visibility for registrations (basic rollup panel in organizer event detail)
   - ✅ Staff/admin visibility for registrations (new `/admin/events/[id]` detail view)
@@ -68,6 +68,9 @@ Last updated: 2026-04-04
 ---
 
 ## Changelog
+
+### 2026-04-11
+- Documentation pass: aligned **`docs/contracts/rsvps.md`**, journeys, roadmap migration map, smoke test, product status, diagrams, and walkthrough notes with the shipped **free RSVP + $0 tickets** model (`028` / `029` scripts + matching `supabase/migrations`).
 
 ### 2026-04-04
 - Started Phase 1 audit.

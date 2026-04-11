@@ -1,6 +1,6 @@
 # Role surfaces — ViBE UI map
 
-**Last updated:** March 23, 2026
+**Last updated:** April 11, 2026
 
 **Role-specific dashboards and entry points** (Terminal zone). Authoritative rules for roles and RLS remain in **`docs/VIBE_APP_SPECIFICATION.md`** and SQL — this doc is a **route map**.
 
@@ -10,7 +10,7 @@
 
 | Role | Who | Primary goals |
 |------|-----|----------------|
-| **Attendee** | Any signed-in user | Browse **Manifest**, RSVP/buy tickets *(ticketing roadmap)*, wallet, profile |
+| **Attendee** | Any signed-in user | Browse **Manifest**, free RSVP + **`/tickets`** wallet *(paid checkout roadmap)*, profile |
 | **Organizer** | Users with org membership | Manage org, create/edit events, door tools *(roadmap)* |
 | **Admin** | `role_admin` (platform) | Approve orgs/events, moderation, metrics |
 | **Host applicant** | User applying to host | Submit application; not yet full organizer |
@@ -23,7 +23,7 @@
 |---------|----------------|-------|
 | Marketing | `/` | Landing, waitlist, brand |
 | Manifest (public events) | `/events`, `/events/[slug]` | Discovery + detail |
-| Attendee hub | `/dashboard`, `/dashboard/tickets` | Post-login home, ticket wallet |
+| Attendee hub | `/dashboard`, **`/tickets`** (`/dashboard/tickets` alias) | Post-login home, ticket wallet |
 | Profile | `/profile` | Account / profile settings |
 | Organizer | `/organizer/new`, `/organizer/[slug]`, `/organizer/[slug]/events/*` | Org + event CRUD |
 | Host apply | `/host/apply` | Application flow |

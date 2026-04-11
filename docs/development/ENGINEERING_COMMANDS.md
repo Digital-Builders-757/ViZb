@@ -28,7 +28,8 @@
 
 ## Git merge policy (release boundary)
 
-- **Default branch for new work:** open PRs **into `develop`**, not **`main`**, unless it is a documented hotfix workflow.
+- **Default integration for new work:** open PRs **into `develop`**, never **`main`**, unless it is a **release** (`develop` → `main`) or a documented **hotfix** (`fix/*` off `main`, then backport to `develop`). The remote must expose **`develop`**; see `docs/development/BRANCHING.md` (“GitHub repository setup”).
+
 - **Integrate with merge commits:** `gh pr merge --merge` (or GitHub UI **Create a merge commit**). Do **not** squash-merge **into `main`** — see `docs/development/BRANCHING.md` (“Merge commits vs squash”).
 - **Release:** PR **`develop` → `main`** using **merge commit** only.
 

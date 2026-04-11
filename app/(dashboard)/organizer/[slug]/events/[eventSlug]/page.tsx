@@ -17,6 +17,10 @@ import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { EventAttendeesPanel } from "@/components/organizer/event-attendees-panel"
+import {
+  EventTicketTypesPanel,
+  type OrganizerTicketTypeRow,
+} from "@/components/organizer/event-ticket-types-panel"
 
 export default async function EventDetailPage({
   params,
@@ -80,6 +84,40 @@ export default async function EventDetailPage({
   const checkedIn = rsvpRows.filter((r) => r.status === "checked_in").length
   const cancelled = rsvpRows.filter((r) => r.status === "cancelled").length
   const total = rsvpRows.length
+
+  let ticketTypeRows: OrganizerTicketTypeRow[] = []
+  try {
+    const { data: ttData } = await supabase
+      .from("ticket_types")
+      .select(
+        "id, name, price_cents, sort_order, is_default_rsvp, capacity, sales_starts_at, sales_ends_at",
+      )
+      .eq("event_id", event.id)
+      .order("sort_order", { ascending: true })
+    ticketTypeRows = (ttData as OrganizerTicketTypeRow[]) ?? []
+  } catch {
+    ticketTypeRows = []
+  }
+
+  if (ticketTypeRows.length === 0) {
+    const { error: seedErr } = await supabase.from("ticket_types").insert({
+      event_id: event.id,
+      name: "RSVP",
+      price_cents: 0,
+      is_default_rsvp: true,
+      sort_order: 0,
+    })
+    if (!seedErr) {
+      const { data: ttAgain } = await supabase
+        .from("ticket_types")
+        .select(
+          "id, name, price_cents, sort_order, is_default_rsvp, capacity, sales_starts_at, sales_ends_at",
+        )
+        .eq("event_id", event.id)
+        .order("sort_order", { ascending: true })
+      ticketTypeRows = (ttAgain as OrganizerTicketTypeRow[]) ?? []
+    }
+  }
 
   // Parse starts_at / ends_at timestamps
   const startsAt = event.starts_at ? new Date(event.starts_at) : null
@@ -232,6 +270,13 @@ export default async function EventDetailPage({
           </div>
         </div>
       </div>
+
+      <EventTicketTypesPanel
+        orgSlug={slug}
+        eventId={event.id}
+        eventSlug={eventSlug}
+        types={ticketTypeRows}
+      />
 
       {/* Attendees */}
       <EventAttendeesPanel

@@ -4,7 +4,7 @@ This document is for operators enabling **Tickets v2** wallet passes on ViZb. Ap
 
 ## Feature flags (when buttons appear)
 
-On `/dashboard/tickets`, **Add to Apple Wallet** / **Add to Google Wallet** show only when the relevant env block is complete. If neither platform is configured, users see **coming soon**.
+On **`/tickets`** (or the **`/dashboard/tickets`** alias), **Add to Apple Wallet** / **Add to Google Wallet** show only when the relevant env block is complete. If neither platform is configured, users see **coming soon**.
 
 Shared requirement:
 

@@ -1,6 +1,6 @@
 # User journeys (Layer 3) — index
 
-**Last updated:** April 1, 2026
+**Last updated:** April 11, 2026
 
 Journeys describe **acceptance-level** behavior: what the user does and what they observe. Complement tests; do not replace them.
 
@@ -8,7 +8,7 @@ Journeys describe **acceptance-level** behavior: what the user does and what the
 |---------|------|--------|
 | Public discovery → member dashboard | `public_discovery_to_member.md` | MVP (in progress) |
 | Guest discovers event | `guest_discovers_event.md` | Stub |
-| Member RSVPs | `member_rsvps_to_event.md` | Roadmap (ticketing) |
+| Member RSVPs | `member_rsvps_to_event.md` | MVP (free RSVP + wallet) |
 | Member checks in | `member_checks_in.md` | Roadmap |
 | Member joins community | `member_joins_community.md` | Stub (signup/org/invite) |
 | Host creates event | `host_creates_event.md` | Stub |

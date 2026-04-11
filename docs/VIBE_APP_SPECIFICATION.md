@@ -873,11 +873,12 @@ Migrations should be executed sequentially. Existing migrations (001, 002) are p
 
 **Goal:** Events have ticket tiers. Attendees can RSVP to free events and receive tickets.
 
-- [ ] Run migration 007
-- [ ] Build ticket type management (organizer)
-- [ ] Implement free RSVP flow (instant ticket minting)
-- [ ] Build ticket wallet (`/tickets`)
-- [ ] Build individual ticket view (`/tickets/[id]`)
+- [x] Run ticketing migrations — `028_tickets_core_free_rsvp.sql` / `20260410142142_tickets_core_free_rsvp.sql` (+ `029` / `20260410144936_*` for tier editor); see `docs/database/MIGRATIONS.md`
+- [x] Build **free** ticket type management (organizer) — `app/actions/ticket-types.ts`, organizer event panel
+- [x] Implement free RSVP flow (instant ticket minting) — `app/actions/registrations.ts` + `mint_free_rsvp_ticket_for_registration`
+- [x] Build ticket wallet (`/tickets`; `/dashboard/tickets` alias)
+- [x] Build individual ticket view (`/tickets/[ticketId]`)
+- [ ] Paid tier management + checkout (Phase 4)
 
 ### Phase 4: Paid Tickets (Stripe)
 

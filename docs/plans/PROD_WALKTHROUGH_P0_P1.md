@@ -1,8 +1,10 @@
 # Production walkthrough punchlist — P0 / P1
 
 **Branch:** `docs/prod-walkthrough-p0p1`  
-**Last updated:** 2026-04-05  
+**Last updated:** 2026-04-11  
 **Scope:** Public, auth, member, organizer, and admin surfaces listed below.
+
+**Doc note (2026-04-11):** Items **#1** and **#2** below were true on the 2026-04-05 snapshot; current `develop` loads ticket-backed summaries via `loadMemberHomeRsvpSummary` (`lib/dashboard/member-home-data.ts`) and passes real counts to `StatCard`. Re-verify on staging before closing QA tickets.
 
 ---
 
@@ -21,7 +23,7 @@ This pass combined **static review of the current `main` implementation** (route
 | Public | `/events/[slug]` | Y | _Pending_ |
 | Auth | `/login` | Y | _Pending_ |
 | Member | `/dashboard` | Y | _Pending_ |
-| Member | `/dashboard/tickets` | Y | _Pending_ |
+| Member | **`/tickets`** (wallet; `/dashboard/tickets` alias) | Y | _Pending_ |
 | Organizer | `/organizer/[slug]` | Y | _Pending_ |
 | Organizer | `/organizer/[slug]/events/[eventSlug]` | Y | _Pending_ |
 | Admin | `/admin` | Y | _Pending_ |
@@ -38,12 +40,11 @@ This pass combined **static review of the current `main` implementation** (route
 
 | Field | Detail |
 |--------|--------|
-| **Severity** | **P0** |
+| **Severity** | **P0** *(historical — re-verify on staging)* |
 | **Route** | `/dashboard` |
-| **Repro steps** | 1) Sign in as a user who has at least one non-cancelled `event_registrations` row. 2) Open `/dashboard`. 3) Scroll to **Your Tickets**. |
-| **Expected** | A preview of upcoming RSVPs (or a deep link to `/dashboard/tickets` with accurate copy) consistent with `/dashboard/tickets`. |
-| **Actual (code)** | The page always renders the “No tickets yet” `EmptyStateCard` and never loads `event_registrations` (`app/(dashboard)/dashboard/page.tsx`). |
-| **Notes** | Fix tracked under member dashboard polish (connect home to the same RSVP source as `/dashboard/tickets`). |
+| **Status** | **Addressed in code:** `MemberHomeTicketsSection` now receives `loadMemberHomeRsvpSummary` data sourced from **`tickets`** + registration embed (same model as **`/tickets`**). |
+| **Repro steps** | 1) Sign in as a user with at least one active ticket. 2) Open `/dashboard`. 3) Scroll to **Your tickets**. |
+| **Expected** | Preview rows or accurate empty state; links to **`/tickets`**. |
 
 ---
 
@@ -51,12 +52,9 @@ This pass combined **static review of the current `main` implementation** (route
 
 | Field | Detail |
 |--------|--------|
-| **Severity** | **P1** |
+| **Severity** | **P1** *(historical — re-verify on staging)* |
 | **Route** | `/dashboard` |
-| **Repro steps** | 1) Sign in with active RSVPs and/or past check-ins. 2) Observe the three stat tiles under **Overview**. |
-| **Expected** | Ticket count reflects active RSVPs; “Events attended” reflects completed/checked-in history (or copy is changed to “Coming soon” if not implemented). |
-| **Actual (code)** | `StatCard` values for Tickets and Events are literals `0` (`app/(dashboard)/dashboard/page.tsx`). |
-| **Notes** | Misleading trust signal before launch; align numbers with queries or soften labels. |
+| **Status** | **Addressed in code:** `StatCard` uses `rsvp.upcomingCount` and `rsvp.attendedCount` from `loadMemberHomeRsvpSummary`. |
 
 ---
 
@@ -78,10 +76,10 @@ This pass combined **static review of the current `main` implementation** (route
 | Field | Detail |
 |--------|--------|
 | **Severity** | **P1** (ops) |
-| **Route** | `/dashboard/tickets` (error path), `/admin/events/[id]` (error path) |
-| **Repro steps** | 1) Point a preview environment at a project **without** `event_registrations`. 2) Open tickets or admin event detail. |
-| **Expected** | Error copy points operators to the **canonical migration path** (`supabase/migrations/*` and `supabase db push`), with `scripts/` as an optional mirror if your runbook still uses it. |
-| **Actual** | User-facing / inline copy cites `scripts/025_create_event_registrations.sql` only. |
+| **Route** | **`/tickets`** (error path), `/admin/events/[id]` (error path) |
+| **Repro steps** | 1) Point a preview environment at a project **without** `event_registrations` / **tickets** migrations. 2) Open wallet or admin event detail. |
+| **Expected** | Error copy points operators to **`supabase/migrations/*`** (and `supabase db push`), with `scripts/025_*`, `028_*`, `029_*` as mirrors per `docs/database/MIGRATIONS.md`. |
+| **Actual** | Most surfaces cite both `scripts/` and migration paths; spot-check any remaining **scripts-only** strings in UI. |
 | **Notes** | Reduces time-to-fix when staging diverges from local SQL files. |
 
 ---

@@ -1,8 +1,13 @@
+# ViZb integration: product work merges into `develop` first; `main` updates only via
+# release PRs `develop` → `main`. This workflow runs CI when:
+# - a PR targets `develop` (normal feature/fix integration), or
+# - a PR targets `main` (release or hotfix PRs), or
+# - commits land on `develop` (push after merge).
 name: PR CI
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [develop, main]
   push:
     branches: [develop]
 

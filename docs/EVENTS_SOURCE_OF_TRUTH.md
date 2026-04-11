@@ -1,6 +1,6 @@
 # Events source of truth — ViBE (Layer 1)
 
-**Last updated:** March 23, 2026
+**Last updated:** April 11, 2026
 
 Canonical **event lifecycle**, **ownership**, and **truth boundaries** for the product. Schema detail: **`docs/VIBE_APP_SPECIFICATION.md`** + **`scripts/*.sql`**. Domain contract: **`docs/contracts/events.md`**.
 
@@ -30,9 +30,10 @@ _Exact enum values and transitions: keep aligned with DB and **`docs/contracts/e
 
 ## 3. RSVP / tickets / check-in (truth)
 
-- **RSVP and ticket rows** are source of truth for attendance entitlement — not UI state alone.
-- **Check-in** mutates an auditable state (per future contract) — no “silent” overrides.
-- Paid flows: **`docs/contracts/rsvps.md`**, **`docs/contracts/checkins.md`**, spec payments sections.
+- **RSVP** is stored on **`event_registrations`**; **wallet / door code** for free attendees is **`tickets`** (minted $0 order). UI must not be the only source of truth.
+- Optional **whole-event RSVP cap:** `events.rsvp_capacity` + occupancy RPC — see **`docs/contracts/rsvps.md`**.
+- **Check-in** mutates registration (and surfaces in wallet); organizer/staff actions are server actions with path revalidation.
+- Paid flows (future): **`docs/contracts/rsvps.md`**, **`docs/contracts/checkins.md`**, spec payments sections.
 
 ---
 
