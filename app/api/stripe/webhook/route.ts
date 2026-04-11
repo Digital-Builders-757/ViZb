@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   const currency = (session.currency ?? "usd").toLowerCase()
   if (amount == null) {
     console.error("[stripe webhook] session without amount_total", session.id)
-    return new Response("ok", { status: 200 })
+    return new Response("Missing amount_total; retry later.", { status: 500 })
   }
 
   let admin: ReturnType<typeof createServiceRoleClient>
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     admin = createServiceRoleClient()
   } catch (err) {
     console.error("[stripe webhook] service role client unavailable", err)
-    return new Response("ok", { status: 200 })
+    return new Response("Service unavailable.", { status: 503 })
   }
 
   try {
@@ -74,6 +74,7 @@ export async function POST(request: Request) {
 
     if (rpcError) {
       console.error("[stripe webhook] fulfill_stripe_checkout_for_ticket failed", rpcError.message)
+      return new Response("Fulfillment failed.", { status: 500 })
     }
 
     const { data: evRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle()
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
     revalidatePath("/dashboard/tickets")
   } catch (err) {
     console.error("[stripe webhook] fulfillment error", err)
+    return new Response("Fulfillment error.", { status: 500 })
   }
 
   return new Response("ok", { status: 200 })
