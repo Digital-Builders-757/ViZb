@@ -11,8 +11,11 @@ import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { NeonButton } from "@/components/ui/neon-button"
+import { Suspense } from "react"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
+import { EventStripeReturn } from "@/components/events/event-stripe-return"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
 
 interface PublicEvent {
   id: string
@@ -65,8 +68,10 @@ export async function generateMetadata({
 
 export default async function PublicEventDetailPage({
   params,
+  searchParams: _searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams?: Promise<{ session_id?: string; checkout?: string }>
 }) {
   const { slug } = await params
   if (!isServerSupabaseConfigured()) {
@@ -128,7 +133,9 @@ export default async function PublicEventDetailPage({
   }
 
   type PublicFreeTier = { id: string; name: string }
+  type PublicPaidTier = { id: string; name: string; price_cents: number }
   let freeTicketTiers: PublicFreeTier[] = []
+  let paidTicketTiers: PublicPaidTier[] = []
   try {
     const { data: ttRows } = await supabase
       .from("ticket_types")
@@ -145,14 +152,24 @@ export default async function PublicEventDetailPage({
         sales_starts_at: string | null
         sales_ends_at: string | null
       }
-      if (pr.price_cents !== 0) continue
       if (pr.sales_starts_at && new Date(pr.sales_starts_at) > now) continue
       if (pr.sales_ends_at && new Date(pr.sales_ends_at) < now) continue
-      freeTicketTiers.push({ id: pr.id, name: pr.name })
+      const pc = typeof pr.price_cents === "number" ? pr.price_cents : Number(pr.price_cents)
+      if (!Number.isFinite(pc)) continue
+      if (pc === 0) {
+        freeTicketTiers.push({ id: pr.id, name: pr.name })
+      } else if (pc > 0) {
+        paidTicketTiers.push({ id: pr.id, name: pr.name, price_cents: pc })
+      }
     }
   } catch {
     freeTicketTiers = []
+    paidTicketTiers = []
   }
+
+  const stripeCheckoutEnabled =
+    Boolean(process.env.STRIPE_SECRET_KEY?.trim()) &&
+    Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim())
 
   const startsAt = new Date(event.starts_at)
   const endsAt = event.ends_at ? new Date(event.ends_at) : null
@@ -166,7 +183,25 @@ export default async function PublicEventDetailPage({
 
   let initialVibesSaved = false
 
+  let hasActiveTicket = false
+
   if (user) {
+    try {
+      const { data: ticketRows } = await supabase
+        .from("tickets")
+        .select("event_registrations!inner ( status )")
+        .eq("user_id", user.id)
+        .eq("event_id", event.id)
+
+      hasActiveTicket =
+        (ticketRows ?? []).some((row) => {
+          const st = registrationStatusFromJoin(row.event_registrations)
+          return st === "confirmed" || st === "checked_in"
+        }) ?? false
+    } catch {
+      hasActiveTicket = false
+    }
+
     try {
       const { data, error } = await supabase
         .from("event_registrations")
@@ -355,13 +390,21 @@ export default async function PublicEventDetailPage({
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
                       <Users className="w-4 h-4" />
-                      Free event
+                      {paidTicketTiers.length > 0 ? "Tickets & RSVP" : "RSVP"}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
                       <Ticket className="w-4 h-4" />
-                      Tickets coming soon
+                      {stripeCheckoutEnabled && paidTicketTiers.length > 0
+                        ? "Card checkout"
+                        : paidTicketTiers.length > 0
+                          ? "Configure Stripe"
+                          : "Free tier"}
                     </div>
                   </div>
+
+                  <Suspense fallback={null}>
+                    <EventStripeReturn eventPath={`/events/${event.slug}`} />
+                  </Suspense>
 
                   <div className="mt-4">
                     <MyVibesButton
@@ -375,7 +418,7 @@ export default async function PublicEventDetailPage({
                   </div>
 
                   <EventRsvpCta
-                    key={freeTicketTiers.map((t) => t.id).join("-")}
+                    key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
                     eventId={event.id}
                     isSignedIn={isSignedIn}
                     initialStatus={initialRsvpStatus}
@@ -383,10 +426,14 @@ export default async function PublicEventDetailPage({
                     rsvpCapacity={event.rsvp_capacity}
                     rsvpOccupied={rsvpOccupied}
                     freeTicketTiers={freeTicketTiers}
+                    paidTicketTiers={paidTicketTiers}
+                    stripeCheckoutEnabled={stripeCheckoutEnabled}
+                    hasActiveTicket={hasActiveTicket}
                   />
 
                   <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
-                    Free RSVP is live. Paid checkout will arrive in a later release.
+                    Free RSVP stays $0. Paid tiers use Stripe Checkout; canceling an RSVP does not refund card
+                    charges.
                   </p>
                 </GlassCard>
               </div>

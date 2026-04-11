@@ -27,7 +27,7 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 ### Member (login required)
 
 - `/dashboard` — member home (month calendar with per-day detail panel + trending + culture picks + tickets)
-- `/dashboard/tickets` — member tickets
+- **`/tickets`** — member ticket wallet ( **`/dashboard/tickets`** re-exports the same list)
 - `/profile`
 
 ### Admin (staff only)
@@ -68,7 +68,7 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 1) **Member lands on `/dashboard`**
    - Calendar + upcoming
    - Culture picks deep-link into `/events?category=...`
-   - Ticket state shown in `/dashboard/tickets`
+   - Ticket state shown on **`/tickets`** (home quick links use the canonical path)
 
 2) **Ticket purchase (future)**
    - Event detail CTA goes live

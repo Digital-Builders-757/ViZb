@@ -10,7 +10,7 @@ export function MemberHomeQuickActions() {
         Browse events
       </NeonLink>
       <NeonLink
-        href="/dashboard/tickets"
+        href="/tickets"
         variant="secondary"
         fullWidth
         className="sm:min-w-[min(100%,12rem)] sm:flex-1"

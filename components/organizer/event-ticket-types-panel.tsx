@@ -46,10 +46,12 @@ export function EventTicketTypesPanel({
 
   return (
     <div className="mt-6 form-card p-6 md:p-8">
-      <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-1">Free RSVP tiers</h2>
+      <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-1">Ticket tiers</h2>
       <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
-        Add named free tiers (e.g. General, Guest list) with optional per-tier caps and sale windows. Paid
-        pricing will use Stripe later—the public page only shows $0 tiers for RSVP.
+        Free tiers power RSVP ($0). Set a price in USD to sell a tier via Stripe Checkout (requires{" "}
+        <span className="font-mono text-xs">STRIPE_SECRET_KEY</span> and{" "}
+        <span className="font-mono text-xs">NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</span> on the server). The default
+        RSVP tier must stay free.
       </p>
 
       <div className="space-y-8">
@@ -64,14 +66,13 @@ export function EventTicketTypesPanel({
                 <span className="text-[10px] font-mono uppercase tracking-widest text-brand-cyan border border-brand-cyan/40 px-2 py-0.5 rounded">
                   Default RSVP
                 </span>
+              ) : t.price_cents > 0 ? (
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-200/90">Paid</span>
               ) : (
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                   Free tier
                 </span>
               )}
-              {t.price_cents > 0 ? (
-                <span className="text-[10px] font-mono text-amber-200/90">Paid — checkout not wired yet</span>
-              ) : null}
             </div>
 
             <form
@@ -103,6 +104,21 @@ export function EventTicketTypesPanel({
                   type="number"
                   step={1}
                   defaultValue={t.sort_order}
+                  className={fieldClass}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={labelClass}>
+                  Price (USD){t.is_default_rsvp ? " — default tier stays free" : ""}
+                </label>
+                <input
+                  name="price_usd"
+                  type="text"
+                  inputMode="decimal"
+                  disabled={t.is_default_rsvp}
+                  placeholder="0"
+                  defaultValue={t.is_default_rsvp ? "0" : (t.price_cents / 100).toFixed(2)}
                   className={fieldClass}
                 />
               </div>
@@ -182,7 +198,7 @@ export function EventTicketTypesPanel({
       </div>
 
       <div className="mt-10 pt-6 section-divider">
-        <h3 className={`${labelClass} text-brand-cyan mb-3`}>Add free tier</h3>
+        <h3 className={`${labelClass} text-brand-cyan mb-3`}>Add tier</h3>
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl"
           onSubmit={(e) => {
@@ -205,6 +221,18 @@ export function EventTicketTypesPanel({
           <div className="flex flex-col gap-1 md:col-span-2">
             <label className={labelClass}>Name</label>
             <input name="name" required placeholder="Guest list" className={fieldClass} />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className={labelClass}>Price USD (0 = free)</label>
+            <input
+              name="price_usd"
+              type="text"
+              inputMode="decimal"
+              placeholder="0"
+              defaultValue="0"
+              className={fieldClass}
+            />
           </div>
 
           <div className="flex flex-col gap-1">

@@ -16,7 +16,7 @@ Do **not** default to this in `/plan` — use **`airport-model.md`** + focused d
 | Manifest | `/events`, `/events/[slug]` |
 | Auth | `/login`, `/signup`, `/auth/callback`, `/auth/error`, `/auth/sign-up-success` |
 | Dashboard shell | `app/(dashboard)/layout.tsx` |
-| Attendee | `/dashboard`, `/dashboard/tickets`, `/profile` |
+| Attendee | `/dashboard`, **`/tickets`** ( `/dashboard/tickets` alias ), `/profile` |
 | Organizer | `/organizer/new`, `/organizer/[slug]`, `/organizer/[slug]/events/new`, `/organizer/[slug]/events/[eventSlug]` |
 | Host | `/host/apply` |
 | Admin | `/admin` |

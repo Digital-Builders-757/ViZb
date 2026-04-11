@@ -1,6 +1,6 @@
 # Domain contracts (Layer 2) — index
 
-**Last updated:** March 23, 2026
+**Last updated:** April 11, 2026
 
 Contracts define **invariants**, **owners** (routes + actions), **data touched**, **RLS expectations**, and **failure modes**. Until a contract is fully authored, **`docs/VIBE_APP_SPECIFICATION.md`** remains authoritative for schema and policies.
 
@@ -8,7 +8,7 @@ Contracts define **invariants**, **owners** (routes + actions), **data touched**
 |----------|------|--------|
 | Auth & session | `auth.md` | Stub — expand from spec §7 + callback/middleware |
 | Events | `events.md` | Stub — lifecycle, review, media |
-| RSVPs & orders | `rsvps.md` | Roadmap — free RSVP + paid orders |
+| RSVPs & orders | `rsvps.md` | MVP — free RSVP + Stripe paid checkout (webhook mint) |
 | Check-in | `checkins.md` | Roadmap — door / scanner |
 | Member profiles | `member_profiles.md` | Stub — trigger, `profiles` table |
 | Community posts / public feed posts | `community_posts.md` | MVP (Supabase schema + RLS required; see `docs/plans/POSTS_MVP.md`) |

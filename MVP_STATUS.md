@@ -1,6 +1,6 @@
 # MVP status — ViBE (at a glance)
 
-**Last updated:** March 23, 2026
+**Last updated:** April 11, 2026
 
 | | |
 |--|--|

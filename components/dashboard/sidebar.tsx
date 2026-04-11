@@ -34,7 +34,7 @@ const attendeeLinks = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/events", label: "Explore Events", icon: Compass },
   { href: "/profile", label: "Profile", icon: User },
-  { href: "/dashboard/tickets", label: "My Tickets", icon: Calendar },
+  { href: "/tickets", label: "My Tickets", icon: Calendar },
 ]
 
 export function DashboardSidebar({ profile, organizations = [], notifications }: SidebarProps) {

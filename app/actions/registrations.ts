@@ -64,6 +64,7 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
     }
 
     revalidatePath("/dashboard/tickets")
+    revalidatePath("/tickets")
     revalidatePath("/events")
     return { success: true }
   }
@@ -126,6 +127,7 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
   }
 
   revalidatePath("/dashboard/tickets")
+  revalidatePath("/tickets")
   revalidatePath("/events")
   if (eventMeta.slug) revalidatePath(`/events/${eventMeta.slug}`)
   return { success: true }
@@ -152,6 +154,7 @@ export async function cancelRsvp(eventId: string) {
 
   if (!existing || existing.status === "cancelled") {
     revalidatePath("/dashboard/tickets")
+    revalidatePath("/tickets")
     revalidatePath("/events")
     const { data: ev } = await supabase.from("events").select("slug").eq("id", eventId).maybeSingle()
     if (ev?.slug) revalidatePath(`/events/${ev.slug}`)
@@ -175,6 +178,7 @@ export async function cancelRsvp(eventId: string) {
   }
 
   revalidatePath("/dashboard/tickets")
+  revalidatePath("/tickets")
   revalidatePath("/events")
   const { data: ev } = await supabase.from("events").select("slug").eq("id", eventId).maybeSingle()
   if (ev?.slug) revalidatePath(`/events/${ev.slug}`)

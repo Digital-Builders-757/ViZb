@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto"
 
 /**
  * Default signed ticket lifetime. After this, the QR is invalid until the member reloads
- * `/dashboard/tickets` (new `exp` is minted server-side).
+ * `/tickets` or `/dashboard/tickets` (new `exp` is minted server-side).
  *
  * 30 days balances usability with revocation windows; adjust only with care.
  */

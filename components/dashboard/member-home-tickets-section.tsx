@@ -69,7 +69,7 @@ export function MemberHomeTicketsSection({
       {!loadError && upcomingPreviews.length > 0 ? (
         <div className="mt-6 space-y-3">
           {upcomingPreviews.map((row) => (
-            <Link key={row.registrationKey} href={`/dashboard/tickets/${row.ticketId}`} className="block min-w-0">
+            <Link key={row.registrationKey} href={`/tickets/${row.ticketId}`} className="block min-w-0">
               <GlassCard className="p-4 transition-colors hover:border-[color:var(--neon-text2)]/30">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
@@ -93,13 +93,13 @@ export function MemberHomeTicketsSection({
 
           {upcomingCount > upcomingPreviews.length ? (
             <div className="pt-1">
-              <NeonLink href="/dashboard/tickets" variant="secondary" shape="xl" className="w-full sm:w-auto">
+              <NeonLink href="/tickets" variant="secondary" shape="xl" className="w-full sm:w-auto">
                 View all {upcomingCount} on My Tickets
               </NeonLink>
             </div>
           ) : (
             <div className="pt-1">
-              <NeonLink href="/dashboard/tickets" variant="secondary" shape="xl" className="w-full sm:w-auto">
+              <NeonLink href="/tickets" variant="secondary" shape="xl" className="w-full sm:w-auto">
                 Open My Tickets
               </NeonLink>
             </div>
