@@ -100,7 +100,9 @@
 
 **Still outstanding for Phase 4+:** Stripe Tax / partial refunds automation; Connect payouts; dedicated door UI polish (Phase 5)
 
-**Shipped (Phase 4 slice — April 2026):** `createTicketCheckoutSession` (`app/actions/ticket-checkout.ts`), `POST /api/stripe/webhook`, `fulfill_stripe_checkout_for_ticket` RPC (`20260411120000_stripe_checkout_fulfillment.sql` / `scripts/030_stripe_checkout_fulfillment.sql`), paid tier pricing in organizer panel, public **Buy ticket** on `/events/[slug]`.
+**Shipped (Phase 4 slice — April 2026):** `createTicketCheckoutSession` (`app/actions/ticket-checkout.ts`), `POST /api/stripe/webhook` (returns **500/503** on fulfillment / config failure so Stripe retries; **200** only on success or benign skips), `fulfill_stripe_checkout_for_ticket` RPC (`20260411120000_stripe_checkout_fulfillment.sql` / `scripts/030_stripe_checkout_fulfillment.sql`), paid tier pricing in organizer panel, public **Buy ticket** on `/events/[slug]`. **P0 next:** staging/prod checkout smoke test + watch Stripe webhook deliveries after deploy.
+
+**DB hygiene (April 2026):** Migration `20260410120500_enable_pgcrypto.sql` ensures `pgcrypto`; ticket SQL uses `extensions.gen_random_bytes(8)` so `supabase db push` works when `search_path` omits `extensions`. Out-of-order remote history: `supabase db push --include-all`.
 
 ### Authentication System (Phase 1 -- Complete)
 
