@@ -29,6 +29,9 @@ env.local
 # Cursor — commit .cursor/commands/ and .cursor/rules/; keep MCP local (secrets)
 .cursor/mcp.json
 
+# Ephemeral bodies from local /ship or agent runs (do not commit)
+.cursor-tmp*.txt
+
 # vercel
 .vercel
 
