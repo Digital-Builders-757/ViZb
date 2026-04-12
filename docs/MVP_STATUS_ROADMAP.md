@@ -210,7 +210,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 **Expected known failures (not regressions):**
 - Mobile dashboard navigation does not work (sidebar is desktop-only, fixed `w-64`). This is tracked in tech debt for Phase 6.
 - No loading skeletons -- pages may flash while server components load. Tracked for Phase 6.
-- Wallet pass issuance requires operator setup (Apple Pass Type ID + Google issuer); without env, dashboard shows “coming soon” for wallet buttons.
+- Wallet pass issuance requires operator setup (Apple Pass Type ID + Google issuer); without env, dashboard explains that passes are not enabled (no teaser copy).
 
 > **Note:** This manual checklist still covers full product flows. **GitHub PR CI** (`.github/workflows/pr-ci.yml`) runs Vitest, lint, build, and **Playwright** auth UX tests (`tests/e2e/auth-errors.spec.ts`, mocked Supabase). Keep running this checklist after migration batches either way.
 
@@ -325,6 +325,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] Apple Wallet `.pkpass` route (Node + `passkit-generator`) — `app/api/tickets/pass/apple/route.ts`
 - [x] Google Wallet “save” redirect + `format=json` — `app/api/tickets/pass/google/route.ts`
 - [x] Dashboard wallet buttons — `components/dashboard/tickets/ticket-wallet-actions.tsx`
+- [x] **Attendee UX (April 2026)** — RSVP + paid checkout land in **My Tickets**: success dialog (`components/events/ticket-added-success-dialog.tsx`) with calendar actions; `rsvpToEvent` returns minted `ticketId`; Stripe return shares the same dialog; wallet list / member home copy clarifies destination and constraints; wallet cards use honest check-in QR + wallet-pass unavailable messaging
 - [x] Operator doc — `docs/operations/WALLET_PASSES_SETUP.md`
 - [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
 - [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
