@@ -184,22 +184,25 @@ export default async function PublicEventDetailPage({
   let initialVibesSaved = false
 
   let hasActiveTicket = false
+  let initialTicketId: string | null = null
 
   if (user) {
     try {
       const { data: ticketRows } = await supabase
         .from("tickets")
-        .select("event_registrations!inner ( status )")
+        .select("id, event_registrations!inner ( status )")
         .eq("user_id", user.id)
         .eq("event_id", event.id)
 
-      hasActiveTicket =
-        (ticketRows ?? []).some((row) => {
-          const st = registrationStatusFromJoin(row.event_registrations)
-          return st === "confirmed" || st === "checked_in"
-        }) ?? false
+      const activeRows = (ticketRows ?? []).filter((row) => {
+        const st = registrationStatusFromJoin(row.event_registrations)
+        return st === "confirmed" || st === "checked_in"
+      })
+      hasActiveTicket = activeRows.length > 0
+      initialTicketId = activeRows[0]?.id ?? null
     } catch {
       hasActiveTicket = false
+      initialTicketId = null
     }
 
     try {
@@ -233,6 +236,9 @@ export default async function PublicEventDetailPage({
   }
 
   const authHref = `/login?redirect=${encodeURIComponent(`/events/${event.slug}`)}`
+
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
+  const eventPublicUrl = siteBase ? `${siteBase}/events/${event.slug}` : `/events/${event.slug}`
 
   const dateStr = startsAt.toLocaleDateString("en-US", {
     weekday: "long",
@@ -403,7 +409,14 @@ export default async function PublicEventDetailPage({
                   </div>
 
                   <Suspense fallback={null}>
-                    <EventStripeReturn eventPath={`/events/${event.slug}`} />
+                    <EventStripeReturn
+                      eventPath={`/events/${event.slug}`}
+                      eventTitle={event.title}
+                      startsAt={event.starts_at}
+                      venueName={event.venue_name}
+                      city={event.city}
+                      eventPublicUrl={eventPublicUrl}
+                    />
                   </Suspense>
 
                   <div className="mt-4">
@@ -429,6 +442,12 @@ export default async function PublicEventDetailPage({
                     paidTicketTiers={paidTicketTiers}
                     stripeCheckoutEnabled={stripeCheckoutEnabled}
                     hasActiveTicket={hasActiveTicket}
+                    initialTicketId={initialTicketId}
+                    eventTitle={event.title}
+                    startsAt={event.starts_at}
+                    venueName={event.venue_name}
+                    city={event.city}
+                    eventPublicUrl={eventPublicUrl}
                   />
 
                   <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">

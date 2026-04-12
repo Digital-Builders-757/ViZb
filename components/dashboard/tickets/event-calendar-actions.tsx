@@ -7,7 +7,7 @@ function toGoogleCalendarUtc(d: Date) {
   return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z")
 }
 
-function buildGoogleCalendarUrl(opts: {
+export function buildGoogleCalendarUrl(opts: {
   title: string
   start: Date
   end: Date
@@ -29,7 +29,7 @@ function icsEscape(value: string) {
   return value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/;/g, "\\;").replace(/,/g, "\\,")
 }
 
-function buildIcsContent(opts: {
+export function buildIcsContent(opts: {
   title: string
   start: Date
   end: Date
@@ -56,6 +56,17 @@ function buildIcsContent(opts: {
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n")
+}
+
+/** Trigger a browser download for a pre-built .ics payload (shared by wallet + RSVP success). */
+export function downloadIcsBlob(suggestedTitle: string, icsContent: string) {
+  const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `${suggestedTitle.slice(0, 60).replace(/[^\w\s-]/g, "") || "event"}.ics`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 export function EventCalendarActions({
@@ -96,13 +107,7 @@ export function EventCalendarActions({
       location,
       description: details,
     })
-    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${title.slice(0, 60).replace(/[^\w\s-]/g, "") || "event"}.ics`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadIcsBlob(title, ics)
   }
 
   return (

@@ -20,15 +20,25 @@ async function mintFreeRsvpTicketRow(
   supabase: SupabaseClient,
   registrationId: string,
   ticketTypeId?: string | null,
-) {
+): Promise<{ ticketId: string | null } | { error: string }> {
   const payload: { p_registration_id: string; p_ticket_type_id?: string } = {
     p_registration_id: registrationId,
   }
   if (ticketTypeId) payload.p_ticket_type_id = ticketTypeId
 
-  const { error } = await supabase.rpc("mint_free_rsvp_ticket_for_registration", payload)
+  const { data, error } = await supabase.rpc("mint_free_rsvp_ticket_for_registration", payload)
   if (error) return { error: `Could not issue ticket: ${error.message}` }
-  return {}
+
+  let ticketId: string | null = typeof data === "string" ? data : null
+  if (!ticketId) {
+    const { data: row } = await supabase
+      .from("tickets")
+      .select("id")
+      .eq("event_registration_id", registrationId)
+      .maybeSingle()
+    ticketId = row?.id ?? null
+  }
+  return { ticketId }
 }
 
 export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null) {
@@ -58,15 +68,17 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
       .eq("user_id", user.id)
       .maybeSingle()
 
+    let ticketId: string | null = null
     if (regRow?.id) {
       const minted = await mintFreeRsvpTicketRow(supabase, regRow.id, ticketTypeId ?? null)
-      if (minted.error) return { error: minted.error }
+      if ("error" in minted) return { error: minted.error }
+      ticketId = minted.ticketId
     }
 
     revalidatePath("/dashboard/tickets")
     revalidatePath("/tickets")
     revalidatePath("/events")
-    return { success: true }
+    return { success: true, ticketId }
   }
 
   const { data: eventMeta, error: metaErr } = await supabase
@@ -121,16 +133,18 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
     return { error: `Failed to RSVP: ${error.message}` }
   }
 
+  let ticketId: string | null = null
   if (upserted?.id) {
     const minted = await mintFreeRsvpTicketRow(supabase, upserted.id, ticketTypeId ?? null)
-    if (minted.error) return { error: minted.error }
+    if ("error" in minted) return { error: minted.error }
+    ticketId = minted.ticketId
   }
 
   revalidatePath("/dashboard/tickets")
   revalidatePath("/tickets")
   revalidatePath("/events")
   if (eventMeta.slug) revalidatePath(`/events/${eventMeta.slug}`)
-  return { success: true }
+  return { success: true, ticketId }
 }
 
 export async function cancelRsvp(eventId: string) {

@@ -168,11 +168,14 @@ export default async function TicketsPage() {
   return (
     <div className="min-w-0 space-y-8 md:space-y-10">
       <header className="min-w-0">
-        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Wallet</span>
-        <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">My tickets</h1>
+        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+          After you RSVP or buy
+        </span>
+        <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">My Tickets</h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Free RSVPs are issued as $0 tickets with a code for your records. Add events to your calendar so you
-          don&apos;t miss a show.
+          Every confirmed RSVP and completed purchase lands here. You get a ticket code for your records; door
+          check-in may offer a separate QR when the venue turns it on. Add events to your calendar from each
+          ticket if you want a reminder—optional.
         </p>
       </header>
 
@@ -191,8 +194,8 @@ export default async function TicketsPage() {
       {parsed.length === 0 && !loadError ? (
         <EmptyStateCard
           kicker="No tickets yet"
-          title="Nothing in your wallet"
-          description="RSVP to a published event and a free ticket will show up here with date, venue, and calendar actions."
+          title="RSVP or buy on an event page"
+          description="Open any published event, RSVP free or complete checkout for a paid tier, and your ticket will show up here with date, venue, and calendar actions."
         >
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
             <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
@@ -202,7 +205,7 @@ export default async function TicketsPage() {
               href="/events"
               className="text-center text-sm text-[color:var(--neon-text2)] underline-offset-4 hover:text-[color:var(--neon-a)] hover:underline sm:text-left"
             >
-              Go to /events
+              See all events
             </Link>
           </div>
         </EmptyStateCard>
@@ -212,7 +215,7 @@ export default async function TicketsPage() {
         <div className="min-w-0 space-y-10">
           <TicketSection
             title="Upcoming"
-            subtitle="Events on your calendar from today forward."
+            subtitle="Events you’re going to that haven’t started yet (including any without a firm start time)."
             rows={[...upcoming, ...undated]}
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}
@@ -224,7 +227,7 @@ export default async function TicketsPage() {
 
           <TicketSection
             title="Past"
-            subtitle="Earlier tickets for your records."
+            subtitle="Archive of tickets from events that already happened."
             rows={past}
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}

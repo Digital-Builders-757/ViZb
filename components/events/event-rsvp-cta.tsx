@@ -8,6 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button"
 import { cancelRsvp, rsvpToEvent } from "@/app/actions/registrations"
 import { createTicketCheckoutSession } from "@/app/actions/ticket-checkout"
 import { formatUsdFromCents } from "@/lib/money/usd"
+import { TicketAddedSuccessDialog } from "@/components/events/ticket-added-success-dialog"
 
 export type PublicPaidTier = { id: string; name: string; price_cents: number }
 
@@ -22,6 +23,12 @@ export function EventRsvpCta({
   paidTicketTiers = [],
   stripeCheckoutEnabled = false,
   hasActiveTicket = false,
+  initialTicketId = null,
+  eventTitle,
+  startsAt,
+  venueName,
+  city,
+  eventPublicUrl,
 }: {
   eventId: string
   isSignedIn: boolean
@@ -39,6 +46,14 @@ export function EventRsvpCta({
   stripeCheckoutEnabled?: boolean
   /** User already has a confirmed/checked-in ticket for this event. */
   hasActiveTicket?: boolean
+  /** First active ticket id for this event (confirmed / checked-in registration). */
+  initialTicketId?: string | null
+  eventTitle: string
+  startsAt: string
+  venueName: string
+  city: string
+  /** Public URL for this event page (absolute when NEXT_PUBLIC_SITE_URL is set). */
+  eventPublicUrl: string
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -46,6 +61,8 @@ export function EventRsvpCta({
   const [occupied, setOccupied] = useState(rsvpOccupied)
   const [selectedTierId, setSelectedTierId] = useState(freeTicketTiers[0]?.id ?? "")
   const [selectedPaidTierId, setSelectedPaidTierId] = useState(paidTicketTiers[0]?.id ?? "")
+  const [successOpen, setSuccessOpen] = useState(false)
+  const [successTicketId, setSuccessTicketId] = useState<string | null>(null)
 
   const isConfirmed = status === "confirmed" || status === "checked_in"
   const isFull =
@@ -56,6 +73,11 @@ export function EventRsvpCta({
       : occupied > 0
         ? `${occupied} RSVP${occupied === 1 ? "" : "s"}`
         : null
+
+  const resolvedTicketId = successTicketId ?? initialTicketId
+  const openTicketHref = resolvedTicketId ? `/tickets/${resolvedTicketId}` : "/tickets"
+  const openTicketLabel = resolvedTicketId ? "Open My Ticket" : "Open My Tickets"
+  const showTicketAccess = isSignedIn && (hasActiveTicket || isConfirmed)
 
   function tierArgForRsvp(): string | null {
     if (freeTicketTiers.length === 0) return null
@@ -79,14 +101,12 @@ export function EventRsvpCta({
           You’ll need an account to RSVP or buy tickets.
         </p>
       ) : null}
-      {hasActiveTicket ? (
-        <p className="mb-3 text-sm text-[color:var(--neon-text1)]">
-          You already have a ticket for this event. Open{" "}
-          <Link href="/tickets" className="text-[color:var(--neon-a)] underline underline-offset-2">
-            My Tickets
-          </Link>{" "}
-          for your pass.
-        </p>
+      {isSignedIn && (hasActiveTicket || isConfirmed) ? (
+        <div className="mb-3">
+          <span className="inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
+            {hasActiveTicket ? "Added to My Tickets" : "RSVP saved"}
+          </span>
+        </div>
       ) : null}
       {isFull ? (
         <p className="mb-3 text-sm text-[color:var(--neon-text1)]">This event is at capacity for RSVPs.</p>
@@ -202,60 +222,92 @@ export function EventRsvpCta({
           </NeonButton>
         ) : null}
 
-        <NeonButton
-          fullWidth
-          variant={isConfirmed ? "primary" : "secondary"}
-          shape="xl"
-          disabled={isPending || isFull || hasActiveTicket}
-          onClick={() => {
-            if (!isSignedIn) {
-              window.location.href = authHref
-              return
-            }
+        {showTicketAccess ? (
+          <div className="flex flex-col gap-2">
+            <NeonButton asChild fullWidth shape="xl">
+              <Link href={openTicketHref}>{openTicketLabel}</Link>
+            </NeonButton>
+            {isConfirmed ? (
+              <NeonButton
+                type="button"
+                fullWidth
+                variant="ghost"
+                shape="xl"
+                disabled={isPending}
+                onClick={() => {
+                  startTransition(async () => {
+                    const result = await cancelRsvp(eventId)
+                    if (result?.error) {
+                      toast.error(result.error)
+                      return
+                    }
+                    toast.success("RSVP cancelled.")
+                    setStatus("cancelled")
+                    setSuccessTicketId(null)
+                    setOccupied((n) => Math.max(0, n - 1))
+                    router.refresh()
+                  })
+                }}
+              >
+                Cancel RSVP
+              </NeonButton>
+            ) : null}
+          </div>
+        ) : (
+          <NeonButton
+            fullWidth
+            variant="secondary"
+            shape="xl"
+            disabled={isPending || isFull || hasActiveTicket}
+            onClick={() => {
+              if (!isSignedIn) {
+                window.location.href = authHref
+                return
+              }
 
-            startTransition(async () => {
-              if (isConfirmed) {
-                const result = await cancelRsvp(eventId)
+              startTransition(async () => {
+                const result = await rsvpToEvent(eventId, tierArgForRsvp())
                 if (result?.error) {
                   toast.error(result.error)
                   return
                 }
-                toast.success("RSVP cancelled.")
-                setStatus("cancelled")
-                setOccupied((n) => Math.max(0, n - 1))
-                router.refresh()
-                return
-              }
-
-              const result = await rsvpToEvent(eventId, tierArgForRsvp())
-              if (result?.error) {
-                toast.error(result.error)
-                return
-              }
-
-              toast.success("You're on the list.")
-              setStatus("confirmed")
-              setOccupied((n) => n + 1)
-              router.refresh()
-            })
-          }}
-        >
-          {!isSignedIn
-            ? "Sign in to RSVP"
-            : hasActiveTicket
-              ? "RSVP"
-              : isFull
-                ? "RSVP full"
-                : isConfirmed
-                  ? "Cancel RSVP"
+                if (result && "success" in result && result.success) {
+                  setSuccessTicketId(result.ticketId)
+                  setSuccessOpen(true)
+                  setStatus("confirmed")
+                  setOccupied((n) => n + 1)
+                  router.refresh()
+                }
+              })
+            }}
+          >
+            {!isSignedIn
+              ? "Sign in to RSVP"
+              : hasActiveTicket
+                ? "RSVP"
+                : isFull
+                  ? "RSVP full"
                   : "RSVP free"}
-        </NeonButton>
+          </NeonButton>
+        )}
       </div>
       {hasActiveTicket ? (
         <p className="mt-2 text-[11px] text-[color:var(--neon-text2)]">
           Canceling RSVP does not refund card purchases — contact the organizer for help.
         </p>
       ) : null}
+
+      <TicketAddedSuccessDialog
+        open={successOpen}
+        onOpenChange={setSuccessOpen}
+        ticketId={successTicketId ?? initialTicketId}
+        eventTitle={eventTitle}
+        startsAt={startsAt}
+        venueName={venueName}
+        city={city}
+        eventUrl={eventPublicUrl}
+        variant="rsvp"
+      />
     </div>
   )
 }

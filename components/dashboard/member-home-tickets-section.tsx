@@ -29,16 +29,16 @@ export function MemberHomeTicketsSection({
   return (
     <section aria-labelledby="tickets-heading">
       <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-        Upcoming
+        My Tickets
       </span>
       <h2
         id="tickets-heading"
         className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)]"
       >
-        Your tickets
+        Upcoming
       </h2>
       <p className="mt-1 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
-        RSVPs and check-ins for events that have not ended yet.
+        RSVPs, purchases, and check-ins for events that have not ended yet—the same list you see on My Tickets.
       </p>
 
       {loadError ? (
@@ -57,8 +57,8 @@ export function MemberHomeTicketsSection({
         <EmptyStateCard
           className="mt-6"
           kicker="No upcoming tickets"
-          title="Browse what is live"
-          description="When you RSVP to published events, they will show up here and on My Tickets."
+          title="RSVP or buy on an event page"
+          description="Pick a published event, RSVP free or finish paid checkout, and it will show here and on My Tickets."
         >
           <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
             Browse events
@@ -84,7 +84,7 @@ export function MemberHomeTicketsSection({
                     </p>
                   </div>
                   <span className="shrink-0 border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
-                    {row.status === "checked_in" ? "Checked in" : "RSVP"}
+                    {row.status === "checked_in" ? "Checked in" : "Confirmed"}
                   </span>
                 </div>
               </GlassCard>
