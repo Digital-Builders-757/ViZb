@@ -14,8 +14,9 @@ export function TicketWalletPassActions({
 
   if (!appleEnabled && !googleEnabled) {
     return (
-      <p className="mt-3 text-xs text-[color:var(--neon-text2)]">
-        Add to Apple Wallet / Google Wallet: <span className="text-[color:var(--neon-text1)]">coming soon</span>
+      <p className="mt-3 text-xs leading-relaxed text-[color:var(--neon-text2)]">
+        Apple Wallet and Google Wallet passes are not enabled here. Your deploy needs the Apple and Google wallet
+        environment variables (and ticket barcode secret) configured on the server.
       </p>
     )
   }

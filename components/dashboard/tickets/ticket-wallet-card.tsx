@@ -3,6 +3,7 @@ import { EventCalendarActions } from "@/components/dashboard/tickets/event-calen
 import { TicketWalletPassActions } from "@/components/dashboard/tickets/ticket-wallet-actions"
 import { TicketQrReveal } from "@/components/dashboard/tickets/ticket-qr-reveal"
 import { GlassCard } from "@/components/ui/glass-card"
+import { NeonLink } from "@/components/ui/neon-link"
 
 export type TicketWalletEvent = {
   title: string
@@ -104,7 +105,7 @@ export function TicketWalletCard({
           </div>
 
           <p className="mt-2 text-[10px] font-mono text-[color:var(--neon-text2)]">
-            RSVP saved{" "}
+            Ticket issued{" "}
             {new Date(createdAt).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -114,12 +115,11 @@ export function TicketWalletCard({
           <p className="mt-2 text-[11px] font-mono tracking-wider text-[color:var(--neon-text1)]">
             Code <span className="select-all text-[color:var(--neon-text0)]">{ticketCode}</span>
           </p>
-          <Link
-            href={`/tickets/${ticketId}`}
-            className="mt-2 inline-block text-xs font-medium text-[color:var(--neon-a)] underline-offset-4 hover:underline"
-          >
-            View full ticket
-          </Link>
+          <div className="mt-3 w-full max-w-sm">
+            <NeonLink href={`/tickets/${ticketId}`} fullWidth shape="xl" variant="secondary">
+              Ticket details
+            </NeonLink>
+          </div>
         </div>
       </div>
 
@@ -131,16 +131,17 @@ export function TicketWalletCard({
             )
           : status === "confirmed" || status === "checked_in"
             ? (
-                <p className="mt-4 text-[11px] font-mono text-[color:var(--neon-text2)]">
+                <p className="mt-4 text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
                   {!ticketSigningConfigured ? (
                     <>
-                      Door check-in code unavailable — set{" "}
-                      <span className="text-[color:var(--neon-text1)]">TICKET_QR_SECRET</span> on the server.
+                      Check-in QR is not available in this environment. To enable it, configure{" "}
+                      <span className="font-mono text-[color:var(--neon-text1)]">TICKET_QR_SECRET</span> on the
+                      server.
                     </>
                   ) : !ticketQrEligible ? (
                     <>
-                      Door check-in code is only shown around the event. If you still need help at the door, contact
-                      the organizer — you can share your RSVP confirmation from email.
+                      Check-in QR appears closer to the event. At the door, show this ticket or contact the organizer
+                      if you need help.
                     </>
                   ) : null}
                 </p>
@@ -148,13 +149,15 @@ export function TicketWalletCard({
             : null}
 
       {dateValid ? (
-        <EventCalendarActions
-          title={e.title}
-          startsAt={e.starts_at}
-          venueName={e.venue_name}
-          city={e.city}
-          eventUrl={eventAbsoluteUrl}
-        />
+        <div className="min-w-0">
+          <EventCalendarActions
+            title={e.title}
+            startsAt={e.starts_at}
+            venueName={e.venue_name}
+            city={e.city}
+            eventUrl={eventAbsoluteUrl}
+          />
+        </div>
       ) : null}
 
       <TicketWalletPassActions
