@@ -5,6 +5,7 @@
  * 1. submitEventForReview: event existence, status, flyer, membership
  * 2. uploadEventFlyer: status gate (only draft/pending)
  */
+import { EVENT_FLYER_MAX_BYTES, EVENT_FLYER_TOO_LARGE_MESSAGE } from "@/lib/events/flyer-upload-constraints"
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest"
 
 // --- Mocks ---
@@ -202,13 +203,13 @@ describe("uploadEventFlyer", () => {
   })
 
   it("returns error if file exceeds 5MB", async () => {
-    const bigBuffer = new ArrayBuffer(6 * 1024 * 1024)
+    const bigBuffer = new ArrayBuffer(EVENT_FLYER_MAX_BYTES + 1)
     const formData = new FormData()
     formData.set("event_id", "evt-1")
     formData.set("flyer", new File([bigBuffer], "huge.jpg", { type: "image/jpeg" }))
 
     const result = await uploadEventFlyer(formData)
-    expect(result.error).toBe("File too large. Maximum size is 5MB.")
+    expect(result.error).toBe(EVENT_FLYER_TOO_LARGE_MESSAGE)
   })
 
   it("returns error if event is already published", async () => {
