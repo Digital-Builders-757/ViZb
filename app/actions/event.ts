@@ -5,6 +5,12 @@ import { slugify } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { parseCategoriesFromFormData } from "@/lib/events/categories"
+import {
+  EVENT_FLYER_ALLOWED_MIME_TYPES,
+  EVENT_FLYER_INVALID_TYPE_MESSAGE,
+  EVENT_FLYER_MAX_BYTES,
+  EVENT_FLYER_TOO_LARGE_MESSAGE,
+} from "@/lib/events/flyer-upload-constraints"
 
 /** Staff admin or org member with one of the allowed roles (for Server Actions; mirrors RLS intent). */
 async function isStaffOrHasOrgRole(
@@ -27,9 +33,6 @@ async function isStaffOrHasOrgRole(
     .single()
   return !!(membership && allowedRoles.includes(membership.role))
 }
-
-const MAX_FLYER_SIZE = 5 * 1024 * 1024
-const ALLOWED_FLYER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
 function parseRsvpCapacityField(formData: FormData): { capacity: number | null; error?: string } {
   const raw = formData.get("rsvp_capacity")
@@ -147,12 +150,12 @@ export async function uploadEventFlyer(formData: FormData) {
       return { error: "Missing event ID or file." }
     }
 
-    if (!ALLOWED_FLYER_TYPES.includes(file.type)) {
-      return { error: "Invalid file type. Use JPEG, PNG, WebP, or GIF." }
+    if (!(EVENT_FLYER_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
+      return { error: EVENT_FLYER_INVALID_TYPE_MESSAGE }
     }
 
-    if (file.size > MAX_FLYER_SIZE) {
-      return { error: "File too large. Maximum size is 5MB." }
+    if (file.size > EVENT_FLYER_MAX_BYTES) {
+      return { error: EVENT_FLYER_TOO_LARGE_MESSAGE }
     }
 
     const { data: event, error: fetchError } = await supabase
