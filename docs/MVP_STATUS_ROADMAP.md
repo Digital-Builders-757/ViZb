@@ -485,6 +485,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | Profile `role_admin` column writable by authenticated users | Medium | Phase 1.1 | **FIXED** (migration 007) | Column-level REVOKE + selective GRANT on profiles |
 | Dashboard sidebar is desktop-only (fixed `w-64`, no mobile collapse) | Medium | Phase 6 | Open | Users on mobile cannot navigate the dashboard |
 | Tickets route mismatch | — | Phase 3 | **Resolved** | **`/tickets`** + **`/tickets/[id]`** live; sidebar/nav use canonical paths; `/dashboard/tickets` alias retained |
+| Organizer flyer upload **400** in production (Server Action default **1MB** body vs app **5MB** cap) | Medium | Phase 2 | **FIXED** (April 2026) | `next.config.mjs` `experimental.serverActions.bodySizeLimit` (**6mb** transport vs **5MB** file max); shared rules in `lib/events/flyer-upload-constraints.ts` — see `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md` |
 | No loading.tsx in dashboard routes (except `/login`) | Low | Phase 6 | Open | No skeleton states during server component loading |
 | `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL` env var in signup page | Low | Phase 2 | Open | Should use origin consistently; dev-only var may cause issues |
 | No error boundaries in dashboard routes | Low | Phase 6 | Open | Unhandled errors show generic Next.js error page |

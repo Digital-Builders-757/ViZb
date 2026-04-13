@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 11, 2026
+**Last updated:** April 12, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -30,5 +30,6 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | **Admin → All Users**: no **Delete** / error says service role missing | **`SUPABASE_SERVICE_ROLE_KEY`** not loaded on the server | Set in `.env.local` per **`.env.example`**; never expose to the client; restart `npm run dev` |
 | **Delete user** fails (500 / FK / cannot delete from `auth.users`) | Public tables still reference **`auth.users`** with default **`NO ACTION`** (e.g. `events.created_by`, `org_invites`) | Apply **`supabase/migrations/20260410200000_auth_user_delete_foreign_keys.sql`** (`supabase db push` or run SQL on the project) |
 | **`git push`** rejected: **GH013** / **Required status check "main"** | Ruleset references a **check name that does not exist** (e.g. branch name mistaken for a check) or blocks all pushes | Set required checks to the real workflow job from **`.github/workflows/pr-ci.yml`**; see **`docs/development/BRANCHING.md`** (“Repository rulesets”) |
+| Organizer **flyer upload** returns **400** for valid images (~**1–5MB**) | Next.js Server Actions default **`bodySizeLimit`** (**1MB**) rejects the multipart body before **`uploadEventFlyer`** runs | Raise **`experimental.serverActions.bodySizeLimit`** in **`next.config.mjs`** above app max file size + multipart overhead (ViZb: **6mb** transport, **5MB** file cap in **`lib/events/flyer-upload-constraints.ts`**) |
 
 _Add rows as recurring issues appear._ `/ship` should append here when a fix addresses a repeatable failure mode.

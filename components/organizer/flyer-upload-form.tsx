@@ -5,11 +5,15 @@ import React from "react"
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { uploadEventFlyer, removeEventFlyer } from "@/app/actions/event"
+import {
+  EVENT_FLYER_ACCEPT_ATTR,
+  EVENT_FLYER_ALLOWED_MIME_TYPES,
+  EVENT_FLYER_INVALID_TYPE_MESSAGE,
+  EVENT_FLYER_MAX_BYTES,
+  EVENT_FLYER_TOO_LARGE_MESSAGE,
+} from "@/lib/events/flyer-upload-constraints"
 import { Upload, Trash2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-
-const MAX_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
 interface FlyerUploadFormProps {
   eventId: string
@@ -27,12 +31,12 @@ export function FlyerUploadForm({ eventId, currentFlyerUrl }: FlyerUploadFormPro
     if (!file) return
 
     // Client-side validation
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error("Invalid file type. Use JPEG, PNG, WebP, or GIF.")
+    if (!(EVENT_FLYER_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
+      toast.error(EVENT_FLYER_INVALID_TYPE_MESSAGE)
       return
     }
-    if (file.size > MAX_SIZE) {
-      toast.error("File too large. Maximum size is 5MB.")
+    if (file.size > EVENT_FLYER_MAX_BYTES) {
+      toast.error(EVENT_FLYER_TOO_LARGE_MESSAGE)
       return
     }
 
@@ -102,7 +106,7 @@ export function FlyerUploadForm({ eventId, currentFlyerUrl }: FlyerUploadFormPro
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept={EVENT_FLYER_ACCEPT_ATTR}
             onChange={handleUpload}
             disabled={uploading}
             className="sr-only"
