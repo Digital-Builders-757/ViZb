@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Save, X } from "lucide-react"
 import { updateEventDetails } from "@/app/actions/event"
 
@@ -31,8 +32,16 @@ export function EventDetailsEditForm({
     rsvp_capacity?: number | null
   }
 }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+
+  const initialCap =
+    event.rsvp_capacity != null && event.rsvp_capacity > 0 ? String(event.rsvp_capacity) : ""
+  const [rsvpMode, setRsvpMode] = useState<"unlimited" | "capped">(
+    initialCap ? "capped" : "unlimited",
+  )
+  const [rsvpCapInput, setRsvpCapInput] = useState(initialCap)
 
   const [selected, setSelected] = useState<Set<string>>(
     new Set(Array.isArray(event.categories) ? event.categories : []),
@@ -56,12 +65,26 @@ export function EventDetailsEditForm({
         const fd = new FormData(e.currentTarget)
         fd.set("event_id", event.id)
         fd.set("org_id", event.org_id)
-        // categories (multi)
         for (const c of selected) fd.append("categories", c)
+
+        if (rsvpMode === "unlimited") {
+          fd.set("rsvp_capacity", "")
+        } else {
+          const capRaw = rsvpCapInput.trim()
+          if (!capRaw) {
+            setError("Enter a maximum number of free RSVPs, or choose Unlimited RSVPs.")
+            return
+          }
+          fd.set("rsvp_capacity", capRaw)
+        }
 
         startTransition(async () => {
           const res = await updateEventDetails(fd)
-          if (res?.error) setError(res.error)
+          if (res?.error) {
+            setError(res.error)
+            return
+          }
+          router.refresh()
         })
       }}
       className="mt-6 space-y-4"
@@ -131,26 +154,71 @@ export function EventDetailsEditForm({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-          RSVP capacity (optional)
-        </label>
-        <input
-          name="rsvp_capacity"
-          type="number"
-          min={1}
-          step={1}
-          placeholder="Leave blank for no limit"
-          defaultValue={
-            event.rsvp_capacity != null && event.rsvp_capacity > 0
-              ? String(event.rsvp_capacity)
-              : ""
-          }
-          className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
-        />
-        <p className="text-[11px] text-muted-foreground">
-          Caps free RSVPs (confirmed + checked-in). Leave empty for unlimited.
-        </p>
+      <div className="flex flex-col gap-3">
+        <div>
+          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+            RSVP capacity
+          </span>
+          <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed max-w-xl">
+            Whole-event limit on active free RSVPs (confirmed or checked in). Wrong numbers block people at the door —
+            use Unlimited unless you need a hard cap.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setRsvpMode("unlimited")
+              setRsvpCapInput("")
+            }}
+            disabled={event.status === "archived"}
+            className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors disabled:opacity-50 ${
+              rsvpMode === "unlimited"
+                ? "border-brand-cyan bg-brand-cyan/10 text-foreground"
+                : "border-border text-muted-foreground hover:border-muted-foreground/50"
+            }`}
+          >
+            Unlimited RSVPs
+          </button>
+          <button
+            type="button"
+            onClick={() => setRsvpMode("capped")}
+            disabled={event.status === "archived"}
+            className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors disabled:opacity-50 ${
+              rsvpMode === "capped"
+                ? "border-brand-cyan bg-brand-cyan/10 text-foreground"
+                : "border-border text-muted-foreground hover:border-muted-foreground/50"
+            }`}
+          >
+            Set RSVP cap
+          </button>
+        </div>
+        {rsvpMode === "capped" ? (
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="rsvp_capacity_edit"
+              className="text-xs font-mono uppercase tracking-widest text-muted-foreground"
+            >
+              Maximum free RSVPs
+            </label>
+            <input
+              id="rsvp_capacity_edit"
+              type="number"
+              min={1}
+              step={1}
+              value={rsvpCapInput}
+              onChange={(e) => setRsvpCapInput(e.target.value)}
+              placeholder="e.g. 150"
+              disabled={event.status === "archived"}
+              className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Cannot be set below current confirmed + checked-in count (server enforced).
+            </p>
+          </div>
+        ) : (
+          <p className="text-[11px] text-muted-foreground">No whole-event RSVP cap.</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
