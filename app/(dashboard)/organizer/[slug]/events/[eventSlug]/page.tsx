@@ -291,49 +291,20 @@ export default async function EventDetailPage({
         </div>
       </div>
 
-      <EventTicketTypesPanel
-        orgSlug={slug}
-        eventId={event.id}
-        eventSlug={eventSlug}
-        types={ticketTypeRows}
-      />
-
-      {eventHasOpenMicCategory(categories) ? (
-        <OpenMicLineupPanel
-          eventId={event.id}
-          eventSlug={eventSlug}
-          orgSlug={slug}
-          entries={lineupEntries}
-          isArchived={event.status === "archived"}
-        />
-      ) : null}
-
-      {/* Attendees */}
-      <EventAttendeesPanel
-        total={total}
-        confirmed={confirmed}
-        checkedIn={checkedIn}
-        cancelled={cancelled}
-        rows={rsvpRows}
-        orgSlug={slug}
-        eventSlug={eventSlug}
-        eventId={event.id}
-        profileById={profileById}
-        rsvpCapacity={
-          (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null
-        }
-      />
-
-      {/* Event details card */}
+      {/* Event details card — before RSVP & ticket tiers so the primary save is encountered first */}
       <div className="mt-6 form-card p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2">
           Event Details
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Edit your event details here. Published event edits update the public page immediately.
+          Edit your event details here. Save event details separately from ticket tiers (see RSVP and ticket
+          tiers below). Published edits update the public page immediately.
         </p>
 
-        <EventDetailsEditForm event={event} />
+        <EventDetailsEditForm
+          key={`${event.id}-${(event as { updated_at?: string }).updated_at ?? ""}`}
+          event={event}
+        />
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Date & Time */}
@@ -440,6 +411,39 @@ export default async function EventDetailPage({
           </div>
         </div>
       </div>
+
+      <EventTicketTypesPanel
+        orgSlug={slug}
+        eventId={event.id}
+        eventSlug={eventSlug}
+        types={ticketTypeRows}
+      />
+
+      {eventHasOpenMicCategory(categories) ? (
+        <OpenMicLineupPanel
+          eventId={event.id}
+          eventSlug={eventSlug}
+          orgSlug={slug}
+          entries={lineupEntries}
+          isArchived={event.status === "archived"}
+        />
+      ) : null}
+
+      {/* Attendees */}
+      <EventAttendeesPanel
+        total={total}
+        confirmed={confirmed}
+        checkedIn={checkedIn}
+        cancelled={cancelled}
+        rows={rsvpRows}
+        orgSlug={slug}
+        eventSlug={eventSlug}
+        eventId={event.id}
+        profileById={profileById}
+        rsvpCapacity={
+          (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null
+        }
+      />
     </div>
   )
 }

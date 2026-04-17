@@ -46,8 +46,14 @@ export function EventTicketTypesPanel({
 
   return (
     <div className="mt-6 form-card p-6 md:p-8">
-      <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-1">Ticket tiers</h2>
-      <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
+      <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-1">RSVP and ticket tiers</h2>
+      <p className="text-sm text-muted-foreground mb-3 max-w-2xl">
+        Each row is its own form: use <span className="text-foreground/90 font-medium">Save tier</span> for that tier
+        only. This does <span className="text-foreground/90 font-medium">not</span> save title, schedule, venue,
+        categories, or the whole-event RSVP cap — those use <span className="text-foreground/90 font-medium">Save event details</span>{" "}
+        above.
+      </p>
+      <p className="text-sm text-muted-foreground mb-6 max-w-2xl pb-6 border-b border-border/50">
         Free tiers power RSVP ($0). Set a price in USD to sell a tier via Stripe Checkout (requires{" "}
         <span className="font-mono text-xs">STRIPE_SECRET_KEY</span> and{" "}
         <span className="font-mono text-xs">NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</span> on the server). The default
