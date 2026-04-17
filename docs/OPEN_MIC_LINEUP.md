@@ -234,6 +234,8 @@ Use the same event ownership / org membership logic already used for event editi
 ## Dashboard lineup manager
 For open mic events, show an **Open Mic Lineup** management area in the event dashboard.
 
+**Quick add** (`addLineupEntry`) creates rows as **confirmed** and **public** by default so manually entered performers can appear on `/lineup/[eventSlug]` as soon as the event is published and the row stays public-eligible. Organizers can still set a row to **pending** (draft) or hide it from the public page via the dashboard controls.
+
 ### V1 features
 - quick add performer row
 - edit performer name
