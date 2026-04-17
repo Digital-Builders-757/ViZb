@@ -10,13 +10,18 @@ import {
   setLineupEntryStatus,
   updateLineupEntry,
 } from "@/app/actions/lineup"
-import { formatLineupStatusLabel } from "@/lib/lineup/lineup-entry-status"
+import {
+  formatLineupStatusLabel,
+  getLineupEntryPublicVisibilityPresentation,
+  isLineupEntryOnPublicPage,
+  type LineupPublicVisibilityTone,
+} from "@/lib/lineup/lineup-entry-status"
 import {
   getPublicLineupAbsoluteUrl,
   getPublicLineupShareTarget,
 } from "@/lib/public-site-url"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, Link2, Mic2 } from "lucide-react"
+import { ChevronDown, ChevronUp, ExternalLink, Link2, Mic2 } from "lucide-react"
 
 export type OpenMicLineupEntryRow = {
   id: string
@@ -31,6 +36,17 @@ export type OpenMicLineupEntryRow = {
 const fieldClass =
   "w-full bg-[#0a0a0a] border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
 const labelClass = "text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
+
+function visibilityToneClass(tone: LineupPublicVisibilityTone) {
+  switch (tone) {
+    case "on_public":
+      return "border-emerald-500/50 text-emerald-400"
+    case "caution":
+      return "border-amber-500/50 text-amber-400"
+    default:
+      return "border-border text-muted-foreground"
+  }
+}
 
 function statusBadgeClass(status: string) {
   switch (status) {
@@ -53,17 +69,20 @@ export function OpenMicLineupPanel({
   orgSlug,
   entries,
   isArchived,
+  eventIsPublished,
 }: {
   eventId: string
   eventSlug: string
   orgSlug: string | null
   entries: OpenMicLineupEntryRow[]
   isArchived: boolean
+  eventIsPublished: boolean
 }) {
   const [pending, startTransition] = useTransition()
 
   const publicLineupAbsolute = getPublicLineupAbsoluteUrl(eventSlug)
   const publicLineupShareTarget = getPublicLineupShareTarget(eventSlug)
+  const eligiblePublicCount = entries.filter(isLineupEntryOnPublicPage).length
 
   const copyPublicLink = () => {
     const text = publicLineupShareTarget
@@ -83,32 +102,68 @@ export function OpenMicLineupPanel({
             <Mic2 className="w-4 h-4" />
             Open mic lineup
           </h2>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Running order for performers. Only <span className="text-foreground/90">confirmed</span> and{" "}
-            <span className="text-foreground/90">performed</span> rows marked public appear on the shareable page.
-          </p>
+          <div className="text-sm text-muted-foreground max-w-2xl space-y-2">
+            <p>
+              Running order for performers. The public lineup page lists only rows with{" "}
+              <span className="text-foreground/90">Public on</span> and status{" "}
+              <span className="text-foreground/90">Confirmed</span> or <span className="text-foreground/90">Performed</span>.
+            </p>
+            <p>
+              Pending, hidden, no-show, and cancelled slots stay in your dashboard but do not appear publicly. Host
+              notes are never shown on the public page.
+            </p>
+          </div>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="shrink-0 border-border font-mono text-[10px] uppercase tracking-widest"
-          onClick={copyPublicLink}
-        >
-          <Link2 className="w-3 h-3 mr-2" />
-          Copy public link
-        </Button>
       </div>
 
-      <div className="mb-6 rounded-md border border-border/60 bg-muted/5 px-3 py-2 space-y-1">
+      {!eventIsPublished ? (
+        <p className="mb-4 text-sm text-muted-foreground border border-amber-500/30 bg-amber-500/5 px-3 py-2 rounded-md">
+          This event is not <span className="text-foreground/90">published</span> yet — the shareable{" "}
+          <span className="font-mono text-xs">/lineup/…</span> page is only available after you publish the event.
+        </p>
+      ) : null}
+
+      {entries.length > 0 && eligiblePublicCount === 0 ? (
+        <p className="mb-4 text-sm text-muted-foreground border border-border/60 bg-muted/5 px-3 py-2 rounded-md">
+          No performers are currently eligible for public display. Turn <span className="text-foreground/90">Public</span>{" "}
+          on and set status to <span className="text-foreground/90">Confirmed</span> or{" "}
+          <span className="text-foreground/90">Performed</span> for anyone who should appear on the public lineup.
+        </p>
+      ) : null}
+
+      <div className="mb-6 rounded-md border border-border/60 bg-muted/5 px-3 py-3 space-y-2">
         <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
           Public lineup URL
         </p>
         <p className="text-xs font-mono text-foreground/90 break-all">{publicLineupShareTarget}</p>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="border-border font-mono text-[10px] uppercase tracking-widest"
+            asChild
+          >
+            <a href={publicLineupShareTarget} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="w-3 h-3 mr-2" />
+              Open public page
+            </a>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="border-border font-mono text-[10px] uppercase tracking-widest"
+            onClick={copyPublicLink}
+          >
+            <Link2 className="w-3 h-3 mr-2" />
+            Copy link
+          </Button>
+        </div>
         {!publicLineupAbsolute ? (
           <p className="text-[11px] text-muted-foreground leading-snug">
-            Set <span className="text-foreground/80">NEXT_PUBLIC_SITE_URL</span> so this shows a full https link for
-            embeds and sharing (see <span className="text-foreground/80">.env.example</span>).
+            Set <span className="text-foreground/80">NEXT_PUBLIC_SITE_URL</span> so copy/open use a full https URL for
+            sharing (see <span className="text-foreground/80">.env.example</span>).
           </p>
         ) : null}
       </div>
@@ -162,7 +217,9 @@ export function OpenMicLineupPanel({
                 No performers yet — add the first slot above.
               </p>
             ) : (
-              entries.map((row, index) => (
+              entries.map((row, index) => {
+                const visibility = getLineupEntryPublicVisibilityPresentation(row)
+                return (
                 <div
                   key={row.id}
                   className={`border border-border/60 rounded-lg p-4 space-y-3 bg-[#070707]/40 ${
@@ -175,11 +232,12 @@ export function OpenMicLineupPanel({
                     >
                       {formatLineupStatusLabel(row.status)}
                     </span>
-                    {!row.is_public ? (
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground border border-border px-2 py-0.5">
-                        Hidden on public page
-                      </span>
-                    ) : null}
+                    <span
+                      className={`text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border max-w-full ${visibilityToneClass(visibility.tone)}`}
+                      title="Public lineup page visibility"
+                    >
+                      {visibility.label}
+                    </span>
                     <span className="text-[10px] font-mono text-muted-foreground ml-auto md:ml-0">
                       #{index + 1}
                     </span>
@@ -352,7 +410,8 @@ export function OpenMicLineupPanel({
                     </Button>
                   </div>
                 </div>
-              ))
+                )
+              })
             )}
           </div>
         </>

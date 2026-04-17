@@ -154,7 +154,7 @@ export async function addLineupEntry(formData: FormData) {
     stage_name: stageName,
     notes,
     slot_order: nextOrder,
-    status: "pending",
+    status: "confirmed",
     is_public: true,
     created_by: user.id,
     updated_at: now,

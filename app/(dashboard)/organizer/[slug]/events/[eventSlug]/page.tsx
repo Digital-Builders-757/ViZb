@@ -426,6 +426,7 @@ export default async function EventDetailPage({
           orgSlug={slug}
           entries={lineupEntries}
           isArchived={event.status === "archived"}
+          eventIsPublished={event.status === "published"}
         />
       ) : null}
 
