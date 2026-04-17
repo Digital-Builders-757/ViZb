@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 12, 2026
+**Last updated:** April 17, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -21,6 +21,9 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | GitHub Actions: weird **concurrency** / duplicate or stuck **PR CI** groups | Workflow used **`github.event.pull_request.number`** in `concurrency.group` but the workflow also runs on **`push`** (no PR payload) | Use **`${{ github.workflow }}-${{ github.ref }}`** (or another field defined for both event types); see merged fix in `.github/workflows/pr-ci.yml` |
 | RSVP fails or **public event page** errors after deploy; **`published_event_rsvp_occupied_count`** missing | Migration **`20260410120000_event_rsvp_capacity.sql`** / `scripts/026_event_rsvp_capacity.sql` not applied on the target DB | Run **`supabase db push`** (or apply SQL in Dashboard); confirm `events.rsvp_capacity` column and function exist |
 | **My tickets** empty or **`mint_free_rsvp_ticket_for_registration`** missing after RSVP | Tickets migration not applied | Apply **`20260410142142_tickets_core_free_rsvp.sql`** / **`scripts/028_tickets_core_free_rsvp.sql`**; confirm `public.tickets` and RPC exist |
+| RSVP shows **saved** but **no ticket** / no QR; DB has **`event_registrations`** without **`tickets`** | Orphan registration (historical data or manual edit) | Reload **`/events/[slug]`** (app mints missing ticket for confirmed/checked_in); or run mint RPC in SQL for the registration id |
+| Door **QR missing** on wallet or scanner returns **`scanner_not_configured`** | **`TICKET_QR_SECRET`** unset or too short in server env | Set **`TICKET_QR_SECRET`** (≥16 chars) per **`.env.example`**; redeploy; see **`docs/contracts/rsvps.md`** (Door QR) |
+| Saving event categories fails with **check constraint** on **`events.categories`** | DB still on pre-**`open_mic`** constraint | Apply **`supabase/migrations/20260417202850_add_open_mic_event_category.sql`** (`supabase db push`) |
 | Organizer **cannot save** ticket types; or anon **cannot** load public tier list | Migration **`20260410144936_ticket_types_org_crud_and_mint_tier.sql`** / **`029`** not applied | Run **`supabase db push`**; confirm `ticket_types` columns + INSERT/UPDATE/DELETE policies + anon SELECT on published events |
 | **Paid** checkout succeeds in Stripe but **no ticket** / webhook logs show RPC error | Migration **`20260411120000_stripe_checkout_fulfillment.sql`** / **`030`** not applied, or **`SUPABASE_SERVICE_ROLE_KEY`** missing on server | Apply **`030`**; set service role in host env; confirm Stripe webhook URL **`/api/stripe/webhook`** and signing secret match **`STRIPE_WEBHOOK_SECRET`** |
 | **`supabase db push`**: “inserted before the last migration” / out-of-order history | Remote has a newer migration version row than some local files | Run **`supabase db push --include-all`** (review pending list first) |

@@ -7,7 +7,12 @@ import { ArrowLeft, FileText, Users } from "lucide-react"
 import { GlassCard } from "@/components/ui/glass-card"
 import { AdminEventRegistrationsTable } from "@/components/admin/event-registrations-table"
 import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
+import {
+  OpenMicLineupPanel,
+  type OpenMicLineupEntryRow,
+} from "@/components/organizer/open-mic-lineup-panel"
 import { normalizeCategories } from "@/lib/events/categories"
+import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 
 export default async function AdminEventDetailPage({
   params,
@@ -51,6 +56,24 @@ export default async function AdminEventDetailPage({
   const editFormCategories = normalizeCategories(
     (event as { categories?: unknown }).categories,
   )
+
+  const orgRel = event.organizations as unknown as { slug: string } | null
+  const organizerOrgSlug = orgRel?.slug ?? null
+
+  let lineupEntries: OpenMicLineupEntryRow[] = []
+  if (eventHasOpenMicCategory(editFormCategories)) {
+    try {
+      const { data: lu } = await supabase
+        .from("event_lineup_entries")
+        .select("id, performer_name, stage_name, notes, slot_order, status, is_public")
+        .eq("event_id", id)
+        .order("slot_order", { ascending: true })
+        .order("id", { ascending: true })
+      lineupEntries = (lu as OpenMicLineupEntryRow[]) ?? []
+    } catch {
+      lineupEntries = []
+    }
+  }
 
   // RSVP rollup (requires scripts/025_create_event_registrations.sql)
   let rows: { user_id: string; status: string; created_at: string; checked_in_at?: string | null }[] = []
@@ -144,6 +167,16 @@ export default async function AdminEventDetailPage({
           }}
         />
       </div>
+
+      {eventHasOpenMicCategory(editFormCategories) ? (
+        <OpenMicLineupPanel
+          eventId={event.id}
+          eventSlug={event.slug as string}
+          orgSlug={organizerOrgSlug}
+          entries={lineupEntries}
+          isArchived={event.status === "archived"}
+        />
+      ) : null}
 
       <div className="mt-8 form-card p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">

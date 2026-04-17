@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2 } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
@@ -16,6 +16,8 @@ import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 import { EventStripeReturn } from "@/components/events/event-stripe-return"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
+import { mintFreeRsvpTicketForRegistration } from "@/lib/tickets/mint-free-rsvp-ticket"
+import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 
 interface PublicEvent {
   id: string
@@ -205,21 +207,51 @@ export default async function PublicEventDetailPage({
       initialTicketId = null
     }
 
+    let registrationId: string | null = null
     try {
       const { data, error } = await supabase
         .from("event_registrations")
-        .select("status")
+        .select("id, status")
         .eq("event_id", event.id)
         .eq("user_id", user.id)
         .maybeSingle()
 
       if (!error) {
+        registrationId = data?.id ?? null
         const status = data?.status as typeof initialRsvpStatus
         initialRsvpStatus = status ?? null
       }
     } catch {
       // In dev/staging, the migration may not be applied yet.
       initialRsvpStatus = null
+      registrationId = null
+    }
+
+    if (
+      registrationId &&
+      (initialRsvpStatus === "confirmed" || initialRsvpStatus === "checked_in") &&
+      !hasActiveTicket
+    ) {
+      const minted = await mintFreeRsvpTicketForRegistration(supabase, registrationId, null)
+      if (!("error" in minted)) {
+        try {
+          const { data: ticketRowsAfter } = await supabase
+            .from("tickets")
+            .select("id, event_registrations!inner ( status )")
+            .eq("user_id", user.id)
+            .eq("event_id", event.id)
+
+          const activeAfter = (ticketRowsAfter ?? []).filter((row) => {
+            const st = registrationStatusFromJoin(row.event_registrations)
+            return st === "confirmed" || st === "checked_in"
+          })
+          hasActiveTicket = activeAfter.length > 0
+          initialTicketId = activeAfter[0]?.id ?? null
+        } catch {
+          hasActiveTicket = false
+          initialTicketId = null
+        }
+      }
     }
 
     try {
@@ -429,6 +461,21 @@ export default async function PublicEventDetailPage({
                       variant="detail"
                     />
                   </div>
+
+                  {eventHasOpenMicCategory(event.categories) ? (
+                    <div className="mt-4">
+                      <Link
+                        href={`/lineup/${event.slug}`}
+                        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline"
+                      >
+                        <Mic2 className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                        Open mic lineup
+                      </Link>
+                      <p className="mt-1 text-[11px] text-[color:var(--neon-text2)]">
+                        Shareable order of performers (when the host marks slots public).
+                      </p>
+                    </div>
+                  ) : null}
 
                   <EventRsvpCta
                     key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}

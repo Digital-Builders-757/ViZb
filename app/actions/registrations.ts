@@ -1,7 +1,7 @@
 "use server"
 
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { requireAuth } from "@/lib/auth-helpers"
+import { mintFreeRsvpTicketForRegistration } from "@/lib/tickets/mint-free-rsvp-ticket"
 import { revalidatePath } from "next/cache"
 
 function isRsvpCapacityError(message: string) {
@@ -14,31 +14,6 @@ function isRsvpCapacityError(message: string) {
     message.toLowerCase().includes("check constraint") ||
     message.includes("23514")
   )
-}
-
-async function mintFreeRsvpTicketRow(
-  supabase: SupabaseClient,
-  registrationId: string,
-  ticketTypeId?: string | null,
-): Promise<{ ticketId: string | null } | { error: string }> {
-  const payload: { p_registration_id: string; p_ticket_type_id?: string } = {
-    p_registration_id: registrationId,
-  }
-  if (ticketTypeId) payload.p_ticket_type_id = ticketTypeId
-
-  const { data, error } = await supabase.rpc("mint_free_rsvp_ticket_for_registration", payload)
-  if (error) return { error: `Could not issue ticket: ${error.message}` }
-
-  let ticketId: string | null = typeof data === "string" ? data : null
-  if (!ticketId) {
-    const { data: row } = await supabase
-      .from("tickets")
-      .select("id")
-      .eq("event_registration_id", registrationId)
-      .maybeSingle()
-    ticketId = row?.id ?? null
-  }
-  return { ticketId }
 }
 
 export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null) {
@@ -68,17 +43,17 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
       .eq("user_id", user.id)
       .maybeSingle()
 
-    let ticketId: string | null = null
-    if (regRow?.id) {
-      const minted = await mintFreeRsvpTicketRow(supabase, regRow.id, ticketTypeId ?? null)
-      if ("error" in minted) return { error: minted.error }
-      ticketId = minted.ticketId
+    if (!regRow?.id) {
+      return { error: "Failed to RSVP: registration not found." }
     }
+
+    const minted = await mintFreeRsvpTicketForRegistration(supabase, regRow.id, ticketTypeId ?? null)
+    if ("error" in minted) return { error: minted.error }
 
     revalidatePath("/dashboard/tickets")
     revalidatePath("/tickets")
     revalidatePath("/events")
-    return { success: true, ticketId }
+    return { success: true, ticketId: minted.ticketId }
   }
 
   const { data: eventMeta, error: metaErr } = await supabase
@@ -133,18 +108,18 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
     return { error: `Failed to RSVP: ${error.message}` }
   }
 
-  let ticketId: string | null = null
-  if (upserted?.id) {
-    const minted = await mintFreeRsvpTicketRow(supabase, upserted.id, ticketTypeId ?? null)
-    if ("error" in minted) return { error: minted.error }
-    ticketId = minted.ticketId
+  if (!upserted?.id) {
+    return { error: "Failed to RSVP: could not save registration." }
   }
+
+  const minted = await mintFreeRsvpTicketForRegistration(supabase, upserted.id, ticketTypeId ?? null)
+  if ("error" in minted) return { error: minted.error }
 
   revalidatePath("/dashboard/tickets")
   revalidatePath("/tickets")
   revalidatePath("/events")
   if (eventMeta.slug) revalidatePath(`/events/${eventMeta.slug}`)
-  return { success: true, ticketId }
+  return { success: true, ticketId: minted.ticketId }
 }
 
 export async function cancelRsvp(eventId: string) {

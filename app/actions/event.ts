@@ -523,6 +523,7 @@ export async function updateEventDetails(formData: FormData) {
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
   revalidatePath(`/events/${event.slug}`)
+  revalidatePath(`/lineup/${event.slug}`)
   revalidatePath("/events")
   revalidatePath("/dashboard")
 

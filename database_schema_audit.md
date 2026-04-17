@@ -1,6 +1,6 @@
 # Database schema audit — ViBE / ViZb
 
-**Last updated:** April 11, 2026
+**Last updated:** April 17, 2026
 
 ## Purpose
 
@@ -29,6 +29,7 @@ Scripts are applied in **numeric order** (see `docs/MVP_STATUS_ROADMAP.md` migra
 - `20260407120000_event_saves.sql` (`supabase/migrations/`) — `event_saves` (per-user saved published events): RLS select/insert/delete own rows; unique `(user_id, event_id)`; indexes `(user_id, created_at DESC)` and `(event_id)`.
 - `019_staff_event_create_and_flyer_storage.sql` — `events_insert_staff` RLS; storage `event-flyers` INSERT/UPDATE also allows `staff_admin` (path still `org_id/event_id/...`).
 - `020_event_categories_array.sql` — replaces `events.category` with `events.categories TEXT[]` (validated set + GIN index).
+- `20260417202850_add_open_mic_event_category.sql` (`supabase/migrations/`) — extends **`events_categories_check`** to allow tag **`open_mic`** (non-destructive).
 - `021_seed_design_events.sql` — **data only** (not schema): optional published events + org `vibe-design-preview` for UI/design previews; detects **`events.categories`** vs legacy **`events.category`**; run manually in SQL Editor (see `docs/guides/LOCAL_DEV_AND_AUTH.md` §9).
 - `verify_019_020_applied.sql` — **read-only** checks (SQL Editor): confirms **`019`** RLS/storage policies and **`020`** `events.categories` + index/constraint; use on prod/staging before assuming schema parity.
 
