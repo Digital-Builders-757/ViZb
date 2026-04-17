@@ -46,7 +46,7 @@ export default async function AdminEventDetailPage({
   const { data: event } = await supabase
     .from("events")
     .select(
-      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, organizations(name, slug)",
+      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, organizations(name, slug)",
     )
     .eq("id", id)
     .single()
@@ -151,6 +151,7 @@ export default async function AdminEventDetailPage({
           Same editor as the organizer dashboard — use for urgent fixes (e.g. RSVP cap). Staff only.
         </p>
         <EventDetailsEditForm
+          key={`${event.id}-${(event as { updated_at?: string }).updated_at ?? ""}`}
           event={{
             id: event.id,
             org_id: event.org_id as string,
@@ -164,6 +165,7 @@ export default async function AdminEventDetailPage({
             categories: editFormCategories,
             status: event.status as string,
             rsvp_capacity: (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null,
+            updated_at: (event as { updated_at?: string }).updated_at,
           }}
         />
       </div>
