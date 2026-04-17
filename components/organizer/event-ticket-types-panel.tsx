@@ -30,6 +30,9 @@ function toLocalInput(iso: string | null) {
 const fieldClass =
   "w-full bg-[#0a0a0a] border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
 const labelClass = "text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
+/** Secondary actions — per-tier only; primary “Save event details” lives above in EventDetailsEditForm. */
+const tierActionButtonClass =
+  "rounded-lg border border-border bg-[#0a0a0a]/80 px-4 py-2 text-sm font-medium text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground disabled:opacity-50"
 
 export function EventTicketTypesPanel({
   orgSlug,
@@ -163,11 +166,7 @@ export function EventTicketTypesPanel({
               </div>
 
               <div className="md:col-span-2 flex flex-wrap gap-2 pt-1">
-                <button
-                  type="submit"
-                  disabled={pending}
-                  className="rounded-lg border border-brand-cyan/50 bg-brand-cyan/10 px-4 py-2 text-sm font-medium text-brand-cyan hover:bg-brand-cyan/15 disabled:opacity-50"
-                >
+                <button type="submit" disabled={pending} className={tierActionButtonClass}>
                   Save tier
                 </button>
               </div>
@@ -257,11 +256,7 @@ export function EventTicketTypesPanel({
           </div>
 
           <div className="md:col-span-2">
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:border-brand-cyan/50 disabled:opacity-50"
-            >
+            <button type="submit" disabled={pending} className={tierActionButtonClass}>
               Add tier
             </button>
           </div>

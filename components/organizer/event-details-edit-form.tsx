@@ -83,7 +83,7 @@ export function EventDetailsEditForm({
             setError(res.error)
             return
           }
-          toast.success("Event details saved.")
+          toast.success("Event details saved")
           setIsDirty(false)
           router.refresh()
         })
@@ -290,14 +290,17 @@ export function EventDetailsEditForm({
       </fieldset>
 
       <div
-        className={`sticky bottom-0 z-10 mt-6 -mx-1 px-1 pt-4 pb-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-border/70 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/98 to-[#0c0c0c]/85 backdrop-blur-md`}
+        className={`sticky bottom-0 z-10 mt-8 -mx-1 px-1 pt-5 pb-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t-2 border-border/80 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/98 to-[#0c0c0c]/85 backdrop-blur-md shadow-[0_-8px_24px_rgba(0,0,0,0.45)] ring-1 ring-border/40`}
       >
+        {!archived && isDirty ? (
+          <p className="mb-3 text-xs font-medium text-foreground/90">You have unsaved event details.</p>
+        ) : null}
         <button
           type="submit"
           disabled={archived || isPending || !isDirty}
-          className="inline-flex items-center gap-2 border border-border bg-[#111111] px-4 py-2.5 text-xs font-mono uppercase tracking-widest text-foreground hover:border-brand-cyan/40 hover:text-brand-cyan transition-colors disabled:opacity-50 disabled:hover:border-border disabled:hover:text-foreground"
+          className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-brand-cyan px-6 py-3 text-sm font-semibold text-[#0a0a0a] shadow-md shadow-brand-cyan/15 transition-colors hover:bg-brand-cyan-bright hover:text-[#0a0a0a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-cyan disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none sm:w-auto sm:min-w-[14rem]"
         >
-          <Save className="w-4 h-4" />
+          <Save className="h-4 w-4 shrink-0" aria-hidden />
           {isPending ? "Saving…" : "Save event details"}
         </button>
         {!archived && !isDirty ? (
