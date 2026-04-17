@@ -3,9 +3,16 @@ import Link from "next/link"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
-import { ArrowLeft, Users } from "lucide-react"
+import { ArrowLeft, FileText, Users } from "lucide-react"
 import { GlassCard } from "@/components/ui/glass-card"
 import { AdminEventRegistrationsTable } from "@/components/admin/event-registrations-table"
+import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
+import {
+  OpenMicLineupPanel,
+  type OpenMicLineupEntryRow,
+} from "@/components/organizer/open-mic-lineup-panel"
+import { normalizeCategories } from "@/lib/events/categories"
+import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 
 export default async function AdminEventDetailPage({
   params,
@@ -38,11 +45,35 @@ export default async function AdminEventDetailPage({
 
   const { data: event } = await supabase
     .from("events")
-    .select("id, title, slug, status, starts_at, venue_name, city, organizations(name, slug)")
+    .select(
+      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, organizations(name, slug)",
+    )
     .eq("id", id)
     .single()
 
   if (!event) notFound()
+
+  const editFormCategories = normalizeCategories(
+    (event as { categories?: unknown }).categories,
+  )
+
+  const orgRel = event.organizations as unknown as { slug: string } | null
+  const organizerOrgSlug = orgRel?.slug ?? null
+
+  let lineupEntries: OpenMicLineupEntryRow[] = []
+  if (eventHasOpenMicCategory(editFormCategories)) {
+    try {
+      const { data: lu } = await supabase
+        .from("event_lineup_entries")
+        .select("id, performer_name, stage_name, notes, slot_order, status, is_public")
+        .eq("event_id", id)
+        .order("slot_order", { ascending: true })
+        .order("id", { ascending: true })
+      lineupEntries = (lu as OpenMicLineupEntryRow[]) ?? []
+    } catch {
+      lineupEntries = []
+    }
+  }
 
   // RSVP rollup (requires scripts/025_create_event_registrations.sql)
   let rows: { user_id: string; status: string; created_at: string; checked_in_at?: string | null }[] = []
@@ -110,6 +141,42 @@ export default async function AdminEventDetailPage({
           </p>
         </div>
       </div>
+
+      <div className="mt-8 form-card p-6 md:p-8">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">
+          <FileText className="w-4 h-4" />
+          Event details
+        </h2>
+        <p className="text-sm text-muted-foreground mb-2">
+          Same editor as the organizer dashboard — use for urgent fixes (e.g. RSVP cap). Staff only.
+        </p>
+        <EventDetailsEditForm
+          event={{
+            id: event.id,
+            org_id: event.org_id as string,
+            title: event.title as string,
+            description: (event as { description?: string | null }).description ?? null,
+            starts_at: event.starts_at as string,
+            ends_at: (event as { ends_at?: string | null }).ends_at ?? null,
+            venue_name: event.venue_name as string,
+            address: (event as { address?: string | null }).address ?? null,
+            city: event.city as string,
+            categories: editFormCategories,
+            status: event.status as string,
+            rsvp_capacity: (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null,
+          }}
+        />
+      </div>
+
+      {eventHasOpenMicCategory(editFormCategories) ? (
+        <OpenMicLineupPanel
+          eventId={event.id}
+          eventSlug={event.slug as string}
+          orgSlug={organizerOrgSlug}
+          entries={lineupEntries}
+          isArchived={event.status === "archived"}
+        />
+      ) : null}
 
       <div className="mt-8 form-card p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">

@@ -5,6 +5,7 @@ import { slugify } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { parseCategoriesFromFormData } from "@/lib/events/categories"
+import { parseRsvpCapacityField } from "@/lib/events/rsvp-capacity"
 import {
   EVENT_FLYER_ALLOWED_MIME_TYPES,
   EVENT_FLYER_INVALID_TYPE_MESSAGE,
@@ -32,19 +33,6 @@ async function isStaffOrHasOrgRole(
     .eq("user_id", userId)
     .single()
   return !!(membership && allowedRoles.includes(membership.role))
-}
-
-function parseRsvpCapacityField(formData: FormData): { capacity: number | null; error?: string } {
-  const raw = formData.get("rsvp_capacity")
-  if (raw == null || String(raw).trim() === "") return { capacity: null }
-  const n = Number.parseInt(String(raw).trim(), 10)
-  if (!Number.isFinite(n) || n < 1) {
-    return { capacity: null, error: "RSVP cap must be a positive whole number, or leave blank for no limit." }
-  }
-  if (n > 1_000_000) {
-    return { capacity: null, error: "RSVP cap is too large." }
-  }
-  return { capacity: n }
 }
 
 export async function createEvent(formData: FormData) {
@@ -440,7 +428,11 @@ export async function updateEventDetails(formData: FormData) {
     return { error: "Event not found." }
   }
 
-  const canEdit = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, ["owner", "admin"])
+  const canEdit = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, [
+    "owner",
+    "admin",
+    "editor",
+  ])
   if (!canEdit) {
     return { error: "You don't have permission to edit events for this organization." }
   }
@@ -531,6 +523,7 @@ export async function updateEventDetails(formData: FormData) {
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
   revalidatePath(`/events/${event.slug}`)
+  revalidatePath(`/lineup/${event.slug}`)
   revalidatePath("/events")
   revalidatePath("/dashboard")
 

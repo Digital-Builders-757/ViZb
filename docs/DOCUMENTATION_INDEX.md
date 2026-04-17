@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** April 12, 2026
+**Last Updated:** April 17, 2026
 
 Single entry point for the **events + community + brand** platform (repo **ViZb**). Everything else is reference or archive.
 
@@ -61,6 +61,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 ## New: Posts MVP (public feed)
 
 - Plan/SQL/RLS: `docs/plans/POSTS_MVP.md`
+- Open mic lineup V1: `docs/plans/OPEN_MIC_LINEUP_V1.md` → `docs/OPEN_MIC_LINEUP.md`
 - Contract: `docs/contracts/community_posts.md`
 - Public routes:
   - `/` ("From ViZb" module)

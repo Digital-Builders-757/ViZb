@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 11, 2026 |
+| **Last Audited** | April 17, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 largely shipped; Posts MVP shipped; Phase 3 (free RSVP + $0 tickets) largely shipped |
@@ -52,6 +52,8 @@
 | 026 | `026_event_rsvp_capacity.sql` / `20260410120000_event_rsvp_capacity.sql` | Optional `events.rsvp_capacity` + occupancy RPC |
 | 028 | `028_tickets_core_free_rsvp.sql` / `20260410142142_tickets_core_free_rsvp.sql` | `ticket_types`, `orders`, `order_items`, `tickets`, mint RPC |
 | 029 | `029_ticket_types_org_crud_and_mint_tier.sql` / `20260410144936_ticket_types_org_crud_and_mint_tier.sql` | Tier capacity / sale window; org CRUD; mint accepts tier id |
+| — | `20260417202850_add_open_mic_event_category.sql` | Extends `events_categories_check` for tag **`open_mic`** |
+| — | `20260417210000_event_lineup_entries.sql` | **`event_lineup_entries`** + **`lineup_entry_status`** + RLS (public read slice + org/staff CRUD) |
 | … | Other timestamped `supabase/migrations/*` | Full order + mirrors: `docs/database/MIGRATIONS.md` |
 
 ---
@@ -62,7 +64,7 @@
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
 | Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
-| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet shipped; paid tiers next) | ~65% |
+| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet + RSVP→ticket hardening + **`open_mic`** category; paid tiers next) | ~68% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
@@ -319,6 +321,10 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Goal:** Events have ticket tiers. Attendees can RSVP to free events and receive tickets.
 
+**Shipped (April 2026 — Open mic lineup v1):**
+
+- [x] **`event_lineup_entries`** + RLS — `supabase/migrations/20260417210000_event_lineup_entries.sql`; dashboard **`OpenMicLineupPanel`** (`components/organizer/open-mic-lineup-panel.tsx`) on organizer + admin event pages when **`open_mic`** is in categories; public **`/lineup/[eventSlug]`** (`app/lineup/[eventSlug]/page.tsx`) with strict query filters; mutations **`app/actions/lineup.ts`**
+
 **Shipped (April 2026 — Tickets / wallet passes v2):**
 
 - [x] HMAC-signed barcode payload (no PII) — `lib/tickets/barcode-token.ts`
@@ -327,7 +333,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] Dashboard wallet buttons — `components/dashboard/tickets/ticket-wallet-actions.tsx`
 - [x] **Attendee UX (April 2026)** — RSVP + paid checkout land in **My Tickets**: success dialog (`components/events/ticket-added-success-dialog.tsx`) with calendar actions; `rsvpToEvent` returns minted `ticketId`; Stripe return shares the same dialog; wallet list / member home copy clarifies destination and constraints; wallet cards use honest check-in QR + wallet-pass unavailable messaging
 - [x] Operator doc — `docs/operations/WALLET_PASSES_SETUP.md`
-- [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full
+- [x] **Optional RSVP capacity** — `events.rsvp_capacity`, DB trigger + `published_event_rsvp_occupied_count` RPC (`supabase/migrations/20260410120000_event_rsvp_capacity.sql`, `scripts/026_event_rsvp_capacity.sql`); organizer create/edit forms; public `/events/[slug]` CTA shows fill level and blocks RSVP when full; unlimited vs capped UX on create/edit; org **editors** can update event details (same as create permission); **admin** event detail page reuses the organizer details editor for urgent fixes
 - [x] **Free RSVP → \$0 ticket model** — `ticket_types` (default RSVP tier per event), `orders`, `order_items`, `tickets` + `mint_free_rsvp_ticket_for_registration` (`supabase/migrations/20260410142142_tickets_core_free_rsvp.sql`, `scripts/028_tickets_core_free_rsvp.sql`); RSVP action mints ticket after `event_registrations` upsert; dashboard **`/dashboard/tickets`** lists tickets (upcoming / past); **`/dashboard/tickets/[ticketId]`** full ticket view with code; door QR still uses registration id (`rid`) for compatibility
 
 **P0 next:** Harden paid flow (Stripe Tax, refund hooks, monitoring) + revenue reporting. **P1:** *(shipped)* Canonical wallet **`/tickets`**; *(shipped)* Stripe Checkout + webhook mint + paid tier editor (requires env + migration **`030`**).

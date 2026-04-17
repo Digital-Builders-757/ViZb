@@ -14,9 +14,15 @@ export function formatDashboardEventWhen(startsAt: string, endsAt: string | null
   return `${startLabel} – ${endLabel}`
 }
 
+const CATEGORY_LABEL_OVERRIDES: Record<string, string> = {
+  open_mic: "Open mic",
+}
+
 export function formatCategoryLabel(category: string): string {
   if (!category) return "Event"
-  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
+  const key = category.toLowerCase()
+  if (CATEGORY_LABEL_OVERRIDES[key]) return CATEGORY_LABEL_OVERRIDES[key]
+  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase().replace(/_/g, " ")
 }
 
 export function formatCategoryLabels(categories: string[] | null | undefined): string {

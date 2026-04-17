@@ -8,15 +8,7 @@ import Link from "next/link"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-
-const CATEGORIES = [
-  { value: "party", label: "Party" },
-  { value: "concert", label: "Concert" },
-  { value: "workshop", label: "Workshop" },
-  { value: "networking", label: "Networking" },
-  { value: "social", label: "Social" },
-  { value: "other", label: "Other" },
-]
+import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
 
 interface CreateEventFormProps {
   orgId: string
@@ -50,6 +42,8 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
   const [startOpen, setStartOpen] = useState(false)
   const [endOpen, setEndOpen] = useState(false)
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
+  const [rsvpMode, setRsvpMode] = useState<"unlimited" | "capped">("unlimited")
+  const [rsvpCapInput, setRsvpCapInput] = useState("")
 
   function toggleCategory(value: string) {
     setSelectedCategories((prev) => {
@@ -82,6 +76,18 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
     formData.set("org_id", orgId)
     for (const c of selectedCategories) {
       formData.append("categories", c)
+    }
+
+    if (rsvpMode === "unlimited") {
+      formData.set("rsvp_capacity", "")
+    } else {
+      const capRaw = rsvpCapInput.trim()
+      if (!capRaw) {
+        setError("Enter a maximum number of free RSVPs, or choose Unlimited RSVPs.")
+        setLoading(false)
+        return
+      }
+      formData.set("rsvp_capacity", capRaw)
     }
 
     const startDateTime = `${format(startDate, "yyyy-MM-dd")}T${startTime}`
@@ -176,7 +182,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                   Pick all that apply — helps people discover your event.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((cat) => {
+                  {EVENT_CATEGORY_OPTIONS.map((cat) => {
                     const on = selectedCategories.has(cat.value)
                     return (
                       <button
@@ -211,25 +217,71 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                 <p className="text-[11px] text-[#555555]">Markdown is not supported yet. Keep it plain text for now.</p>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="rsvp_capacity"
-                  className="text-xs font-mono uppercase tracking-widest text-[#888888]"
-                >
-                  RSVP capacity
-                </label>
-                <input
-                  id="rsvp_capacity"
-                  name="rsvp_capacity"
-                  type="number"
-                  min={1}
-                  step={1}
-                  placeholder="Leave blank for no limit"
-                  className={inputClass}
-                />
-                <p className="text-[11px] text-[#555555]">
-                  Optional max for free RSVPs once the event is published. You can change this later.
-                </p>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-widest text-[#888888]">
+                    RSVP capacity
+                  </span>
+                  <p className="text-[11px] text-[#555555] mt-1 leading-relaxed max-w-xl">
+                    Limits how many people can hold an active free RSVP (confirmed or checked in) for this
+                    event once it is published. This is easy to get wrong — choose deliberately. You can
+                    change this later from the event page.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRsvpMode("unlimited")
+                      setRsvpCapInput("")
+                    }}
+                    className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
+                      rsvpMode === "unlimited"
+                        ? "border-brand-cyan bg-brand-cyan/10 text-[#FAFAFA]"
+                        : "border-[#333333] text-[#888888] hover:border-[#444444] hover:text-[#FAFAFA]"
+                    }`}
+                  >
+                    Unlimited RSVPs
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRsvpMode("capped")}
+                    className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
+                      rsvpMode === "capped"
+                        ? "border-brand-cyan bg-brand-cyan/10 text-[#FAFAFA]"
+                        : "border-[#333333] text-[#888888] hover:border-[#444444] hover:text-[#FAFAFA]"
+                    }`}
+                  >
+                    Set RSVP cap
+                  </button>
+                </div>
+                {rsvpMode === "capped" ? (
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="rsvp_capacity"
+                      className="text-xs font-mono uppercase tracking-widest text-[#888888]"
+                    >
+                      Maximum free RSVPs
+                    </label>
+                    <input
+                      id="rsvp_capacity"
+                      type="number"
+                      min={1}
+                      step={1}
+                      value={rsvpCapInput}
+                      onChange={(e) => setRsvpCapInput(e.target.value)}
+                      placeholder="e.g. 150"
+                      className={inputClass}
+                    />
+                    <p className="text-[11px] text-[#555555]">
+                      Whole-event cap. New RSVPs are blocked when confirmed + checked-in reaches this number.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-[#555555]">
+                    No limit — as many free RSVPs as you need, subject to other settings.
+                  </p>
+                )}
               </div>
             </div>
           </section>
