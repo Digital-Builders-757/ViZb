@@ -11,6 +11,10 @@ import {
   updateLineupEntry,
 } from "@/app/actions/lineup"
 import { formatLineupStatusLabel } from "@/lib/lineup/lineup-entry-status"
+import {
+  getPublicLineupAbsoluteUrl,
+  getPublicLineupShareTarget,
+} from "@/lib/public-site-url"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronUp, Link2, Mic2 } from "lucide-react"
 
@@ -58,13 +62,11 @@ export function OpenMicLineupPanel({
 }) {
   const [pending, startTransition] = useTransition()
 
-  const publicLineupUrl = (() => {
-    const site = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
-    return site ? `${site}/lineup/${eventSlug}` : `/lineup/${eventSlug}`
-  })()
+  const publicLineupAbsolute = getPublicLineupAbsoluteUrl(eventSlug)
+  const publicLineupShareTarget = getPublicLineupShareTarget(eventSlug)
 
   const copyPublicLink = () => {
-    const text = publicLineupUrl
+    const text = publicLineupShareTarget
     void navigator.clipboard.writeText(text).then(
       () => toast.success("Public lineup link copied."),
       () => toast.error("Could not copy link."),
@@ -96,6 +98,19 @@ export function OpenMicLineupPanel({
           <Link2 className="w-3 h-3 mr-2" />
           Copy public link
         </Button>
+      </div>
+
+      <div className="mb-6 rounded-md border border-border/60 bg-muted/5 px-3 py-2 space-y-1">
+        <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+          Public lineup URL
+        </p>
+        <p className="text-xs font-mono text-foreground/90 break-all">{publicLineupShareTarget}</p>
+        {!publicLineupAbsolute ? (
+          <p className="text-[11px] text-muted-foreground leading-snug">
+            Set <span className="text-foreground/80">NEXT_PUBLIC_SITE_URL</span> so this shows a full https link for
+            embeds and sharing (see <span className="text-foreground/80">.env.example</span>).
+          </p>
+        ) : null}
       </div>
 
       {isArchived ? (
