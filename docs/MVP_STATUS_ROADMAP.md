@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 11, 2026 |
+| **Last Audited** | April 17, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 largely shipped; Posts MVP shipped; Phase 3 (free RSVP + $0 tickets) largely shipped |
@@ -52,6 +52,7 @@
 | 026 | `026_event_rsvp_capacity.sql` / `20260410120000_event_rsvp_capacity.sql` | Optional `events.rsvp_capacity` + occupancy RPC |
 | 028 | `028_tickets_core_free_rsvp.sql` / `20260410142142_tickets_core_free_rsvp.sql` | `ticket_types`, `orders`, `order_items`, `tickets`, mint RPC |
 | 029 | `029_ticket_types_org_crud_and_mint_tier.sql` / `20260410144936_ticket_types_org_crud_and_mint_tier.sql` | Tier capacity / sale window; org CRUD; mint accepts tier id |
+| — | `20260417202850_add_open_mic_event_category.sql` | Extends `events_categories_check` for tag **`open_mic`** |
 | … | Other timestamped `supabase/migrations/*` | Full order + mirrors: `docs/database/MIGRATIONS.md` |
 
 ---
@@ -62,7 +63,7 @@
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
 | Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
-| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet shipped; paid tiers next) | ~65% |
+| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet + RSVP→ticket hardening + **`open_mic`** category; paid tiers next) | ~68% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |

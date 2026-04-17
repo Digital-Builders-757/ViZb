@@ -9,7 +9,7 @@ import { Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { normalizeCategories } from "@/lib/events/categories"
+import { EVENT_CATEGORY_OPTIONS, normalizeCategories } from "@/lib/events/categories"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 
 export const metadata: Metadata = {
@@ -51,7 +51,11 @@ interface FlatEvent {
   org_slug: string | null
 }
 
-const FILTER_CATEGORIES = ["All", "Party", "Networking", "Workshop", "Concert", "Social", "Other"] as const
+/** Public listing chips: `slug` is the `?category=` query value (must match `events.categories` text). */
+const EVENT_LISTING_FILTERS = [
+  { slug: "all" as const, label: "All" },
+  ...EVENT_CATEGORY_OPTIONS.map((o) => ({ slug: o.value, label: o.label })),
+] as const
 
 function eventsListingQuery(opts: { category?: string | null; vibes?: boolean }): string {
   const sp = new URLSearchParams()
@@ -261,19 +265,20 @@ export default async function EventsExplorePage({
 
           {/* Filter bar */}
           <div className="mt-8 flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none md:mt-10">
-            {FILTER_CATEGORIES.map((cat) => {
-              const isActive = cat === "All"
-                ? !activeFilter || activeFilter === "all"
-                : activeFilter === cat.toLowerCase()
-              const catSlug = cat === "All" ? undefined : cat.toLowerCase()
+            {EVENT_LISTING_FILTERS.map((cat) => {
+              const isActive =
+                cat.slug === "all"
+                  ? !activeFilter || activeFilter === "all"
+                  : activeFilter === cat.slug
+              const categoryParam = cat.slug === "all" ? undefined : cat.slug
               const href =
-                cat === "All"
+                cat.slug === "all"
                   ? `/events${eventsListingQuery({ vibes: vibesFilter })}`
-                  : `/events${eventsListingQuery({ category: catSlug, vibes: vibesFilter })}`
+                  : `/events${eventsListingQuery({ category: categoryParam, vibes: vibesFilter })}`
 
               return (
                 <Link
-                  key={cat}
+                  key={cat.slug}
                   href={href}
                   className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
                     isActive
@@ -281,7 +286,7 @@ export default async function EventsExplorePage({
                       : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgba(0,209,255,0.10)]"
                   }`}
                 >
-                  {cat}
+                  {cat.label}
                 </Link>
               )
             })}

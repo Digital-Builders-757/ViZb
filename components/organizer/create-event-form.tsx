@@ -8,15 +8,7 @@ import Link from "next/link"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-
-const CATEGORIES = [
-  { value: "party", label: "Party" },
-  { value: "concert", label: "Concert" },
-  { value: "workshop", label: "Workshop" },
-  { value: "networking", label: "Networking" },
-  { value: "social", label: "Social" },
-  { value: "other", label: "Other" },
-]
+import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
 
 interface CreateEventFormProps {
   orgId: string
@@ -190,7 +182,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                   Pick all that apply — helps people discover your event.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((cat) => {
+                  {EVENT_CATEGORY_OPTIONS.map((cat) => {
                     const on = selectedCategories.has(cat.value)
                     return (
                       <button

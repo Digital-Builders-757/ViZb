@@ -4,15 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Save, X } from "lucide-react"
 import { updateEventDetails } from "@/app/actions/event"
-
-const CATEGORIES = [
-  { value: "party", label: "Party" },
-  { value: "concert", label: "Concert" },
-  { value: "workshop", label: "Workshop" },
-  { value: "networking", label: "Networking" },
-  { value: "social", label: "Social" },
-  { value: "other", label: "Other" },
-]
+import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
 
 export function EventDetailsEditForm({
   event,
@@ -244,7 +236,7 @@ export function EventDetailsEditForm({
       <fieldset className="flex flex-col gap-3">
         <legend className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Categories</legend>
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => {
+          {EVENT_CATEGORY_OPTIONS.map((cat) => {
             const on = selected.has(cat.value)
             return (
               <button

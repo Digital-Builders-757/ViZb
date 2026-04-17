@@ -1,4 +1,4 @@
-/** Allowed event category values — keep in sync with DB constraint in scripts/020_event_categories_array.sql */
+/** Allowed event category values — keep in sync with DB constraint (`events_categories_check`; see `supabase/migrations/20260417202850_add_open_mic_event_category.sql` and `scripts/020_event_categories_array.sql`). */
 
 export const EVENT_CATEGORY_VALUES = [
   "party",
@@ -7,11 +7,23 @@ export const EVENT_CATEGORY_VALUES = [
   "social",
   "concert",
   "other",
+  "open_mic",
 ] as const
 
 export type EventCategoryValue = (typeof EVENT_CATEGORY_VALUES)[number]
 
 const ALLOWED_SET = new Set<string>(EVENT_CATEGORY_VALUES)
+
+/** Checkbox options for organizer create/edit forms (single source of truth). */
+export const EVENT_CATEGORY_OPTIONS: { value: EventCategoryValue; label: string }[] = [
+  { value: "party", label: "Party" },
+  { value: "concert", label: "Concert" },
+  { value: "workshop", label: "Workshop" },
+  { value: "networking", label: "Networking" },
+  { value: "social", label: "Social" },
+  { value: "open_mic", label: "Open mic" },
+  { value: "other", label: "Other" },
+]
 
 export function isValidEventCategory(v: string): v is EventCategoryValue {
   return ALLOWED_SET.has(v)
