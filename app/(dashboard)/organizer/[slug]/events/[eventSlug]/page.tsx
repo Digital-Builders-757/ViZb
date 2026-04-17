@@ -21,6 +21,11 @@ import {
   EventTicketTypesPanel,
   type OrganizerTicketTypeRow,
 } from "@/components/organizer/event-ticket-types-panel"
+import {
+  OpenMicLineupPanel,
+  type OpenMicLineupEntryRow,
+} from "@/components/organizer/open-mic-lineup-panel"
+import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 
 export default async function EventDetailPage({
   params,
@@ -116,6 +121,21 @@ export default async function EventDetailPage({
         .eq("event_id", event.id)
         .order("sort_order", { ascending: true })
       ticketTypeRows = (ttAgain as OrganizerTicketTypeRow[]) ?? []
+    }
+  }
+
+  let lineupEntries: OpenMicLineupEntryRow[] = []
+  if (eventHasOpenMicCategory(categories)) {
+    try {
+      const { data: lu } = await supabase
+        .from("event_lineup_entries")
+        .select("id, performer_name, stage_name, notes, slot_order, status, is_public")
+        .eq("event_id", event.id)
+        .order("slot_order", { ascending: true })
+        .order("id", { ascending: true })
+      lineupEntries = (lu as OpenMicLineupEntryRow[]) ?? []
+    } catch {
+      lineupEntries = []
     }
   }
 
@@ -277,6 +297,16 @@ export default async function EventDetailPage({
         eventSlug={eventSlug}
         types={ticketTypeRows}
       />
+
+      {eventHasOpenMicCategory(categories) ? (
+        <OpenMicLineupPanel
+          eventId={event.id}
+          eventSlug={eventSlug}
+          orgSlug={slug}
+          entries={lineupEntries}
+          isArchived={event.status === "archived"}
+        />
+      ) : null}
 
       {/* Attendees */}
       <EventAttendeesPanel

@@ -53,6 +53,7 @@
 | 028 | `028_tickets_core_free_rsvp.sql` / `20260410142142_tickets_core_free_rsvp.sql` | `ticket_types`, `orders`, `order_items`, `tickets`, mint RPC |
 | 029 | `029_ticket_types_org_crud_and_mint_tier.sql` / `20260410144936_ticket_types_org_crud_and_mint_tier.sql` | Tier capacity / sale window; org CRUD; mint accepts tier id |
 | — | `20260417202850_add_open_mic_event_category.sql` | Extends `events_categories_check` for tag **`open_mic`** |
+| — | `20260417210000_event_lineup_entries.sql` | **`event_lineup_entries`** + **`lineup_entry_status`** + RLS (public read slice + org/staff CRUD) |
 | … | Other timestamped `supabase/migrations/*` | Full order + mirrors: `docs/database/MIGRATIONS.md` |
 
 ---
@@ -319,6 +320,10 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 ### Phase 3: Ticket Types + Free RSVP
 
 **Goal:** Events have ticket tiers. Attendees can RSVP to free events and receive tickets.
+
+**Shipped (April 2026 — Open mic lineup v1):**
+
+- [x] **`event_lineup_entries`** + RLS — `supabase/migrations/20260417210000_event_lineup_entries.sql`; dashboard **`OpenMicLineupPanel`** (`components/organizer/open-mic-lineup-panel.tsx`) on organizer + admin event pages when **`open_mic`** is in categories; public **`/lineup/[eventSlug]`** (`app/lineup/[eventSlug]/page.tsx`) with strict query filters; mutations **`app/actions/lineup.ts`**
 
 **Shipped (April 2026 — Tickets / wallet passes v2):**
 

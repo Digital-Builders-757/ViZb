@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2 } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
@@ -17,6 +17,7 @@ import { EventStripeReturn } from "@/components/events/event-stripe-return"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
 import { mintFreeRsvpTicketForRegistration } from "@/lib/tickets/mint-free-rsvp-ticket"
+import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 
 interface PublicEvent {
   id: string
@@ -460,6 +461,21 @@ export default async function PublicEventDetailPage({
                       variant="detail"
                     />
                   </div>
+
+                  {eventHasOpenMicCategory(event.categories) ? (
+                    <div className="mt-4">
+                      <Link
+                        href={`/lineup/${event.slug}`}
+                        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline"
+                      >
+                        <Mic2 className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                        Open mic lineup
+                      </Link>
+                      <p className="mt-1 text-[11px] text-[color:var(--neon-text2)]">
+                        Shareable order of performers (when the host marks slots public).
+                      </p>
+                    </div>
+                  ) : null}
 
                   <EventRsvpCta
                     key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
