@@ -324,6 +324,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 **Shipped (April 2026 — Open mic lineup v1):**
 
 - [x] **`event_lineup_entries`** + RLS — `supabase/migrations/20260417210000_event_lineup_entries.sql`; dashboard **`OpenMicLineupPanel`** (`components/organizer/open-mic-lineup-panel.tsx`) on organizer + admin event pages when **`open_mic`** is in categories; public **`/lineup/[eventSlug]`** (`app/lineup/[eventSlug]/page.tsx`) with strict query filters; mutations **`app/actions/lineup.ts`**
+- [x] **Public lineup share URL** — `lib/public-site-url.ts` (absolute link from **`NEXT_PUBLIC_SITE_URL`**); organizer panel shows the URL + **Copy public link**; **`docs/OPEN_MIC_LINEUP.md`** + **`.env.example`** document canonical host (e.g. `www` after apex redirect)
 
 **Shipped (April 2026 — Tickets / wallet passes v2):**
 

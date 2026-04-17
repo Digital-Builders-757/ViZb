@@ -3,6 +3,14 @@
 ## Status
 Shipped (V1 — April 2026). See `supabase/migrations/20260417210000_event_lineup_entries.sql`, `app/actions/lineup.ts`, `app/lineup/[eventSlug]/page.tsx`.
 
+## Public lineup URL (canonical)
+
+- **Route:** `/lineup/[eventSlug]` — the slug is the **`events.slug`** for a **published** event whose **`categories`** include **`open_mic`**.
+- **Signal 91 (example):** event slug **`signal-91`** → path **`/lineup/signal-91`**.
+- **Full URL in production** is **`NEXT_PUBLIC_SITE_URL`** + that path (see **`.env.example`**). Code helpers: `lib/public-site-url.ts` (`getPublicLineupAbsoluteUrl`, `getPublicLineupShareTarget`).
+- **Verified live (April 2026):** `https://www.vizbva.com/lineup/signal-91` returns **200**; the apex host may **307** to `www` — prefer the **`www`** URL (or set **`NEXT_PUBLIC_SITE_URL`** to `https://www.vizbva.com`) so shared links match the final host without an extra redirect.
+- **Organizer UI:** **Open mic lineup** panel shows the share target and **Copy public link** (`components/organizer/open-mic-lineup-panel.tsx`).
+
 ## Purpose
 This document defines the first version of the **Open Mic Lineup** feature for ViZb.
 The goal is to support open mic events, like **Signal 91**, with a lightweight but reliable workflow that lets organizers:
