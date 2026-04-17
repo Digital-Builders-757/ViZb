@@ -177,6 +177,7 @@ export default async function AdminEventDetailPage({
           orgSlug={organizerOrgSlug}
           entries={lineupEntries}
           isArchived={event.status === "archived"}
+          eventIsPublished={event.status === "published"}
         />
       ) : null}
 
