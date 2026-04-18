@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { submitHostApplication } from "@/app/actions/host-application"
 import { Building2, FileText, Globe, CheckCircle2 } from "lucide-react"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export function HostApplicationForm() {
   const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null)
@@ -18,7 +19,7 @@ export function HostApplicationForm() {
 
   if (result?.success) {
     return (
-      <div className="form-card p-6 md:p-8">
+      <GlassCard emphasis className="card-accent-cyan p-6 md:p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-neon-a/10 flex items-center justify-center">
             <CheckCircle2 className="w-5 h-5 text-neon-a" />
@@ -30,13 +31,13 @@ export function HostApplicationForm() {
             </p>
           </div>
         </div>
-      </div>
+      </GlassCard>
     )
   }
 
   return (
     <form action={handleSubmit}>
-      <div className="form-card p-0 overflow-hidden">
+      <GlassCard emphasis className="card-accent-cyan p-0 overflow-hidden">
 
         {/* Section 1: Organization Info */}
         <div className="px-5 md:px-6 pt-5 md:pt-6 pb-4 flex items-center gap-3">
@@ -59,7 +60,7 @@ export function HostApplicationForm() {
               name="orgName"
               type="text"
               required
-              className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+              className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
               placeholder="Your organization or collective name"
             />
           </div>
@@ -71,7 +72,7 @@ export function HostApplicationForm() {
             <select
               id="orgType"
               name="orgType"
-              className="w-full input-premium px-4 py-3 text-sm text-foreground"
+              className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground"
             >
               <option value="collective">Collective</option>
               <option value="brand">Brand</option>
@@ -103,7 +104,7 @@ export function HostApplicationForm() {
               id="description"
               name="description"
               rows={4}
-              className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 resize-none"
+              className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 resize-none"
               placeholder="What kind of events do you organize? How many people attend? What makes your events unique?"
             />
             <p className="text-[11px] text-muted-foreground/60 mt-1">The more detail you share, the faster we can review your application.</p>
@@ -129,7 +130,7 @@ export function HostApplicationForm() {
                 id="website"
                 name="website"
                 type="url"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
                 placeholder="https://your-site.com"
               />
             </div>
@@ -140,7 +141,7 @@ export function HostApplicationForm() {
                 id="socialLinks"
                 name="socialLinks"
                 type="text"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
                 placeholder="@handle or URL"
               />
             </div>
@@ -149,11 +150,11 @@ export function HostApplicationForm() {
 
         {/* Footer action bar */}
         <div className="section-divider" />
-        <div className="px-5 md:px-6 py-4 flex items-center gap-4 bg-[#0a0a0a]">
+        <div className="px-5 md:px-6 py-4 flex items-center gap-4 bg-[color:var(--neon-surface)]/95 border-t border-[color:var(--neon-hairline)]">
           <button
             type="submit"
             disabled={pending}
-            className="bg-gradient-to-r from-neon-b to-neon-a text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all disabled:opacity-50"
+            className="vibe-cta-gradient vibe-focus-ring px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pending ? "Submitting..." : "Submit Application"}
           </button>
@@ -165,7 +166,7 @@ export function HostApplicationForm() {
             <p className="text-sm text-destructive">{result.error}</p>
           </div>
         )}
-      </div>
+      </GlassCard>
     </form>
   )
 }

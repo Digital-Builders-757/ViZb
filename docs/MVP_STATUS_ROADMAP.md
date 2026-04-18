@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 17, 2026 |
+| **Last Audited** | April 18, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 largely shipped; Posts MVP shipped; Phase 3 (free RSVP + $0 tickets) largely shipped |
@@ -67,7 +67,7 @@
 | Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet + RSVP→ticket hardening + **`open_mic`** category; paid tiers next) | ~68% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | IN PROGRESS (~50% — site-wide **neon / glass** UI alignment shipped in `feat/visual-overhaul-neon-glass`; see `docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`) | ~50% |
+| Phase 6 | Admin Workflows + Polish | IN PROGRESS (~50% — site-wide **neon / glass** UI in `feat/visual-overhaul-neon-glass`; **ship polish:** organizer/admin/event forms migrated off legacy `form-card` / `input-premium` to `GlassCard` + `vibe-input-glass` / `vibe-cta-gradient`; see `docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`) | ~52% |
 
 ---
 

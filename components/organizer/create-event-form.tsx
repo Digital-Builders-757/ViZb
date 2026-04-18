@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
+import { GlassCard } from "@/components/ui/glass-card"
 
 interface CreateEventFormProps {
   orgId: string
@@ -113,7 +114,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
   }
 
   const inputClass =
-    "input-premium w-full px-4 py-3 text-sm text-[#FAFAFA] placeholder:text-[#555555] font-sans"
+    "vibe-input-glass vibe-focus-ring w-full px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground font-sans rounded-lg"
 
   return (
     <div className="form-glow-bg min-h-full pb-28">
@@ -151,7 +152,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
 
       {/* Form card */}
       <form onSubmit={handleSubmit}>
-        <div className="form-card p-6 md:p-8 flex flex-col gap-0">
+        <GlassCard emphasis className="card-accent-cyan p-6 md:p-8 flex flex-col gap-0">
 
           {/* ---- Section 1: Basics ---- */}
           <section>
@@ -447,17 +448,17 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
               </div>
             </div>
           </section>
-        </div>
+        </GlassCard>
 
         {/* ---- Sticky Footer Action Bar ---- */}
         <div className="fixed bottom-0 left-0 right-0 z-50 md:left-64">
-          <div className="border-t border-[#222222] bg-[#0A0A0A]/95 backdrop-blur-md">
+          <div className="border-t border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/95 backdrop-blur-md">
             <div className="max-w-4xl mx-auto px-4 md:px-8 py-4 flex flex-col sm:flex-row items-center gap-3 sm:justify-between">
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 sm:flex-none bg-gradient-to-r from-neon-b to-neon-a text-white px-8 py-3 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 sm:flex-none vibe-cta-gradient vibe-focus-ring px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Creating..." : "Create Draft"}
                 </button>

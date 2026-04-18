@@ -26,6 +26,7 @@ import {
   type OpenMicLineupEntryRow,
 } from "@/components/organizer/open-mic-lineup-panel"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export default async function EventDetailPage({
   params,
@@ -241,7 +242,7 @@ export default async function EventDetailPage({
       )}
 
       {/* Flyer Section */}
-      <div className="mt-8 form-card p-6 md:p-8">
+      <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-6 flex items-center gap-2">
           <ImageIcon className="w-4 h-4" />
           Event Flyer
@@ -289,10 +290,10 @@ export default async function EventDetailPage({
             )}
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* Event details card — before RSVP & ticket tiers so the primary save is encountered first */}
-      <div className="mt-6 form-card p-6 md:p-8">
+      <GlassCard emphasis className="card-accent-cyan mt-6 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2">
           Event Details
         </h2>
@@ -410,7 +411,7 @@ export default async function EventDetailPage({
             <span className="font-mono">/{event.slug}</span>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       <EventTicketTypesPanel
         orgSlug={slug}

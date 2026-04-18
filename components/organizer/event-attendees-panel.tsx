@@ -2,6 +2,7 @@ import { Camera, Users } from "lucide-react"
 import Link from "next/link"
 import { OrganizerEventAttendeesTable } from "@/components/organizer/event-attendees-table"
 import { Button } from "@/components/ui/button"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export function EventAttendeesPanel({
   total,
@@ -28,7 +29,7 @@ export function EventAttendeesPanel({
   rsvpCapacity?: number | null
 }) {
   return (
-    <div className="mt-6 form-card p-6 md:p-8">
+    <GlassCard emphasis className="card-accent-cyan mt-6 p-6 md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">
@@ -102,6 +103,6 @@ export function EventAttendeesPanel({
       {rows.length > 200 ? (
         <p className="mt-2 text-[11px] text-muted-foreground">Showing first 200 RSVPs.</p>
       ) : null}
-    </div>
+    </GlassCard>
   )
 }

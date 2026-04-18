@@ -7,6 +7,7 @@ import {
   deleteEventTicketType,
   updateEventTicketType,
 } from "@/app/actions/ticket-types"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export type OrganizerTicketTypeRow = {
   id: string
@@ -28,7 +29,7 @@ function toLocalInput(iso: string | null) {
 }
 
 const fieldClass =
-  "w-full bg-[#0a0a0a] border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
+  "w-full vibe-input-glass vibe-focus-ring px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground rounded-md"
 const labelClass = "text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
 /** Secondary actions — per-tier only; primary “Save event details” lives above in EventDetailsEditForm. */
 const tierActionButtonClass =
@@ -48,7 +49,7 @@ export function EventTicketTypesPanel({
   const [pending, startTransition] = useTransition()
 
   return (
-    <div className="mt-6 form-card p-6 md:p-8">
+    <GlassCard emphasis className="card-accent-cyan mt-6 p-6 md:p-8">
       <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-1">RSVP and ticket tiers</h2>
       <p className="text-sm text-muted-foreground mb-3 max-w-2xl">
         Each row is its own form: use <span className="text-foreground/90 font-medium">Save tier</span> for that tier
@@ -262,6 +263,6 @@ export function EventTicketTypesPanel({
           </div>
         </form>
       </div>
-    </div>
+    </GlassCard>
   )
 }

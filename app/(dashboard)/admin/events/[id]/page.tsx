@@ -142,7 +142,7 @@ export default async function AdminEventDetailPage({
         </div>
       </div>
 
-      <div className="mt-8 form-card p-6 md:p-8">
+      <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">
           <FileText className="w-4 h-4" />
           Event details
@@ -168,7 +168,7 @@ export default async function AdminEventDetailPage({
             updated_at: (event as { updated_at?: string }).updated_at,
           }}
         />
-      </div>
+      </GlassCard>
 
       {eventHasOpenMicCategory(editFormCategories) ? (
         <OpenMicLineupPanel
@@ -181,7 +181,7 @@ export default async function AdminEventDetailPage({
         />
       ) : null}
 
-      <div className="mt-8 form-card p-6 md:p-8">
+      <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">
           <Users className="w-4 h-4" />
           RSVPs
@@ -219,7 +219,7 @@ export default async function AdminEventDetailPage({
         </div>
 
         <AdminEventRegistrationsTable eventId={event.id} rows={rows} profileById={profileById} />
-      </div>
+      </GlassCard>
     </div>
   )
 }

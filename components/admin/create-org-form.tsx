@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { createOrgWithInvite } from "@/app/actions/invite"
 import { Building2, UserPlus, Link2, CheckCircle2, Copy } from "lucide-react"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export function CreateOrgForm() {
   const [result, setResult] = useState<{ success?: boolean; error?: string; invite?: { claimUrl: string; token: string }; org?: { name: string; slug: string } } | null>(null)
@@ -25,7 +26,7 @@ export function CreateOrgForm() {
 
   return (
     <form action={handleSubmit}>
-      <div className="form-card p-0 overflow-hidden">
+      <GlassCard emphasis className="card-accent-blue-mid p-0 overflow-hidden">
 
         {/* Section 1: Organization Details */}
         <div className="px-5 md:px-6 pt-5 md:pt-6 pb-4 flex items-center gap-3">
@@ -48,7 +49,7 @@ export function CreateOrgForm() {
               name="orgName"
               type="text"
               required
-              className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+              className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
               placeholder="e.g. Underground Collective"
             />
           </div>
@@ -59,7 +60,7 @@ export function CreateOrgForm() {
               <select
                 id="orgType"
                 name="orgType"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground"
               >
                 <option value="collective">Collective</option>
                 <option value="brand">Brand</option>
@@ -75,7 +76,7 @@ export function CreateOrgForm() {
                 id="description"
                 name="description"
                 type="text"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
                 placeholder="Brief description"
               />
             </div>
@@ -100,7 +101,7 @@ export function CreateOrgForm() {
               <select
                 id="inviteRole"
                 name="inviteRole"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground"
               >
                 <option value="owner">Owner</option>
                 <option value="admin">Admin</option>
@@ -115,7 +116,7 @@ export function CreateOrgForm() {
                 id="inviteEmail"
                 name="inviteEmail"
                 type="email"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
                 placeholder="organizer@example.com"
               />
               <p className="text-[11px] text-muted-foreground/60">Optional -- locks invite to this email</p>
@@ -125,11 +126,11 @@ export function CreateOrgForm() {
 
         {/* Footer action bar */}
         <div className="section-divider" />
-        <div className="px-5 md:px-6 py-4 bg-[#0a0a0a]">
+        <div className="px-5 md:px-6 py-4 bg-[color:var(--neon-surface)]/95 border-t border-[color:var(--neon-hairline)]">
           <button
             type="submit"
             disabled={pending}
-            className="bg-gradient-to-r from-neon-b to-neon-a text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(0,189,255,0.3)] transition-all disabled:opacity-50"
+            className="vibe-cta-gradient vibe-focus-ring px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pending ? "Creating..." : "Create Org + Generate Invite"}
           </button>
@@ -154,7 +155,7 @@ export function CreateOrgForm() {
                 <strong>{result.org?.name}</strong>{" "}
                 <span className="text-muted-foreground">({result.org?.slug})</span>
               </p>
-              <div className="mt-3 bg-[#111111] border border-[#222222] p-3 flex items-start gap-3">
+              <div className="mt-3 rounded-lg bg-[color:var(--neon-surface)] border border-[color:var(--neon-hairline)] p-3 flex items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] text-muted-foreground/60 mb-1.5 flex items-center gap-1.5">
                     <Link2 className="w-3 h-3" />
@@ -167,7 +168,7 @@ export function CreateOrgForm() {
                 <button
                   type="button"
                   onClick={() => handleCopy(`${typeof window !== "undefined" ? window.location.origin : ""}${result.invite?.claimUrl}`)}
-                  className="shrink-0 p-2 border border-[#222222] hover:border-neon-a/30 hover:bg-neon-a/5 transition-colors"
+                  className="shrink-0 p-2 rounded-md border border-[color:var(--neon-hairline)] hover:border-neon-a/40 hover:bg-neon-a/5 transition-colors vibe-focus-ring"
                 >
                   <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
@@ -178,7 +179,7 @@ export function CreateOrgForm() {
             </div>
           </div>
         )}
-      </div>
+      </GlassCard>
     </form>
   )
 }

@@ -278,7 +278,15 @@ Think like a creative director plus product designer, not just a code formatter.
 | Event edit form: vibe inputs + sticky bar | Done |
 | Admin overview: GlassCard stat grid + posts quick links card | Done |
 | Public event detail polish (icon hierarchy) | Light pass (clock accent) |
-| Remaining `.form-card` / `input-premium` pockets | Follow-up (grep and migrate as touched) |
+| Remaining `.form-card` / `input-premium` pockets | **Done (ship polish):** organizer event detail flyer + details shells, admin event detail shells, ticket tiers + attendees panels, create-event + host-application + admin create-org forms → `GlassCard` + `card-accent-*` + `vibe-input-glass` / `vibe-cta-gradient` |
+
+## Finish pass (ship to `develop`) — finalized 2026-04-18
+
+- Removed repo-only draft **`.ship-pr-body.md`** (not part of the product).
+- Replaced legacy **`form-card`** wrappers on high-traffic organizer/admin surfaces with **`GlassCard`** (`emphasis` + thin **`card-accent-cyan`** / **`card-accent-blue-mid`** strips) so panels match the neon-glass system.
+- Migrated remaining **`input-premium`** fields to **`vibe-input-glass`** + **`vibe-focus-ring`** (create event, host application, admin org invite, ticket tier field grid).
+- Aligned sticky/footer primary actions to **`vibe-cta-gradient`** + **`vibe-focus-ring`** where those forms still used ad-hoc gradients.
+- Left **`.form-card` / `.input-premium` in `globals.css`** for any stragglers or third-party markup; TSX no longer depends on them for the touched routes.
 
 ## Follow-ups (non-blocking)
 
