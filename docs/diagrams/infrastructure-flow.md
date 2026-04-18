@@ -10,9 +10,9 @@ Where **request handling, Supabase access, and mutations** run. Complements **`a
 
 ```text
 Browser
-  → middleware.ts (Security: session refresh, routing gate)
+  → proxy.ts → lib/supabase/middleware.ts (Security: session refresh, routing gate)
   → Next.js App Router
-       → Server Components / RSC data loads → createSupabaseServer() (lib/supabase/server.ts)
+       → Server Components / RSC data loads → createClient() (lib/supabase/server.ts)
        → Client islands → user events → Server Actions or route handlers
   → Supabase (Postgres + Auth + Storage) — enforced by Locks (RLS)
 ```
@@ -25,7 +25,7 @@ Browser
 |---------|----------|------|
 | Browser Supabase | `lib/supabase/client.ts` | Terminal (client) |
 | Server Supabase | `lib/supabase/server.ts` | Staff (server) |
-| Session in middleware | `lib/supabase/middleware.ts` | Security |
+| Session refresh | `proxy.ts`, `lib/supabase/middleware.ts` | Security |
 | Mutations | `app/actions/*.ts` | Staff |
 | Auth OAuth callback | `app/auth/callback/route.ts` | Security + Staff |
 | Storage uploads | Server Actions + bucket policies | Baggage + Locks |

@@ -27,6 +27,7 @@ Details, merge policy, and hotfixes: [`docs/development/BRANCHING.md`](docs/deve
 | Start here | Purpose |
 |------------|---------|
 | [`docs/DOCUMENTATION_INDEX.md`](docs/DOCUMENTATION_INDEX.md) | Full map of docs and layers |
+| [`docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md`](docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md) | Hygiene / doc pass log (audit, DOD, validation) |
 | [`AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) | AI / agent quick path |
 | [`VIBE_PROJECT_CONTEXT_PROMPT.md`](VIBE_PROJECT_CONTEXT_PROMPT.md) | Pre-change checklist (ViBE Operating Doctrine) |
 | [`database_schema_audit.md`](database_schema_audit.md) | SQL / schema audit pointers |
@@ -34,26 +35,10 @@ Details, merge policy, and hotfixes: [`docs/development/BRANCHING.md`](docs/deve
 
 **Cursor:** commands and rules live under **`.cursor/commands/`** and **`.cursor/rules/`** (committed). Only **`.cursor/mcp.json`** is gitignored — do not put secrets in tracked files.
 
-## Overview (v0 sync)
+## Optional: v0.app sync
 
-This repository may stay in sync with deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app can be pushed to this repository from [v0.app](https://v0.app).
+Some UI may still originate from [v0.app](https://v0.app) chats. **Day-to-day development** uses this repo, the docs spine above, and `npm run ci` before shipping. v0 is optional tooling, not the source of truth for architecture or auth.
 
 ## Deployment
 
-Your project is live at:
-
-**[https://vercel.com/digital-builders/v0-website-redesign-guidance](https://vercel.com/digital-builders/v0-website-redesign-guidance)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/O15RXUTdE3J](https://v0.app/chat/O15RXUTdE3J)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Vercel project: [digital-builders / v0-website-redesign-guidance](https://vercel.com/digital-builders/v0-website-redesign-guidance).

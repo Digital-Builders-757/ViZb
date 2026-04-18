@@ -78,9 +78,9 @@ Sign-up and confirmation emails are sent by **Supabase**, not by the Next.js `re
 ## 4. Verify auth and dashboard
 
 1. Go to **http://localhost:3000/signup** and create a test user (use a real inbox you can open, or disable “confirm email” temporarily in Supabase → **Authentication** → **Providers** → **Email** for **local-only** testing — re-enable for anything shared).
-2. Confirm the email if required; you should land on **`/auth/callback`** then **`/dashboard`** (see `app/auth/callback/route.ts` and middleware).
+2. Confirm the email if required; you should land on **`/auth/callback`** then **`/dashboard`** (see `app/auth/callback/route.ts` and `proxy.ts` / `lib/supabase/middleware.ts`).
 3. Sign out from the dashboard sidebar, then go to **http://localhost:3000/login** and sign in again.
-4. Protected routes (`/dashboard`, `/profile`, `/organizer`, `/admin`, etc.) should redirect to **`/login`** when logged out (`middleware.ts` + `lib/supabase/middleware.ts`).
+4. Protected routes (`/dashboard`, `/profile`, `/organizer`, `/admin`, etc.) should redirect to **`/login`** when logged out (`proxy.ts` + `lib/supabase/middleware.ts`).
 
 **Database:** A row in **`profiles`** should be created for new users if the **`handle_new_user`** trigger from your SQL migrations is applied on that Supabase project. If login works but dashboard errors on profile, check Supabase logs and `scripts/004_create_profiles.sql`.
 
