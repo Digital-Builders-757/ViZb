@@ -34,8 +34,8 @@ export default async function AdminPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5 text-brand-blue" />
-          <span className="text-xs uppercase tracking-widest text-brand-blue font-mono">Staff Admin</span>
+          <Shield className="w-5 h-5 text-neon-b" />
+          <span className="text-xs uppercase tracking-widest text-neon-b font-mono">Staff Admin</span>
         </div>
         <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground mt-2">Platform Overview</h1>
         <GlassCard className="p-6">
@@ -128,8 +128,8 @@ export default async function AdminPage() {
     <div>
       {/* Page header */}
       <div className="flex items-center gap-3">
-        <Shield className="w-5 h-5 text-brand-blue" />
-        <span className="text-xs uppercase tracking-widest text-brand-blue font-mono">Staff Admin</span>
+        <Shield className="w-5 h-5 text-neon-b" />
+        <span className="text-xs uppercase tracking-widest text-neon-b font-mono">Staff Admin</span>
       </div>
       <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground mt-2">Platform Overview</h1>
       <p className="text-sm text-muted-foreground mt-2">
@@ -176,53 +176,73 @@ export default async function AdminPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mt-8 md:mt-10">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-5 md:mt-10 md:gap-4">
         {/* Make these actionable: jump to module */}
 
         <Link href="#users" className="block">
-          <div className="border border-border p-4 md:p-6 card-accent-blue hover:border-brand-blue/40 transition-colors">
-            <div className="flex items-center gap-3 mb-4">
-              <Users className="w-4 h-4 text-brand-blue" />
+          <GlassCard className="card-accent-blue p-4 transition-[box-shadow,border-color] hover:border-neon-b/40 hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <Users className="h-4 w-4 text-neon-b" />
               <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Users</span>
             </div>
-            <span className="text-2xl md:text-3xl font-bold text-brand-blue font-mono">{totalUsers}</span>
-          </div>
+            <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">{totalUsers}</span>
+          </GlassCard>
         </Link>
 
-        <div className="border border-border p-4 md:p-6 card-accent-blue-mid">
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <Building2 className="w-4 h-4 text-brand-blue-mid shrink-0" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Orgs</span>
+        <GlassCard className="card-accent-blue-mid p-4 md:p-6">
+          <div className="mb-3 flex items-center gap-2 md:mb-4 md:gap-3">
+            <Building2 className="h-4 w-4 shrink-0 text-neon-b" />
+            <span className="truncate text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+              Orgs
+            </span>
           </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-blue-mid font-mono">{totalOrgs}</span>
-        </div>
+          <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">{totalOrgs}</span>
+        </GlassCard>
 
         <Link href="#host-applications" className="block">
-          <div className="border border-border p-4 md:p-6 card-accent-cyan hover:border-brand-cyan/40 transition-colors">
-            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-              <FileText className="w-4 h-4 text-brand-cyan shrink-0" />
-              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Applications</span>
+          <GlassCard className="card-accent-cyan p-4 transition-[box-shadow,border-color] hover:border-neon-a/40 hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-6">
+            <div className="mb-3 flex items-center gap-2 md:mb-4 md:gap-3">
+              <FileText className="h-4 w-4 shrink-0 text-neon-a" />
+              <span className="truncate text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                Applications
+              </span>
             </div>
-            <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">{pendingApps}</span>
-          </div>
+            <span className="font-mono text-2xl font-bold text-neon-a md:text-3xl">{pendingApps}</span>
+          </GlassCard>
         </Link>
 
-        <div className="border border-border p-4 md:p-6 card-accent-cyan-bright">
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <Link2 className="w-4 h-4 text-brand-cyan-bright shrink-0" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Invites</span>
+        <GlassCard className="card-accent-cyan-bright p-4 md:p-6">
+          <div className="mb-3 flex items-center gap-2 md:mb-4 md:gap-3">
+            <Link2 className="h-4 w-4 shrink-0 text-neon-c" />
+            <span className="truncate text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+              Invites
+            </span>
           </div>
-          <span className="text-2xl md:text-3xl font-bold text-brand-cyan-bright font-mono">{activeInvites}</span>
-        </div>
+          <span className="font-mono text-2xl font-bold text-neon-c md:text-3xl">{activeInvites}</span>
+        </GlassCard>
 
         <Link href="#event-submissions" className="block">
-          <div className={`border p-4 md:p-6 transition-colors hover:border-brand-cyan/40 ${pendingEvents > 0 ? "border-amber-500/40 card-accent-cyan bg-amber-500/5" : "border-border card-accent-cyan"}`}>
-            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-              <CalendarCheck className={`w-4 h-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`} />
-              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">Events</span>
+          <GlassCard
+            className={`p-4 transition-[box-shadow,border-color] hover:border-neon-a/40 hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-6 ${
+              pendingEvents > 0
+                ? "card-accent-cyan border-amber-500/40 bg-amber-500/5"
+                : "card-accent-cyan"
+            }`}
+          >
+            <div className="mb-3 flex items-center gap-2 md:mb-4 md:gap-3">
+              <CalendarCheck
+                className={`h-4 w-4 shrink-0 ${pendingEvents > 0 ? "text-amber-500" : "text-neon-a"}`}
+              />
+              <span className="truncate text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                Events
+              </span>
             </div>
-            <span className={`text-2xl md:text-3xl font-bold font-mono ${pendingEvents > 0 ? "text-amber-500" : "text-brand-cyan"}`}>{pendingEvents}</span>
-          </div>
+            <span
+              className={`font-mono text-2xl font-bold md:text-3xl ${pendingEvents > 0 ? "text-amber-500" : "text-neon-a"}`}
+            >
+              {pendingEvents}
+            </span>
+          </GlassCard>
         </Link>
       </div>
 
@@ -236,12 +256,12 @@ export default async function AdminPage() {
         <p className="text-sm text-muted-foreground mt-1">
           Publish Markdown for the homepage From VIZB module and the public <code className="text-xs">/p</code> feed.
         </p>
-        <div className="mt-6 border border-border p-5 md:p-6 card-accent-cyan">
+        <GlassCard className="card-accent-cyan mt-6 p-5 md:p-6">
           <ul className="flex flex-col gap-3 text-sm">
             <li>
               <Link
                 href="/admin/posts/new"
-                className="font-medium text-foreground underline-offset-4 hover:text-brand-cyan hover:underline"
+                className="font-medium text-foreground underline-offset-4 hover:text-neon-a hover:underline"
               >
                 Create a new post
               </Link>
@@ -249,7 +269,7 @@ export default async function AdminPage() {
             <li>
               <Link
                 href="/admin/posts"
-                className="font-medium text-foreground underline-offset-4 hover:text-brand-cyan hover:underline"
+                className="font-medium text-foreground underline-offset-4 hover:text-neon-a hover:underline"
               >
                 Manage posts
               </Link>
@@ -265,7 +285,7 @@ export default async function AdminPage() {
               </Link>
             </li>
           </ul>
-        </div>
+        </GlassCard>
       </div>
 
       <AdminSection

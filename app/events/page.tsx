@@ -237,8 +237,14 @@ export default async function EventsExplorePage({
 
       {/* Floating neon orbs */}
       <div className="fixed top-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl animate-pulse z-[1]" />
-      <div className="fixed bottom-32 left-10 w-32 h-32 bg-[#00BDFF]/15 rounded-full blur-3xl animate-pulse z-[1]" style={{ animationDelay: "1s" }} />
-      <div className="fixed top-1/2 right-1/4 w-24 h-24 bg-[#0C74E8]/10 rounded-full blur-3xl animate-pulse z-[1]" style={{ animationDelay: "2s" }} />
+      <div
+        className="fixed bottom-32 left-10 z-[1] h-32 w-32 rounded-full bg-[color:var(--neon-a)]/15 blur-3xl animate-pulse"
+        style={{ animationDelay: "1s" }}
+      />
+      <div
+        className="fixed top-1/2 right-1/4 z-[1] h-24 w-24 rounded-full bg-[color:var(--neon-b)]/10 blur-3xl animate-pulse"
+        style={{ animationDelay: "2s" }}
+      />
 
       {/* All page content above the background */}
       <div className="relative z-10">

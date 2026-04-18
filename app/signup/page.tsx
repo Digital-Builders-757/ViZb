@@ -108,7 +108,7 @@ export default function SignUpPage() {
       </div>
 
       {/* Animated bubbles */}
-      <div className="absolute inset-0 -z-5 overflow-hidden pointer-events-none">
+      <div className="auth-bubble-field absolute inset-0 -z-5 overflow-hidden pointer-events-none">
         {bubbles.map((bubble, i) => (
           <div
             key={i}
@@ -212,7 +212,10 @@ export default function SignUpPage() {
           </p>
 
           {/* Form with glass card */}
-          <form onSubmit={handleSignUp} className="mt-10 space-y-6 p-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] backdrop-blur-sm">
+          <form
+            onSubmit={handleSignUp}
+            className="mt-10 space-y-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
+          >
             <div className="min-h-0 space-y-4">
               {validationBanner ? (
                 <AuthAlert variant="warning" title={validationBanner.title} message={validationBanner.message} />
@@ -266,7 +269,7 @@ export default function SignUpPage() {
                 required
                 placeholder="What should we call you?"
                 aria-invalid={!!fieldErrors.displayName}
-                className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-a)]/50 transition-all"
+                className="vibe-input-glass vibe-focus-ring text-[color:var(--neon-text0)]"
               />
               {fieldErrors.displayName ? (
                 <p className="mt-2 text-sm text-destructive">{fieldErrors.displayName}</p>
@@ -285,7 +288,7 @@ export default function SignUpPage() {
                 required
                 placeholder="you@example.com"
                 aria-invalid={!!fieldErrors.email}
-                className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-a)]/50 transition-all"
+                className="vibe-input-glass vibe-focus-ring text-[color:var(--neon-text0)]"
               />
               {fieldErrors.email ? (
                 <p className="mt-2 text-sm text-destructive">{fieldErrors.email}</p>
@@ -304,7 +307,7 @@ export default function SignUpPage() {
                 required
                 placeholder="At least 6 characters"
                 aria-invalid={!!fieldErrors.password}
-                className="vibe-focus-ring w-full bg-[color:var(--neon-bg0)] border border-[color:var(--neon-hairline)] rounded-lg px-4 py-3 text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)]/50 focus-visible:border-[color:var(--neon-a)]/50 transition-all"
+                className="vibe-input-glass vibe-focus-ring text-[color:var(--neon-text0)]"
               />
               {fieldErrors.password ? (
                 <p className="mt-2 text-sm text-destructive">{fieldErrors.password}</p>
@@ -320,7 +323,7 @@ export default function SignUpPage() {
               disabled={loading}
               className="vibe-focus-ring group relative w-full overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%] animate-[neon-border-flow_3s_linear_infinite]" />
+              <span className="absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%]" />
               <span className="relative z-10 flex items-center justify-center w-full bg-[color:var(--neon-bg0)]/80 group-hover:bg-[color:var(--neon-bg0)]/60 px-8 py-4 rounded-lg text-xs uppercase tracking-widest font-bold text-[color:var(--neon-text0)] transition-colors">
                 {loading ? "Creating account..." : "Create Account"}
               </span>

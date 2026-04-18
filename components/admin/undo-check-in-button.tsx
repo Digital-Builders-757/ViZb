@@ -30,7 +30,7 @@ export function UndoCheckInButton({
           toast.success("Check-in undone.")
         })
       }}
-      className="inline-flex items-center gap-2 border border-border text-muted-foreground px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest hover:text-brand-cyan hover:border-brand-cyan/30 hover:bg-brand-cyan/5 transition-all disabled:opacity-50"
+      className="inline-flex items-center gap-2 border border-border text-muted-foreground px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest hover:text-neon-a hover:border-neon-a/30 hover:bg-neon-a/5 transition-all disabled:opacity-50"
       title="Undo check-in"
     >
       {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}

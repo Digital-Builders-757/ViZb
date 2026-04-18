@@ -27,8 +27,8 @@ interface EventCardListProps {
 
 const STATUS_ACCENT = {
   draft: "border-l-[#555555]",
-  pending_review: "border-l-brand-cyan",
-  published: "border-l-brand-blue",
+  pending_review: "border-l-neon-a",
+  published: "border-l-neon-b",
   rejected: "border-l-amber-500",
   cancelled: "border-l-destructive",
 } as Record<string, string>
@@ -147,7 +147,7 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
         <div className="flex-1 min-w-0">
           {/* Title row */}
           <div className="flex items-start gap-3">
-            <h3 className="text-sm md:text-base font-bold text-foreground truncate group-hover:text-brand-cyan transition-colors">
+            <h3 className="text-sm md:text-base font-bold text-foreground truncate group-hover:text-neon-a transition-colors">
               {event.title}
             </h3>
           </div>
@@ -156,7 +156,7 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
           <div className="flex items-center gap-4 mt-2 flex-wrap">
             {dateStr && (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Calendar className="w-3 h-3 shrink-0 text-brand-blue-mid" />
+                <Calendar className="w-3 h-3 shrink-0 text-neon-b" />
                 <span>{dateStr}</span>
                 {timeStr && (
                   <span className="text-muted-foreground/60">at {timeStr}</span>
@@ -165,7 +165,7 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
             )}
             {event.venue_name && (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <MapPin className="w-3 h-3 shrink-0 text-brand-blue-mid" />
+                <MapPin className="w-3 h-3 shrink-0 text-neon-b" />
                 <span className="truncate max-w-[140px]">{event.venue_name}</span>
                 {event.city && (
                   <span className="hidden sm:inline text-muted-foreground/60">{event.city}</span>
@@ -174,7 +174,7 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
             )}
             {event.categories.length > 0 && (
               <span className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Tag className="w-3 h-3 shrink-0 text-brand-blue-mid" />
+                <Tag className="w-3 h-3 shrink-0 text-neon-b" />
                 <span className="capitalize">
                   {event.categories.map((c) => formatCategoryLabel(c)).join(" · ")}
                 </span>
@@ -191,7 +191,7 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
             <StatusIcon className="w-3 h-3" />
             {config.label}
           </span>
-          <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-brand-cyan group-hover:translate-x-0.5 transition-all" />
+          <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-neon-a group-hover:translate-x-0.5 transition-all" />
         </div>
       </div>
     </Link>

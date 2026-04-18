@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { createOrgWithInvite } from "@/app/actions/invite"
 import { Building2, UserPlus, Link2, CheckCircle2, Copy } from "lucide-react"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export function CreateOrgForm() {
   const [result, setResult] = useState<{ success?: boolean; error?: string; invite?: { claimUrl: string; token: string }; org?: { name: string; slug: string } } | null>(null)
@@ -25,30 +26,30 @@ export function CreateOrgForm() {
 
   return (
     <form action={handleSubmit}>
-      <div className="form-card p-0 overflow-hidden">
+      <GlassCard emphasis className="card-accent-blue-mid p-0 overflow-hidden">
 
         {/* Section 1: Organization Details */}
         <div className="px-5 md:px-6 pt-5 md:pt-6 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-blue font-mono">1</span>
+          <div className="w-6 h-6 rounded-full bg-neon-b/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-b font-mono">1</span>
           </div>
           <div className="flex items-center gap-2">
-            <Building2 className="w-3.5 h-3.5 text-brand-blue" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-blue">Organization Details</span>
+            <Building2 className="w-3.5 h-3.5 text-neon-b" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-b">Organization Details</span>
           </div>
         </div>
         <div className="section-divider" />
         <div className="px-5 md:px-6 py-5 md:py-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="orgName" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-              Org Name <span className="text-brand-blue">*</span>
+              Org Name <span className="text-neon-b">*</span>
             </label>
             <input
               id="orgName"
               name="orgName"
               type="text"
               required
-              className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+              className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
               placeholder="e.g. Underground Collective"
             />
           </div>
@@ -59,7 +60,7 @@ export function CreateOrgForm() {
               <select
                 id="orgType"
                 name="orgType"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground"
               >
                 <option value="collective">Collective</option>
                 <option value="brand">Brand</option>
@@ -75,7 +76,7 @@ export function CreateOrgForm() {
                 id="description"
                 name="description"
                 type="text"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
                 placeholder="Brief description"
               />
             </div>
@@ -84,12 +85,12 @@ export function CreateOrgForm() {
 
         {/* Section 2: Invite Configuration */}
         <div className="px-5 md:px-6 pt-2 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-cyan/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-cyan font-mono">2</span>
+          <div className="w-6 h-6 rounded-full bg-neon-a/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-a font-mono">2</span>
           </div>
           <div className="flex items-center gap-2">
-            <UserPlus className="w-3.5 h-3.5 text-brand-cyan" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Invite Configuration</span>
+            <UserPlus className="w-3.5 h-3.5 text-neon-a" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-a">Invite Configuration</span>
           </div>
         </div>
         <div className="section-divider" />
@@ -100,7 +101,7 @@ export function CreateOrgForm() {
               <select
                 id="inviteRole"
                 name="inviteRole"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground"
               >
                 <option value="owner">Owner</option>
                 <option value="admin">Admin</option>
@@ -115,7 +116,7 @@ export function CreateOrgForm() {
                 id="inviteEmail"
                 name="inviteEmail"
                 type="email"
-                className="w-full input-premium px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
+                className="w-full vibe-input-glass vibe-focus-ring px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40"
                 placeholder="organizer@example.com"
               />
               <p className="text-[11px] text-muted-foreground/60">Optional -- locks invite to this email</p>
@@ -125,11 +126,11 @@ export function CreateOrgForm() {
 
         {/* Footer action bar */}
         <div className="section-divider" />
-        <div className="px-5 md:px-6 py-4 bg-[#0a0a0a]">
+        <div className="px-5 md:px-6 py-4 bg-[color:var(--neon-surface)]/95 border-t border-[color:var(--neon-hairline)]">
           <button
             type="submit"
             disabled={pending}
-            className="bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(0,189,255,0.3)] transition-all disabled:opacity-50"
+            className="vibe-cta-gradient vibe-focus-ring px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pending ? "Creating..." : "Create Org + Generate Invite"}
           </button>
@@ -145,40 +146,40 @@ export function CreateOrgForm() {
         {/* Success: Invite Link */}
         {result?.success && result.invite && (
           <div className="mx-5 md:mx-6 mb-5 mt-1">
-            <div className="border border-brand-cyan/30 bg-brand-cyan/5 p-5">
+            <div className="border border-neon-a/30 bg-neon-a/5 p-5">
               <div className="flex items-center gap-2 mb-3">
-                <CheckCircle2 className="w-4 h-4 text-brand-cyan" />
-                <p className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Org Created + Invite Generated</p>
+                <CheckCircle2 className="w-4 h-4 text-neon-a" />
+                <p className="text-xs font-mono uppercase tracking-widest text-neon-a">Org Created + Invite Generated</p>
               </div>
               <p className="text-sm text-foreground">
                 <strong>{result.org?.name}</strong>{" "}
                 <span className="text-muted-foreground">({result.org?.slug})</span>
               </p>
-              <div className="mt-3 bg-[#111111] border border-[#222222] p-3 flex items-start gap-3">
+              <div className="mt-3 rounded-lg bg-[color:var(--neon-surface)] border border-[color:var(--neon-hairline)] p-3 flex items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] text-muted-foreground/60 mb-1.5 flex items-center gap-1.5">
                     <Link2 className="w-3 h-3" />
                     Share this invite link
                   </p>
-                  <code className="text-sm text-brand-cyan break-all font-mono leading-relaxed">
+                  <code className="text-sm text-neon-a break-all font-mono leading-relaxed">
                     {typeof window !== "undefined" ? window.location.origin : ""}{result.invite.claimUrl}
                   </code>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopy(`${typeof window !== "undefined" ? window.location.origin : ""}${result.invite?.claimUrl}`)}
-                  className="shrink-0 p-2 border border-[#222222] hover:border-brand-cyan/30 hover:bg-brand-cyan/5 transition-colors"
+                  className="shrink-0 p-2 rounded-md border border-[color:var(--neon-hairline)] hover:border-neon-a/40 hover:bg-neon-a/5 transition-colors vibe-focus-ring"
                 >
                   <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
               {copied && (
-                <p className="text-[11px] text-brand-cyan mt-2 font-mono">Copied to clipboard</p>
+                <p className="text-[11px] text-neon-a mt-2 font-mono">Copied to clipboard</p>
               )}
             </div>
           </div>
         )}
-      </div>
+      </GlassCard>
     </form>
   )
 }

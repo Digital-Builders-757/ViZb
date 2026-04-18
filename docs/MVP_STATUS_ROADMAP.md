@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 17, 2026 |
+| **Last Audited** | April 18, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor) |
 | **Overall MVP Progress** | Phase 1 complete; Phase 2 largely shipped; Posts MVP shipped; Phase 3 (free RSVP + $0 tickets) largely shipped |
@@ -67,7 +67,7 @@
 | Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet + RSVP→ticket hardening + **`open_mic`** category; paid tiers next) | ~68% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
+| Phase 6 | Admin Workflows + Polish | IN PROGRESS (~50% — site-wide **neon / glass** UI in `feat/visual-overhaul-neon-glass`; **ship polish:** organizer/admin/event forms migrated off legacy `form-card` / `input-premium` to `GlassCard` + `vibe-input-glass` / `vibe-cta-gradient`; see `docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`) | ~52% |
 
 ---
 
@@ -326,6 +326,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] **`event_lineup_entries`** + RLS — `supabase/migrations/20260417210000_event_lineup_entries.sql`; dashboard **`OpenMicLineupPanel`** (`components/organizer/open-mic-lineup-panel.tsx`) on organizer + admin event pages when **`open_mic`** is in categories; public **`/lineup/[eventSlug]`** (`app/lineup/[eventSlug]/page.tsx`) with strict query filters; mutations **`app/actions/lineup.ts`**
 - [x] **Public lineup share URL** — `lib/public-site-url.ts` (absolute link from **`NEXT_PUBLIC_SITE_URL`**); organizer panel shows the URL + **Copy public link**; **`docs/OPEN_MIC_LINEUP.md`** + **`.env.example`** document canonical host (e.g. `www` after apex redirect)
 - [x] **Organizer lineup visibility UX (April 2026)** — `OpenMicLineupPanel` explains public rules (public + confirmed/performed), per-row public state, empty-eligible callout, draft-event note, open/copy public URL; **`lib/lineup/lineup-entry-status.ts`** helpers mirror public filters; quick-add defaults to **confirmed** in **`app/actions/lineup.ts`**
+- [x] **Public lineup page visuals** — **`/lineup/[eventSlug]`** uses the same immersive stack as **`/events`** (`ThreeBackgroundWrapper`, overlay, neon orbs), **`OceanDivider`** rhythm, **`headline-xl`** hero, **`GlassCard` emphasis** + **`WaterFrame`** performer block, **`NeonLink`** CTAs; **`max-w-[1200px]`** layout
 
 **Shipped (April 2026 — Tickets / wallet passes v2):**
 

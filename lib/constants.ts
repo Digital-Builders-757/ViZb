@@ -19,12 +19,12 @@ export const EVENT_STATUS_CONFIG: Record<string, StatusConfig> = {
   },
   pending_review: {
     label: "In Review",
-    color: "text-brand-blue-mid border-brand-blue-mid/30 bg-brand-blue-mid/5",
+    color: "text-neon-b border-neon-b/30 bg-neon-b/5",
     icon: Clock,
   },
   published: {
     label: "Published",
-    color: "text-brand-cyan border-brand-cyan/30 bg-brand-cyan/5",
+    color: "text-neon-a border-neon-a/30 bg-neon-a/5",
     icon: CheckCircle2,
   },
   rejected: {

@@ -30,7 +30,7 @@ export function CheckInButton({
           toast.success("Checked in.")
         })
       }}
-      className="inline-flex items-center gap-2 border border-brand-cyan/30 text-brand-cyan px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest hover:bg-brand-cyan/5 hover:shadow-[0_0_15px_rgba(0,189,255,0.15)] transition-all disabled:opacity-50"
+      className="inline-flex items-center gap-2 border border-neon-a/30 text-neon-a px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest hover:bg-neon-a/5 hover:shadow-[0_0_15px_rgba(0,189,255,0.15)] transition-all disabled:opacity-50"
       title="Mark attendee as checked in"
     >
       {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}

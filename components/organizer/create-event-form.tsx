@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
+import { GlassCard } from "@/components/ui/glass-card"
 
 interface CreateEventFormProps {
   orgId: string
@@ -19,11 +20,11 @@ interface CreateEventFormProps {
 function SectionHeader({ icon: Icon, label, number }: { icon: React.ElementType; label: string; number: string }) {
   return (
     <div className="flex items-center gap-3 mb-6">
-      <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-brand-blue/20 to-brand-cyan/20 border border-brand-cyan/20">
-        <Icon className="w-3.5 h-3.5 text-brand-cyan" />
+      <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-neon-b/20 to-neon-a/20 border border-neon-a/20">
+        <Icon className="w-3.5 h-3.5 text-neon-a" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-mono text-brand-cyan/60">{number}</span>
+        <span className="text-[10px] font-mono text-neon-a/60">{number}</span>
         <span className="text-xs font-mono uppercase tracking-widest text-[#FAFAFA]">{label}</span>
       </div>
       <div className="flex-1 h-px bg-gradient-to-r from-[#222222] to-transparent" />
@@ -113,14 +114,14 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
   }
 
   const inputClass =
-    "input-premium w-full px-4 py-3 text-sm text-[#FAFAFA] placeholder:text-[#555555] font-sans"
+    "vibe-input-glass vibe-focus-ring w-full px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground font-sans rounded-lg"
 
   return (
     <div className="form-glow-bg min-h-full pb-28">
       {/* Back link */}
       <Link
         href={`/organizer/${orgSlug}`}
-        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#555555] hover:text-brand-cyan transition-colors mb-8"
+        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#555555] hover:text-neon-a transition-colors mb-8"
       >
         <ArrowLeft className="w-3 h-3" />
         Back to {orgName}
@@ -129,15 +130,15 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
       {/* Page header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-4 h-4 text-brand-cyan" />
-          <span className="text-xs uppercase tracking-widest text-brand-cyan font-mono">New Event</span>
+          <Sparkles className="w-4 h-4 text-neon-a" />
+          <span className="text-xs uppercase tracking-widest text-neon-a font-mono">New Event</span>
         </div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#FAFAFA] text-balance">
           Create Event
         </h1>
         <p className="text-sm text-[#777777] mt-2 leading-relaxed max-w-lg">
           Fill in the details below to create a new event draft for{" "}
-          <span className="text-brand-cyan/80">{orgName}</span>. You can add a flyer and submit for review later.
+          <span className="text-neon-a/80">{orgName}</span>. You can add a flyer and submit for review later.
         </p>
       </div>
 
@@ -151,7 +152,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
 
       {/* Form card */}
       <form onSubmit={handleSubmit}>
-        <div className="form-card p-6 md:p-8 flex flex-col gap-0">
+        <GlassCard emphasis className="card-accent-cyan p-6 md:p-8 flex flex-col gap-0">
 
           {/* ---- Section 1: Basics ---- */}
           <section>
@@ -160,7 +161,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
               {/* Title */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="title" className="text-xs font-mono uppercase tracking-widest text-[#888888]">
-                  Event Title <span className="text-brand-cyan">*</span>
+                  Event Title <span className="text-neon-a">*</span>
                 </label>
                 <input
                   id="title"
@@ -176,7 +177,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
               {/* Categories (multi-select) */}
               <fieldset className="flex flex-col gap-3 min-w-0">
                 <legend className="text-xs font-mono uppercase tracking-widest text-[#888888] mb-1">
-                  Categories <span className="text-brand-cyan">*</span>
+                  Categories <span className="text-neon-a">*</span>
                 </legend>
                 <p className="text-[11px] text-[#555555] -mt-1">
                   Pick all that apply — helps people discover your event.
@@ -191,7 +192,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                         onClick={() => toggleCategory(cat.value)}
                         className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
                           on
-                            ? "border-brand-cyan bg-brand-cyan/10 text-[#FAFAFA]"
+                            ? "border-neon-a bg-neon-a/10 text-[#FAFAFA]"
                             : "border-[#333333] text-[#888888] hover:border-[#444444] hover:text-[#FAFAFA]"
                         }`}
                       >
@@ -237,7 +238,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                     }}
                     className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
                       rsvpMode === "unlimited"
-                        ? "border-brand-cyan bg-brand-cyan/10 text-[#FAFAFA]"
+                        ? "border-neon-a bg-neon-a/10 text-[#FAFAFA]"
                         : "border-[#333333] text-[#888888] hover:border-[#444444] hover:text-[#FAFAFA]"
                     }`}
                   >
@@ -248,7 +249,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                     onClick={() => setRsvpMode("capped")}
                     className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
                       rsvpMode === "capped"
-                        ? "border-brand-cyan bg-brand-cyan/10 text-[#FAFAFA]"
+                        ? "border-neon-a bg-neon-a/10 text-[#FAFAFA]"
                         : "border-[#333333] text-[#888888] hover:border-[#444444] hover:text-[#FAFAFA]"
                     }`}
                   >
@@ -297,7 +298,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <span className="text-xs font-mono uppercase tracking-widest text-[#888888]">
-                    Start Date <span className="text-brand-cyan">*</span>
+                    Start Date <span className="text-neon-a">*</span>
                   </span>
                   <Popover open={startOpen} onOpenChange={setStartOpen}>
                     <PopoverTrigger asChild>
@@ -329,7 +330,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                 </div>
                 <div className="flex flex-col gap-2">
                   <label htmlFor="start_time" className="text-xs font-mono uppercase tracking-widest text-[#888888]">
-                    Start Time <span className="text-brand-cyan">*</span>
+                    Start Time <span className="text-neon-a">*</span>
                   </label>
                   <input
                     id="start_time"
@@ -405,7 +406,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
               {/* Venue */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="venue_name" className="text-xs font-mono uppercase tracking-widest text-[#888888]">
-                  Venue Name <span className="text-brand-cyan">*</span>
+                  Venue Name <span className="text-neon-a">*</span>
                 </label>
                 <input
                   id="venue_name"
@@ -433,7 +434,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                 </div>
                 <div className="flex flex-col gap-2">
                   <label htmlFor="city" className="text-xs font-mono uppercase tracking-widest text-[#888888]">
-                    City <span className="text-brand-cyan">*</span>
+                    City <span className="text-neon-a">*</span>
                   </label>
                   <input
                     id="city"
@@ -447,17 +448,17 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
               </div>
             </div>
           </section>
-        </div>
+        </GlassCard>
 
         {/* ---- Sticky Footer Action Bar ---- */}
         <div className="fixed bottom-0 left-0 right-0 z-50 md:left-64">
-          <div className="border-t border-[#222222] bg-[#0A0A0A]/95 backdrop-blur-md">
+          <div className="border-t border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/95 backdrop-blur-md">
             <div className="max-w-4xl mx-auto px-4 md:px-8 py-4 flex flex-col sm:flex-row items-center gap-3 sm:justify-between">
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 sm:flex-none bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-3 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 sm:flex-none vibe-cta-gradient vibe-focus-ring px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Creating..." : "Create Draft"}
                 </button>

@@ -35,8 +35,8 @@ export default async function HostApplyPage() {
   return (
     <div>
       <div className="flex items-center gap-3">
-        <Building2 className="w-5 h-5 text-brand-cyan-bright" />
-        <span className="text-xs uppercase tracking-widest text-brand-cyan-bright font-mono">Become a Host</span>
+        <Building2 className="w-5 h-5 text-neon-c" />
+        <span className="text-xs uppercase tracking-widest text-neon-c font-mono">Become a Host</span>
       </div>
       <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground mt-2">Request to Host Events</h1>
       <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-lg">
@@ -44,17 +44,17 @@ export default async function HostApplyPage() {
       </p>
 
       {membership && (
-        <div className="mt-8 border border-brand-cyan/30 bg-brand-cyan/5 p-6">
+        <div className="mt-8 border border-neon-a/30 bg-neon-a/5 p-6">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-brand-cyan" />
-            <p className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Already a Host</p>
+            <CheckCircle2 className="w-4 h-4 text-neon-a" />
+            <p className="text-xs font-mono uppercase tracking-widest text-neon-a">Already a Host</p>
           </div>
           <p className="text-sm text-foreground mt-2">
             {"You're already a member of an organization."}
           </p>
           <Link
             href="/dashboard"
-            className="mt-4 inline-block text-xs font-mono uppercase tracking-widest text-brand-cyan hover:underline"
+            className="mt-4 inline-block text-xs font-mono uppercase tracking-widest text-neon-a hover:underline"
           >
             Go to Dashboard
           </Link>
@@ -62,8 +62,8 @@ export default async function HostApplyPage() {
       )}
 
       {!membership && existingApp && (existingApp.status === "new" || existingApp.status === "reviewing") && (
-        <div className="mt-8 border border-brand-blue-mid/30 bg-brand-blue-mid/5 p-6">
-          <p className="text-xs font-mono uppercase tracking-widest text-brand-blue-mid">Application Pending</p>
+        <div className="mt-8 border border-neon-b/30 bg-neon-b/5 p-6">
+          <p className="text-xs font-mono uppercase tracking-widest text-neon-b">Application Pending</p>
           <p className="text-sm text-foreground mt-2">
             Your application for <strong>{existingApp.org_name}</strong> is being reviewed.
             {"We'll"} notify you once a decision is made.
