@@ -118,7 +118,7 @@ export function EventDetailsEditForm({
             defaultValue={event.title}
             required
             disabled={archived}
-            className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
 
@@ -129,7 +129,7 @@ export function EventDetailsEditForm({
             defaultValue={event.city}
             required
             disabled={archived}
-            className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
       </div>
@@ -141,7 +141,7 @@ export function EventDetailsEditForm({
           defaultValue={event.description ?? ""}
           rows={4}
           disabled={archived}
-          className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors resize-none disabled:opacity-50"
+          className="vibe-input-glass vibe-focus-ring min-h-[6rem] resize-none text-sm disabled:opacity-50"
         />
       </div>
 
@@ -154,7 +154,7 @@ export function EventDetailsEditForm({
             defaultValue={event.starts_at?.slice(0, 16)}
             required
             disabled={archived}
-            className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -164,7 +164,7 @@ export function EventDetailsEditForm({
             type="datetime-local"
             defaultValue={event.ends_at ? event.ends_at.slice(0, 16) : ""}
             disabled={archived}
-            className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
       </div>
@@ -190,7 +190,7 @@ export function EventDetailsEditForm({
             disabled={archived}
             className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors disabled:opacity-50 ${
               rsvpMode === "unlimited"
-                ? "border-brand-cyan bg-brand-cyan/10 text-foreground"
+                ? "border-neon-a bg-neon-a/10 text-foreground"
                 : "border-border text-muted-foreground hover:border-muted-foreground/50"
             }`}
           >
@@ -205,7 +205,7 @@ export function EventDetailsEditForm({
             disabled={archived}
             className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors disabled:opacity-50 ${
               rsvpMode === "capped"
-                ? "border-brand-cyan bg-brand-cyan/10 text-foreground"
+                ? "border-neon-a bg-neon-a/10 text-foreground"
                 : "border-border text-muted-foreground hover:border-muted-foreground/50"
             }`}
           >
@@ -232,7 +232,7 @@ export function EventDetailsEditForm({
               }}
               placeholder="e.g. 150"
               disabled={archived}
-              className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+              className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
             />
             <p className="text-[11px] text-muted-foreground">
               Cannot be set below current confirmed + checked-in count (server enforced).
@@ -251,7 +251,7 @@ export function EventDetailsEditForm({
             defaultValue={event.venue_name}
             required
             disabled={archived}
-            className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -260,7 +260,7 @@ export function EventDetailsEditForm({
             name="address"
             defaultValue={event.address ?? ""}
             disabled={archived}
-            className="w-full bg-[#0a0a0a] border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors disabled:opacity-50"
+            className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
       </div>
@@ -278,7 +278,7 @@ export function EventDetailsEditForm({
                 disabled={archived}
                 className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors disabled:opacity-50 ${
                   on
-                    ? "border-brand-cyan bg-brand-cyan/10 text-foreground"
+                    ? "border-neon-a bg-neon-a/10 text-foreground"
                     : "border-border text-muted-foreground hover:border-muted-foreground/50"
                 }`}
               >
@@ -290,7 +290,7 @@ export function EventDetailsEditForm({
       </fieldset>
 
       <div
-        className={`sticky bottom-0 z-10 mt-8 -mx-1 px-1 pt-5 pb-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t-2 border-border/80 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/98 to-[#0c0c0c]/85 backdrop-blur-md shadow-[0_-8px_24px_rgba(0,0,0,0.45)] ring-1 ring-border/40`}
+        className={`sticky bottom-0 z-10 mt-8 -mx-1 px-1 pt-5 pb-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-[color:var(--neon-hairline)] bg-gradient-to-t from-[color:var(--neon-bg0)] via-[color:color-mix(in_srgb,var(--neon-bg0)_96%,var(--neon-b)_4%)] to-transparent backdrop-blur-md shadow-[0_-12px_40px_rgba(0,0,0,0.5)] ring-1 ring-[color:var(--neon-hairline)]/50`}
       >
         {!archived && isDirty ? (
           <p className="mb-3 text-xs font-medium text-foreground/90">You have unsaved event details.</p>
@@ -298,7 +298,7 @@ export function EventDetailsEditForm({
         <button
           type="submit"
           disabled={archived || isPending || !isDirty}
-          className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-brand-cyan px-6 py-3 text-sm font-semibold text-[#0a0a0a] shadow-md shadow-brand-cyan/15 transition-colors hover:bg-brand-cyan-bright hover:text-[#0a0a0a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-cyan disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none sm:w-auto sm:min-w-[14rem]"
+          className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-neon-a px-6 py-3 text-sm font-semibold text-[#0a0a0a] shadow-md shadow-neon-a/15 transition-colors hover:bg-neon-c hover:text-[#0a0a0a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-a disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none sm:w-auto sm:min-w-[14rem]"
         >
           <Save className="h-4 w-4 shrink-0" aria-hidden />
           {isPending ? "Saving…" : "Save event details"}

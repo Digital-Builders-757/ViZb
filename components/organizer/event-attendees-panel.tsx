@@ -2,6 +2,7 @@ import { Camera, Users } from "lucide-react"
 import Link from "next/link"
 import { OrganizerEventAttendeesTable } from "@/components/organizer/event-attendees-table"
 import { Button } from "@/components/ui/button"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export function EventAttendeesPanel({
   total,
@@ -28,10 +29,10 @@ export function EventAttendeesPanel({
   rsvpCapacity?: number | null
 }) {
   return (
-    <div className="mt-6 form-card p-6 md:p-8">
+    <GlassCard emphasis className="card-accent-cyan mt-6 p-6 md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">
             <Users className="w-4 h-4" />
             Attendees
           </h2>
@@ -49,7 +50,7 @@ export function EventAttendeesPanel({
           </Button>
           <div className="text-left sm:text-right">
             <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Total</div>
-            <div className="mt-1 text-2xl font-bold font-mono text-brand-cyan">{total}</div>
+            <div className="mt-1 text-2xl font-bold font-mono text-neon-a">{total}</div>
           </div>
         </div>
       </div>
@@ -57,11 +58,11 @@ export function EventAttendeesPanel({
       <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <div className="border border-border p-3 card-accent-blue-mid">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Confirmed</div>
-          <div className="mt-1 text-lg font-bold font-mono text-brand-blue-mid">{confirmed}</div>
+          <div className="mt-1 text-lg font-bold font-mono text-neon-b">{confirmed}</div>
         </div>
         <div className="border border-border p-3 card-accent-cyan">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Checked in</div>
-          <div className="mt-1 text-lg font-bold font-mono text-brand-cyan">{checkedIn}</div>
+          <div className="mt-1 text-lg font-bold font-mono text-neon-a">{checkedIn}</div>
         </div>
         <div className="border border-border p-3">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cancelled</div>
@@ -102,6 +103,6 @@ export function EventAttendeesPanel({
       {rows.length > 200 ? (
         <p className="mt-2 text-[11px] text-muted-foreground">Showing first 200 RSVPs.</p>
       ) : null}
-    </div>
+    </GlassCard>
   )
 }

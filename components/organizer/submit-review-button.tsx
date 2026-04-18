@@ -46,7 +46,7 @@ export function SubmitReviewButton({ eventId, variant = "submit" }: SubmitReview
       className={`flex items-center justify-center gap-2 px-6 py-3 text-xs uppercase tracking-widest font-bold transition-all w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed ${
         isResubmit
           ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]"
-          : "bg-gradient-to-r from-brand-blue to-brand-cyan text-white hover:shadow-[0_0_30px_rgba(0,189,255,0.4)]"
+          : "bg-gradient-to-r from-neon-b to-neon-a text-white hover:shadow-[0_0_30px_rgba(0,189,255,0.4)]"
       }`}
     >
       {loading ? (

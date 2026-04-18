@@ -2,6 +2,7 @@ import { requireOrgMember } from "@/lib/auth-helpers"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient } from "@/lib/supabase/server"
 import { EventCardList } from "@/components/organizer/event-card-list"
+import { GlassCard } from "@/components/ui/glass-card"
 import Link from "next/link"
 import { Calendar, Users, TrendingUp, Plus } from "lucide-react"
 
@@ -36,13 +37,13 @@ export default async function OrgDashboardPage({
       {/* Page header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <span className="text-xs uppercase tracking-widest text-brand-blue-mid font-mono">Organizer</span>
+          <span className="text-xs uppercase tracking-widest text-neon-b font-mono">Organizer</span>
           <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground mt-2 text-balance">{org.name}</h1>
           <div className="flex items-center gap-3 mt-2 flex-wrap">
             <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 border ${
               isPending
                 ? "border-muted-foreground/30 text-muted-foreground"
-                : "border-brand-cyan/30 text-brand-cyan bg-brand-cyan/5"
+                : "border-neon-a/30 text-neon-a bg-neon-a/5"
             }`}>
               {isPending ? "Pending Review" : "Approved"}
             </span>
@@ -53,7 +54,7 @@ export default async function OrgDashboardPage({
         {!isPending && (
           <Link
             href={`/organizer/${slug}/events/new`}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-6 py-3 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all w-full md:w-auto shrink-0"
+            className="vibe-cta-gradient vibe-focus-ring flex w-full shrink-0 items-center justify-center gap-2 rounded-lg px-6 py-3 text-xs font-bold uppercase tracking-widest md:w-auto"
           >
             <Plus className="w-4 h-4" />
             Create Event
@@ -63,44 +64,50 @@ export default async function OrgDashboardPage({
 
       {/* Pending review notice */}
       {isPending && (
-        <div className="mt-8 border border-brand-blue-mid/20 bg-brand-blue-mid/5 p-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-brand-blue-mid">Under Review</span>
-          <h3 className="text-lg font-bold text-foreground mt-2">Your organization is being reviewed</h3>
-          <p className="text-sm text-muted-foreground mt-2 max-w-lg">
+        <GlassCard className="mt-8 border-neon-b/25 bg-neon-b/[0.06] p-6" emphasis>
+          <span className="text-xs font-mono uppercase tracking-widest text-neon-b">Under Review</span>
+          <h3 className="mt-2 text-lg font-bold text-foreground">Your organization is being reviewed</h3>
+          <p className="mt-2 max-w-lg text-sm text-muted-foreground">
             {"Our team will review your submission and approve it shortly. You'll be able to create events once approved."}
           </p>
-        </div>
+        </GlassCard>
       )}
 
       {/* Stats */}
       {!isPending && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-8 md:mt-10">
-          <div className="border border-border p-4 md:p-6 card-accent-cyan">
-            <div className="flex items-center gap-3 mb-3 md:mb-4">
-              <Calendar className="w-4 h-4 md:w-5 md:h-5 text-brand-cyan" />
-              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground">Events</span>
+        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 md:mt-10 md:gap-4">
+          <GlassCard className="card-accent-cyan p-4 md:p-6">
+            <div className="mb-3 flex items-center gap-3 md:mb-4">
+              <Calendar className="h-4 w-4 text-neon-a md:h-5 md:w-5" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                Events
+              </span>
             </div>
-            <span className="text-2xl md:text-3xl font-bold text-brand-cyan font-mono">{totalEvents}</span>
-            <span className="block text-xs text-muted-foreground mt-1">{publishedEvents} published</span>
-          </div>
+            <span className="font-mono text-2xl font-bold text-neon-a md:text-3xl">{totalEvents}</span>
+            <span className="mt-1 block text-xs text-muted-foreground">{publishedEvents} published</span>
+          </GlassCard>
 
-          <div className="border border-border p-4 md:p-6 card-accent-blue-mid">
-            <div className="flex items-center gap-3 mb-3 md:mb-4">
-              <Users className="w-4 h-4 md:w-5 md:h-5 text-brand-blue-mid" />
-              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground">Attendees</span>
+          <GlassCard className="card-accent-blue-mid p-4 md:p-6">
+            <div className="mb-3 flex items-center gap-3 md:mb-4">
+              <Users className="h-4 w-4 text-neon-b md:h-5 md:w-5" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                Attendees
+              </span>
             </div>
-            <span className="text-2xl md:text-3xl font-bold text-brand-blue-mid font-mono">0</span>
-            <span className="block text-xs text-muted-foreground mt-1">Total attendees</span>
-          </div>
+            <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">0</span>
+            <span className="mt-1 block text-xs text-muted-foreground">Total attendees</span>
+          </GlassCard>
 
-          <div className="border border-border p-4 md:p-6 card-accent-blue">
-            <div className="flex items-center gap-3 mb-3 md:mb-4">
-              <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-brand-blue" />
-              <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-muted-foreground">Revenue</span>
+          <GlassCard className="card-accent-cyan-bright p-4 md:p-6">
+            <div className="mb-3 flex items-center gap-3 md:mb-4">
+              <TrendingUp className="h-4 w-4 text-neon-c md:h-5 md:w-5" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                Revenue
+              </span>
             </div>
-            <span className="text-2xl md:text-3xl font-bold text-brand-blue font-mono">$0</span>
-            <span className="block text-xs text-muted-foreground mt-1">Total revenue</span>
-          </div>
+            <span className="font-mono text-2xl font-bold text-neon-c md:text-3xl">$0</span>
+            <span className="mt-1 block text-xs text-muted-foreground">Total revenue</span>
+          </GlassCard>
         </div>
       )}
 
@@ -115,7 +122,7 @@ export default async function OrgDashboardPage({
             {eventList.length > 0 && (
               <Link
                 href={`/organizer/${slug}/events/new`}
-                className="hidden sm:flex items-center gap-2 border border-brand-cyan/30 text-brand-cyan px-4 py-2 text-[10px] font-mono uppercase tracking-widest hover:bg-brand-cyan/5 hover:shadow-[0_0_15px_rgba(0,189,255,0.15)] transition-all shrink-0"
+                className="hidden sm:flex items-center gap-2 border border-neon-a/30 text-neon-a px-4 py-2 text-[10px] font-mono uppercase tracking-widest hover:bg-neon-a/5 hover:shadow-[0_0_15px_rgba(0,189,255,0.15)] transition-all shrink-0"
               >
                 <Plus className="w-3 h-3" />
                 New Event
@@ -124,19 +131,19 @@ export default async function OrgDashboardPage({
           </div>
 
           {eventList.length === 0 ? (
-            <div className="mt-6 border border-dashed p-6 md:p-12 flex flex-col items-center text-center gradient-border">
-              <span className="text-xs uppercase tracking-widest text-brand-cyan font-mono">No Events Yet</span>
-              <h3 className="text-lg font-bold text-foreground uppercase mt-2">Create Your First Event</h3>
-              <p className="text-sm text-muted-foreground mt-2 max-w-md">
+            <GlassCard className="gradient-border mt-6 flex flex-col items-center border-dashed p-6 text-center md:p-12" emphasis>
+              <span className="font-mono text-xs uppercase tracking-widest text-neon-a">No Events Yet</span>
+              <h3 className="mt-2 text-lg font-bold uppercase text-foreground">Create Your First Event</h3>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 Set up an event for your community and start selling tickets or collecting RSVPs.
               </p>
               <Link
                 href={`/organizer/${slug}/events/new`}
-                className="mt-6 bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-4 text-xs uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all"
+                className="vibe-cta-gradient vibe-focus-ring mt-6 rounded-lg px-8 py-4 text-xs font-bold uppercase tracking-widest"
               >
                 Create Event
               </Link>
-            </div>
+            </GlassCard>
           ) : (
             <div className="mt-5">
               <EventCardList events={eventList} orgSlug={slug} />

@@ -43,7 +43,7 @@ export function NeonLink({
         {/* Animated gradient border */}
         <span
           className={cn(
-            "absolute inset-0 bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%] animate-[neon-border-flow_3s_linear_infinite]",
+            "absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%]",
             round,
           )}
           aria-hidden

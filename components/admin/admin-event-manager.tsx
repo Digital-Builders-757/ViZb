@@ -146,7 +146,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search events by title, organization, or city..."
-            className="w-full bg-[#0a0a0a] border border-border pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
+            className="w-full bg-[#0a0a0a] border border-border pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
           />
         </div>
 
@@ -158,7 +158,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
               onClick={() => setActiveTab(tab.key)}
               className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-colors ${
                 activeTab === tab.key
-                  ? "border-brand-cyan text-brand-cyan bg-brand-cyan/5"
+                  ? "border-neon-a text-neon-a bg-neon-a/5"
                   : "border-border text-muted-foreground hover:border-muted-foreground/50 bg-transparent"
               }`}
             >
@@ -237,7 +237,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                   <div className="flex items-center gap-2 shrink-0">
                     <a
                       href={`/admin/events/${event.id}`}
-                      className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors bg-transparent"
+                      className="p-2 border border-border text-muted-foreground hover:text-neon-a hover:border-neon-a/30 transition-colors bg-transparent"
                       title="Open staff event detail"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -248,7 +248,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         href={`/organizer/${event.organizations.slug}/events/${event.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors bg-transparent"
+                        className="p-2 border border-border text-muted-foreground hover:text-neon-a hover:border-neon-a/30 transition-colors bg-transparent"
                         title="Open organizer editor"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -260,7 +260,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         type="button"
                         disabled={isDeleting}
                         onClick={() => handleUnarchive(event.id, event.title)}
-                        className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors disabled:opacity-50 bg-transparent"
+                        className="p-2 border border-border text-muted-foreground hover:text-neon-a hover:border-neon-a/30 transition-colors disabled:opacity-50 bg-transparent"
                         title="Restore to draft"
                       >
                         {isDeleting ? (
@@ -276,7 +276,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         href={`/events/${event.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 border border-border text-muted-foreground hover:text-brand-cyan hover:border-brand-cyan/30 transition-colors bg-transparent"
+                        className="p-2 border border-border text-muted-foreground hover:text-neon-a hover:border-neon-a/30 transition-colors bg-transparent"
                         title="View public page"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />

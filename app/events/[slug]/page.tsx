@@ -377,7 +377,7 @@ export default async function PublicEventDetailPage({
                     </div>
                   </GlassCard>
                   <GlassCard className="flex items-start gap-3 p-4">
-                    <Clock className="w-5 h-5 text-[color:var(--neon-a)] shrink-0" />
+                    <Clock className="w-5 h-5 shrink-0 text-[color:var(--neon-b)]" />
                     <div className="min-w-0">
                       <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Time</p>
                       <p className="mt-1 text-base text-[color:var(--neon-text0)]">
