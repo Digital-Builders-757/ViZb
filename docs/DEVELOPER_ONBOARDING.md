@@ -73,8 +73,8 @@ Everything else is a Server Component.
 
 | When | Use | Import |
 |------|-----|--------|
-| In a Client Component | `createSupabaseBrowser()` | `lib/supabase/client.ts` |
-| Everywhere else (server) | `createSupabaseServer()` | `lib/supabase/server.ts` |
+| In a Client Component | `createClient()` | `lib/supabase/client.ts` |
+| Everywhere else (server) | `createClient()` | `lib/supabase/server.ts` |
 
 Never create a new Supabase client. Never import `@supabase/supabase-js` directly.
 

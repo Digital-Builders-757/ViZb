@@ -8,7 +8,7 @@ This document is **Layer 1 law**: short, stable rules every agent and developer 
 
 ## 1. Security gate
 
-- **`middleware.ts`** refreshes the Supabase session via `lib/supabase/middleware.ts`. It is a **security and session boundary**, not a place for business logic.
+- **`proxy.ts`** (Next.js 16 request proxy) refreshes the Supabase session via `lib/supabase/middleware.ts`. It is a **security and session boundary**, not a place for business logic.
 - Route protection and redirects must stay **predictable** (no redirect loops, no open redirects). Auth callback behavior is specified in `docs/VIBE_APP_SPECIFICATION.md` (auth sections) and implemented in `app/auth/callback/route.ts`.
 
 ## 2. Data access
@@ -32,7 +32,7 @@ This document is **Layer 1 law**: short, stable rules every agent and developer 
 
 Treat changes here as **high blast radius**:
 
-- `middleware.ts`, `lib/supabase/middleware.ts`
+- `proxy.ts`, `lib/supabase/middleware.ts`
 - `app/auth/callback/route.ts` and auth-related routes
 - RLS policies, triggers, enums
 - Any future Stripe webhooks or payment routes

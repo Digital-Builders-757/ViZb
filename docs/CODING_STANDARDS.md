@@ -49,27 +49,24 @@ This document defines the coding conventions, patterns, and anti-patterns for th
 
 ## 2. Project Structure
 
+**Authoritative action list:** `docs/ARCHITECTURE_SOURCE_OF_TRUTH.md` (Rule 2).  
+**Validation before ship:** `npm run typecheck`, `npm run test`, `npm run lint`, `npm run build`, or `npm run ci` — see `README.md` and `docs/development/ENGINEERING_COMMANDS.md`.
+
 ```
 /
 ├── app/                        # Next.js App Router
 │   ├── layout.tsx              # Root layout (fonts, metadata, analytics)
 │   ├── page.tsx                # Homepage
 │   ├── globals.css             # Tailwind v4 + design tokens + custom CSS
-│   ├── actions/                # Server Actions
-│   │   ├── subscribe.ts        # Waitlist signup
-│   │   ├── events.ts           # Event CRUD (future)
-│   │   ├── orders.ts           # Order/RSVP creation (future)
-│   │   ├── tickets.ts          # Ticket check-in (future)
-│   │   ├── orgs.ts             # Org management (future)
-│   │   └── admin.ts            # Admin actions (future)
-│   ├── api/                    # API Routes
-│   │   └── stripe/             # Stripe endpoints (future)
-│   ├── events/                 # Public event pages (future)
-│   ├── tickets/                # Ticket wallet (future)
-│   ├── organizer/              # Organizer dashboard (future)
-│   ├── admin/                  # Admin dashboard (future)
-│   ├── login/                  # Auth pages (future)
-│   └── signup/                 # Auth pages (future)
+│   ├── actions/                # Server Actions (domain-split *.ts — event, registrations, lineup, …)
+│   ├── api/                    # Route handlers (e.g. stripe/, calendar/ics)
+│   ├── (dashboard)/            # Logged-in surfaces: dashboard, organizer, admin, profile, tickets
+│   ├── events/                 # Public event listing + [slug] detail
+│   ├── p/                      # Community posts feed + [slug]
+│   ├── lineup/                 # Public lineup board
+│   ├── login/, signup/, auth/  # Auth flows
+│   └── ...
+├── proxy.ts                    # Next.js 16 — session refresh matcher → lib/supabase/middleware.ts
 ├── components/                 # Shared components
 │   ├── ui/                     # shadcn/ui primitives (do not edit directly)
 │   ├── navbar.tsx              # Global navigation
@@ -144,7 +141,7 @@ const user = data as User // AVOID unless you've validated the shape
 | Components | PascalCase | `EventCard`, `HeroSection` |
 | Files (components) | kebab-case | `event-card.tsx`, `hero-section.tsx` |
 | Files (utilities) | kebab-case | `auth-helpers.ts` |
-| Functions | camelCase | `getUserRole`, `createEvent` |
+| Functions | camelCase | `requireAuth`, `createEvent` |
 | Server Actions | camelCase, verb-first | `subscribeToWaitlist`, `createOrder` |
 | Constants | SCREAMING_SNAKE | `MAX_TICKET_QUANTITY`, `API_TIMEOUT` |
 | Types/Interfaces | PascalCase | `EventCardProps`, `UserProfile` |
@@ -167,7 +164,7 @@ import { createClient } from "@supabase/supabase-js"
 
 // 3. Internal utilities and helpers
 import { cn } from "@/lib/utils"
-import { createSupabaseServer } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 // 4. Components
 import { Button } from "@/components/ui/button"
@@ -430,15 +427,15 @@ Two clients exist. Use the right one:
 
 | Context | Client | Import |
 |---------|--------|--------|
-| Client Components / Browser | `createSupabaseBrowser()` | `@/lib/supabase/client` |
-| Server Components / Actions / Route Handlers | `createSupabaseServer()` | `@/lib/supabase/server` |
+| Client Components / Browser | `createClient()` | `@/lib/supabase/client` |
+| Server Components / Actions / Route Handlers | `createClient()` | `@/lib/supabase/server` |
 
 ```typescript
 // In a Server Component or Server Action
-import { createSupabaseServer } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function getEvents() {
-  const supabase = await createSupabaseServer()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from("events")
     .select("*")
@@ -494,29 +491,32 @@ const { data } = await supabase.from("events").select("*") // Missing error hand
 ### Session Checking
 
 ```typescript
-// GOOD: Server-side session check
-const supabase = await createSupabaseServer()
-const { data: { user } } = await supabase.auth.getUser()
+// GOOD: Server-side session check (Server Components / Actions)
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+
+const supabase = await createClient()
+const {
+  data: { user },
+} = await supabase.auth.getUser()
 
 if (!user) {
   redirect("/login")
 }
 
-// GOOD: Role checking helper
-import { getUserRole } from "@/lib/auth-helpers"
-const { user, isAdmin, orgMemberships } = await getUserRole(supabase)
+// GOOD: Shared helpers (redirecting / profile-aware)
+import { requireAuth, getProfile, requireAdmin } from "@/lib/auth-helpers"
 ```
 
 ### Route Protection
 
-Protected routes are enforced via Next.js middleware. The middleware checks:
+Protected routes are gated by **`proxy.ts`** → **`lib/supabase/middleware.ts`** (session presence). **RLS and server layouts** own fine-grained roles.
 
 | Route Pattern | Requirement |
 |--------------|-------------|
-| `/organizer/*` | Authenticated + org membership |
-| `/admin/*` | Authenticated + `role_admin = true` |
-| `/tickets/*` | Authenticated |
-| `/events/*` | Public (actions require auth) |
+| `/dashboard/*`, `/profile/*`, `/organizer/*`, `/admin/*`, `/tickets/*` | Valid session (redirect to `/login` if missing) |
+| `/events/*` | Public catalog + detail; mutations still require auth + RLS |
+| `/login`, `/signup` | Logged-in users redirected to `/dashboard` |
 
 ### Auth Trigger
 
@@ -533,11 +533,11 @@ All mutating operations use Next.js Server Actions in `app/actions/`:
 ```typescript
 "use server"
 
-import { createSupabaseServer } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { revalidateTag } from "next/cache"
 
 export async function createEvent(formData: FormData) {
-  const supabase = await createSupabaseServer()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {

@@ -18,11 +18,11 @@
 | Unit tests | `npm run test` |
 | Lint | `npm run lint` |
 | Build | `npm run build` |
-| CI subset (no lint) | `npm run ci` |
+| Full CI chain | `npm run ci` (typecheck → test → lint → build) |
 
 **`/verify`** and **`/ship`:** `npm run typecheck` → `npm run test` → `npm run lint` → `npm run build` (stop on first failure). Same sequence as **`npm run ci`**.
 
-**Playwright:** not configured; see **`/playwright-smoke`**.
+**Playwright (E2E):** `npm run test:e2e` — config in `playwright.config.ts`, specs under `tests/e2e/`. See **`/playwright-smoke`**.
 
 ---
 

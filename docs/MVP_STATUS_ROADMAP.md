@@ -69,6 +69,10 @@
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
 | Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
 
+### P0 / maintenance (no product phase change)
+
+- **April 18, 2026 — Code hygiene & documentation pass:** Layer 1 docs aligned with **Next.js 16 `proxy.ts`**, real **`app/actions/*`**, and **`createClient()`** naming; master log: **`docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md`** (includes validation checklist). Product behavior unchanged.
+
 ---
 
 ## What Exists Today (Verified Against Codebase)
@@ -116,7 +120,7 @@
 | Sign-up success page | `app/auth/sign-up-success/page.tsx` | DONE -- "Check your inbox" branded page |
 | Auth error page | `app/auth/error/page.tsx` | DONE -- generic error with link back to login |
 | Session refresh middleware | `lib/supabase/middleware.ts` | DONE -- follows Supabase SSR reference pattern |
-| Route protection | `middleware.ts` | DONE -- protects `/dashboard`, `/organizer`, `/admin`, `/tickets`, `/profile`; redirects logged-in users away from `/login` and `/signup` |
+| Route protection | `proxy.ts` | DONE -- protects `/dashboard`, `/organizer`, `/admin`, `/tickets`, `/profile`; redirects logged-in users away from `/login` and `/signup` |
 | Auth helpers | `lib/auth-helpers.ts` | DONE -- `requireAuth()`, `getProfile()`, `requireAdmin()`, `requireOrgMember()`, `getUserOrganizations()` |
 | Profile auto-creation | `scripts/004_create_profiles.sql` trigger | DONE -- `handle_new_user()` creates profile row on signup |
 | Sign out | `components/dashboard/sidebar.tsx` | DONE -- client-side sign out with redirect |
