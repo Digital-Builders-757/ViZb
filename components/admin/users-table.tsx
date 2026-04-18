@@ -52,7 +52,7 @@ export function UsersTable({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, email, or role..."
-          className="w-full bg-input border border-border pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan transition-colors"
+          className="w-full bg-input border border-border pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a transition-colors"
         />
       </div>
 
@@ -75,7 +75,7 @@ export function UsersTable({
       <div className="hidden md:block border border-border overflow-hidden card-accent-cyan">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-gradient-to-r from-brand-blue/5 via-brand-cyan/5 to-transparent">
+            <tr className="border-b border-border bg-gradient-to-r from-neon-b/5 via-neon-a/5 to-transparent">
               <th className="text-left px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">User</th>
               <th className="text-left px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Email</th>
               <th className="text-left px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Role</th>
@@ -110,7 +110,7 @@ export function UsersTable({
                 <td className="px-4 py-3">
                   {user.org_count > 0 ? (
                     <span className="flex items-center gap-1.5 text-xs text-foreground">
-                      <Building2 className="w-3 h-3 text-brand-blue-mid" />
+                      <Building2 className="w-3 h-3 text-neon-b" />
                       {user.org_count}
                     </span>
                   ) : (
@@ -208,7 +208,7 @@ function RoleBadge({ role }: { role: string }) {
     <span
       className={`inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${
         isAdmin
-          ? "border-brand-cyan/40 text-brand-cyan bg-brand-cyan/10"
+          ? "border-neon-a/40 text-neon-a bg-neon-a/10"
           : "border-border text-muted-foreground"
       }`}
     >

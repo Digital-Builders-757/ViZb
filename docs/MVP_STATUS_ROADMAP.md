@@ -67,7 +67,7 @@
 | Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet + RSVP→ticket hardening + **`open_mic`** category; paid tiers next) | ~68% |
 | Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
 | Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | IN PROGRESS | ~40% |
+| Phase 6 | Admin Workflows + Polish | IN PROGRESS (~50% — site-wide **neon / glass** UI alignment shipped in `feat/visual-overhaul-neon-glass`; see `docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`) | ~50% |
 
 ---
 

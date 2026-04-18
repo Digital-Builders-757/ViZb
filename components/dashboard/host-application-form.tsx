@@ -20,11 +20,11 @@ export function HostApplicationForm() {
     return (
       <div className="form-card p-6 md:p-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-brand-cyan/10 flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-brand-cyan" />
+          <div className="w-10 h-10 rounded-full bg-neon-a/10 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-neon-a" />
           </div>
           <div>
-            <p className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Application Submitted</p>
+            <p className="text-xs font-mono uppercase tracking-widest text-neon-a">Application Submitted</p>
             <p className="text-sm text-foreground mt-1">
               {"Thanks! We'll review your application and get back to you soon."}
             </p>
@@ -40,19 +40,19 @@ export function HostApplicationForm() {
 
         {/* Section 1: Organization Info */}
         <div className="px-5 md:px-6 pt-5 md:pt-6 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-cyan/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-cyan font-mono">1</span>
+          <div className="w-6 h-6 rounded-full bg-neon-a/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-a font-mono">1</span>
           </div>
           <div className="flex items-center gap-2">
-            <Building2 className="w-3.5 h-3.5 text-brand-cyan" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Organization Info</span>
+            <Building2 className="w-3.5 h-3.5 text-neon-a" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-a">Organization Info</span>
           </div>
         </div>
         <div className="section-divider" />
         <div className="px-5 md:px-6 py-5 md:py-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="orgName" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-              Organization Name <span className="text-brand-cyan">*</span>
+              Organization Name <span className="text-neon-a">*</span>
             </label>
             <input
               id="orgName"
@@ -66,7 +66,7 @@ export function HostApplicationForm() {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="orgType" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-              Type <span className="text-brand-cyan">*</span>
+              Type <span className="text-neon-a">*</span>
             </label>
             <select
               id="orgType"
@@ -85,12 +85,12 @@ export function HostApplicationForm() {
 
         {/* Section 2: About Your Events */}
         <div className="px-5 md:px-6 pt-2 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-blue-mid/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-blue-mid font-mono">2</span>
+          <div className="w-6 h-6 rounded-full bg-neon-b/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-b font-mono">2</span>
           </div>
           <div className="flex items-center gap-2">
-            <FileText className="w-3.5 h-3.5 text-brand-blue-mid" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-blue-mid">About Your Events</span>
+            <FileText className="w-3.5 h-3.5 text-neon-b" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-b">About Your Events</span>
           </div>
         </div>
         <div className="section-divider" />
@@ -112,12 +112,12 @@ export function HostApplicationForm() {
 
         {/* Section 3: Online Presence */}
         <div className="px-5 md:px-6 pt-2 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-blue font-mono">3</span>
+          <div className="w-6 h-6 rounded-full bg-neon-b/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-b font-mono">3</span>
           </div>
           <div className="flex items-center gap-2">
-            <Globe className="w-3.5 h-3.5 text-brand-blue" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-blue">Online Presence</span>
+            <Globe className="w-3.5 h-3.5 text-neon-b" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-b">Online Presence</span>
           </div>
         </div>
         <div className="section-divider" />
@@ -153,7 +153,7 @@ export function HostApplicationForm() {
           <button
             type="submit"
             disabled={pending}
-            className="bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all disabled:opacity-50"
+            className="bg-gradient-to-r from-neon-b to-neon-a text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_30px_rgba(0,189,255,0.4)] transition-all disabled:opacity-50"
           >
             {pending ? "Submitting..." : "Submit Application"}
           </button>

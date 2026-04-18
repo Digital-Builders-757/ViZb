@@ -63,7 +63,7 @@ export function AdminEventRegistrationsTable({
               className={
                 "px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-colors " +
                 (tab === t.key
-                  ? "border-brand-cyan text-brand-cyan bg-brand-cyan/5"
+                  ? "border-neon-a text-neon-a bg-neon-a/5"
                   : "border-border text-muted-foreground hover:border-muted-foreground/50 bg-transparent")
               }
             >
@@ -79,7 +79,7 @@ export function AdminEventRegistrationsTable({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name or UUID"
-              className="w-full sm:w-[280px] bg-[#0a0a0a] border border-border pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
+              className="w-full sm:w-[280px] bg-[#0a0a0a] border border-border pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
             />
           </div>
 
@@ -93,7 +93,7 @@ export function AdminEventRegistrationsTable({
                 toast.error("Failed to copy.")
               }
             }}
-            className="inline-flex items-center justify-center gap-2 border border-border text-muted-foreground px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest hover:text-brand-cyan hover:border-brand-cyan/30 hover:bg-brand-cyan/5 transition-all"
+            className="inline-flex items-center justify-center gap-2 border border-border text-muted-foreground px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest hover:text-neon-a hover:border-neon-a/30 hover:bg-neon-a/5 transition-all"
             title="Copy checked-in list"
           >
             <Copy className="w-4 h-4" />

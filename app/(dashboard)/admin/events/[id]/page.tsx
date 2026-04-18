@@ -27,7 +27,7 @@ export default async function AdminEventDetailPage({
       <div className="space-y-6">
         <Link
           href="/admin"
-          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-brand-cyan transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-neon-a transition-colors"
         >
           <ArrowLeft className="w-3 h-3" />
           Back to Admin
@@ -124,7 +124,7 @@ export default async function AdminEventDetailPage({
     <div>
       <Link
         href="/admin"
-        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-brand-cyan transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-neon-a transition-colors"
       >
         <ArrowLeft className="w-3 h-3" />
         Back to Admin
@@ -132,7 +132,7 @@ export default async function AdminEventDetailPage({
 
       <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <span className="text-xs uppercase tracking-widest text-brand-blue-mid font-mono">Event</span>
+          <span className="text-xs uppercase tracking-widest text-neon-b font-mono">Event</span>
           <h1 className="mt-2 font-serif text-xl md:text-3xl font-bold text-foreground text-balance">
             {event.title}
           </h1>
@@ -143,7 +143,7 @@ export default async function AdminEventDetailPage({
       </div>
 
       <div className="mt-8 form-card p-6 md:p-8">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">
           <FileText className="w-4 h-4" />
           Event details
         </h2>
@@ -182,7 +182,7 @@ export default async function AdminEventDetailPage({
       ) : null}
 
       <div className="mt-8 form-card p-6 md:p-8">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2 flex items-center gap-2">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">
           <Users className="w-4 h-4" />
           RSVPs
         </h2>
@@ -202,11 +202,11 @@ export default async function AdminEventDetailPage({
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
           <div className="border border-border p-3 card-accent-blue-mid">
             <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Confirmed</div>
-            <div className="mt-1 text-lg font-bold font-mono text-brand-blue-mid">{confirmed}</div>
+            <div className="mt-1 text-lg font-bold font-mono text-neon-b">{confirmed}</div>
           </div>
           <div className="border border-border p-3 card-accent-cyan">
             <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Checked in</div>
-            <div className="mt-1 text-lg font-bold font-mono text-brand-cyan">{checkedIn}</div>
+            <div className="mt-1 text-lg font-bold font-mono text-neon-a">{checkedIn}</div>
           </div>
           <div className="border border-border p-3">
             <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cancelled</div>

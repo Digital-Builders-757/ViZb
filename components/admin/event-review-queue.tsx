@@ -37,11 +37,11 @@ type ReviewEvent = {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  party: "text-brand-cyan border-brand-cyan/30 bg-brand-cyan/5",
-  concert: "text-brand-blue border-brand-blue/30 bg-brand-blue/5",
-  networking: "text-brand-blue-mid border-brand-blue-mid/30 bg-brand-blue-mid/5",
-  workshop: "text-brand-cyan-bright border-brand-cyan-bright/30 bg-brand-cyan-bright/5",
-  social: "text-brand-cyan border-brand-cyan/30 bg-brand-cyan/5",
+  party: "text-neon-a border-neon-a/30 bg-neon-a/5",
+  concert: "text-neon-b border-neon-b/30 bg-neon-b/5",
+  networking: "text-neon-b border-neon-b/30 bg-neon-b/5",
+  workshop: "text-neon-c border-neon-c/30 bg-neon-c/5",
+  social: "text-neon-a border-neon-a/30 bg-neon-a/5",
   other: "text-muted-foreground border-border bg-muted/5",
 }
 
@@ -126,12 +126,12 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
       <div className="mt-5 flex flex-col gap-4">
         {filtered.length === 0 ? (
           <div className="border border-dashed p-12 flex flex-col items-center text-center gradient-border">
-            <div className="w-12 h-12 rounded-full bg-brand-cyan/10 flex items-center justify-center mb-4">
-              {activeTab === "pending_review" && <CheckCircle2 className="w-6 h-6 text-brand-cyan" />}
-              {activeTab === "published" && <CheckCircle2 className="w-6 h-6 text-brand-blue" />}
+            <div className="w-12 h-12 rounded-full bg-neon-a/10 flex items-center justify-center mb-4">
+              {activeTab === "pending_review" && <CheckCircle2 className="w-6 h-6 text-neon-a" />}
+              {activeTab === "published" && <CheckCircle2 className="w-6 h-6 text-neon-b" />}
               {activeTab === "rejected" && <XCircle className="w-6 h-6 text-amber-500" />}
             </div>
-            <span className="text-xs uppercase tracking-widest text-brand-cyan font-mono">
+            <span className="text-xs uppercase tracking-widest text-neon-a font-mono">
               {activeTab === "pending_review" ? "All Clear" : "None Yet"}
             </span>
             <h3 className="text-lg font-bold text-foreground uppercase mt-2">
@@ -156,15 +156,15 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
             const isPendingReview = evt.status === "pending_review"
 
             const accentColors = [
-              "border-l-brand-cyan",
-              "border-l-brand-blue-mid",
-              "border-l-brand-blue",
-              "border-l-brand-cyan-bright",
+              "border-l-neon-a",
+              "border-l-neon-b",
+              "border-l-neon-b",
+              "border-l-neon-c",
             ]
             const accent = isPendingReview
               ? accentColors[index % accentColors.length]
               : evt.status === "published"
-                ? "border-l-brand-blue"
+                ? "border-l-neon-b"
                 : "border-l-amber-500"
             const cats = normalizeCategories(evt.categories)
 
@@ -184,7 +184,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
               <div
                 key={evt.id}
                 className={`border-l-2 border border-border bg-[#111111] transition-all ${
-                  isApproved ? "border-l-brand-cyan bg-brand-cyan/5 border-brand-cyan/20" : ""
+                  isApproved ? "border-l-neon-a bg-neon-a/5 border-neon-a/20" : ""
                 } ${isRejected ? "border-l-amber-500 opacity-60" : ""} ${
                   !isHandled ? `${accent} hover:bg-[#161616]` : ""
                 }`}
@@ -193,7 +193,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                 <div className="p-5 pb-0">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-brand-blue/20 to-brand-cyan/20 flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-12 h-12 bg-gradient-to-br from-neon-b/20 to-neon-a/20 flex items-center justify-center shrink-0 overflow-hidden">
                         {evt.flyer_url ? (
                           <Image
                             src={evt.flyer_url || "/placeholder.svg"}
@@ -275,7 +275,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                     <div className="mt-3">
                       <button
                         onClick={() => toggleExpanded(evt.id)}
-                        className="inline-flex items-center gap-1.5 text-xs text-brand-cyan font-mono hover:underline transition-colors bg-transparent border-0 p-0 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 text-xs text-neon-a font-mono hover:underline transition-colors bg-transparent border-0 p-0 cursor-pointer"
                       >
                         <Eye className="w-3 h-3" />
                         {isExpanded ? "Hide Flyer" : "Preview Flyer"}
@@ -305,7 +305,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                         <AlertDialogTrigger asChild>
                           <button
                             disabled={isPending}
-                            className="bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-5 py-2.5 text-xs font-mono uppercase tracking-widest hover:shadow-[0_0_20px_rgba(0,189,255,0.3)] transition-all disabled:opacity-50"
+                            className="bg-gradient-to-r from-neon-b to-neon-a text-white px-5 py-2.5 text-xs font-mono uppercase tracking-widest hover:shadow-[0_0_20px_rgba(0,189,255,0.3)] transition-all disabled:opacity-50"
                           >
                             {isPending ? "Processing..." : "Approve + Publish"}
                           </button>
@@ -313,8 +313,8 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                         <AlertDialogContent className="bg-[#111111] border-border">
                           <AlertDialogHeader>
                             <div className="flex items-center gap-3 mb-1">
-                              <div className="w-9 h-9 bg-brand-cyan/10 flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-5 h-5 text-brand-cyan" />
+                              <div className="w-9 h-9 bg-neon-a/10 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-5 h-5 text-neon-a" />
                               </div>
                               <AlertDialogTitle className="font-serif text-foreground">Approve Event</AlertDialogTitle>
                             </div>
@@ -341,7 +341,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                             </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleReview(evt.id, "approve")}
-                              className="bg-gradient-to-r from-brand-blue to-brand-cyan text-white font-mono text-xs uppercase tracking-widest border-0 hover:shadow-[0_0_20px_rgba(0,189,255,0.3)]"
+                              className="bg-gradient-to-r from-neon-b to-neon-a text-white font-mono text-xs uppercase tracking-widest border-0 hover:shadow-[0_0_20px_rgba(0,189,255,0.3)]"
                             >
                               Confirm Approval
                             </AlertDialogAction>
@@ -417,10 +417,10 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                 )}
 
                 {isApproved && (
-                  <div className="mx-5 mb-5 border border-brand-cyan/30 bg-brand-cyan/5 p-3 flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-brand-cyan shrink-0 mt-0.5" />
+                  <div className="mx-5 mb-5 border border-neon-a/30 bg-neon-a/5 p-3 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-neon-a shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs font-mono uppercase tracking-widest text-brand-cyan">
+                      <p className="text-xs font-mono uppercase tracking-widest text-neon-a">
                         Approved -- Now Published
                       </p>
                       {result.event && (

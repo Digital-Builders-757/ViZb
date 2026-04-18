@@ -28,7 +28,7 @@ function toLocalInput(iso: string | null) {
 }
 
 const fieldClass =
-  "w-full bg-[#0a0a0a] border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
+  "w-full bg-[#0a0a0a] border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
 const labelClass = "text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
 /** Secondary actions — per-tier only; primary “Save event details” lives above in EventDetailsEditForm. */
 const tierActionButtonClass =
@@ -49,7 +49,7 @@ export function EventTicketTypesPanel({
 
   return (
     <div className="mt-6 form-card p-6 md:p-8">
-      <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-1">RSVP and ticket tiers</h2>
+      <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-1">RSVP and ticket tiers</h2>
       <p className="text-sm text-muted-foreground mb-3 max-w-2xl">
         Each row is its own form: use <span className="text-foreground/90 font-medium">Save tier</span> for that tier
         only. This does <span className="text-foreground/90 font-medium">not</span> save title, schedule, venue,
@@ -72,7 +72,7 @@ export function EventTicketTypesPanel({
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-foreground">{t.name}</span>
               {t.is_default_rsvp ? (
-                <span className="text-[10px] font-mono uppercase tracking-widest text-brand-cyan border border-brand-cyan/40 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-neon-a border border-neon-a/40 px-2 py-0.5 rounded">
                   Default RSVP
                 </span>
               ) : t.price_cents > 0 ? (
@@ -203,7 +203,7 @@ export function EventTicketTypesPanel({
       </div>
 
       <div className="mt-10 pt-6 section-divider">
-        <h3 className={`${labelClass} text-brand-cyan mb-3`}>Add tier</h3>
+        <h3 className={`${labelClass} text-neon-a mb-3`}>Add tier</h3>
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl"
           onSubmit={(e) => {

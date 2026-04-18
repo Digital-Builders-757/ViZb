@@ -29,19 +29,19 @@ export function CreateOrgForm() {
 
         {/* Section 1: Organization Details */}
         <div className="px-5 md:px-6 pt-5 md:pt-6 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-blue/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-blue font-mono">1</span>
+          <div className="w-6 h-6 rounded-full bg-neon-b/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-b font-mono">1</span>
           </div>
           <div className="flex items-center gap-2">
-            <Building2 className="w-3.5 h-3.5 text-brand-blue" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-blue">Organization Details</span>
+            <Building2 className="w-3.5 h-3.5 text-neon-b" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-b">Organization Details</span>
           </div>
         </div>
         <div className="section-divider" />
         <div className="px-5 md:px-6 py-5 md:py-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="orgName" className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-              Org Name <span className="text-brand-blue">*</span>
+              Org Name <span className="text-neon-b">*</span>
             </label>
             <input
               id="orgName"
@@ -84,12 +84,12 @@ export function CreateOrgForm() {
 
         {/* Section 2: Invite Configuration */}
         <div className="px-5 md:px-6 pt-2 pb-4 flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-brand-cyan/10 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-brand-cyan font-mono">2</span>
+          <div className="w-6 h-6 rounded-full bg-neon-a/10 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-neon-a font-mono">2</span>
           </div>
           <div className="flex items-center gap-2">
-            <UserPlus className="w-3.5 h-3.5 text-brand-cyan" />
-            <span className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Invite Configuration</span>
+            <UserPlus className="w-3.5 h-3.5 text-neon-a" />
+            <span className="text-xs font-mono uppercase tracking-widest text-neon-a">Invite Configuration</span>
           </div>
         </div>
         <div className="section-divider" />
@@ -129,7 +129,7 @@ export function CreateOrgForm() {
           <button
             type="submit"
             disabled={pending}
-            className="bg-gradient-to-r from-brand-blue to-brand-cyan text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(0,189,255,0.3)] transition-all disabled:opacity-50"
+            className="bg-gradient-to-r from-neon-b to-neon-a text-white px-8 py-3 text-xs font-mono uppercase tracking-widest font-bold hover:shadow-[0_0_20px_rgba(0,189,255,0.3)] transition-all disabled:opacity-50"
           >
             {pending ? "Creating..." : "Create Org + Generate Invite"}
           </button>
@@ -145,10 +145,10 @@ export function CreateOrgForm() {
         {/* Success: Invite Link */}
         {result?.success && result.invite && (
           <div className="mx-5 md:mx-6 mb-5 mt-1">
-            <div className="border border-brand-cyan/30 bg-brand-cyan/5 p-5">
+            <div className="border border-neon-a/30 bg-neon-a/5 p-5">
               <div className="flex items-center gap-2 mb-3">
-                <CheckCircle2 className="w-4 h-4 text-brand-cyan" />
-                <p className="text-xs font-mono uppercase tracking-widest text-brand-cyan">Org Created + Invite Generated</p>
+                <CheckCircle2 className="w-4 h-4 text-neon-a" />
+                <p className="text-xs font-mono uppercase tracking-widest text-neon-a">Org Created + Invite Generated</p>
               </div>
               <p className="text-sm text-foreground">
                 <strong>{result.org?.name}</strong>{" "}
@@ -160,20 +160,20 @@ export function CreateOrgForm() {
                     <Link2 className="w-3 h-3" />
                     Share this invite link
                   </p>
-                  <code className="text-sm text-brand-cyan break-all font-mono leading-relaxed">
+                  <code className="text-sm text-neon-a break-all font-mono leading-relaxed">
                     {typeof window !== "undefined" ? window.location.origin : ""}{result.invite.claimUrl}
                   </code>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopy(`${typeof window !== "undefined" ? window.location.origin : ""}${result.invite?.claimUrl}`)}
-                  className="shrink-0 p-2 border border-[#222222] hover:border-brand-cyan/30 hover:bg-brand-cyan/5 transition-colors"
+                  className="shrink-0 p-2 border border-[#222222] hover:border-neon-a/30 hover:bg-neon-a/5 transition-colors"
                 >
                   <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               </div>
               {copied && (
-                <p className="text-[11px] text-brand-cyan mt-2 font-mono">Copied to clipboard</p>
+                <p className="text-[11px] text-neon-a mt-2 font-mono">Copied to clipboard</p>
               )}
             </div>
           </div>
