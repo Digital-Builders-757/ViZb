@@ -173,6 +173,25 @@ export default async function AdminPage() {
             </div>
           </div>
         </GlassCard>
+
+        <GlassCard className="mt-4 p-4 md:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-[color:var(--neon-text0)]">Platform events (ViZb)</p>
+              <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
+                Create drafts under the platform organization—same workflow as organizers, with review and publish from Admin.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <NeonLink href="/admin/events/new" shape="xl" className="sm:w-auto">
+                New platform event
+              </NeonLink>
+              <NeonLink href="#events" variant="secondary" shape="xl" className="sm:w-auto">
+                All events
+              </NeonLink>
+            </div>
+          </div>
+        </GlassCard>
       </div>
 
       {/* Stats */}
@@ -282,6 +301,27 @@ export default async function AdminPage() {
                 className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 View public feed
+              </Link>
+            </li>
+          </ul>
+        </GlassCard>
+        <GlassCard className="card-accent-cyan mt-4 p-5 md:p-6">
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">Platform organization</p>
+          <ul className="flex flex-col gap-3 text-sm">
+            <li>
+              <Link
+                href="/admin/events/new"
+                className="font-medium text-foreground underline-offset-4 hover:text-neon-a hover:underline"
+              >
+                Create a platform event (ViZb org)
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="#events"
+                className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Jump to all events
               </Link>
             </li>
           </ul>
