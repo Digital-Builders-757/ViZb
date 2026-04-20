@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** April 18, 2026
+**Last Updated:** April 20, 2026
 
 Single entry point for the **events + community + brand** platform (repo **ViZb**). Everything else is reference or archive.
 

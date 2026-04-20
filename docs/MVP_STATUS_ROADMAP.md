@@ -72,6 +72,7 @@
 ### P0 / maintenance (no product phase change)
 
 - **April 18, 2026 — Code hygiene & documentation pass:** Layer 1 docs aligned with **Next.js 16 `proxy.ts`**, real **`app/actions/*`**, and **`createClient()`** naming; master log: **`docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md`** (includes validation checklist). Product behavior unchanged.
+- **April 20, 2026 — Neon/glass UI batch (Phase 6 polish):** Public, auth, organizer, admin, and events/posts surfaces aligned with **`docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`**; integrated on **`develop`** via `feat/visual-overhaul-neon-glass`. `npm run ci` green before merge.
 
 ---
 
