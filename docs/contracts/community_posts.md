@@ -42,7 +42,8 @@ Canonical SQL + RLS: `docs/plans/POSTS_MVP.md`
 
 - **Bucket:** `post-covers` (public read; **INSERT/UPDATE/DELETE** restricted to `staff_admin` via `storage.objects` policies).
 - **Paths:** `drafts/{admin_user_id}/…` before the post row exists; `{post_id}/…` when editing an existing post.
-- Migration: `supabase/migrations/20260420180000_post_covers_storage.sql`.
+- **Optional bucket:** `posts` — reserved for future post attachments (same staff-only write pattern); created in `supabase/migrations/20260420224705_storage_buckets_event_flyers_and_posts.sql`.
+- Migrations: `20260420180000_post_covers_storage.sql` (initial); `20260420224705_storage_buckets_event_flyers_and_posts.sql` (ensures `post-covers`, `event-flyers`, and `posts` buckets + policies on hosted DBs).
 
 ## RLS + access rules (MVP)
 

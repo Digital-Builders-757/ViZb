@@ -152,7 +152,7 @@ export default async function AdminPage() {
             <div>
               <p className="font-semibold text-[color:var(--neon-text0)]">Manage posts</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Create, edit, publish, and archive Markdown posts.
+                Create, edit, publish, and archive posts.
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
@@ -254,7 +254,7 @@ export default async function AdminPage() {
         </div>
         <h2 className="font-serif text-xl font-bold text-foreground mt-2">Posts</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Publish Markdown for the homepage From VIZB module and the public <code className="text-xs">/p</code> feed.
+          Publish content for the homepage From ViZb module and the public <code className="text-xs">/p</code> feed.
         </p>
         <GlassCard className="card-accent-cyan mt-6 p-5 md:p-6">
           <ul className="flex flex-col gap-3 text-sm">

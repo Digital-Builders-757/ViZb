@@ -10,6 +10,7 @@ import {
   POST_COVERS_BUCKET,
   postCoverPathFromPublicUrl,
 } from "@/lib/posts/cover-upload-constraints"
+import { augmentStorageErrorMessage } from "@/lib/supabase/storage-errors"
 
 export type UploadAdminPostCoverResult =
   | { success: true; publicUrl: string }
@@ -67,7 +68,7 @@ export async function uploadAdminPostCover(formData: FormData): Promise<UploadAd
       .upload(storagePath, file, { cacheControl: "3600", upsert: false })
 
     if (uploadError) {
-      return { error: `Upload failed: ${uploadError.message}` }
+      return { error: `Upload failed: ${augmentStorageErrorMessage(uploadError.message)}` }
     }
 
     const { data: publicUrlData } = supabase.storage.from(POST_COVERS_BUCKET).getPublicUrl(storagePath)
@@ -98,7 +99,7 @@ export async function removeAdminPostCoverFromStorage(coverImageUrl: string): Pr
 
     const { error } = await supabase.storage.from(POST_COVERS_BUCKET).remove([path])
     if (error) {
-      return { error: `Remove failed: ${error.message}` }
+      return { error: `Remove failed: ${augmentStorageErrorMessage(error.message)}` }
     }
     return { success: true }
   } catch (err) {
