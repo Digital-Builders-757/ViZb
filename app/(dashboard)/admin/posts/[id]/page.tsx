@@ -138,6 +138,7 @@ export default async function AdminEditPostPage({
       ) : null}
 
       <AdminPostForm
+        postId={post.id}
         submitLabel="Save changes"
         action={updatePost}
         initial={{

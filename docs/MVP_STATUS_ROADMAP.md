@@ -72,7 +72,7 @@
 ### P0 / maintenance (no product phase change)
 
 - **April 18, 2026 — Code hygiene & documentation pass:** Layer 1 docs aligned with **Next.js 16 `proxy.ts`**, real **`app/actions/*`**, and **`createClient()`** naming; master log: **`docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md`** (includes validation checklist). Product behavior unchanged.
-- **April 20, 2026 — Neon/glass UI batch (Phase 6 polish):** Public, auth, organizer, admin, and events/posts surfaces aligned with **`docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`**; integrated on **`develop`** via `feat/visual-overhaul-neon-glass`. `npm run ci` green before merge.
+- **April 20, 2026 — Neon/glass UI batch (Phase 6 polish):** Public, auth, organizer, admin, and events/posts surfaces aligned with **`docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`**; integrated on **`develop`** via `feat/visual-overhaul-neon-glass`. `npm run ci` green before merge. **Also on this line:** admin **post cover** image upload (**`post-covers`** bucket, `supabase/migrations/20260420180000_post_covers_storage.sql`); organizer org home **Attendees** KPI counts **active RSVPs** (`event_registrations`, excl. cancelled) across the org’s events; marketing **home** navbar stays visible (no auto-hide on `/`); **events** timeline cards drop listing blurb (full copy remains on `/events/[slug]`).
 
 ### P0 / maintenance (no product phase change)
 

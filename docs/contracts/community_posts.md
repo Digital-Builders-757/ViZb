@@ -29,7 +29,7 @@ Fields (MVP):
 - `slug` (text, unique)
 - `excerpt` (text, nullable)
 - `content_md` (text, markdown)
-- `cover_image_url` (text, nullable)
+- `cover_image_url` (text, nullable) — public URL; may be Supabase Storage (`post-covers` bucket) or any HTTPS URL for legacy rows
 - `video_url` (text, nullable)
 - `status` (draft|published|archived)
 - `published_at` (timestamptz, nullable)
@@ -37,6 +37,12 @@ Fields (MVP):
 - `created_at`, `updated_at`
 
 Canonical SQL + RLS: `docs/plans/POSTS_MVP.md`
+
+## Cover images (storage)
+
+- **Bucket:** `post-covers` (public read; **INSERT/UPDATE/DELETE** restricted to `staff_admin` via `storage.objects` policies).
+- **Paths:** `drafts/{admin_user_id}/…` before the post row exists; `{post_id}/…` when editing an existing post.
+- Migration: `supabase/migrations/20260420180000_post_covers_storage.sql`.
 
 ## RLS + access rules (MVP)
 
