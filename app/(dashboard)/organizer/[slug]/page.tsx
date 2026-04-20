@@ -32,6 +32,22 @@ export default async function OrgDashboardPage({
   const totalEvents = eventList.length
   const publishedEvents = eventList.filter(e => e.status === "published").length
 
+  // RSVPs across all org events (same source as event detail Attendees panel)
+  let totalAttendees = 0
+  if (eventList.length > 0) {
+    try {
+      const eventIds = eventList.map((e) => e.id)
+      const { count } = await supabase
+        .from("event_registrations")
+        .select("id", { count: "exact", head: true })
+        .in("event_id", eventIds)
+        .neq("status", "cancelled")
+      totalAttendees = count ?? 0
+    } catch {
+      totalAttendees = 0
+    }
+  }
+
   return (
     <div>
       {/* Page header */}
@@ -94,8 +110,8 @@ export default async function OrgDashboardPage({
                 Attendees
               </span>
             </div>
-            <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">0</span>
-            <span className="mt-1 block text-xs text-muted-foreground">Total attendees</span>
+            <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">{totalAttendees}</span>
+            <span className="mt-1 block text-xs text-muted-foreground">Active RSVPs (excl. cancelled)</span>
           </GlassCard>
 
           <GlassCard className="card-accent-cyan-bright p-4 md:p-6">

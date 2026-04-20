@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 
+import { AdminPostCoverUpload } from "@/components/admin/posts/admin-post-cover-upload"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonButton } from "@/components/ui/neon-button"
 
@@ -28,10 +29,13 @@ export function AdminPostForm({
   initial,
   action,
   submitLabel = "Save",
+  postId,
 }: {
   initial?: Partial<AdminPostDraft>
   action: (formData: FormData) => void
   submitLabel?: string
+  /** When set, cover uploads use `post-covers/{postId}/…`. */
+  postId?: string
 }) {
   const [draft, setDraft] = useState<AdminPostDraft>({
     title: initial?.title ?? "",
@@ -93,29 +97,45 @@ export function AdminPostForm({
           />
         </label>
 
-        <div className="grid gap-4 md:grid-cols-2 mt-4">
-          <label className="block">
-            <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Cover image URL</span>
-            <input
-              name="cover_image_url"
-              className="vibe-input-glass mt-2"
-              value={draft.cover_image_url}
-              onChange={(e) => setDraft((d) => ({ ...d, cover_image_url: e.target.value }))}
-              placeholder="https://..."
-            />
-          </label>
+        <input type="hidden" name="cover_image_url" value={draft.cover_image_url} readOnly />
 
-          <label className="block">
-            <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Video URL (optional)</span>
-            <input
-              name="video_url"
-              className="vibe-input-glass mt-2"
-              value={draft.video_url}
-              onChange={(e) => setDraft((d) => ({ ...d, video_url: e.target.value }))}
-              placeholder="https://youtube.com/..."
+        <div className="mt-4">
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Cover image
+          </span>
+          <div className="mt-2">
+            <AdminPostCoverUpload
+              postId={postId}
+              coverImageUrl={draft.cover_image_url}
+              onCoverImageUrlChange={(url) => setDraft((d) => ({ ...d, cover_image_url: url }))}
             />
-          </label>
+          </div>
+          <details className="mt-4 text-[color:var(--neon-text2)]">
+            <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-widest hover:text-[color:var(--neon-text0)]">
+              Paste image URL instead (advanced)
+            </summary>
+            <label className="mt-3 block">
+              <input
+                className="vibe-input-glass mt-2"
+                value={draft.cover_image_url}
+                onChange={(e) => setDraft((d) => ({ ...d, cover_image_url: e.target.value }))}
+                placeholder="https://..."
+                aria-label="Cover image URL"
+              />
+            </label>
+          </details>
         </div>
+
+        <label className="mt-4 block md:max-w-xl">
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Video URL (optional)</span>
+          <input
+            name="video_url"
+            className="vibe-input-glass mt-2"
+            value={draft.video_url}
+            onChange={(e) => setDraft((d) => ({ ...d, video_url: e.target.value }))}
+            placeholder="https://youtube.com/..."
+          />
+        </label>
 
         <div className="grid gap-4 md:grid-cols-2 mt-4">
           <label className="block">

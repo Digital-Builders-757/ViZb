@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef, useMemo } from "react"
-import Image from "next/image"
+import { FullLogoImage } from "@/components/brand/full-logo-image"
 
 // Ocean-themed loading screen with water animations
 
@@ -371,12 +371,10 @@ export default function RootLoading() {
               }}
               aria-hidden
             />
-            <Image
-              src="/vibe-logo.png"
-              alt="VIZB"
-              width={280}
-              height={280}
-              className="relative h-36 w-36 select-none object-contain sm:h-48 sm:w-48 md:h-64 md:w-64"
+            <FullLogoImage
+              width={400}
+              height={400}
+              className="relative h-36 w-36 select-none sm:h-48 sm:w-48 md:h-64 md:w-64"
               style={{
                 filter: "drop-shadow(0 0 50px rgba(0, 209, 255, 0.6)) drop-shadow(0 0 100px rgba(168, 85, 247, 0.3))",
               }}

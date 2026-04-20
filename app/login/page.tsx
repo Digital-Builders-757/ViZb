@@ -4,6 +4,8 @@ import { useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
+
+import { FullLogoImage } from "@/components/brand/full-logo-image"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { AuthAlert } from "@/components/auth/auth-alert"
@@ -130,12 +132,10 @@ export default function LoginPage() {
           {/* Logo with glow */}
           <Link href="/" className="inline-block mb-12 group">
             <div className="relative">
-              <Image
-                src="/vibe-logo.png"
-                alt="VIZB"
-                width={48}
-                height={48}
-                className="h-12 w-auto relative z-10"
+              <FullLogoImage
+                width={240}
+                height={240}
+                className="relative z-10 h-14 w-auto max-w-[min(100%,220px)]"
               />
               <div className="absolute inset-0 bg-[color:var(--neon-b)]/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
