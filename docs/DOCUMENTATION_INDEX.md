@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** April 18, 2026
+**Last Updated:** April 20, 2026
 
 Single entry point for the **events + community + brand** platform (repo **ViZb**). Everything else is reference or archive.
 
@@ -40,6 +40,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `PROJECT_PLAN_PHASE1.md` | Phase 1 file plan |
 | `DEVELOPER_ONBOARDING.md` | Human developer start |
 | `DOCS_OVERHAUL_PLAN_2026.md` | Hygiene, immutable paths, archive rules |
+| `VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md` | **April 2026 hygiene pass** — audit log, DOD, validation, deferred work |
 | `VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md` | Site-wide neon / glass UI overhaul — checklist, tokens, migration notes |
 | `CURSOR_COMMANDS_REFERENCE.md` | Command → required reads |
 | `development/ENGINEERING_COMMANDS.md` | **Canonical Cursor command doctrine** |

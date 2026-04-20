@@ -1018,14 +1018,14 @@ For features that need live updates without polling:
 
 ```typescript
 "use client"
-import { createSupabaseBrowser } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState } from "react"
 
 export function LiveCheckInCount({ eventId }: { eventId: string }) {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    const supabase = createSupabaseBrowser()
+    const supabase = createClient()
 
     // Initial count
     supabase
