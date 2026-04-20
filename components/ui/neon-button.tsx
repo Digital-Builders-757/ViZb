@@ -118,7 +118,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           {/* Animated gradient border */}
           <span
             className={cn(
-              "absolute inset-0 bg-gradient-to-r from-[color:var(--vibe-neon-cyan)] via-[color:var(--vibe-neon-purple)] to-[color:var(--vibe-neon-cyan)] bg-[length:200%_100%] animate-[neon-border-flow_3s_linear_infinite]",
+              "absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--vibe-neon-cyan)] via-[color:var(--vibe-neon-purple)] to-[color:var(--vibe-neon-cyan)] bg-[length:200%_100%]",
               round,
             )}
             aria-hidden

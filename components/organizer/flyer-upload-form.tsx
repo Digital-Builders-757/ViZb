@@ -94,7 +94,7 @@ export function FlyerUploadForm({ eventId, currentFlyerUrl }: FlyerUploadFormPro
           className={`inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 text-xs font-mono uppercase tracking-widest border transition-colors ${
             uploading
               ? "border-muted-foreground/30 text-muted-foreground cursor-not-allowed"
-              : "border-brand-cyan/30 text-brand-cyan hover:bg-brand-cyan/10"
+              : "border-neon-a/30 text-neon-a hover:bg-neon-a/10"
           }`}
         >
           {uploading ? (

@@ -26,6 +26,7 @@ import {
   type OpenMicLineupEntryRow,
 } from "@/components/organizer/open-mic-lineup-panel"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
+import { GlassCard } from "@/components/ui/glass-card"
 
 export default async function EventDetailPage({
   params,
@@ -174,7 +175,7 @@ export default async function EventDetailPage({
       {/* Back link */}
       <Link
         href={`/organizer/${slug}`}
-        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-brand-cyan transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-neon-a transition-colors"
       >
         <ArrowLeft className="w-3 h-3" />
         Back to {org.name}
@@ -241,8 +242,8 @@ export default async function EventDetailPage({
       )}
 
       {/* Flyer Section */}
-      <div className="mt-8 form-card p-6 md:p-8">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-6 flex items-center gap-2">
+      <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-6 flex items-center gap-2">
           <ImageIcon className="w-4 h-4" />
           Event Flyer
         </h2>
@@ -289,11 +290,11 @@ export default async function EventDetailPage({
             )}
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* Event details card — before RSVP & ticket tiers so the primary save is encountered first */}
-      <div className="mt-6 form-card p-6 md:p-8">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-2">
+      <GlassCard emphasis className="card-accent-cyan mt-6 p-6 md:p-8">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2">
           Event Details
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
@@ -315,13 +316,13 @@ export default async function EventDetailPage({
               </span>
               {startDateStr && (
                 <div className="flex items-center gap-2 mt-1">
-                  <Calendar className="w-4 h-4 text-brand-cyan" />
+                  <Calendar className="w-4 h-4 text-neon-a" />
                   <span className="text-sm text-foreground">{startDateStr}</span>
                 </div>
               )}
               {startTimeStr && (
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock className="w-4 h-4 text-brand-blue-mid" />
+                  <Clock className="w-4 h-4 text-neon-b" />
                   <span className="text-sm text-foreground">{startTimeStr}</span>
                 </div>
               )}
@@ -337,13 +338,13 @@ export default async function EventDetailPage({
                 </span>
                 {endDateStr && (
                   <div className="flex items-center gap-2 mt-1">
-                    <Calendar className="w-4 h-4 text-brand-cyan" />
+                    <Calendar className="w-4 h-4 text-neon-a" />
                     <span className="text-sm text-foreground">{endDateStr}</span>
                   </div>
                 )}
                 {endTimeStr && (
                   <div className="flex items-center gap-2 mt-1">
-                    <Clock className="w-4 h-4 text-brand-blue-mid" />
+                    <Clock className="w-4 h-4 text-neon-b" />
                     <span className="text-sm text-foreground">{endTimeStr}</span>
                   </div>
                 )}
@@ -358,7 +359,7 @@ export default async function EventDetailPage({
                 Venue
               </span>
               <div className="flex items-center gap-2 mt-1">
-                <MapPin className="w-4 h-4 text-brand-cyan-bright" />
+                <MapPin className="w-4 h-4 text-neon-c" />
                 <span className="text-sm text-foreground">
                   {event.venue_name || "Not set"}
                 </span>
@@ -410,7 +411,7 @@ export default async function EventDetailPage({
             <span className="font-mono">/{event.slug}</span>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       <EventTicketTypesPanel
         orgSlug={slug}

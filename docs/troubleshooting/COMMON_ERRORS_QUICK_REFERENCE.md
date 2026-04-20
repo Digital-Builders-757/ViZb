@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 17, 2026
+**Last updated:** April 20, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 

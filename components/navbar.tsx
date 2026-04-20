@@ -3,11 +3,14 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Menu, X, User } from "lucide-react"
 import { createClient, isBrowserSupabaseConfigured } from "@/lib/supabase/client"
 import { NeonLink } from "@/components/ui/neon-link"
+import { cn } from "@/lib/utils"
 
 export function Navbar() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [isVisible, setIsVisible] = useState(true)
@@ -67,6 +70,20 @@ export function Navbar() {
 
   const isLoggedIn = !!user
 
+  const navText = (active: boolean, block?: boolean) =>
+    cn(
+      block && "block",
+      "text-xs font-mono uppercase tracking-widest transition-colors",
+      active
+        ? "text-[color:var(--neon-a)]"
+        : "text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]",
+    )
+
+  const onEvents = pathname === "/events" || pathname.startsWith("/events/")
+  const onPosts = pathname === "/p" || pathname.startsWith("/p/")
+  const onAdvertise = pathname.startsWith("/advertise")
+  const onLogin = pathname.startsWith("/login")
+
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/72 backdrop-blur-xl transition-all duration-500 ease-in-out ${
@@ -102,28 +119,20 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            <Link
-              href="/events"
-              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-            >
+            <Link href="/events" className={navText(onEvents)} aria-current={onEvents ? "page" : undefined}>
               Events
             </Link>
-            <Link
-              href="/p"
-              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-            >
+            <Link href="/p" className={navText(onPosts)} aria-current={onPosts ? "page" : undefined}>
               Posts
             </Link>
             <Link
               href="/advertise"
-              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
+              className={navText(onAdvertise)}
+              aria-current={onAdvertise ? "page" : undefined}
             >
               Advertise
             </Link>
-            <Link
-              href="#about"
-              className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-            >
+            <Link href="/#about" className={navText(pathname === "/")}>
               About
             </Link>
 
@@ -136,10 +145,7 @@ export function Navbar() {
                   </NeonLink>
                 ) : (
                   <>
-                    <Link
-                      href="/login"
-                      className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-                    >
+                    <Link href="/login" className={navText(onLogin)} aria-current={onLogin ? "page" : undefined}>
                       Sign In
                     </Link>
                     <NeonLink href="/signup" shape="xl" size="sm" className="sm:w-auto">
@@ -168,32 +174,16 @@ export function Navbar() {
       {isOpen && (
         <div className="md:hidden border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/92 backdrop-blur-xl">
           <div className="px-4 py-6 space-y-4">
-            <Link
-              href="/events"
-              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/events" className={navText(onEvents, true)} onClick={() => setIsOpen(false)}>
               Events
             </Link>
-            <Link
-              href="/p"
-              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/p" className={navText(onPosts, true)} onClick={() => setIsOpen(false)}>
               Posts
             </Link>
-            <Link
-              href="/advertise"
-              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/advertise" className={navText(onAdvertise, true)} onClick={() => setIsOpen(false)}>
               Advertise
             </Link>
-            <Link
-              href="#about"
-              className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/#about" className={navText(pathname === "/", true)} onClick={() => setIsOpen(false)}>
               About
             </Link>
 
@@ -212,11 +202,7 @@ export function Navbar() {
                   </NeonLink>
                 ) : (
                   <>
-                    <Link
-                      href="/login"
-                      className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)] transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
+                    <Link href="/login" className={navText(onLogin, true)} onClick={() => setIsOpen(false)}>
                       Sign In
                     </Link>
                     <NeonLink

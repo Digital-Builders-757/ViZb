@@ -5,7 +5,9 @@ import type { Metadata } from "next"
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 import { getPublishedPostBySlug } from "@/lib/posts/posts"
 import { MarkdownContent } from "@/components/posts/markdown"
 
@@ -37,10 +39,14 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   if (!post) notFound()
 
   return (
-    <main className="min-h-screen bg-[color:var(--neon-bg0)]">
-      <Navbar />
+    <AppShell
+      withNeonBackdrop
+      className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+    >
+      <main className="min-h-screen">
+        <Navbar />
 
-      <section className="pt-24 sm:pt-28 pb-16 px-4 sm:px-8">
+        <section className="px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
         <div className="mx-auto max-w-[900px]">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
@@ -120,9 +126,12 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             </Link>
           </div>
         </div>
-      </section>
+        </section>
 
-      <Footer />
-    </main>
+        <OceanDivider variant="soft" density="sparse" withLine={false} />
+
+        <Footer />
+      </main>
+    </AppShell>
   )
 }

@@ -21,6 +21,7 @@ import {
   getPublicLineupShareTarget,
 } from "@/lib/public-site-url"
 import { Button } from "@/components/ui/button"
+import { GlassCard } from "@/components/ui/glass-card"
 import { ChevronDown, ChevronUp, ExternalLink, Link2, Mic2 } from "lucide-react"
 
 export type OpenMicLineupEntryRow = {
@@ -34,7 +35,7 @@ export type OpenMicLineupEntryRow = {
 }
 
 const fieldClass =
-  "w-full bg-[#0a0a0a] border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-cyan/50 transition-colors"
+  "vibe-input-glass vibe-focus-ring !min-h-0 px-3 py-2 text-sm placeholder:text-[color:var(--neon-text2)]"
 const labelClass = "text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
 
 function visibilityToneClass(tone: LineupPublicVisibilityTone) {
@@ -53,7 +54,7 @@ function statusBadgeClass(status: string) {
     case "confirmed":
       return "border-emerald-500/50 text-emerald-400"
     case "performed":
-      return "border-brand-cyan/50 text-brand-cyan"
+      return "border-neon-a/50 text-neon-a"
     case "no_show":
       return "border-amber-500/50 text-amber-400"
     case "cancelled":
@@ -95,10 +96,10 @@ export function OpenMicLineupPanel({
   const orgSlugValue = orgSlug ?? ""
 
   return (
-    <div className="mt-6 form-card p-6 md:p-8">
+    <GlassCard className="mt-6 p-6 md:p-8" emphasis>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div>
-          <h2 className="text-xs font-mono uppercase tracking-widest text-brand-cyan mb-1 flex items-center gap-2">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-1 flex items-center gap-2">
             <Mic2 className="w-4 h-4" />
             Open mic lineup
           </h2>
@@ -416,6 +417,6 @@ export function OpenMicLineupPanel({
           </div>
         </>
       )}
-    </div>
+    </GlassCard>
   )
 }
