@@ -21,8 +21,7 @@ export default async function AdminNewPostPage({
     if (!isServerSupabaseConfigured()) return
 
     const title = String(formData.get("title") ?? "").trim()
-    const slugRaw = String(formData.get("slug") ?? "").trim()
-    const resolvedSlug = slugRaw || slugify(title)
+    const resolvedSlug = slugify(title)
 
     const excerptRaw = String(formData.get("excerpt") ?? "").trim()
     const cover_image_url = String(formData.get("cover_image_url") ?? "").trim()
@@ -70,15 +69,17 @@ export default async function AdminNewPostPage({
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Admin</span>
         <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)]">New Post</h1>
         <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Create a Markdown post for the public feed.
+          Create a post for the public feed.
         </p>
       </header>
 
       {error === "slug_taken" ? (
         <GlassCard className="p-5">
-          <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Slug already exists</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Link already in use</p>
           <p className="mt-2 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            The slug <span className="font-mono text-[color:var(--neon-text0)]">{slug}</span> is already in use. Change the slug and try again.
+            Another post already uses a URL like{" "}
+            <span className="font-mono text-[color:var(--neon-text0)]">/p/{slug}</span>. Try a more specific title (or add a
+            few words) so the link is unique, then save again.
           </p>
         </GlassCard>
       ) : null}

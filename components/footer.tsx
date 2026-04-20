@@ -1,5 +1,6 @@
 import Link from "next/link"
-import Image from "next/image"
+
+import { FullLogoImage } from "@/components/brand/full-logo-image"
 
 export function Footer() {
   return (
@@ -9,13 +10,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="inline-block">
-              <Image
-                src="/vibe-logo.png"
-                alt="VIZB Logo"
-                width={60}
-                height={60}
-                className="h-14 w-auto"
-              />
+              <FullLogoImage width={200} height={200} className="h-14 w-auto max-w-[min(100%,220px)]" />
             </Link>
             <p className="text-sm text-[color:var(--neon-text1)] mt-4 max-w-xs">
               Driving culture forward in Virginia. Workshops. Meetups. Parties.

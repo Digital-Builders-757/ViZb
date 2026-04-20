@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, User } from "lucide-react"
 import { createClient, isBrowserSupabaseConfigured } from "@/lib/supabase/client"
 import { NeonLink } from "@/components/ui/neon-link"
+import { HeaderBrandMarkLink } from "@/components/brand/header-brand-mark"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
   const pathname = usePathname()
+  const isHome = pathname === "/"
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [isVisible, setIsVisible] = useState(true)
@@ -34,8 +35,16 @@ export function Navbar() {
     }
   }, [])
 
-  // Auto-hide navbar after 3 seconds of inactivity
+  // Auto-hide navbar after 3 seconds of inactivity (not on home — keeps mobile menu usable)
   useEffect(() => {
+    if (isHome) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+      return
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
       // Show navbar when mouse is near the top of the screen (within 100px)
       if (e.clientY < 100) {
@@ -66,7 +75,7 @@ export function Navbar() {
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [isHovering, isOpen])
+  }, [isHome, isHovering, isOpen])
 
   const isLoggedIn = !!user
 
@@ -87,7 +96,7 @@ export function Navbar() {
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/72 backdrop-blur-xl transition-all duration-500 ease-in-out ${
-        isVisible || isHovering || isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+        isHome || isVisible || isHovering || isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       }`}
       onMouseEnter={() => {
         setIsHovering(true)
@@ -97,6 +106,7 @@ export function Navbar() {
         }
       }}
       onMouseLeave={() => {
+        if (isHome) return
         setIsHovering(false)
         timeoutRef.current = setTimeout(() => {
           setIsVisible(false)
@@ -105,17 +115,8 @@ export function Navbar() {
     >
       <div className="max-w-[1800px] mx-auto px-4 sm:px-8">
         <div className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/vibe-logo.png"
-              alt="VIZB Logo"
-              width={40}
-              height={40}
-              className="h-10 w-auto"
-              priority
-            />
-          </Link>
+          {/* Logo + team name (mark only; full lockup used elsewhere) */}
+          <HeaderBrandMarkLink variant="navbar" />
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
