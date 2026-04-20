@@ -12,6 +12,7 @@ import {
   EVENT_FLYER_MAX_BYTES,
   EVENT_FLYER_TOO_LARGE_MESSAGE,
 } from "@/lib/events/flyer-upload-constraints"
+import { augmentStorageErrorMessage } from "@/lib/supabase/storage-errors"
 
 /** Staff admin or org member with one of the allowed roles (for Server Actions; mirrors RLS intent). */
 async function isStaffOrHasOrgRole(
@@ -180,7 +181,7 @@ export async function uploadEventFlyer(formData: FormData) {
       .upload(storagePath, file, { cacheControl: "3600", upsert: false })
 
     if (uploadError) {
-      return { error: `Upload failed: ${uploadError.message}` }
+      return { error: `Upload failed: ${augmentStorageErrorMessage(uploadError.message)}` }
     }
 
     const { data: publicUrlData } = supabase.storage

@@ -1,28 +1,28 @@
 import Image from "next/image"
 import Link from "next/link"
 import { HEADER_LOGO_SRC, LOGO_ALT_MARK } from "@/lib/brand-assets"
-import { TeamHeaderText } from "@/components/brand/team-header-text"
 
 type Variant = "navbar" | "sidebar" | "mobile"
 
+/** Intrinsic dimensions for Next/Image; className sets display height; wide wordmark aspect. */
 const imageProps: Record<
   Variant,
   { width: number; height: number; className: string; priority?: boolean }
 > = {
   navbar: {
-    width: 40,
-    height: 40,
-    className: "h-10 w-auto shrink-0",
+    width: 220,
+    height: 72,
+    className: "h-9 w-auto max-h-10 shrink-0 sm:h-10",
     priority: true,
   },
   sidebar: {
-    width: 32,
-    height: 32,
+    width: 200,
+    height: 64,
     className: "h-8 w-auto shrink-0",
   },
   mobile: {
-    width: 28,
-    height: 28,
+    width: 180,
+    height: 58,
     className: "h-7 w-auto shrink-0",
   },
 }
@@ -36,7 +36,7 @@ export function HeaderBrandMarkLink({
 }) {
   const img = imageProps[variant]
   return (
-    <Link href={href} className="flex min-w-0 max-w-[min(100%,18rem)] items-center gap-2 sm:gap-2.5 md:max-w-none">
+    <Link href={href} className="flex min-w-0 max-w-[min(100%,14rem)] items-center sm:max-w-[min(100%,16rem)] md:max-w-none">
       <Image
         src={HEADER_LOGO_SRC}
         alt={LOGO_ALT_MARK}
@@ -45,7 +45,6 @@ export function HeaderBrandMarkLink({
         className={img.className}
         priority={img.priority}
       />
-      <TeamHeaderText variant={variant} />
     </Link>
   )
 }

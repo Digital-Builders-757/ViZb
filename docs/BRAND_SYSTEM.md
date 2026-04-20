@@ -234,18 +234,17 @@ Events always lead with their flyer image. The flyer is the hero -- event detail
 
 ## 8. Logo Usage
 
-Constants live in [`lib/brand-assets.ts`](../lib/brand-assets.ts). Presentational wrappers: [`components/brand/header-brand-mark.tsx`](../components/brand/header-brand-mark.tsx) (mark + team text), [`components/brand/full-logo-image.tsx`](../components/brand/full-logo-image.tsx) (full lockup).
+Constants live in [`lib/brand-assets.ts`](../lib/brand-assets.ts). Presentational wrappers: [`components/brand/header-brand-mark.tsx`](../components/brand/header-brand-mark.tsx) (nav wordmark), [`components/brand/full-logo-image.tsx`](../components/brand/full-logo-image.tsx) (footer, auth, loading).
 
 | Variant | File | Context |
 |---------|------|---------|
-| Header mark | `/public/vibe-logo.png` | Navbar, dashboard mobile header, sidebar — **always** paired with `TeamHeaderText` (primary + secondary lines), never icon alone |
-| Full lockup | `/public/marching-full-logo.png` | Footer, loading screen, auth pages, marketing previews, invite claim — icon + wordmark in one image |
-| Minimum size (mark) | 28×28px effective | Never render the header mark smaller than this |
+| Wordmark (header + footer + auth) | `/public/vizb-logo.png` | Navbar, dashboard mobile header, sidebar, footer, login/signup/forgot-password, loading, invite claim — single source via [`lib/brand-assets.ts`](../lib/brand-assets.ts) (`HEADER_LOGO_SRC`, `FULL_LOGO_SRC`) |
+| Minimum size (header wordmark) | ~28px height minimum | Do not render the nav logo shorter than this |
 | Clear space | Equal to the logo height on all sides | Don't crowd the logo |
 
 **Rules:**
 - Never stretch, rotate, or recolor the logo
-- On dark backgrounds (default), the mark and full lockup display as-is; team names in the header use `--neon-text0` / `--neon-text1` for contrast
+- On dark backgrounds (default), the wordmark displays as-is
 - Never place the logo on a busy background without a scrim/overlay
 
 ---

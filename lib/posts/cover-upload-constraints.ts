@@ -1,6 +1,7 @@
 /**
  * Admin post cover uploads (client + server).
  * Bucket: post-covers — see supabase/migrations/20260420180000_post_covers_storage.sql
+ * and supabase/migrations/20260420224705_storage_buckets_event_flyers_and_posts.sql (ensure bucket on hosted DBs).
  */
 
 export const POST_COVER_MAX_BYTES = 3 * 1024 * 1024
