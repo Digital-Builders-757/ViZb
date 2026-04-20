@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 
+import { FullLogoImage } from "@/components/brand/full-logo-image";
 import { AppShell } from "@/components/ui/app-shell";
 import { GlassCard } from "@/components/ui/glass-card";
 import { WaterFrame } from "@/components/ui/water-frame";
@@ -31,14 +31,8 @@ export default function SignUpSuccessPage() {
                   href="/"
                   className="inline-flex items-center justify-center"
                 >
-                  <span className="relative h-12 w-12">
-                    <Image
-                      src="/vibe-logo.png"
-                      alt="VIZB"
-                      fill
-                      className="object-contain"
-                      priority
-                    />
+                  <span className="relative block h-14 w-44 sm:w-48">
+                    <FullLogoImage fill className="object-contain" priority />
                   </span>
                 </Link>
 

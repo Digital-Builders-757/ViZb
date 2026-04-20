@@ -234,15 +234,17 @@ Events always lead with their flyer image. The flyer is the hero -- event detail
 
 ## 8. Logo Usage
 
+Constants live in [`lib/brand-assets.ts`](../lib/brand-assets.ts). Presentational wrappers: [`components/brand/header-brand-mark.tsx`](../components/brand/header-brand-mark.tsx) (nav wordmark), [`components/brand/full-logo-image.tsx`](../components/brand/full-logo-image.tsx) (footer, auth, loading).
+
 | Variant | File | Context |
 |---------|------|---------|
-| Primary logo | `/public/vibe-logo.png` | Navbar, app header, favicon |
-| Minimum size | 28x28px | Never render smaller than this |
+| Wordmark (header + footer + auth) | `/public/vizb-logo.png` | Navbar, dashboard mobile header, sidebar, footer, login/signup/forgot-password, loading, invite claim — single source via [`lib/brand-assets.ts`](../lib/brand-assets.ts) (`HEADER_LOGO_SRC`, `FULL_LOGO_SRC`) |
+| Minimum size (header wordmark) | ~28px height minimum | Do not render the nav logo shorter than this |
 | Clear space | Equal to the logo height on all sides | Don't crowd the logo |
 
 **Rules:**
 - Never stretch, rotate, or recolor the logo
-- On dark backgrounds (default), the logo displays as-is
+- On dark backgrounds (default), the wordmark displays as-is
 - Never place the logo on a busy background without a scrim/overlay
 
 ---

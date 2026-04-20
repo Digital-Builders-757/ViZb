@@ -2,7 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { requireAdmin } from "@/lib/auth-helpers"
-import { slugify, deriveExcerptFromMarkdown } from "@/lib/posts/utils"
+import { deriveExcerptFromMarkdown } from "@/lib/posts/utils"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 
 import { AdminPostForm } from "@/components/admin/posts/admin-post-form"
@@ -14,11 +14,11 @@ export default async function AdminEditPostPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ saved?: string; error?: string; slug?: string }>
+  searchParams: Promise<{ saved?: string }>
 }) {
   await requireAdmin()
   const { id } = await params
-  const { saved, error, slug: slugParam } = await searchParams
+  const { saved } = await searchParams
 
   if (!isServerSupabaseConfigured()) {
     return (
@@ -43,6 +43,7 @@ export default async function AdminEditPostPage({
 
   // Primitives for the server action closure — TS does not narrow `post` inside nested async functions.
   const existingPublishedAt = post.published_at
+  const existingSlug = post.slug
 
   async function updatePost(formData: FormData) {
     "use server"
@@ -50,8 +51,6 @@ export default async function AdminEditPostPage({
     if (!isServerSupabaseConfigured()) return
 
     const title = String(formData.get("title") ?? "").trim()
-    const slugRaw = String(formData.get("slug") ?? "").trim()
-    const resolvedSlug = slugRaw || slugify(title)
 
     const excerptRaw = String(formData.get("excerpt") ?? "").trim()
     const cover_image_url = String(formData.get("cover_image_url") ?? "").trim()
@@ -59,7 +58,7 @@ export default async function AdminEditPostPage({
     const content_md = String(formData.get("content_md") ?? "").trim()
     const status = String(formData.get("status") ?? "draft")
 
-    if (!title || !resolvedSlug || !content_md) return
+    if (!title || !existingSlug || !content_md) return
 
     const supabase = await createClient()
 
@@ -72,7 +71,7 @@ export default async function AdminEditPostPage({
       .from("posts")
       .update({
         title,
-        slug: resolvedSlug,
+        slug: existingSlug,
         excerpt: excerpt ? excerpt : null,
         cover_image_url: cover_image_url || null,
         video_url: video_url || null,
@@ -83,9 +82,6 @@ export default async function AdminEditPostPage({
       .eq("id", id)
 
     if (error) {
-      if ((error as any).code === "23505") {
-        return redirect(`/admin/posts/${id}?error=slug_taken&slug=${encodeURIComponent(resolvedSlug)}`)
-      }
       return
     }
 
@@ -128,21 +124,12 @@ export default async function AdminEditPostPage({
         </GlassCard>
       ) : null}
 
-      {error === "slug_taken" ? (
-        <GlassCard className="p-5">
-          <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Slug already exists</p>
-          <p className="mt-2 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            The slug <span className="font-mono text-[color:var(--neon-text0)]">{slugParam}</span> is already in use. Change the slug and try again.
-          </p>
-        </GlassCard>
-      ) : null}
-
       <AdminPostForm
+        postId={post.id}
         submitLabel="Save changes"
         action={updatePost}
         initial={{
           title: post.title,
-          slug: post.slug,
           excerpt: post.excerpt ?? "",
           cover_image_url: post.cover_image_url ?? "",
           video_url: post.video_url ?? "",

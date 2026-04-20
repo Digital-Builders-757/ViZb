@@ -12,7 +12,6 @@ interface EventTimelineCardProps {
     id: string
     title: string
     slug: string
-    description: string | null
     starts_at: string
     ends_at: string | null
     venue_name: string
@@ -170,13 +169,6 @@ export function EventTimelineCard({
             <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[color:var(--neon-text0)] mt-4 transition-colors duration-300 text-balance leading-tight group-hover/detail:text-[color:var(--neon-a)]">
               {event.title}
             </h3>
-
-            {/* Description */}
-            {event.description && (
-              <p className="text-sm text-[color:var(--neon-text2)] mt-4 leading-relaxed line-clamp-3">
-                {event.description}
-              </p>
-            )}
           </div>
 
           {/* Bottom: Venue + City */}
