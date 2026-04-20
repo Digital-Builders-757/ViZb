@@ -124,6 +124,7 @@ export async function createEvent(formData: FormData) {
   const orgSlug = org?.slug || orgId
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath("/dashboard")
+  revalidatePath("/admin")
 
   return { success: true, event, orgSlug }
 }
