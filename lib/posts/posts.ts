@@ -10,6 +10,7 @@ export interface PostRow {
   content_md: string
   cover_image_url: string | null
   video_url: string | null
+  content_image_urls: string[] | null
   status: PostStatus
   published_at: string | null
   author_user_id: string | null
@@ -29,7 +30,7 @@ export async function getLatestPublishedPosts(limit = 3): Promise<PostRow[]> {
   const { data, error } = await supabase
     .from("posts")
     .select(
-      "id,title,slug,excerpt,content_md,cover_image_url,video_url,status,published_at,author_user_id,created_at,updated_at",
+      "id,title,slug,excerpt,content_md,cover_image_url,video_url,content_image_urls,status,published_at,author_user_id,created_at,updated_at",
     )
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false })
@@ -52,7 +53,7 @@ export async function getPublishedPostBySlug(slug: string): Promise<PostRow | nu
   const { data, error } = await supabase
     .from("posts")
     .select(
-      "id,title,slug,excerpt,content_md,cover_image_url,video_url,status,published_at,author_user_id,created_at,updated_at",
+      "id,title,slug,excerpt,content_md,cover_image_url,video_url,content_image_urls,status,published_at,author_user_id,created_at,updated_at",
     )
     .eq("slug", slug)
     .eq("status", "published")

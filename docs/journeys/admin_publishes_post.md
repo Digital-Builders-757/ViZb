@@ -20,7 +20,7 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
    - (Optional) Slug (auto-derived from title)
    - (Optional) Excerpt (auto-derived from Markdown if left blank)
    - Markdown content
-   - (Optional) Cover image URL / Video URL
+   - (Optional) Cover image (upload to Storage) / Video URL
    - Status = `draft`
 5. Admin submits.
 6. System creates row in `public.posts` and redirects to **`/admin/posts/[id]`**.

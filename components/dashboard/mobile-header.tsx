@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -13,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { HeaderBrandMarkLink } from "@/components/brand/header-brand-mark"
 import { NotificationsMenu } from "@/components/dashboard/notifications-menu"
 import type { DashboardNotificationFeed } from "@/lib/notifications/dashboard-queries"
 
@@ -62,12 +62,7 @@ export function MobileHeader({ profile, organizations = [], notifications }: Mob
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="flex h-14 items-center justify-between px-4">
-        <Link href="/" className="flex min-w-0 items-center gap-2">
-          <Image src="/vibe-logo.png" alt="VIZB" width={28} height={28} className="h-7 w-auto" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
-            VIZB
-          </span>
-        </Link>
+        <HeaderBrandMarkLink variant="mobile" />
 
         <div className="flex shrink-0 items-center gap-1">
           {notifications ? (

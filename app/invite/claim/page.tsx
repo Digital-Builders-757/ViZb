@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Suspense } from "react"
 
+import { FullLogoImage } from "@/components/brand/full-logo-image"
+
 function ClaimInviteContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -53,21 +55,21 @@ function ClaimInviteContent() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <Link href="/" className="block mb-12">
-          <span className="text-xl font-bold tracking-tighter text-foreground font-serif">
-            Vi<span className="text-primary">BE</span>
+        {/* Logo (full lockup; same as marketing pages) */}
+        <Link href="/" className="mb-12 block outline-offset-4">
+          <span className="relative block h-16 w-full max-w-[min(100%,260px)]">
+            <FullLogoImage fill className="object-contain object-left" priority />
           </span>
         </Link>
 
         <span className="text-xs font-mono uppercase tracking-widest text-primary">Organization Invite</span>
-        <h1 className="font-serif text-3xl font-bold text-foreground mt-2">
+        <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-foreground">
           {"You've Been Invited"}
         </h1>
 
         {status === "idle" && inviteToken && (
           <>
-            <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+            <p className="mt-4 text-sm leading-relaxed text-foreground/90">
               Someone has invited you to join an organization on VIZB. Click below to accept.
             </p>
             <button
@@ -76,7 +78,7 @@ function ClaimInviteContent() {
             >
               Accept Invite
             </button>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
+            <p className="mt-4 text-center text-xs text-foreground/75">
               You must be signed in to claim this invite.{" "}
               <Link href="/login?redirect=/invite/claim" className="text-primary hover:underline">
                 Sign in
@@ -88,7 +90,7 @@ function ClaimInviteContent() {
         {status === "claiming" && (
           <div className="mt-8 flex flex-col items-center gap-4">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent animate-spin" />
-            <p className="text-sm text-muted-foreground">Claiming your invite...</p>
+            <p className="text-sm text-foreground/80">Claiming your invite...</p>
           </div>
         )}
 

@@ -2,6 +2,8 @@
 
 import Image from "next/image"
 
+import { FullLogoImage } from "@/components/brand/full-logo-image"
+
 // VIZB app mockup with ocean neon styling
 // Event data using real ViBE imagery
 const mockEvents = [
@@ -119,9 +121,13 @@ export function AppPreview() {
 
                   {/* App Header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-[color:var(--neon-hairline)]">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <Image src="/vibe-logo.png" alt="VIZB" width={28} height={28} className="rounded" />
+                    <div className="flex min-w-0 items-center gap-2">
+                      <div className="relative shrink-0">
+                        <FullLogoImage
+                          width={120}
+                          height={120}
+                          className="h-7 w-auto max-w-[5.5rem] rounded object-contain"
+                        />
                         <div className="absolute inset-0 rounded bg-[color:var(--neon-a)]/20 blur-sm animate-pulse" />
                       </div>
                       <span className="text-lg font-bold text-[color:var(--neon-text0)] tracking-tight">Events</span>
