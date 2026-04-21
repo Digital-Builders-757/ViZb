@@ -3,10 +3,8 @@
 import { useMemo } from "react"
 import type { DashboardCalendarEvent } from "@/lib/events/dashboard-calendar"
 import { agendaDayKeysFromToday } from "@/lib/events/dashboard-calendar"
-import {
-  formatCategoryLabel,
-  formatDashboardEventTimeShort,
-} from "@/lib/events/event-display-format"
+import { formatDashboardEventTimeShort } from "@/lib/events/event-display-format"
+import { DashboardCategoryChips } from "@/components/dashboard/calendar/dashboard-category-chips"
 import { cn } from "@/lib/utils"
 
 export interface DashboardCalendarAgendaProps {
@@ -90,22 +88,7 @@ export function DashboardCalendarAgenda({
                     {e.city}
                     {e.venue_name ? ` · ${e.venue_name}` : ""}
                   </p>
-                  <div className="mt-2 flex min-w-0 flex-wrap gap-1.5">
-                    {(e.categories?.length ?? 0) > 0 ? (
-                      e.categories.map((c) => (
-                        <span
-                          key={`${e.id}-${c}`}
-                          className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-2.5 py-0.5 font-mono text-[10px] font-medium text-[color:var(--neon-text1)] shadow-[0_0_12px_rgba(0,209,255,0.06)]"
-                        >
-                          {formatCategoryLabel(c)}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-2.5 py-0.5 font-mono text-[10px] text-[color:var(--neon-text1)]">
-                        Event
-                      </span>
-                    )}
-                  </div>
+                  <DashboardCategoryChips eventId={e.id} categories={e.categories} />
                 </button>
               </li>
             ))}

@@ -6,7 +6,7 @@ import { WaterFrame } from "@/components/ui/water-frame"
 import { NeonLink } from "@/components/ui/neon-link"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
-import { normalizeCategories } from "@/lib/events/categories"
+import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 
 type HeroEvent = {
   title: string
@@ -15,11 +15,6 @@ type HeroEvent = {
   city: string
   categories: string[]
   flyer_url: string | null
-}
-
-function heroEventBadge(categories: string[]) {
-  const list = normalizeCategories(categories)
-  return list[0] ?? "Event"
 }
 
 function heroEventWhen(startsAt: string) {
@@ -114,60 +109,78 @@ export async function HeroSection() {
                     Trending this weekend
                   </p>
                   <Link
-                    href="/events"
-                    className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] hover:brightness-110"
+                    href="/events#timeline"
+                    className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)]"
                   >
-                    View all →
+                    Full timeline →
                   </Link>
                 </div>
 
-                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {trending.map((e) => (
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {trending.map((e) => {
+                    const { visible: heroCats, extraCount: heroCatExtra } = sliceCategoriesForDisplay(
+                      e.categories,
+                      1,
+                    )
+                    return (
                     <Link
                       key={e.slug}
                       href={`/events/${e.slug}`}
-                      className="group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-3 backdrop-blur transition hover:border-[color:var(--neon-a)]/35 hover:shadow-[0_0_24px_rgba(0,209,255,0.10)]"
+                      className="group relative overflow-hidden rounded-xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/18 p-3.5 backdrop-blur transition-all duration-300 hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_rgba(0,209,255,0.12)] sm:p-4"
                     >
                       <div
-                        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                         style={{
                           background:
-                            "radial-gradient(900px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)",
+                            "radial-gradient(800px circle at 15% 0%, rgba(0,209,255,0.14), transparent 50%)",
                         }}
                         aria-hidden
                       />
 
-                      <div className="relative z-[1] flex items-center gap-3">
-                        <WaterFrame className="relative h-14 w-14 shrink-0 rounded-xl bg-black/30">
+                      <div className="relative z-[1] flex items-start gap-3.5">
+                        <WaterFrame className="relative h-16 w-16 shrink-0 rounded-lg bg-black/35 shadow-inner">
                           <div className="relative h-full w-full overflow-hidden rounded-[inherit]">
                             {e.flyer_url ? (
                               <Image
                                 src={e.flyer_url}
                                 alt={e.title}
                                 fill
-                                sizes="56px"
-                                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                                sizes="64px"
+                                className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                               />
                             ) : null}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                           </div>
                         </WaterFrame>
 
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-[color:var(--neon-text0)]">
+                        <div className="min-h-[4.25rem] min-w-0 flex-1">
+                          <p className="line-clamp-2 text-sm font-semibold leading-snug text-[color:var(--neon-text0)]">
                             {e.title}
                           </p>
-                          <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                            {heroEventWhen(e.starts_at)} · {e.city}
+                          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                            {heroEventWhen(e.starts_at)}{" "}
+                            <span className="text-[color:var(--neon-text2)]/70">·</span> {e.city}
                           </p>
+                          {heroCats.length > 0 ? (
+                            <p className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
+                              <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-[10px]">
+                                {formatCategoryLabel(heroCats[0])}
+                              </span>
+                              {heroCatExtra > 0 ? (
+                                <span
+                                  className="font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)]/80 sm:text-[10px]"
+                                  aria-label={`${heroCatExtra} more categories`}
+                                >
+                                  +{heroCatExtra} more
+                                </span>
+                              ) : null}
+                            </p>
+                          ) : null}
                         </div>
-
-                        <span className="shrink-0 rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
-                          {heroEventBadge(e.categories)}
-                        </span>
                       </div>
                     </Link>
-                  ))}
+                  )
+                  })}
                 </div>
               </div>
             ) : null}
