@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { requireAdmin } from "@/lib/auth-helpers"
+import { isTrustedBodyImageUrl, parseContentImageUrlsJson } from "@/lib/posts/body-image-upload-constraints"
 import { deriveExcerptFromMarkdown } from "@/lib/posts/utils"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 
@@ -33,7 +34,7 @@ export default async function AdminEditPostPage({
   const supabase = await createClient()
   const { data: post } = await supabase
     .from("posts")
-    .select("id,title,slug,excerpt,content_md,cover_image_url,video_url,status,published_at,updated_at")
+    .select("id,title,slug,excerpt,content_md,cover_image_url,video_url,content_image_urls,status,published_at,updated_at")
     .eq("id", id)
     .single()
 
@@ -56,9 +57,14 @@ export default async function AdminEditPostPage({
     const cover_image_url = String(formData.get("cover_image_url") ?? "").trim()
     const video_url = String(formData.get("video_url") ?? "").trim()
     const content_md = String(formData.get("content_md") ?? "").trim()
+    const content_image_urls_raw = String(formData.get("content_image_urls") ?? "")
     const status = String(formData.get("status") ?? "draft")
 
     if (!title || !existingSlug || !content_md) return
+
+    const content_image_urls_parsed = parseContentImageUrlsJson(content_image_urls_raw)
+    if (content_image_urls_parsed === null) return
+    if (!content_image_urls_parsed.every(isTrustedBodyImageUrl)) return
 
     const supabase = await createClient()
 
@@ -76,6 +82,7 @@ export default async function AdminEditPostPage({
         cover_image_url: cover_image_url || null,
         video_url: video_url || null,
         content_md,
+        content_image_urls: content_image_urls_parsed,
         status,
         published_at: shouldSetPublishedAt ? new Date().toISOString() : existingPublishedAt,
       })
@@ -134,6 +141,7 @@ export default async function AdminEditPostPage({
           cover_image_url: post.cover_image_url ?? "",
           video_url: post.video_url ?? "",
           content_md: post.content_md,
+          content_image_urls: Array.isArray(post.content_image_urls) ? post.content_image_urls : [],
           status: post.status,
         }}
       />

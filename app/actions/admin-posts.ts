@@ -3,6 +3,15 @@
 import { requireAdmin } from "@/lib/auth-helpers"
 import { isServerSupabaseConfigured, createClient } from "@/lib/supabase/server"
 import {
+  POST_BODY_IMAGE_ALLOWED_MIME_TYPES,
+  POST_BODY_IMAGE_INVALID_TYPE_MESSAGE,
+  POST_BODY_IMAGE_MAX_BYTES,
+  POST_BODY_IMAGE_MAX_COUNT,
+  POST_BODY_IMAGE_TOO_LARGE_MESSAGE,
+  POSTS_MEDIA_BUCKET,
+  postBodyImagePathFromPublicUrl,
+} from "@/lib/posts/body-image-upload-constraints"
+import {
   POST_COVER_ALLOWED_MIME_TYPES,
   POST_COVER_INVALID_TYPE_MESSAGE,
   POST_COVER_MAX_BYTES,
@@ -98,6 +107,111 @@ export async function removeAdminPostCoverFromStorage(coverImageUrl: string): Pr
     }
 
     const { error } = await supabase.storage.from(POST_COVERS_BUCKET).remove([path])
+    if (error) {
+      return { error: `Remove failed: ${augmentStorageErrorMessage(error.message)}` }
+    }
+    return { success: true }
+  } catch (err) {
+    if (err && typeof err === "object" && "digest" in err) {
+      throw err
+    }
+    return { error: "An unexpected error occurred." }
+  }
+}
+
+export type UploadAdminPostBodyImageResult =
+  | { success: true; publicUrl: string }
+  | { error: string }
+
+/**
+ * Upload a gallery image for post body. Does not update `posts` — URLs are kept in state until save.
+ *
+ * FormData: `body_image` (File), optional `post_id`, optional `replace_url` (object to remove first),
+ * optional `current_count` (number of URLs already in editor; blocks new upload when >= 6 without replace).
+ */
+export async function uploadAdminPostBodyImage(formData: FormData): Promise<UploadAdminPostBodyImageResult> {
+  try {
+    if (!isServerSupabaseConfigured()) {
+      return { error: "Supabase is not configured." }
+    }
+
+    const { user, supabase } = await requireAdmin()
+
+    const file = formData.get("body_image") as File | null
+    if (!file || file.size === 0) {
+      return { error: "No file provided." }
+    }
+
+    if (!(POST_BODY_IMAGE_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
+      return { error: POST_BODY_IMAGE_INVALID_TYPE_MESSAGE }
+    }
+
+    if (file.size > POST_BODY_IMAGE_MAX_BYTES) {
+      return { error: POST_BODY_IMAGE_TOO_LARGE_MESSAGE }
+    }
+
+    const postIdRaw = String(formData.get("post_id") ?? "").trim()
+    const replaceUrl = String(formData.get("replace_url") ?? "").trim()
+    const currentCountRaw = String(formData.get("current_count") ?? "").trim()
+    const currentCount = currentCountRaw ? parseInt(currentCountRaw, 10) : 0
+    const safeCount = Number.isFinite(currentCount) ? Math.max(0, currentCount) : 0
+
+    if (!replaceUrl && safeCount >= POST_BODY_IMAGE_MAX_COUNT) {
+      return { error: "Maximum 6 images per post." }
+    }
+
+    if (replaceUrl) {
+      const oldPath = postBodyImagePathFromPublicUrl(replaceUrl)
+      if (oldPath) {
+        await supabase.storage.from(POSTS_MEDIA_BUCKET).remove([oldPath])
+      }
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase()
+    const safeExt =
+      ext && ["jpg", "jpeg", "png", "webp"].includes(ext) ? (ext === "jpeg" ? "jpg" : ext) : "jpg"
+    const stamp = Date.now()
+    const rand = Math.random().toString(36).slice(2, 10)
+
+    const storagePath = postIdRaw
+      ? `${postIdRaw}/${stamp}-${rand}.${safeExt}`
+      : `drafts/${user.id}/${stamp}-${rand}.${safeExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from(POSTS_MEDIA_BUCKET)
+      .upload(storagePath, file, { cacheControl: "3600", upsert: false })
+
+    if (uploadError) {
+      return { error: `Upload failed: ${augmentStorageErrorMessage(uploadError.message)}` }
+    }
+
+    const { data: publicUrlData } = supabase.storage.from(POSTS_MEDIA_BUCKET).getPublicUrl(storagePath)
+
+    return { success: true, publicUrl: publicUrlData.publicUrl }
+  } catch (err) {
+    if (err && typeof err === "object" && "digest" in err) {
+      throw err
+    }
+    return { error: "An unexpected error occurred during upload." }
+  }
+}
+
+export type RemoveAdminPostBodyImageResult = { success: true } | { error: string }
+
+/** Remove an object from the `posts` bucket when it belongs to that bucket. */
+export async function removeAdminPostBodyImageFromStorage(publicUrl: string): Promise<RemoveAdminPostBodyImageResult> {
+  try {
+    if (!isServerSupabaseConfigured()) {
+      return { error: "Supabase is not configured." }
+    }
+
+    const { supabase } = await requireAdmin()
+    const path = postBodyImagePathFromPublicUrl(publicUrl.trim())
+    if (!path) {
+      return { success: true }
+    }
+
+    const { error } = await supabase.storage.from(POSTS_MEDIA_BUCKET).remove([path])
     if (error) {
       return { error: `Remove failed: ${augmentStorageErrorMessage(error.message)}` }
     }

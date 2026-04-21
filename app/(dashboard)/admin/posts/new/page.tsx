@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 
 import { requireAdmin } from "@/lib/auth-helpers"
+import { isTrustedBodyImageUrl, parseContentImageUrlsJson } from "@/lib/posts/body-image-upload-constraints"
 import { slugify, deriveExcerptFromMarkdown } from "@/lib/posts/utils"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 
@@ -27,9 +28,14 @@ export default async function AdminNewPostPage({
     const cover_image_url = String(formData.get("cover_image_url") ?? "").trim()
     const video_url = String(formData.get("video_url") ?? "").trim()
     const content_md = String(formData.get("content_md") ?? "").trim()
+    const content_image_urls_raw = String(formData.get("content_image_urls") ?? "")
     const status = String(formData.get("status") ?? "draft")
 
     if (!title || !resolvedSlug || !content_md) return
+
+    const content_image_urls_parsed = parseContentImageUrlsJson(content_image_urls_raw)
+    if (content_image_urls_parsed === null) return
+    if (!content_image_urls_parsed.every(isTrustedBodyImageUrl)) return
 
     const supabase = await createClient()
 
@@ -44,6 +50,7 @@ export default async function AdminNewPostPage({
         content_md,
         cover_image_url: cover_image_url || null,
         video_url: video_url || null,
+        content_image_urls: content_image_urls_parsed,
         status,
         published_at: status === "published" ? new Date().toISOString() : null,
       })

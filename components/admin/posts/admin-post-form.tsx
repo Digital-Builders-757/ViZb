@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 
+import { AdminPostBodyImages } from "@/components/admin/posts/admin-post-body-images"
 import { AdminPostCoverUpload } from "@/components/admin/posts/admin-post-cover-upload"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonButton } from "@/components/ui/neon-button"
@@ -12,6 +13,7 @@ export type AdminPostDraft = {
   cover_image_url: string
   video_url: string
   content_md: string
+  content_image_urls: string[]
   status: "draft" | "published" | "archived"
 }
 
@@ -33,6 +35,7 @@ export function AdminPostForm({
     cover_image_url: initial?.cover_image_url ?? "",
     video_url: initial?.video_url ?? "",
     content_md: initial?.content_md ?? "",
+    content_image_urls: initial?.content_image_urls?.length ? [...initial.content_image_urls] : [],
     status: initial?.status ?? "draft",
   })
 
@@ -63,6 +66,7 @@ export function AdminPostForm({
         </label>
 
         <input type="hidden" name="cover_image_url" value={draft.cover_image_url} readOnly />
+        <input type="hidden" name="content_image_urls" value={JSON.stringify(draft.content_image_urls)} readOnly />
 
         <div className="mt-4">
           <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
@@ -133,6 +137,19 @@ export function AdminPostForm({
             required
           />
         </label>
+
+        <div className="mt-6 border-t border-[color:var(--neon-hairline)] pt-6">
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Images in post
+          </span>
+          <div className="mt-3">
+            <AdminPostBodyImages
+              postId={postId}
+              urls={draft.content_image_urls}
+              onUrlsChange={(urls) => setDraft((d) => ({ ...d, content_image_urls: urls }))}
+            />
+          </div>
+        </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <NeonButton fullWidth shape="xl" type="submit">

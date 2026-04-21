@@ -31,6 +31,7 @@ Fields (MVP):
 - `content_md` (text, markdown)
 - `cover_image_url` (text, nullable) — public URL; may be Supabase Storage (`post-covers` bucket) or any HTTPS URL for legacy rows
 - `video_url` (text, nullable)
+- `content_image_urls` (text[], default `{}`) — up to **6** public URLs for inline gallery images below the article body on `/p/[slug]`; app only persists URLs under Storage bucket **`posts`** (see below)
 - `status` (draft|published|archived)
 - `published_at` (timestamptz, nullable)
 - `author_user_id` (uuid → auth.users, nullable)
@@ -42,8 +43,13 @@ Canonical SQL + RLS: `docs/plans/POSTS_MVP.md`
 
 - **Bucket:** `post-covers` (public read; **INSERT/UPDATE/DELETE** restricted to `staff_admin` via `storage.objects` policies).
 - **Paths:** `drafts/{admin_user_id}/…` before the post row exists; `{post_id}/…` when editing an existing post.
-- **Optional bucket:** `posts` — reserved for future post attachments (same staff-only write pattern); created in `supabase/migrations/20260420224705_storage_buckets_event_flyers_and_posts.sql`.
 - Migrations: `20260420180000_post_covers_storage.sql` (initial); `20260420224705_storage_buckets_event_flyers_and_posts.sql` (ensures `post-covers`, `event-flyers`, and `posts` buckets + policies on hosted DBs).
+
+## Post body / gallery images (storage)
+
+- **Bucket:** `posts` (public read; **INSERT/UPDATE/DELETE** restricted to `staff_admin`).
+- **Paths:** same pattern as covers — `drafts/{admin_user_id}/…` before save, `{post_id}/…` when the post exists.
+- **App:** uploads via `uploadAdminPostBodyImage` / `removeAdminPostBodyImageFromStorage` in `app/actions/admin-posts.ts`; URLs stored in `posts.content_image_urls` (max 6). Schema: `supabase/migrations/20260420231755_posts_content_image_urls.sql`.
 
 ## RLS + access rules (MVP)
 
@@ -67,6 +73,7 @@ Admin (staff only):
 
 - Source format: **Markdown** stored in `content_md`.
 - MVP renderer is **safe** (no raw HTML): headings, paragraphs, lists, code blocks, inline code, bold.
+- **Gallery:** `content_image_urls` (if non-empty) renders as a **Photos** grid below the markdown body on `/p/[slug]`.
 - Upgrade path: swap renderer to `react-markdown` + sanitization + embeds once we need richer formatting.
 
 ## Failure modes / fallbacks
