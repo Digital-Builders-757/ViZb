@@ -5,7 +5,7 @@ import { WaterFrame } from "@/components/ui/water-frame"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
-import { normalizeCategories } from "@/lib/events/categories"
+import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 
 type LandingEvent = {
   title: string
@@ -23,11 +23,6 @@ function formatMonthDay(startsAt: string): { month: string; day: string; dow: st
   const day = d.toLocaleString("en-US", { day: "2-digit" })
   const dow = d.toLocaleString("en-US", { weekday: "short" })
   return { month, day, dow }
-}
-
-function topCategory(categories: string[]): string {
-  const list = normalizeCategories(categories)
-  return list[0] ?? "Event"
 }
 
 export async function EventsSection() {
@@ -111,7 +106,7 @@ export async function EventsSection() {
         <div className="mt-8 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3">
           {events.slice(0, 3).map((e) => {
             const { month, day, dow } = formatMonthDay(e.starts_at)
-            const badge = topCategory(e.categories)
+            const { visible: catVisible, extraCount: catExtra } = sliceCategoriesForDisplay(e.categories, 1)
 
             return (
               <WaterFrame key={e.slug} className="rounded-2xl">
@@ -131,35 +126,35 @@ export async function EventsSection() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
 
-                  <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-1 backdrop-blur">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--neon-a)] shadow-[0_0_12px_rgba(0,209,255,0.35)]" />
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/85">
-                      {badge}
-                    </span>
-                  </div>
-
                   <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-balance font-serif text-xl font-bold text-white drop-shadow-sm">
+                    <h3 className="line-clamp-2 min-h-[2.5rem] text-balance font-serif text-xl font-bold leading-snug text-white drop-shadow-sm">
                       {e.title}
                     </h3>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/80">
-                      <span className="font-mono uppercase tracking-widest">
-                        {dow} · {month} {day}
-                      </span>
-                      <span className="text-white/60">•</span>
-                      <span className="truncate">{e.city}</span>
-                      {e.venue_name ? (
-                        <>
-                          <span className="text-white/60">•</span>
-                          <span className="truncate">{e.venue_name}</span>
-                        </>
-                      ) : null}
-                    </div>
+                    <p className="mt-2 truncate font-mono text-[11px] uppercase tracking-widest text-white/82">
+                      {dow} {month} {day}
+                      <span className="text-white/50"> · </span>
+                      {e.city}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 px-4 py-4">
                   <div className="min-w-0">
+                    {catVisible.length > 0 ? (
+                      <p className="mb-1.5 flex min-w-0 flex-wrap items-center gap-1.5">
+                        <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                          {formatCategoryLabel(catVisible[0])}
+                        </span>
+                        {catExtra > 0 ? (
+                          <span
+                            className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]/80"
+                            aria-label={`${catExtra} more categories`}
+                          >
+                            +{catExtra} more
+                          </span>
+                        ) : null}
+                      </p>
+                    ) : null}
                     <p className="truncate text-sm text-[color:var(--neon-text0)]">
                       Tap for details
                     </p>

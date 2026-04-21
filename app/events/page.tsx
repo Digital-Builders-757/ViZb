@@ -10,6 +10,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { EVENT_CATEGORY_OPTIONS, normalizeCategories } from "@/lib/events/categories"
+import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 
 export const metadata: Metadata = {
@@ -247,26 +248,24 @@ export default async function EventsExplorePage({
       <Navbar />
 
       {/* Hero Header */}
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 md:pb-16 px-4 sm:px-8">
-        <div className="max-w-[1200px] mx-auto">
-          <span className="text-xs uppercase tracking-widest text-[color:var(--neon-a)] font-mono inline-flex items-center gap-2">
-            <span className="w-2 h-2 bg-[color:var(--neon-a)] rounded-full animate-pulse" />
+      <section className="px-4 pb-14 pt-24 sm:px-8 sm:pb-16 md:pb-20 md:pt-32">
+        <div className="mx-auto max-w-[1200px]">
+          <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[color:var(--neon-a)]" />
             Virginia Events
           </span>
-          <h1 className="mt-4 md:mt-6">
-            <span className="block headline-xl text-[color:var(--neon-text0)] uppercase">
+          <h1 className="mt-5 md:mt-6">
+            <span className="headline-xl block uppercase text-[color:var(--neon-text0)]">
               {"What's"}
             </span>
-            <span className="block headline-xl uppercase neon-gradient-text">
-              Happening
-            </span>
+            <span className="headline-xl neon-gradient-text block uppercase">Happening</span>
           </h1>
-          <p className="text-base sm:text-lg text-[color:var(--neon-text1)] mt-6 max-w-lg leading-relaxed">
-            Scroll the timeline. Find your next experience. From underground parties to creative workshops, {"it's"} all here.
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+            Scroll the timeline. Find your next experience. From underground parties to creative workshops,             {"it's"} all here.
           </p>
 
           {/* Filter bar */}
-          <div className="mt-8 flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none md:mt-10">
+          <div className="mt-10 flex items-center gap-2 overflow-x-auto border-t border-[color:var(--neon-hairline)]/35 pt-8 scrollbar-none sm:gap-3 md:mt-12">
             {EVENT_LISTING_FILTERS.map((cat) => {
               const isActive =
                 cat.slug === "all"
@@ -313,72 +312,93 @@ export default async function EventsExplorePage({
       {/* Ocean wave divider */}
       <OceanDivider variant="hero" density="normal" />
 
-      {/* Trending strip */}
+      {/* Trending strip — compact glance cards (distinct from full timeline below) */}
       {trending.length > 0 ? (
-        <section className="px-4 pt-10 sm:px-8 md:pt-12">
+        <section className="px-4 pb-2 pt-8 sm:px-8 md:pt-10">
           <div className="mx-auto max-w-[1200px]">
-            <div className="flex items-center justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                Trending this weekend
-              </p>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                  Trending this weekend
+                </p>
+                <p className="mt-1 text-xs text-[color:var(--neon-text1)]/90">Quick picks — open the timeline for the full story.</p>
+              </div>
               <Link
-                href="/events"
-                className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] hover:brightness-110"
+                href="/events#timeline"
+                className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)]"
               >
-                Timeline →
+                Full timeline →
               </Link>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {trending.map((e) => (
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {trending.map((e) => {
+                const { visible: trendCats, extraCount: trendCatExtra } = sliceCategoriesForDisplay(
+                  e.categories,
+                  1,
+                )
+                return (
                 <Link
                   key={e.id}
                   href={`/events/${e.slug}`}
-                  className="group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-3 backdrop-blur transition hover:border-[color:var(--neon-a)]/35 hover:shadow-[0_0_24px_rgba(0,209,255,0.10)]"
+                  className="group relative overflow-hidden rounded-xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/18 p-3.5 backdrop-blur transition-all duration-300 hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_rgba(0,209,255,0.12)] sm:p-4"
                 >
                   <div
-                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                     style={{
                       background:
-                        "radial-gradient(900px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)",
+                        "radial-gradient(800px circle at 15% 0%, rgba(0,209,255,0.14), transparent 50%)",
                     }}
                     aria-hidden
                   />
 
-                  <div className="relative z-[1] flex items-center gap-3">
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                  <div className="relative z-[1] flex items-start gap-3.5">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/35 shadow-inner">
                       {e.flyer_url ? (
                         <Image
                           src={e.flyer_url}
                           alt={e.title}
                           fill
-                          sizes="56px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                          sizes="64px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                         />
                       ) : null}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-[color:var(--neon-text0)]">
+                    <div className="min-h-[4.25rem] min-w-0 flex-1">
+                      <p className="line-clamp-2 text-sm font-semibold leading-snug text-[color:var(--neon-text0)]">
                         {e.title}
                       </p>
-                      <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                        {e.city} · {new Intl.DateTimeFormat("en-US", {
+                      <p className="mt-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                        {new Intl.DateTimeFormat("en-US", {
                           timeZone: "America/New_York",
                           weekday: "short",
                           month: "short",
                           day: "numeric",
-                        }).format(new Date(e.starts_at))}
+                        }).format(new Date(e.starts_at))}{" "}
+                        <span className="text-[color:var(--neon-text2)]/70">·</span> {e.city}
                       </p>
+                      {trendCats.length > 0 ? (
+                        <p className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
+                          <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-[10px]">
+                            {formatCategoryLabel(trendCats[0])}
+                          </span>
+                          {trendCatExtra > 0 ? (
+                            <span
+                              className="font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)]/80 sm:text-[10px]"
+                              aria-label={`${trendCatExtra} more categories`}
+                            >
+                              +{trendCatExtra} more
+                            </span>
+                          ) : null}
+                        </p>
+                      ) : null}
                     </div>
-
-                    <span className="shrink-0 rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
-                      {e.categories[0] ?? "Event"}
-                    </span>
                   </div>
                 </Link>
-              ))}
+                )
+              })}
             </div>
           </div>
         </section>
@@ -388,22 +408,22 @@ export default async function EventsExplorePage({
       {trending.length > 0 && <OceanDivider variant="soft" density="sparse" />}
 
       {/* Timeline Section */}
-      <section className="px-4 py-12 sm:px-8 md:py-20">
-        <div className="max-w-[1200px] mx-auto">
+      <section id="timeline" className="scroll-mt-24 px-4 py-14 sm:px-8 md:py-20">
+        <div className="mx-auto max-w-[1200px]">
           {vibesSignedOutGate ? (
             <div
               role="status"
-              className="mb-10 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-4 py-4 backdrop-blur md:px-6 md:py-5"
+              className="mb-12 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-5 py-6 backdrop-blur md:px-8 md:py-7"
             >
               <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
                 My Vibes
               </p>
-              <p className="mt-2 text-sm text-[color:var(--neon-text1)]">
-                Sign in to see events you&apos;ve saved.
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-[color:var(--neon-text1)]">
+                Sign in to see events you&apos;ve saved to your personal timeline.
               </p>
               <Link
                 href={vibeAuthHref}
-                className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/15 px-5 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors hover:bg-[color:var(--neon-a)]/25"
+                className="mt-5 inline-flex min-h-[44px] items-center justify-center rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/12 px-6 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors hover:bg-[color:var(--neon-a)]/22"
               >
                 Sign in to save
               </Link>
@@ -427,7 +447,7 @@ export default async function EventsExplorePage({
                       <div key={dateKey}>
                         <TimelineDateHeader date={dateObj} isFirst={di === 0} />
 
-                        <div className="flex flex-col gap-6 md:gap-8 mt-6 md:mt-8 md:ml-10">
+                        <div className="mt-6 flex flex-col gap-7 md:ml-10 md:mt-8 md:gap-9">
                           {eventsForDate.map((event) => {
                             const card = (
                               <EventTimelineCard
@@ -451,25 +471,29 @@ export default async function EventsExplorePage({
 
               {/* Past Events */}
               {hasPast && (
-                <div className={hasUpcoming ? "mt-16 md:mt-24" : ""}>
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="w-2 h-2 bg-muted-foreground/50 rounded-full" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-                      Recent Past Events
+                <div className={hasUpcoming ? "mt-20 md:mt-28" : ""}>
+                  <div className="mb-9 flex items-center gap-3">
+                    <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--neon-text2)]/45" />
+                    <span className="text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                      Recent past
                     </span>
-                    <div className="flex-1 border-t border-border" />
+                    <div className="flex-1 border-t border-[color:var(--neon-hairline)]/60" />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-7 lg:grid-cols-3">
                     {flatPast.map((event) => {
                       const card = (
-                        <div key={event.id} className="opacity-70 hover:opacity-100 transition-opacity">
+                        <div
+                          key={event.id}
+                          className="transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.88]"
+                        >
                           <EventTimelineCard
                             event={event}
                             index={runningIndex}
                             isSignedIn={isSignedInForVibes}
                             isSaved={savedIdSet.has(event.id)}
                             vibeAuthHref={vibeAuthHref}
+                            tone="archive"
                           />
                         </div>
                       )
@@ -482,25 +506,25 @@ export default async function EventsExplorePage({
             </>
           ) : vibesSignedOutGate ? null : (
             /* Empty State */
-            <div className="flex flex-col items-center text-center py-16 md:py-32">
-              <div className="w-20 h-20 md:w-24 md:h-24 border border-border rounded-full flex items-center justify-center mb-8">
-                <Calendar className="w-8 h-8 md:w-10 md:h-10 text-muted-foreground" />
+            <div className="flex flex-col items-center py-16 text-center md:py-28">
+              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/15 md:h-24 md:w-24">
+                <Calendar className="h-8 w-8 text-[color:var(--neon-text2)] md:h-10 md:w-10" />
               </div>
-              <span className="text-xs font-mono uppercase tracking-widest text-primary">
+              <span className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
                 {vibesFilter && isSignedInForVibes
                   ? "My Vibes"
                   : activeFilter && activeFilter !== "all"
-                    ? "No Results"
-                    : "Coming Soon"}
+                    ? "No results"
+                    : "Coming soon"}
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-4 text-balance">
+              <h2 className="mt-4 max-w-lg text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] sm:text-3xl md:text-4xl">
                 {vibesFilter && isSignedInForVibes
                   ? "No saved events match this view"
                   : activeFilter && activeFilter !== "all"
-                    ? `No ${activeFilter} Events Found`
-                    : "The Timeline Is Loading"}
+                    ? `No ${activeFilter} events found`
+                    : "The timeline is loading"}
               </h2>
-              <p className="text-sm sm:text-base text-muted-foreground mt-4 max-w-md leading-relaxed">
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-[color:var(--neon-text1)] sm:text-base">
                 {vibesFilter && isSignedInForVibes
                   ? "Save events from the timeline with the My Vibes control, or widen your filters."
                   : activeFilter && activeFilter !== "all"

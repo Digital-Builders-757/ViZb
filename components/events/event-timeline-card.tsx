@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Clock } from "lucide-react"
-import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
 import { GlassCard } from "@/components/ui/glass-card"
 
@@ -25,6 +25,8 @@ interface EventTimelineCardProps {
   isSignedIn: boolean
   isSaved: boolean
   vibeAuthHref: string
+  /** `archive` = past events: quieter emphasis, smaller type rhythm. */
+  tone?: "default" | "archive"
 }
 
 export function EventTimelineCard({
@@ -33,6 +35,7 @@ export function EventTimelineCard({
   isSignedIn,
   isSaved,
   vibeAuthHref,
+  tone = "default",
 }: EventTimelineCardProps) {
   const start = new Date(event.starts_at)
   const detailHref = `/events/${event.slug}`
@@ -60,6 +63,12 @@ export function EventTimelineCard({
   }).format(start)
 
   const isEven = index % 2 === 0
+  const { visible: visibleCategories, extraCount: extraCategoryCount } = sliceCategoriesForDisplay(
+    event.categories,
+    2,
+  )
+
+  const isArchive = tone === "archive"
 
   return (
     <GlassCard
@@ -67,79 +76,77 @@ export function EventTimelineCard({
       role="article"
       className={`vibe-glass-panel relative flex flex-col ${
         isEven ? "md:flex-row" : "md:flex-row-reverse"
-      } gap-0 md:gap-8 rounded-2xl bg-[color:var(--neon-surface)]/18 p-0 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)]`}
+      } gap-0 ${isArchive ? "md:gap-6" : "md:gap-8"} rounded-2xl p-0 ${
+        isArchive
+          ? "bg-[color:var(--neon-surface)]/10 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-hairline)_55%,transparent)]"
+          : "bg-[color:var(--neon-surface)]/18 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)]"
+      }`}
     >
-      {/* Flyer Image */}
+      {/* Flyer column: fixed-height image area (categories live in details column) */}
       <div
-        className={`relative w-full md:w-1/2 aspect-[4/5] sm:aspect-[3/4] md:aspect-auto md:min-h-[420px] overflow-hidden ${
+        className={`relative flex w-full flex-col overflow-hidden md:w-1/2 ${
           isEven ? "md:rounded-l-2xl md:rounded-r-none" : "md:rounded-r-2xl md:rounded-l-none"
         } rounded-t-2xl md:rounded-t-none`}
       >
-        <Link
-          href={detailHref}
-          className="group/flyer block h-full min-h-[280px] md:min-h-[420px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
+        <div
+          className={`relative w-full shrink-0 overflow-hidden ${
+            isArchive ? "min-h-[240px] md:min-h-[360px]" : "min-h-[280px] md:min-h-[420px]"
+          }`}
         >
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/30 to-transparent"
-            aria-hidden
-          />
-          {event.flyer_url ? (
-            <Image
-              src={event.flyer_url}
-              alt={`Flyer for ${event.title}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover transition-transform duration-700 group-hover/flyer:scale-105"
+          <Link
+            href={detailHref}
+            className={`group/flyer relative block h-full outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)] ${
+              isArchive ? "min-h-[240px] md:min-h-[360px]" : "min-h-[280px] md:min-h-[420px]"
+            }`}
+          >
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/30 to-transparent"
+              aria-hidden
             />
-          ) : (
-            <div className="absolute inset-0 bg-secondary flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-6xl md:text-8xl font-bold text-primary/20 font-mono">
-                  {dayNumber}
-                </span>
-                <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mt-2">
-                  {monthShort}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Category badges */}
-          <div className="absolute top-4 left-4 z-10 flex max-w-[min(100%,calc(100%-7rem))] flex-wrap gap-1.5">
-            {event.categories.length > 0 ? (
-              event.categories.map((c) => (
-                <span
-                  key={c}
-                  className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur"
-                >
-                  {formatCategoryLabel(c)}
-                </span>
-              ))
+            {event.flyer_url ? (
+              <Image
+                src={event.flyer_url}
+                alt={`Flyer for ${event.title}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 group-hover/flyer:scale-105"
+              />
             ) : (
-              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
-                Event
-              </span>
+              <div className="absolute inset-0 flex items-center justify-center bg-secondary">
+                <div className="text-center">
+                  <span className="font-mono text-6xl font-bold text-primary/20 md:text-8xl">
+                    {dayNumber}
+                  </span>
+                  <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                    {monthShort}
+                  </p>
+                </div>
+              </div>
             )}
+
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover/flyer:opacity-100" />
+          </Link>
+
+          <div className="absolute right-3 top-3 z-20 max-w-[min(100%-1.5rem,calc(100%-2rem))] sm:right-4 sm:top-4 sm:max-w-[min(min(50vw,22rem),calc(100%-2rem))]">
+            <MyVibesButton
+              eventId={event.id}
+              eventSlug={event.slug}
+              isSignedIn={isSignedIn}
+              initialSaved={isSaved}
+              authHref={vibeAuthHref}
+              variant="timeline"
+              compact
+            />
           </div>
-
-          {/* Neon glow overlay on hover */}
-          <div className="absolute inset-0 opacity-0 group-hover/flyer:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-t from-primary/20 via-transparent to-transparent" />
-        </Link>
-
-        <div className="absolute top-4 right-4 z-20 max-w-[calc(100%-2rem)] sm:max-w-[min(min(50vw,22rem),calc(100%-2rem))]">
-          <MyVibesButton
-            eventId={event.id}
-            eventSlug={event.slug}
-            isSignedIn={isSignedIn}
-            initialSaved={isSaved}
-            authHref={vibeAuthHref}
-            variant="timeline"
-          />
         </div>
       </div>
 
       {/* Event Details */}
-      <div className="relative w-full md:w-1/2 flex flex-col justify-between p-5 sm:p-6 md:p-10">
+      <div
+        className={`relative flex w-full flex-col justify-between md:w-1/2 ${
+          isArchive ? "p-5 sm:p-6 md:p-8" : "p-5 sm:p-6 md:p-10"
+        }`}
+      >
         <div
           className="pointer-events-none absolute inset-0 opacity-70"
           style={{
@@ -155,29 +162,70 @@ export function EventTimelineCard({
           {/* Top: Org + Time */}
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
+              <span
+                className={`text-[10px] sm:text-xs font-mono uppercase tracking-widest ${
+                  isArchive ? "text-[color:var(--neon-text2)]" : "text-[color:var(--neon-a)]"
+                }`}
+              >
                 {event.org_name}
               </span>
-              <span className="w-1 h-1 bg-[color:var(--neon-text2)]/60 rounded-full" />
+              <span className="h-1 w-1 rounded-full bg-[color:var(--neon-text2)]/60" />
               <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-mono text-[color:var(--neon-text2)]">
-                <Clock className="w-3 h-3" />
+                <Clock className="h-3 w-3 shrink-0" />
                 {startLabel}
               </span>
             </div>
 
             {/* Title */}
-            <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[color:var(--neon-text0)] mt-4 transition-colors duration-300 text-balance leading-tight group-hover/detail:text-[color:var(--neon-a)]">
+            <h3
+              className={`mt-4 text-balance font-bold leading-[1.15] transition-colors duration-300 ${
+                isArchive
+                  ? "line-clamp-3 font-serif text-xl text-[color:var(--neon-text1)] sm:text-2xl md:text-3xl group-hover/detail:text-[color:var(--neon-a)]/90"
+                  : "line-clamp-4 font-serif text-2xl text-[color:var(--neon-text0)] sm:text-3xl md:text-4xl group-hover/detail:text-[color:var(--neon-a)]"
+              }`}
+            >
               {event.title}
             </h3>
+
+            {visibleCategories.length > 0 ? (
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                {visibleCategories.map((c, i) => (
+                  <span
+                    key={`${c}-${i}`}
+                    className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur"
+                  >
+                    {formatCategoryLabel(c)}
+                  </span>
+                ))}
+                {extraCategoryCount > 0 ? (
+                  <span
+                    className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]"
+                    aria-label={`${extraCategoryCount} more categories`}
+                  >
+                    +{extraCategoryCount} more
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           {/* Bottom: Venue + City */}
-          <div className="mt-6 md:mt-8 pt-4 border-t border-[color:var(--neon-hairline)]">
-            <div className="flex items-center gap-2 text-sm text-[color:var(--neon-text0)]">
-              <MapPin className="w-4 h-4 text-[color:var(--neon-a)] shrink-0" />
-              <span className="truncate">{event.venue_name}</span>
+          <div
+            className={`mt-6 border-t border-[color:var(--neon-hairline)] pt-4 md:mt-8 ${
+              isArchive ? "opacity-90" : ""
+            }`}
+          >
+            <div
+              className={`flex items-center gap-2 text-sm ${
+                isArchive ? "text-[color:var(--neon-text1)]" : "text-[color:var(--neon-text0)]"
+              }`}
+            >
+              <MapPin
+                className={`h-4 w-4 shrink-0 ${isArchive ? "text-[color:var(--neon-text2)]" : "text-[color:var(--neon-a)]"}`}
+              />
+              <span className="line-clamp-2">{event.venue_name}</span>
             </div>
-            <p className="text-xs text-[color:var(--neon-text2)] mt-1 ml-6 uppercase tracking-wider">
+            <p className="ml-6 mt-1 text-xs uppercase tracking-wider text-[color:var(--neon-text2)]">
               {event.city}
             </p>
           </div>
