@@ -69,43 +69,14 @@ export function EventTimelineCard({
         isEven ? "md:flex-row" : "md:flex-row-reverse"
       } gap-0 md:gap-8 rounded-2xl bg-[color:var(--neon-surface)]/18 p-0 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)]`}
     >
-      {/* Flyer Image */}
+      {/* Flyer column: categories above image (chips do not cover flyer art) */}
       <div
-        className={`relative w-full md:w-1/2 aspect-[4/5] sm:aspect-[3/4] md:aspect-auto md:min-h-[420px] overflow-hidden ${
+        className={`relative flex w-full flex-col overflow-hidden md:w-1/2 ${
           isEven ? "md:rounded-l-2xl md:rounded-r-none" : "md:rounded-r-2xl md:rounded-l-none"
         } rounded-t-2xl md:rounded-t-none`}
       >
-        <Link
-          href={detailHref}
-          className="group/flyer block h-full min-h-[280px] md:min-h-[420px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
-        >
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/30 to-transparent"
-            aria-hidden
-          />
-          {event.flyer_url ? (
-            <Image
-              src={event.flyer_url}
-              alt={`Flyer for ${event.title}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover transition-transform duration-700 group-hover/flyer:scale-105"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-secondary flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-6xl md:text-8xl font-bold text-primary/20 font-mono">
-                  {dayNumber}
-                </span>
-                <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mt-2">
-                  {monthShort}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Category badges */}
-          <div className="absolute top-4 left-4 z-10 flex max-w-[min(100%,calc(100%-7rem))] flex-wrap gap-1.5">
+        <div className="shrink-0 border-b border-[color:var(--neon-hairline)] px-4 pb-2.5 pt-4">
+          <div className="flex flex-wrap gap-1.5">
             {event.categories.length > 0 ? (
               event.categories.map((c) => (
                 <span
@@ -121,20 +92,51 @@ export function EventTimelineCard({
               </span>
             )}
           </div>
+        </div>
 
-          {/* Neon glow overlay on hover */}
-          <div className="absolute inset-0 opacity-0 group-hover/flyer:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-t from-primary/20 via-transparent to-transparent" />
-        </Link>
+        <div className="relative min-h-[280px] flex-1 overflow-hidden md:min-h-[420px]">
+          <Link
+            href={detailHref}
+            className="group/flyer relative block h-full min-h-[280px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)] md:min-h-[420px]"
+          >
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/30 to-transparent"
+              aria-hidden
+            />
+            {event.flyer_url ? (
+              <Image
+                src={event.flyer_url}
+                alt={`Flyer for ${event.title}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 group-hover/flyer:scale-105"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-secondary">
+                <div className="text-center">
+                  <span className="font-mono text-6xl font-bold text-primary/20 md:text-8xl">
+                    {dayNumber}
+                  </span>
+                  <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                    {monthShort}
+                  </p>
+                </div>
+              </div>
+            )}
 
-        <div className="absolute top-4 right-4 z-20 max-w-[calc(100%-2rem)] sm:max-w-[min(min(50vw,22rem),calc(100%-2rem))]">
-          <MyVibesButton
-            eventId={event.id}
-            eventSlug={event.slug}
-            isSignedIn={isSignedIn}
-            initialSaved={isSaved}
-            authHref={vibeAuthHref}
-            variant="timeline"
-          />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover/flyer:opacity-100" />
+          </Link>
+
+          <div className="absolute right-4 top-4 z-20 max-w-[calc(100%-2rem)] sm:max-w-[min(min(50vw,22rem),calc(100%-2rem))]">
+            <MyVibesButton
+              eventId={event.id}
+              eventSlug={event.slug}
+              isSignedIn={isSignedIn}
+              initialSaved={isSaved}
+              authHref={vibeAuthHref}
+              variant="timeline"
+            />
+          </div>
         </div>
       </div>
 
