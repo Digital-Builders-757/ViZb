@@ -77,10 +77,6 @@
 - **April 20, 2026 — Staff platform events:** **`/admin/events/new`** creates event drafts under the platform organization (default slug **`vizb`**, overridable via **`PLATFORM_ORG_SLUG`** in **`.env.example`**); **`lib/orgs/platform-org.ts`**; **`CreateEventForm`** supports **`flow="admin"`** (redirect to **`/admin/events/[id]`**); admin home quick links to **New platform event**.
 - **April 20, 2026 — Post body gallery (up to 6 images):** Column **`posts.content_image_urls`** + Storage **`posts`** bucket paths; admin **Images in post** on **`/admin/posts/new`** and **`/admin/posts/[id]`**; public **`/p/[slug]`** shows **Photos** below the markdown body. Migration **`supabase/migrations/20260420231755_posts_content_image_urls.sql`**.
 
-### P0 / maintenance (no product phase change)
-
-- **April 18, 2026 — Code hygiene & documentation pass:** Layer 1 docs aligned with **Next.js 16 `proxy.ts`**, real **`app/actions/*`**, and **`createClient()`** naming; master log: **`docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md`** (includes validation checklist). Product behavior unchanged.
-
 ---
 
 ## What Exists Today (Verified Against Codebase)
@@ -338,6 +334,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - [x] **`event_lineup_entries`** + RLS — `supabase/migrations/20260417210000_event_lineup_entries.sql`; dashboard **`OpenMicLineupPanel`** (`components/organizer/open-mic-lineup-panel.tsx`) on organizer + admin event pages when **`open_mic`** is in categories; public **`/lineup/[eventSlug]`** (`app/lineup/[eventSlug]/page.tsx`) with strict query filters; mutations **`app/actions/lineup.ts`**
 - [x] **Public lineup share URL** — `lib/public-site-url.ts` (absolute link from **`NEXT_PUBLIC_SITE_URL`**); organizer panel shows the URL + **Copy public link**; **`docs/OPEN_MIC_LINEUP.md`** + **`.env.example`** document canonical host (e.g. `www` after apex redirect)
 - [x] **Organizer lineup visibility UX (April 2026)** — `OpenMicLineupPanel` explains public rules (public + confirmed/performed), per-row public state, empty-eligible callout, draft-event note, open/copy public URL; **`lib/lineup/lineup-entry-status.ts`** helpers mirror public filters; quick-add defaults to **confirmed** in **`app/actions/lineup.ts`**
+- [x] **Public lineup page visuals** — **`/lineup/[eventSlug]`** uses the same immersive stack as **`/events`** (`ThreeBackgroundWrapper`, overlay, neon orbs), **`OceanDivider`** rhythm, **`headline-xl`** hero, **`GlassCard` emphasis** + **`WaterFrame`** performer block, **`NeonLink`** CTAs; **`max-w-[1200px]`** layout
 
 **Shipped (April 2026 — Tickets / wallet passes v2):**
 
