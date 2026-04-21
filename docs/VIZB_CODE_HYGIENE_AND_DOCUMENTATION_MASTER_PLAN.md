@@ -3,7 +3,7 @@
 **Purpose:** Single source of truth for the April 2026 hygiene/documentation pass.  
 **Process roadmap (ongoing):** [`DOCS_OVERHAUL_PLAN_2026.md`](DOCS_OVERHAUL_PLAN_2026.md) — this file is the **run log** for this pass only.
 
-**Last updated:** April 18, 2026
+**Last updated:** April 20, 2026
 
 ---
 
@@ -23,7 +23,7 @@
 
 ### Server actions (actual filenames)
 
-Mutations live under [`app/actions/`](../app/actions/): `event.ts`, `registrations.ts`, `ticket-types.ts`, `ticket-checkout.ts`, `checkin.ts`, `organizer-checkin.ts`, `undo-checkin.ts`, `organizer-undo-checkin.ts`, `subscribe.ts`, `organization.ts`, `invite.ts`, `profile.ts`, `lineup.ts`, `posts-admin.ts`, `admin-users.ts`, `admin-registrations.ts`, `host-application.ts`, `notifications.ts`, `advertise-contact.ts`, `vibes.ts` — plus tests under `app/actions/__tests__/`.
+Mutations live under [`app/actions/`](../app/actions/): `event.ts`, `registrations.ts`, `ticket-types.ts`, `ticket-checkout.ts`, `checkin.ts`, `organizer-checkin.ts`, `undo-checkin.ts`, `organizer-undo-checkin.ts`, `subscribe.ts`, `organization.ts`, `invite.ts`, `profile.ts`, `lineup.ts`, `admin-posts.ts` (post cover/body uploads to Storage), `posts-admin.ts` (post archive/delete), `admin-users.ts`, `admin-registrations.ts`, `host-application.ts`, `notifications.ts`, `advertise-contact.ts`, `vibes.ts` — plus tests under `app/actions/__tests__/`.
 
 **Drift fixed in this pass:** [`ARCHITECTURE_SOURCE_OF_TRUTH.md`](ARCHITECTURE_SOURCE_OF_TRUTH.md) previously listed non-existent `events.ts`, `orders.ts`, `tickets.ts`, `orgs.ts`, `admin.ts` and “Phase N — Planned” for shipped surfaces.
 
@@ -115,7 +115,7 @@ Mutations live under [`app/actions/`](../app/actions/): `event.ts`, `registratio
 | Moving root markdown (`REFACTOR_PLAN.md`, etc.) into `docs/` | High link churn; `DOCUMENTATION_INDEX` already maps them |
 | Full rewrite of `CODING_STANDARDS.md` §2 deep dive | Out of scope; only structure snippet refreshed |
 | Renaming `my-v0-project` in lockfile contexts | N/A — package name change does not require lockfile regen for npm |
-| Sweep remaining `middleware.ts` mentions in `docs/diagrams/airport-model.md`, `system-map-full.md`, `VIBE_APP_SPECIFICATION.md` (non-snippet prose), `signup-bootstrap-flow.md` | Lower risk to batch in a docs-only PR; constitution + troubleshooting + contracts already updated |
+| ~~Sweep `middleware.ts` vs `proxy.ts` in diagram/spec prose~~ | **Done (April 20, 2026):** `airport-model.md`, `system-map-full.md`, `signup-bootstrap-flow.md`, `VIBE_APP_SPECIFICATION.md` §7.4 aligned with root `proxy.ts` + `lib/supabase/middleware.ts` |
 
 ---
 
@@ -132,4 +132,4 @@ Mutations live under [`app/actions/`](../app/actions/): `event.ts`, `registratio
 
 ## 10. Final completion notes
 
-This pass focused on **documentation truth** (especially `ARCHITECTURE_SOURCE_OF_TRUTH.md`, auth/session naming, and Supabase `createClient()` consistency across spine docs), a **cleaner README** (v0 called out as optional), **`package.json` identity** (`vizb`), and a **living master plan** linked from the doc index. Application behavior was not intentionally changed. Remaining diagram references to `middleware.ts` in `airport-model.md` / `system-map-full.md` are noted under §8 for a future sweep if desired.
+The April 2026 pass focused on **documentation truth** (especially `ARCHITECTURE_SOURCE_OF_TRUTH.md`, auth/session naming, and Supabase `createClient()` consistency across spine docs), a **cleaner README** (v0 called out as optional), **`package.json` identity** (`vizb`), and a **living master plan** linked from the doc index. A **follow-up docs batch (April 20, 2026)** aligned diagram + spec prose with **`proxy.ts`** (see §8) and refreshed `MVP_STATUS_ROADMAP.md` matrix/footer. Application behavior was not intentionally changed.

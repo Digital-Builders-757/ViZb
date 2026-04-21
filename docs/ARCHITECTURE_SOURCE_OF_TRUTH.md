@@ -1,6 +1,6 @@
 # ViBE — Architecture Source of Truth
 
-**Last Updated:** April 18, 2026
+**Last Updated:** April 20, 2026
 
 This document defines the **canonical module ownership** and **wiring laws** for the ViBE events platform. It answers the question: _"Where does this logic live, and who owns it?"_
 
@@ -36,7 +36,8 @@ Domain logic is split across **`app/actions/*.ts`** (one file per area). Represe
 | Organizations & invites | `app/actions/organization.ts`, `invite.ts` | Org create, invites, claim |
 | Profile | `app/actions/profile.ts` | Display name updates |
 | Open mic lineup | `app/actions/lineup.ts` | Lineup CRUD, ordering, status |
-| Posts (admin) | `app/actions/posts-admin.ts` | Archive / delete posts |
+| Posts (admin — editor media) | `app/actions/admin-posts.ts` | Cover/body image uploads to Storage; remove orphaned objects |
+| Posts (admin — moderation) | `app/actions/posts-admin.ts` | Archive / delete posts |
 | Admin utilities | `app/actions/admin-users.ts`, `admin-registrations.ts` | Staff-only operations |
 | Host applications | `app/actions/host-application.ts` | Submit / review applications |
 | Notifications | `app/actions/notifications.ts` | Mark read, staff seed |

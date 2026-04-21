@@ -1,6 +1,6 @@
 # Airport model — ViBE platform zones
 
-**Last updated:** March 23, 2026
+**Last updated:** April 20, 2026
 
 Canonical zone map for planning and triage (`/plan`, `/triage`, `/debug`, `/continue`). Names are **responsibility labels**, not product copy.
 
@@ -12,9 +12,9 @@ Canonical zone map for planning and triage (`/plan`, `/triage`, `/debug`, `/cont
 
 | Zone | Meaning in ViBE | Typical locations |
 |------|-----------------|-------------------|
-| **Security** | Session refresh, auth gates, redirects | `middleware.ts`, `lib/supabase/middleware.ts` |
+| **Security** | Session refresh, auth gates, redirects | `proxy.ts` (Next.js 16 request proxy), `lib/supabase/middleware.ts` |
 | **Terminal** | Interactive UI shells, dashboards, forms | `app/**`, `components/**` (presentation + client islands) |
-| **Manifest** | **Discovery surface** — marketing home is public; **full event catalog + detail** require a session (middleware → `/login`). Reads still **governed by RLS + publish rules** | `app/page.tsx` (public); `app/events/**` (auth-gated in `lib/supabase/middleware.ts`) |
+| **Manifest** | **Discovery surface** — marketing **`/`** and **event catalog + detail** (`/events`, `/events/[slug]`) are **public** (session not required for browse). **Dashboard / organizer / admin / tickets / profile** require a session (`proxy.ts` → `/login`). Reads still **governed by RLS + publish rules** | `app/page.tsx`, `app/events/**` (public); protected prefixes in `lib/supabase/middleware.ts` |
 | **Staff** | Business logic, mutations, orchestration | `app/actions/*.ts`, server-only `app/**/route.ts` |
 | **Ticketing** | Paid checkout, orders, webhooks *(roadmap)* | Future Stripe routes, `app/api/**` webhooks |
 | **Announcements** | Email, SMS, push *(roadmap)* | Future notification modules |
