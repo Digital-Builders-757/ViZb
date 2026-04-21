@@ -1,0 +1,26 @@
+name: Release Guard
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  release-guard:
+    name: release-guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce develop -> main only
+        run: |
+          echo "Base branch: ${{ github.base_ref }}"
+          echo "Head branch: ${{ github.head_ref }}"
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "::error::Only pull requests from 'develop' may merge into 'main'. Open this PR against 'develop' instead, then promote develop to main for release."
+            exit 1
+          fi
