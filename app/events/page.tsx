@@ -25,7 +25,6 @@ interface PublicEventRow {
   id: string
   title: string
   slug: string
-  description: string | null
   starts_at: string
   ends_at: string | null
   venue_name: string
@@ -40,7 +39,6 @@ interface FlatEvent {
   id: string
   title: string
   slug: string
-  description: string | null
   starts_at: string
   ends_at: string | null
   venue_name: string
@@ -91,7 +89,6 @@ export default async function EventsExplorePage({
     id,
     title,
     slug,
-    description,
     starts_at,
     ends_at,
     venue_name,
@@ -157,7 +154,6 @@ export default async function EventsExplorePage({
       id: e.id,
       title: e.title,
       slug: e.slug,
-      description: e.description,
       starts_at: e.starts_at,
       ends_at: e.ends_at,
       venue_name: e.venue_name,

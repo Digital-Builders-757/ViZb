@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
+import { FullLogoImage } from "@/components/brand/full-logo-image"
 import { AuthAlert } from "@/components/auth/auth-alert"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { createClient } from "@/lib/supabase/client"
@@ -76,7 +77,7 @@ export default function ForgotPasswordPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <Link href="/" className="inline-block mb-12">
-            <Image src="/vibe-logo.png" alt="VIZB" width={48} height={48} className="h-12 w-auto" />
+            <FullLogoImage width={240} height={240} className="h-14 w-auto max-w-[min(100%,220px)]" />
           </Link>
 
           <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Account</span>

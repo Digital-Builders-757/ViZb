@@ -114,6 +114,29 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             <MarkdownContent md={post.content_md} />
           </GlassCard>
 
+          {post.content_image_urls && post.content_image_urls.length > 0 ? (
+            <GlassCard className="mt-6 p-4 md:p-6">
+              <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Photos</p>
+              <ul className="mt-4 grid list-none gap-4 p-0 sm:grid-cols-2" aria-label="Images in this post">
+                {post.content_image_urls.map((url, i) => (
+                  <li
+                    key={`${url}-${i}`}
+                    className="relative aspect-[4/3] overflow-hidden rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30"
+                  >
+                    <Image
+                      src={url}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 432px"
+                      unoptimized
+                    />
+                  </li>
+                ))}
+              </ul>
+            </GlassCard>
+          ) : null}
+
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
               Published {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}

@@ -15,6 +15,8 @@ interface CreateEventFormProps {
   orgId: string
   orgSlug: string
   orgName: string
+  /** Staff admin: back/cancel go to `/admin`, success to `/admin/events/[id]`. Default: organizer URLs. */
+  flow?: "organizer" | "admin"
 }
 
 function SectionHeader({ icon: Icon, label, number }: { icon: React.ElementType; label: string; number: string }) {
@@ -32,7 +34,7 @@ function SectionHeader({ icon: Icon, label, number }: { icon: React.ElementType;
   )
 }
 
-export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProps) {
+export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }: CreateEventFormProps) {
   const router = useRouter()
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -108,7 +110,11 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
     }
 
     if (result.success && result.event) {
-      router.push(`/organizer/${orgSlug}/events/${result.event.slug}`)
+      if (flow === "admin") {
+        router.push(`/admin/events/${result.event.id}`)
+      } else {
+        router.push(`/organizer/${orgSlug}/events/${result.event.slug}`)
+      }
       router.refresh()
     }
   }
@@ -120,11 +126,11 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
     <div className="form-glow-bg min-h-full pb-28">
       {/* Back link */}
       <Link
-        href={`/organizer/${orgSlug}`}
+        href={flow === "admin" ? "/admin" : `/organizer/${orgSlug}`}
         className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#555555] hover:text-neon-a transition-colors mb-8"
       >
         <ArrowLeft className="w-3 h-3" />
-        Back to {orgName}
+        {flow === "admin" ? "Back to Admin" : `Back to ${orgName}`}
       </Link>
 
       {/* Page header */}
@@ -463,7 +469,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName }: CreateEventFormProp
                   {loading ? "Creating..." : "Create Draft"}
                 </button>
                 <Link
-                  href={`/organizer/${orgSlug}`}
+                  href={flow === "admin" ? "/admin" : `/organizer/${orgSlug}`}
                   className="px-6 py-3 text-xs font-mono uppercase tracking-widest text-[#555555] hover:text-[#FAFAFA] border border-[#222222] hover:border-[#333333] transition-all bg-transparent"
                 >
                   Cancel

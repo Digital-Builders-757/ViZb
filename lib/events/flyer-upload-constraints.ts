@@ -1,5 +1,6 @@
 /**
  * Single source of truth for organizer event flyer uploads (client + server).
+ * Bucket: `event-flyers` — see `supabase/migrations/20260420224705_storage_buckets_event_flyers_and_posts.sql`
  * Next.js Server Action bodySizeLimit in next.config.mjs must stay ≥ max file size + multipart overhead.
  */
 
