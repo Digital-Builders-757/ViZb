@@ -79,7 +79,7 @@ export function AdminEventRegistrationsTable({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name or UUID"
-              className="w-full sm:w-[280px] bg-[#0a0a0a] border border-border pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
+              className="w-full sm:w-[280px] bg-input border border-border pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
             />
           </div>
 

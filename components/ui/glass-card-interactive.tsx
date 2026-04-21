@@ -65,7 +65,7 @@ export function GlassCardInteractive({
       onPointerLeave={resetPointer}
       style={transform ? { transform } : undefined}
       className={cn(
-        "group/glass relative isolate overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-md",
+        "group/glass relative isolate overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]",
         "transition-[border-color,box-shadow,transform] duration-200 ease-out hover:will-change-transform",
         "hover:border-[color:color-mix(in_srgb,var(--neon-a)_42%,var(--neon-hairline))]",
         "hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_26%,transparent),var(--vibe-neon-glow-subtle)]",

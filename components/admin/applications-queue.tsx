@@ -82,10 +82,10 @@ export function ApplicationsQueue({ applications }: { applications: Application[
           <div
             key={app.id}
             className={`
-              border-l-2 border border-border bg-[#111111] transition-all
+              border-l-2 border border-border bg-card transition-all
               ${isApproved ? "border-l-neon-a bg-neon-a/5 border-neon-a/20" : ""}
               ${isRejected ? "border-l-muted-foreground opacity-60" : ""}
-              ${!isHandled ? `${accent} hover:bg-[#161616]` : ""}
+              ${!isHandled ? `${accent} hover:bg-muted/45` : ""}
             `}
           >
             {/* Card header */}

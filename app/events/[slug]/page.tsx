@@ -295,7 +295,7 @@ export default async function PublicEventDetailPage({
           {/* Back */}
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-a)] transition-colors"
           >
             <ArrowLeft className="w-3 h-3" />
             Back to Events
@@ -320,7 +320,7 @@ export default async function PublicEventDetailPage({
                     <span className="text-7xl md:text-9xl font-bold text-primary/15 font-mono">
                       {startsAt.getDate()}
                     </span>
-                    <p className="text-sm font-mono uppercase tracking-widest text-muted-foreground mt-2">
+                    <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mt-2">
                       {startsAt.toLocaleDateString("en-US", { month: "long" })}
                     </p>
                   </div>
@@ -345,7 +345,7 @@ export default async function PublicEventDetailPage({
 
                 {/* readability overlay */}
                 <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/90 via-[color:var(--neon-bg0)]/25 to-transparent"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/82 via-[color:var(--neon-bg0)]/22 to-transparent"
                   aria-hidden
                 />
               </GlassCard>
