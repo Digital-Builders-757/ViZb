@@ -1,4 +1,7 @@
-/** Canonical ViZb wordmark (`/public/vizb-logo.png`) — header, footer, auth, loading. */
+/**
+ * Canonical ViZb wordmark (`/public/vizb-logo.png`) — header, footer, auth, loading.
+ * Keep as **PNG with alpha (RGBA)**. RGB-only exports bake in a black (or solid) box on dark pages.
+ */
 export const HEADER_LOGO_SRC = "/vizb-logo.png" as const
 export const FULL_LOGO_SRC = "/vizb-logo.png" as const
 
