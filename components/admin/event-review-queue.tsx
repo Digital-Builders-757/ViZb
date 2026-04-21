@@ -183,10 +183,10 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
             return (
               <div
                 key={evt.id}
-                className={`border-l-2 border border-border bg-[#111111] transition-all ${
+                className={`border-l-2 border border-border bg-card transition-all ${
                   isApproved ? "border-l-neon-a bg-neon-a/5 border-neon-a/20" : ""
                 } ${isRejected ? "border-l-amber-500 opacity-60" : ""} ${
-                  !isHandled ? `${accent} hover:bg-[#161616]` : ""
+                  !isHandled ? `${accent} hover:bg-muted/45` : ""
                 }`}
               >
                 {/* Card header */}
@@ -310,7 +310,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                             {isPending ? "Processing..." : "Approve + Publish"}
                           </button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-[#111111] border-border">
+                        <AlertDialogContent className="bg-card border-border">
                           <AlertDialogHeader>
                             <div className="flex items-center gap-3 mb-1">
                               <div className="w-9 h-9 bg-neon-a/10 flex items-center justify-center shrink-0">
@@ -359,7 +359,7 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                             Reject
                           </button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-[#111111] border-border">
+                        <AlertDialogContent className="bg-card border-border">
                           <AlertDialogHeader>
                             <div className="flex items-center gap-3 mb-1">
                               <div className="w-9 h-9 bg-amber-500/10 flex items-center justify-center shrink-0">

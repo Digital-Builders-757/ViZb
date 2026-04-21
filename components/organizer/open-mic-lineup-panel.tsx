@@ -176,7 +176,7 @@ export function OpenMicLineupPanel({
       ) : (
         <>
           <form
-            className="mb-8 border border-border/60 rounded-lg p-4 space-y-3 bg-[#070707]/40"
+            className="mb-8 border border-border/60 rounded-lg p-4 space-y-3 bg-muted/25"
             onSubmit={(e) => {
               e.preventDefault()
               const fd = new FormData(e.currentTarget)
@@ -223,7 +223,7 @@ export function OpenMicLineupPanel({
                 return (
                 <div
                   key={row.id}
-                  className={`border border-border/60 rounded-lg p-4 space-y-3 bg-[#070707]/40 ${
+                  className={`border border-border/60 rounded-lg p-4 space-y-3 bg-muted/25 ${
                     row.status === "cancelled" ? "opacity-60" : ""
                   }`}
                 >

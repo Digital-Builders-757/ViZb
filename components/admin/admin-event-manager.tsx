@@ -146,7 +146,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search events by title, organization, or city..."
-            className="w-full bg-[#0a0a0a] border border-border pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
+            className="w-full bg-input border border-border pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-neon-a/50 transition-colors"
           />
         </div>
 
@@ -187,7 +187,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
             return (
               <div
                 key={event.id}
-                className={`group border border-border bg-[#111111] p-4 transition-colors hover:border-border/80 ${
+                className={`group border border-border bg-card p-4 transition-colors hover:border-border/80 ${
                   isDeleting ? "opacity-50 pointer-events-none" : ""
                 }`}
               >
@@ -298,7 +298,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                           )}
                         </button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-[#111111] border-border">
+                      <AlertDialogContent className="bg-card border-border">
                         <AlertDialogHeader>
                           <div className="flex items-center gap-3 mb-1">
                             <div className="w-9 h-9 bg-amber-500/10 flex items-center justify-center shrink-0">

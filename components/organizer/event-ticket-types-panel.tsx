@@ -33,7 +33,7 @@ const fieldClass =
 const labelClass = "text-[10px] font-mono uppercase tracking-widest text-muted-foreground"
 /** Secondary actions — per-tier only; primary “Save event details” lives above in EventDetailsEditForm. */
 const tierActionButtonClass =
-  "rounded-lg border border-border bg-[#0a0a0a]/80 px-4 py-2 text-sm font-medium text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground disabled:opacity-50"
+  "rounded-lg border border-border bg-input/90 px-4 py-2 text-sm font-medium text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground disabled:opacity-50"
 
 export function EventTicketTypesPanel({
   orgSlug,
@@ -68,7 +68,7 @@ export function EventTicketTypesPanel({
         {types.map((t) => (
           <div
             key={t.id}
-            className="border border-border/60 rounded-lg p-4 space-y-3 bg-[#070707]/40"
+            className="border border-border/60 rounded-lg p-4 space-y-3 bg-muted/25"
           >
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-foreground">{t.name}</span>

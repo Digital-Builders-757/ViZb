@@ -261,7 +261,7 @@ export default async function EventDetailPage({
               />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <ImageIcon className="w-10 h-10 text-muted-foreground/30" />
+                <ImageIcon className="w-10 h-10 text-[color:var(--neon-text2)]/70" />
                 <p className="text-xs text-muted-foreground mt-2 font-mono uppercase tracking-widest">
                   No Flyer
                 </p>

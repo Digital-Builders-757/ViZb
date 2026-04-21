@@ -298,7 +298,7 @@ export function EventDetailsEditForm({
         <button
           type="submit"
           disabled={archived || isPending || !isDirty}
-          className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-neon-a px-6 py-3 text-sm font-semibold text-[#0a0a0a] shadow-md shadow-neon-a/15 transition-colors hover:bg-neon-c hover:text-[#0a0a0a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-a disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none sm:w-auto sm:min-w-[14rem]"
+          className="inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-neon-a px-6 py-3 text-sm font-semibold text-background shadow-md shadow-neon-a/15 transition-colors hover:bg-neon-c hover:text-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-a disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none sm:w-auto sm:min-w-[14rem]"
         >
           <Save className="h-4 w-4 shrink-0" aria-hidden />
           {isPending ? "Saving…" : "Save event details"}
