@@ -650,7 +650,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 ```
 
-### 7.4 Middleware (Route Protection)
+### 7.4 Session refresh and route protection (proxy)
 
 ```
 /organizer/*  → Requires auth + org membership
@@ -659,7 +659,7 @@ CREATE TRIGGER on_auth_user_created
 /events/*     → Public (but actions require auth)
 ```
 
-Implementation: Use Next.js middleware (`middleware.ts` / `proxy.js`) to check auth state and redirect unauthenticated users to `/login`.
+Implementation: Root **`proxy.ts`** (Next.js 16) delegates to **`lib/supabase/middleware.ts`** (`updateSession`) for cookie refresh and **session-presence** redirects; unauthenticated users hitting protected prefixes are sent to `/login`. Fine-grained roles still come from layouts + RLS.
 
 ### 7.5 Helper: Check User Role
 

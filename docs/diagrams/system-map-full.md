@@ -1,6 +1,6 @@
 # System map (full) — ViBE
 
-**Last updated:** March 23, 2026
+**Last updated:** April 20, 2026
 
 **ARCHIVE / DEEP DEBUG.** Broad inventory to answer “where does X live?” **This file drifts easily.** Prefer **`docs/ARCHITECTURE_SOURCE_OF_TRUTH.md`** for ownership; use this when you need a **single scrollable map** and will verify paths in-repo.
 
@@ -26,15 +26,7 @@ Do **not** default to this in `/plan` — use **`airport-model.md`** + focused d
 
 ## Server actions (current tree)
 
-Files under **`app/actions/`** (verify exports when debugging):
-
-- `subscribe.ts` — waitlist
-- `event.ts` — events
-- `organization.ts` — orgs
-- `invite.ts` — invites
-- `host-application.ts` — host apply
-
-Admin mutations may live in components or future `app/actions/*`; re-scan when adding.
+Canonical ownership by domain lives in **`docs/ARCHITECTURE_SOURCE_OF_TRUTH.md`** (Rule 2 — **`app/actions/*.ts`**). Do not duplicate the full inventory here; when debugging, list the directory and match files to domains (events, registrations, tickets, organizer, admin, posts, lineup, …).
 
 ---
 
@@ -46,9 +38,9 @@ Admin mutations may live in components or future `app/actions/*`; re-scan when a
 
 ---
 
-## Middleware
+## Session refresh (request proxy)
 
-- **`middleware.ts`** → `updateSession` from `lib/supabase/middleware.ts`
+- Root **`proxy.ts`** invokes **`updateSession`** from **`lib/supabase/middleware.ts`** (Next.js 16 pattern; there is no root **`middleware.ts`** file in this repo).
 
 ---
 

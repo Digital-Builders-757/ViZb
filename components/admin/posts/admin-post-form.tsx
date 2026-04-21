@@ -113,7 +113,9 @@ export function AdminPostForm({
               name="status"
               className="vibe-input-glass mt-2"
               value={draft.status}
-              onChange={(e) => setDraft((d) => ({ ...d, status: e.target.value as any }))}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, status: e.target.value as AdminPostDraft["status"] }))
+              }
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
