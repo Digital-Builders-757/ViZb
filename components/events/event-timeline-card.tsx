@@ -100,7 +100,7 @@ export function EventTimelineCard({
             }`}
           >
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/30 to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/88 via-[color:var(--neon-bg0)]/28 to-transparent"
               aria-hidden
             />
             {event.flyer_url ? (
@@ -117,7 +117,7 @@ export function EventTimelineCard({
                   <span className="font-mono text-6xl font-bold text-primary/20 md:text-8xl">
                     {dayNumber}
                   </span>
-                  <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                  <p className="mt-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
                     {monthShort}
                   </p>
                 </div>
@@ -151,7 +151,7 @@ export function EventTimelineCard({
           className="pointer-events-none absolute inset-0 opacity-70"
           style={{
             background:
-              "radial-gradient(ellipse 80% 60% at 0% 0%, rgb(0 209 255 / 0.10), transparent 55%), radial-gradient(ellipse 70% 55% at 100% 100%, rgb(157 77 255 / 0.08), transparent 55%)",
+              "radial-gradient(ellipse 80% 60% at 0% 0%, rgb(0 209 255 / 0.14), transparent 55%), radial-gradient(ellipse 70% 55% at 100% 100%, rgb(157 77 255 / 0.11), transparent 55%)",
           }}
           aria-hidden
         />

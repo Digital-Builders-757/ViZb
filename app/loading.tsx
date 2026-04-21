@@ -258,7 +258,7 @@ export default function RootLoading() {
   })), [])
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-[#050508]">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-[color:var(--neon-bg0)]">
       {/* Animated Canvas Background */}
       <canvas 
         ref={canvasRef} 
@@ -320,7 +320,7 @@ export default function RootLoading() {
             showContent ? "opacity-100" : "opacity-0"
           }`}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#00d1ff] sm:text-xs">
+          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[color:var(--neon-a)] sm:text-xs">
             <AnimatedText delay={600} waveIntensity="subtle">
               Signal Incoming
             </AnimatedText>
@@ -391,10 +391,10 @@ export default function RootLoading() {
           }`}
           style={{ transitionDelay: "300ms", transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
         >
-          <span className="block text-[#f0f0f5]">
+          <span className="block text-[color:var(--neon-text1)]">
             <AnimatedText delay={900} waveIntensity="normal">Virginia</AnimatedText>
             {" "}
-            <GlitchText className="text-[#00d1ff]" delay={1100}>isn&apos;t</GlitchText>
+            <GlitchText className="text-[color:var(--neon-a)]" delay={1100}>isn&apos;t</GlitchText>
             {" "}
             <AnimatedText delay={1300} waveIntensity="intense">boring.</AnimatedText>
           </span>
@@ -402,10 +402,10 @@ export default function RootLoading() {
 
         {/* Animated tagline */}
         <p
-          className={`mt-4 max-w-md text-center text-sm leading-relaxed transition-all duration-1000 sm:text-base md:text-lg ${
+          className={`mt-4 max-w-md text-center text-sm leading-relaxed text-[color:var(--neon-text1)]/85 transition-all duration-1000 sm:text-base md:text-lg ${
             showContent ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
           }`}
-          style={{ transitionDelay: "500ms", color: "rgba(240, 240, 245, 0.75)", transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
+          style={{ transitionDelay: "500ms", transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
         >
           <AnimatedText delay={1500} waveIntensity="subtle">
             Dive into the culture wave
@@ -443,7 +443,7 @@ export default function RootLoading() {
 
         {/* Bottom tagline */}
         <p
-          className={`mt-10 font-mono text-[10px] uppercase tracking-[0.3em] text-[#00d1ff] transition-all duration-1000 ${
+          className={`mt-10 font-mono text-[10px] uppercase tracking-[0.3em] text-[color:var(--neon-a)] transition-all duration-1000 ${
             showContent ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
           }`}
           style={{ transitionDelay: "900ms", transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}

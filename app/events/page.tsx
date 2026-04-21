@@ -230,7 +230,7 @@ export default async function EventsExplorePage({
       </div>
 
       {/* Dark overlay for text readability */}
-      <div className="fixed inset-0 bg-[color:var(--neon-bg0)]/55 z-[1]" />
+      <div className="fixed inset-0 bg-[color:var(--neon-bg0)]/45 z-[1]" />
 
       {/* Floating neon orbs */}
       <div className="fixed top-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl animate-pulse z-[1]" />
@@ -284,7 +284,7 @@ export default async function EventsExplorePage({
                   className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
                     isActive
                       ? "border-[color:var(--neon-a)]/55 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(0,209,255,0.16)]"
-                      : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgba(0,209,255,0.10)]"
+                      : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgba(0,209,255,0.10)]"
                   }`}
                 >
                   {cat.label}
@@ -300,7 +300,7 @@ export default async function EventsExplorePage({
               className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
                 vibesFilter
                   ? "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(157,77,255,0.14)]"
-                  : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:var(--neon-text2)] hover:border-[color:var(--neon-b)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
+                  : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-[color:var(--neon-b)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
               }`}
             >
               My Vibes
@@ -485,7 +485,7 @@ export default async function EventsExplorePage({
                       const card = (
                         <div
                           key={event.id}
-                          className="transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.88]"
+                          className="transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.93]"
                         >
                           <EventTimelineCard
                             event={event}

@@ -26,7 +26,7 @@ interface EventCardListProps {
 }
 
 const STATUS_ACCENT = {
-  draft: "border-l-[#555555]",
+  draft: "border-l-muted-foreground/55",
   pending_review: "border-l-neon-a",
   published: "border-l-neon-b",
   rejected: "border-l-amber-500",
@@ -76,7 +76,7 @@ export function EventCardList({ events, orgSlug }: EventCardListProps) {
               className={`flex items-center gap-2 px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest transition-all shrink-0 border ${
                 isActive
                   ? "border-primary text-foreground bg-primary/5 shadow-[0_0_12px_rgba(13,64,255,0.15)]"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                  : "border-transparent text-foreground/85 hover:text-foreground hover:border-border hover:bg-muted/15"
               }`}
             >
               {tab.label}
@@ -131,7 +131,7 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
   return (
     <Link
       href={`/organizer/${orgSlug}/events/${event.slug}`}
-      className={`group relative block border border-[#222222] bg-[#111111] border-l-[3px] ${accent} ${glow} hover:border-[#333333] hover:bg-[#141414] transition-all`}
+      className={`group relative block border border-border bg-card border-l-[3px] ${accent} ${glow} hover:border-muted-foreground/35 hover:bg-muted/35 transition-all`}
     >
       {/* Rejection feedback banner */}
       {event.status === "rejected" && event.review_notes && (

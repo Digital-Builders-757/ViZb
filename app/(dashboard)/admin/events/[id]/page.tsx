@@ -1,9 +1,11 @@
 import Link from "next/link"
+import Image from "next/image"
 
 import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
-import { ArrowLeft, FileText, Users } from "lucide-react"
+import { ArrowLeft, FileText, ImageIcon, Users } from "lucide-react"
+import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { GlassCard } from "@/components/ui/glass-card"
 import { AdminEventRegistrationsTable } from "@/components/admin/event-registrations-table"
 import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
@@ -46,12 +48,14 @@ export default async function AdminEventDetailPage({
   const { data: event } = await supabase
     .from("events")
     .select(
-      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, organizations(name, slug)",
+      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, flyer_url, organizations(name, slug)",
     )
     .eq("id", id)
     .single()
 
   if (!event) notFound()
+
+  const flyerUrl = (event as { flyer_url?: string | null }).flyer_url ?? null
 
   const editFormCategories = normalizeCategories(
     (event as { categories?: unknown }).categories,
@@ -141,6 +145,52 @@ export default async function AdminEventDetailPage({
           </p>
         </div>
       </div>
+
+      <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-6 flex items-center gap-2">
+          <ImageIcon className="w-4 h-4" />
+          Event Flyer
+        </h2>
+
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="relative w-full md:w-64 aspect-[4/5] overflow-hidden border border-border bg-secondary shrink-0">
+            {flyerUrl ? (
+              <Image
+                src={flyerUrl}
+                alt={`Flyer for ${event.title}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 256px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <ImageIcon className="w-10 h-10 text-[color:var(--neon-text2)]/70" />
+                <p className="text-xs text-muted-foreground mt-2 font-mono uppercase tracking-widest">
+                  No Flyer
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1">
+            {["draft", "pending_review", "rejected"].includes(event.status as string) ? (
+              <FlyerUploadForm eventId={event.id} currentFlyerUrl={flyerUrl} />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {flyerUrl
+                  ? "Flyer is set. Published events cannot have their flyer changed."
+                  : "No flyer uploaded."}
+              </p>
+            )}
+            {!flyerUrl &&
+              ["draft", "rejected"].includes(event.status as string) && (
+                <p className="mt-3 text-xs text-amber-500 font-mono">
+                  A flyer is required before submitting for review.
+                </p>
+              )}
+          </div>
+        </div>
+      </GlassCard>
 
       <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">

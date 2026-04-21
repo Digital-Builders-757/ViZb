@@ -63,7 +63,7 @@ export function AdminPostRowActions({
 
           <DropdownMenuContent
             align="end"
-            className="bg-[#111111] border-border text-foreground"
+            className="bg-card border-border text-foreground"
           >
             <DropdownMenuItem asChild>
               <Link href={`/admin/posts/${postId}`} className="cursor-pointer">
@@ -87,7 +87,7 @@ export function AdminPostRowActions({
                   {archiveLabel}
                 </DropdownMenuItem>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-[#111111] border-border">
+              <AlertDialogContent className="bg-card border-border">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="font-serif text-foreground">
                     {status === "archived" ? "Restore post" : "Archive post"}
@@ -139,7 +139,7 @@ export function AdminPostRowActions({
                   Delete
                 </DropdownMenuItem>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-[#111111] border-border">
+              <AlertDialogContent className="bg-card border-border">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="font-serif text-foreground">Delete post</AlertDialogTitle>
                   <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
@@ -187,7 +187,7 @@ export function AdminPostRowActions({
             {archiveLabel}
           </button>
         </AlertDialogTrigger>
-        <AlertDialogContent className="bg-[#111111] border-border">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-foreground">
               {status === "archived" ? "Restore post" : "Archive post"}
@@ -244,7 +244,7 @@ export function AdminPostRowActions({
             Delete
           </button>
         </AlertDialogTrigger>
-        <AlertDialogContent className="bg-[#111111] border-border">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-serif text-foreground">Delete post</AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">

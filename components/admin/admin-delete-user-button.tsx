@@ -39,7 +39,7 @@ export function AdminDeleteUserButton(props: {
           <span className="hidden sm:inline">Delete</span>
         </button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-[#111111] border-border">
+      <AlertDialogContent className="bg-card border-border">
         <AlertDialogHeader>
           <AlertDialogTitle className="font-serif text-foreground">Delete user</AlertDialogTitle>
           <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
