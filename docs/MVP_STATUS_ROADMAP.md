@@ -481,13 +481,13 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 |-----------------|-------------|----------------|--------|
 | **Landing Page** | Full marketing homepage, waitlist, brand system | Nothing -- complete | 100% |
 | **Authentication** | Sign-up, sign-in, email confirmation, session refresh, route protection, sign-out | Google OAuth (post-MVP), magic link (post-MVP) | 95% |
-| **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, account deletion | 75% |
+| **User Profiles** | Profile creation trigger, display name edit, read-only email display | Avatar upload, self-service account deletion (staff delete exists on **`/admin`**) | 75% |
 | **Organizations** | Create org, auto-slug, type selection, membership check, sidebar display | Org settings page, member management, logo upload | 40% |
-| **Events** | None | Entire events system (CRUD, feed, detail, media) | 0% |
+| **Events** | Public **`/events`** + **`/events/[slug]`**; organizer CRUD + flyers; admin review/publish; categories, RSVP integration | Deeper moderation UX polish, richer media gallery (beyond MVP) | ~75% |
 | **Ticketing** | Free RSVP + paid Stripe Checkout (when configured); wallet **`/tickets`**; wallet passes (env-gated) | Tax, Connect, automated refunds | ~75% |
 | **Payments** | Stripe Checkout + webhook mint (USD, migration **`030`**) | Payouts, reporting, dispute automation | ~35% |
-| **Door Check-In** | None | Check-in screen, attendee list, live counter | 0% |
-| **Admin** | Placeholder with live counts | Approval queues, user moderation, full metrics | 15% |
+| **Door Check-In** | Organizer event check-in flows (e.g. **`/organizer/.../check-in`**), APIs; wallet QR when configured | Dedicated door UX polish, live Realtime counters (Phase 5 backlog) | ~35% |
+| **Admin** | Overview metrics, posts CRUD + media, events tooling, optional user delete (service role), registrations | Full approval-queue polish, org approval UX, enhanced analytics | ~40% |
 | **Responsive Design** | Landing page responsive, dashboard desktop-only | Mobile sidebar, responsive dashboard | 50% |
 | **Documentation** | Full spec, brand system, architecture, coding standards, onboarding | Domain contracts (Layer 2), user journeys (Layer 3) | 70% |
 
@@ -530,28 +530,11 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 ---
 
-## Recommended Execution Order (Next Steps)
+## Maintenance and next review
 
-### Immediate Priority: Phase 2 (Events + Media)
+**Schema / migrations:** Canonical apply order and drift checks live in **`docs/database/MIGRATIONS.md`**. Use timestamped files under **`supabase/migrations/`** for new database work (team rule).
 
-This is the critical path. Without events, there's nothing to ticket, check in, or monetize. Phase 2 unlocks every subsequent phase.
-
-**Step 1: Database** -- Write and execute `010_create_events.sql` (events + event_media tables with RLS)
-**Step 2: Storage** -- Create Supabase Storage buckets for flyers and gallery images
-**Step 3: Event CRUD** -- Build event creation form and server actions
-**Step 4: Public Feed** -- Build `/events` page with flyer-first grid
-**Step 5: Event Detail** -- Build `/events/[id]` with full event info
-**Step 6: Admin Approval** -- Build `/admin/events` approval queue
-
-### After Phase 2: Phase 3 (Free RSVP) is the next unlock
-
-Once events exist, free RSVP gives the platform its first real user interaction loop:
-1. Organizer creates event
-2. Admin publishes event
-3. Attendee RSVPs and gets a ticket
-4. Organizer sees attendee on check-in list
-
-This loop is the MVP's core value proposition and should be prioritized over paid tickets.
+**Product priorities:** See **`docs/development/PUSH_FORWARD_ROADMAP.md`** for env hygiene, RLS discipline, and phase-aligned next steps. Refresh this roadmap’s **Phase Completion Summary** and audit stamp when phase gates or shipped scope change.
 
 ---
 
@@ -570,12 +553,13 @@ This loop is the MVP's core value proposition and should be prioritized over pai
 
 ---
 
-*Last Updated: February 5, 2026 (v4)*
-*Current Phase: Phase 1 complete; Phase 2 queued (Events + Media is critical path)*
-*Next Review: After Phase 2 completion*
+*Last Updated: April 20, 2026 (v5)*
+*Current snapshot: Phases 1–3 largely shipped; Phase 4 (paid) partial; Phase 5–6 in progress — see Phase Completion Summary table above.*
+*Next Review: After a major migration batch or production release; see docs/development/PUSH_FORWARD_ROADMAP.md.*
 
 **Revision History:**
 - **v1:** Initial draft with phase breakdown and feature matrix
 - **v2:** Applied 10-point audit (enum fixes 008, route clarification, storage spec, security hardening 007/009)
 - **v3:** Added verification steps for all critical security fixes + post-migration regression checklist
 - **v4:** Added migration map, evidence column for verification steps, regression checklist environment/accounts/known-failures. Replaced "no issues found" with honest status language. No critical blockers beyond tracked technical debt.
+- **v5:** Aligned feature matrix + footer with shipped code; replaced obsolete “Phase 2 execution order” block with maintenance pointers (`MIGRATIONS.md`, `PUSH_FORWARD_ROADMAP.md`).
