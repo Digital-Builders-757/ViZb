@@ -641,6 +641,19 @@ export default async function PublicEventDetailPage({
                       isSignedIn={isSignedIn}
                       loginHref={authHref}
                     />
+                    <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+                      Saved events show up in your dashboard and calendar export.
+                    </p>
+                    {isSignedIn ? (
+                      <NeonLink
+                        href="/dashboard#my-vibes-week-heading"
+                        variant="secondary"
+                        size="sm"
+                        className="w-full sm:w-auto"
+                      >
+                        Open My Vibes
+                      </NeonLink>
+                    ) : null}
                   </div>
                 </GlassCard>
               </div>
