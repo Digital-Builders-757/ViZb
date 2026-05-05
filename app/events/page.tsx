@@ -515,21 +515,21 @@ export default async function EventsExplorePage({
                   ? "My Vibes"
                   : activeFilter && activeFilter !== "all"
                     ? "No results"
-                    : "Coming soon"}
+                    : "No events yet"}
               </span>
               <h2 className="mt-4 max-w-lg text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] sm:text-3xl md:text-4xl">
                 {vibesFilter && isSignedInForVibes
                   ? "No saved events match this view"
                   : activeFilter && activeFilter !== "all"
                     ? `No ${activeFilter} events found`
-                    : "The timeline is loading"}
+                    : "No events are published yet"}
               </h2>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-[color:var(--neon-text1)] sm:text-base">
                 {vibesFilter && isSignedInForVibes
                   ? "Save events from the timeline with the My Vibes control, or widen your filters."
                   : activeFilter && activeFilter !== "all"
                     ? "Try a different category or check back later."
-                    : "Events are being curated by organizers across Virginia. Check back soon or join the movement."}
+                    : "Organizers are still loading the calendar. Check back soon or use a different filter."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mt-10">
                 {vibesFilter && isSignedInForVibes ? (

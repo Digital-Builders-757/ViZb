@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, User } from "lucide-react"
+import { Menu, X, User, Shield } from "lucide-react"
 import { createClient, isBrowserSupabaseConfigured } from "@/lib/supabase/client"
 import { NeonLink } from "@/components/ui/neon-link"
 import { HeaderBrandMarkLink } from "@/components/brand/header-brand-mark"
@@ -14,6 +14,7 @@ export function Navbar() {
   const isHome = pathname === "/"
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<{ email?: string } | null>(null)
+  const [profile, setProfile] = useState<{ platform_role: "user" | "staff_admin" | "staff_support" | null } | null>(null)
   const [isVisible, setIsVisible] = useState(true)
   const [isHovering, setIsHovering] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -25,15 +26,48 @@ export function Navbar() {
 
     const supabase = createClient()
     let cancelled = false
-    supabase.auth.getUser().then(({ data: { user } }) => {
+
+    async function loadSession() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (cancelled) return
+
       setUser(user)
+
+      if (!user) {
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("platform_role")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (cancelled) return
+      setProfile(profileRow ?? null)
       setLoading(false)
+    }
+
+    loadSession().catch(() => {
+      if (!cancelled) setLoading(false)
     })
+
     return () => {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    const closeTimer = window.setTimeout(() => {
+      setIsOpen(false)
+    }, 0)
+
+    return () => window.clearTimeout(closeTimer)
+  }, [pathname])
 
   // Auto-hide navbar after 3 seconds of inactivity (not on home — keeps mobile menu usable)
   useEffect(() => {
@@ -78,6 +112,7 @@ export function Navbar() {
   }, [isHome, isHovering, isOpen])
 
   const isLoggedIn = !!user
+  const isStaffAdmin = profile?.platform_role === "staff_admin"
 
   const navText = (active: boolean, block?: boolean) =>
     cn(
@@ -140,10 +175,18 @@ export function Navbar() {
             {!loading && (
               <>
                 {isLoggedIn ? (
-                  <NeonLink href="/dashboard" shape="xl" size="sm" className="sm:w-auto">
-                    <User className="w-3.5 h-3.5" />
-                    Dashboard
-                  </NeonLink>
+                  <>
+                    <NeonLink href="/dashboard" shape="xl" size="sm" className="sm:w-auto">
+                      <User className="w-3.5 h-3.5" />
+                      Dashboard
+                    </NeonLink>
+                    {isStaffAdmin ? (
+                      <NeonLink href="/admin" variant="secondary" shape="xl" size="sm" className="sm:w-auto">
+                        <Shield className="w-3.5 h-3.5" />
+                        Admin
+                      </NeonLink>
+                    ) : null}
+                  </>
                 ) : (
                   <>
                     <Link href="/login" className={navText(onLogin)} aria-current={onLogin ? "page" : undefined}>
@@ -191,16 +234,31 @@ export function Navbar() {
             {!loading && (
               <>
                 {isLoggedIn ? (
-                  <NeonLink
-                    href="/dashboard"
-                    shape="xl"
-                    fullWidth
-                    size="sm"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <User className="w-3.5 h-3.5" />
-                    Dashboard
-                  </NeonLink>
+                  <>
+                    <NeonLink
+                      href="/dashboard"
+                      shape="xl"
+                      fullWidth
+                      size="sm"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      Dashboard
+                    </NeonLink>
+                    {isStaffAdmin ? (
+                      <NeonLink
+                        href="/admin"
+                        variant="secondary"
+                        shape="xl"
+                        fullWidth
+                        size="sm"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        Admin
+                      </NeonLink>
+                    ) : null}
+                  </>
                 ) : (
                   <>
                     <Link href="/login" className={navText(onLogin, true)} onClick={() => setIsOpen(false)}>

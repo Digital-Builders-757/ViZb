@@ -53,7 +53,7 @@ export function MyVibesButton({
         )}
       >
         <Heart className={cn("shrink-0 text-[color:var(--neon-a)]", compact ? "h-3.5 w-3.5" : "h-4 w-4")} aria-hidden />
-        Sign in to save
+        Sign in to save to My Vibes
       </Link>
     )
   }
@@ -63,6 +63,7 @@ export function MyVibesButton({
       type="button"
       disabled={isPending}
       aria-pressed={saved}
+      aria-busy={isPending}
       aria-label={saved ? "Remove from My Vibes" : "Save to My Vibes"}
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-full border font-mono text-[10px] uppercase tracking-widest transition-colors disabled:opacity-60",
@@ -112,7 +113,7 @@ export function MyVibesButton({
         )}
         aria-hidden
       />
-      {saved ? "Saved — My Vibes" : "My Vibes"}
+      {isPending ? (saved ? "Removing…" : "Saving…") : saved ? "Saved — My Vibes" : "My Vibes"}
     </button>
   )
 }

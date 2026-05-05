@@ -16,6 +16,7 @@ export async function MyVibesThisWeek({
 }) {
   const grouped = await fetchMyVibesThisWeekGrouped(supabase, userId, 14)
   const dayKeys = Object.keys(grouped).sort()
+  const savedCount = dayKeys.reduce((count, key) => count + grouped[key].length, 0)
 
   return (
     <section aria-labelledby="my-vibes-week-heading" className="scroll-mt-24">
@@ -28,16 +29,21 @@ export async function MyVibesThisWeek({
             My Vibes — This Week
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
-            Saved events in the next two weeks (Eastern dates).
+            {savedCount} saved event{savedCount === 1 ? "" : "s"} in the next two weeks (Eastern dates).
           </p>
         </div>
-        <a
-          href="/api/calendar/ics?myVibes=1"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] shadow-[0_0_16px_rgba(0,209,255,0.08)] transition-colors hover:border-[color:color-mix(in_srgb,var(--neon-a)_45%,var(--neon-hairline))] hover:bg-[color:var(--neon-surface)]/50"
-        >
-          <CalendarPlus className="h-4 w-4 text-[color:var(--neon-a)]" aria-hidden />
-          Add My Vibes to Calendar
-        </a>
+        <div className="flex flex-col gap-2 sm:items-end">
+          <a
+            href="/api/calendar/ics?myVibes=1"
+            className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] shadow-[0_0_16px_rgba(0,209,255,0.08)] transition-colors hover:border-[color:color-mix(in_srgb,var(--neon-a)_45%,var(--neon-hairline))] hover:bg-[color:var(--neon-surface)]/50"
+          >
+            <CalendarPlus className="h-4 w-4 text-[color:var(--neon-a)]" aria-hidden />
+            Add My Vibes to Calendar
+          </a>
+          <NeonLink href="/events?vibes=1" variant="secondary" size="sm" className="w-full sm:w-auto">
+            View saved timeline
+          </NeonLink>
+        </div>
       </div>
 
       {dayKeys.length === 0 ? (
