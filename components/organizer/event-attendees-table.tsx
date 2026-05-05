@@ -14,6 +14,31 @@ type Row = {
   checked_in_at?: string | null
 }
 
+function attendeeStatusBadge(status: string): { label: string; cls: string } {
+  switch (status) {
+    case "confirmed":
+      return {
+        label: "Confirmed",
+        cls: "border-sky-400/35 bg-sky-400/12 text-sky-100",
+      }
+    case "checked_in":
+      return {
+        label: "Checked in",
+        cls: "border-emerald-400/40 bg-emerald-400/14 text-emerald-50",
+      }
+    case "cancelled":
+      return {
+        label: "Cancelled",
+        cls: "border-border bg-muted/15 text-muted-foreground",
+      }
+    default:
+      return {
+        label: status.replace(/_/g, " "),
+        cls: "border-border text-muted-foreground",
+      }
+  }
+}
+
 export function OrganizerEventAttendeesTable({
   orgSlug,
   eventSlug,
@@ -121,17 +146,22 @@ export function OrganizerEventAttendeesTable({
         ) : (
           filtered.slice(0, 200).map((r) => {
             const display = profileById[r.user_id]?.display_name || "(no display name)"
+            const sb = attendeeStatusBadge(r.status)
             return (
               <div
                 key={`${r.user_id}-${r.created_at}`}
-                className="grid grid-cols-12 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-border/60 last:border-b-0"
+                className="grid grid-cols-12 gap-2 px-3 py-3 text-xs text-muted-foreground border-b border-border/60 last:border-b-0 sm:py-2"
               >
                 <div className="col-span-5 min-w-0">
                   <div className="truncate text-foreground/90">{display}</div>
                   <div className="mt-0.5 font-mono truncate text-[11px] text-muted-foreground">{r.user_id}</div>
                 </div>
-                <div className="col-span-2 font-mono uppercase tracking-widest text-[10px] text-foreground/80">
-                  {r.status}
+                <div className="col-span-2 min-w-0">
+                  <span
+                    className={`inline-flex max-w-full rounded-full border px-2 py-1 font-mono text-[10px] uppercase tracking-widest ${sb.cls}`}
+                  >
+                    {sb.label}
+                  </span>
                 </div>
                 <div className="col-span-3 font-mono text-[10px] text-muted-foreground">
                   <div>RSVP {new Date(r.created_at).toLocaleString()}</div>

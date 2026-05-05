@@ -90,6 +90,7 @@ export function EventCheckInScanner({
         if (json.ok === true && json.status === "checked_in") {
           const title = "Checked in"
           const message = "Guest admitted."
+          setManualToken("")
           setLast({ kind: "success", title, message, attendee: attendee ?? null })
           setRecent((r) => pushRecent(r, { at: Date.now(), kind: "success", title, message, name }))
           toast.success(name ? `${message} ${name}` : message)
@@ -99,6 +100,7 @@ export function EventCheckInScanner({
         if (json.ok === true && json.status === "already_checked_in") {
           const title = "Already checked in"
           const message = "This ticket was already scanned."
+          setManualToken("")
           setLast({ kind: "info", title, message, attendee: attendee ?? null })
           setRecent((r) => pushRecent(r, { at: Date.now(), kind: "info", title, message, name }))
           toast(name ? `${message} ${name}` : message)
@@ -227,7 +229,7 @@ export function EventCheckInScanner({
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: { width: 280, height: 280 },
         },
         (decodedText: string) => {
           submitToken(decodedText)

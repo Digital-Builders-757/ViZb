@@ -6,6 +6,7 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 
 type LandingEvent = {
   title: string
@@ -15,6 +16,8 @@ type LandingEvent = {
   venue_name: string
   categories: string[]
   flyer_url: string | null
+  event_kind?: string | null
+  is_staff_pick?: boolean | null
 }
 
 function formatMonthDay(startsAt: string): { month: string; day: string; dow: string } {
@@ -33,7 +36,7 @@ export async function EventsSection() {
 
     const { data } = await supabase
       .from("events")
-      .select("title, slug, starts_at, city, venue_name, categories, flyer_url")
+      .select("title, slug, starts_at, city, venue_name, categories, flyer_url, event_kind, is_staff_pick")
       .eq("status", "published")
       .gte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: true })
@@ -117,6 +120,18 @@ export async function EventsSection() {
                 <div className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ background: "radial-gradient(1200px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)" }} />
 
                 <div className="relative aspect-[16/10] overflow-hidden">
+                  {e.event_kind === "community" ? (
+                    <span className="absolute left-3 top-3 z-10 rounded-full border border-violet-500/50 bg-violet-950/70 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-violet-100 backdrop-blur-sm">
+                      {eventKindBadgeShort("community")}
+                    </span>
+                  ) : null}
+                  {e.is_staff_pick ? (
+                    <span
+                      className={`absolute z-10 ${e.event_kind === "community" ? "right-3 top-3" : "left-3 top-3"} ${STAFF_PICK_BADGE_CLASS} px-2.5 py-1 font-mono text-[10px]`}
+                    >
+                      {STAFF_PICK_BADGE_LABEL}
+                    </span>
+                  ) : null}
                   <Image
                     src={e.flyer_url || "/placeholder.svg"}
                     alt={e.title}

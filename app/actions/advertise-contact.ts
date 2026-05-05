@@ -2,6 +2,7 @@
 
 import { Resend } from "resend"
 import { advertiseInquirySchema } from "@/lib/advertise-contact-schema"
+import { parseSubmissionContextAttribution } from "@/lib/partnerships/advertise-context"
 import {
   getAdminInboxEmail,
   getResendApiKey,
@@ -10,6 +11,7 @@ import {
 
 const INTEREST_LABELS: Record<string, string> = {
   sponsorship: "Sponsorship / paid placement",
+  organizer_promotion: "Promote my organizer or events (ViZb partnership)",
   newsletter_placement: "Newsletter or email feature",
   event_partnership: "Event or venue partnership",
   brand_collaboration: "Brand / creative collaboration",
@@ -33,10 +35,13 @@ function buildPlainBody(data: {
   interestType: string
   budgetRange?: string
   message: string
+  submissionContext?: string
 }): string {
   const lines = [
     "New “Advertise with VIZB” inquiry",
     "—".repeat(48),
+    data.submissionContext ? `Referrer note: ${data.submissionContext}` : null,
+    data.submissionContext ? "—".repeat(48) : null,
     `Name: ${data.fullName}`,
     `Email: ${data.email}`,
     data.company ? `Organization: ${data.company}` : null,
@@ -93,6 +98,11 @@ export async function submitAdvertiseInquiry(formData: FormData): Promise<Advert
   }
 
   const data = parsed.data
+
+  const submissionContextRaw = fdStr(formData, "submissionContext")
+  const submissionContext =
+    submissionContextRaw.trim().length > 0 ? parseSubmissionContextAttribution(submissionContextRaw) : undefined
+
   const apiKey = getResendApiKey()
   if (!apiKey) {
     return {
@@ -104,8 +114,15 @@ export async function submitAdvertiseInquiry(formData: FormData): Promise<Advert
 
   const to = getAdminInboxEmail()
   const from = getResendFromAddress()
-  const subject = `[VIZB] Advertising inquiry — ${data.fullName}`
-  const text = buildPlainBody(data)
+  const interestLabel = INTEREST_LABELS[data.interestType] ?? data.interestType
+  const tag =
+    data.interestType === "organizer_promotion"
+      ? "Organizer placement"
+      : data.interestType === "sponsorship"
+        ? "Sponsor / placement"
+        : "Advertising"
+  const subject = `[VIZB] ${tag} — ${data.fullName} (${interestLabel})`
+  const text = buildPlainBody({ ...data, submissionContext })
 
   try {
     const resend = new Resend(apiKey)

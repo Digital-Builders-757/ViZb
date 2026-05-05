@@ -16,6 +16,19 @@ import {
   buildIcsContent,
   downloadIcsBlob,
 } from "@/components/dashboard/tickets/event-calendar-actions"
+import { EventShareRow } from "@/components/events/event-share-row"
+
+function eventDetailPath(eventUrl: string): string {
+  if (eventUrl.startsWith("http://") || eventUrl.startsWith("https://")) {
+    try {
+      const u = new URL(eventUrl)
+      return `${u.pathname}${u.search}`
+    } catch {
+      return "/events"
+    }
+  }
+  return eventUrl.startsWith("/") ? eventUrl : `/${eventUrl}`
+}
 
 export type TicketAddedSuccessVariant = "rsvp" | "paid"
 
@@ -65,20 +78,50 @@ export function TicketAddedSuccessDialog({
       ? "Payment received. Your ticket should appear in My Tickets shortly—refresh there if you do not see it yet."
       : "You’re on the list. Your RSVP is saved and your ticket is now in My Tickets."
 
+  const eventPath = eventDetailPath(eventUrl)
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)] sm:max-w-md">
+      <DialogContent className="border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-[color:var(--neon-text0)]">Added to My Tickets</DialogTitle>
-          <DialogDescription className="text-[color:var(--neon-text1)]">{bodyCopy}</DialogDescription>
+          <DialogDescription className="space-y-2 text-[color:var(--neon-text1)]">
+            <span className="block">{bodyCopy}</span>
+            <span className="block text-[13px] leading-relaxed text-[color:var(--neon-text2)]">
+              At the door: open{" "}
+              <span className="text-[color:var(--neon-text1)]">{openTicketLabel}</span> (or My Tickets), tap{" "}
+              <span className="text-[color:var(--neon-text1)]">Show this at the door</span> for your check-in QR or
+              backup code.
+            </span>
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <NeonButton asChild fullWidth shape="xl">
             <Link href={openTicketHref} onClick={() => onOpenChange(false)}>
               {openTicketLabel}
             </Link>
           </NeonButton>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <NeonButton asChild variant="secondary" fullWidth shape="xl" className="sm:min-w-[10rem] sm:flex-1">
+              <Link href={eventPath} onClick={() => onOpenChange(false)}>
+                View event page
+              </Link>
+            </NeonButton>
+            <NeonButton asChild variant="secondary" fullWidth shape="xl" className="sm:min-w-[10rem] sm:flex-1">
+              <Link href="/dashboard#my-vibes-week-heading" onClick={() => onOpenChange(false)}>
+                Open My Vibes
+              </Link>
+            </NeonButton>
+          </div>
+
+          <EventShareRow shareUrl={eventUrl} title={eventTitle} />
+
+          <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+            Save this event on the event page with <span className="text-[color:var(--neon-text1)]">My Vibes</span>{" "}
+            so it stays on your dashboard home and in your calendar export.
+          </p>
 
           {googleHref && calendarEnd ? (
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">

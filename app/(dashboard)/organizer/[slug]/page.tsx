@@ -2,9 +2,10 @@ import { requireOrgMember } from "@/lib/auth-helpers"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient } from "@/lib/supabase/server"
 import { EventCardList } from "@/components/organizer/event-card-list"
+import { OrganizerPartnershipUpsell } from "@/components/organizer/organizer-partnership-upsell"
 import { GlassCard } from "@/components/ui/glass-card"
 import Link from "next/link"
-import { Calendar, Users, TrendingUp, Plus } from "lucide-react"
+import { Calendar, Users, Plus } from "lucide-react"
 
 export default async function OrgDashboardPage({
   params,
@@ -12,11 +13,10 @@ export default async function OrgDashboardPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const { org, membership } = await requireOrgMember(slug)
+  const { org } = await requireOrgMember(slug)
   const supabase = await createClient()
 
   const isPending = org.status === "pending_review"
-  const isOwner = membership.role === "owner"
 
   // Fetch events for this org
   const { data: events } = await supabase
@@ -89,42 +89,35 @@ export default async function OrgDashboardPage({
         </GlassCard>
       )}
 
-      {/* Stats */}
+      {/* Stats + optional growth path */}
       {!isPending && (
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 md:mt-10 md:gap-4">
-          <GlassCard className="card-accent-cyan p-4 md:p-6">
-            <div className="mb-3 flex items-center gap-3 md:mb-4">
-              <Calendar className="h-4 w-4 text-neon-a md:h-5 md:w-5" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
-                Events
-              </span>
-            </div>
-            <span className="font-mono text-2xl font-bold text-neon-a md:text-3xl">{totalEvents}</span>
-            <span className="mt-1 block text-xs text-muted-foreground">{publishedEvents} published</span>
-          </GlassCard>
+        <>
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 md:mt-10 md:gap-4">
+            <GlassCard className="card-accent-cyan p-4 md:p-6">
+              <div className="mb-3 flex items-center gap-3 md:mb-4">
+                <Calendar className="h-4 w-4 text-neon-a md:h-5 md:w-5" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                  Events
+                </span>
+              </div>
+              <span className="font-mono text-2xl font-bold text-neon-a md:text-3xl">{totalEvents}</span>
+              <span className="mt-1 block text-xs text-muted-foreground">{publishedEvents} published</span>
+            </GlassCard>
 
-          <GlassCard className="card-accent-blue-mid p-4 md:p-6">
-            <div className="mb-3 flex items-center gap-3 md:mb-4">
-              <Users className="h-4 w-4 text-neon-b md:h-5 md:w-5" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
-                Attendees
-              </span>
-            </div>
-            <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">{totalAttendees}</span>
-            <span className="mt-1 block text-xs text-muted-foreground">Active RSVPs (excl. cancelled)</span>
-          </GlassCard>
+            <GlassCard className="card-accent-blue-mid p-4 md:p-6">
+              <div className="mb-3 flex items-center gap-3 md:mb-4">
+                <Users className="h-4 w-4 text-neon-b md:h-5 md:w-5" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
+                  Attendees
+                </span>
+              </div>
+              <span className="font-mono text-2xl font-bold text-neon-b md:text-3xl">{totalAttendees}</span>
+              <span className="mt-1 block text-xs text-muted-foreground">Active RSVPs (excl. cancelled)</span>
+            </GlassCard>
+          </div>
 
-          <GlassCard className="card-accent-cyan-bright p-4 md:p-6">
-            <div className="mb-3 flex items-center gap-3 md:mb-4">
-              <TrendingUp className="h-4 w-4 text-neon-c md:h-5 md:w-5" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground md:text-xs">
-                Revenue
-              </span>
-            </div>
-            <span className="font-mono text-2xl font-bold text-neon-c md:text-3xl">$0</span>
-            <span className="mt-1 block text-xs text-muted-foreground">Total revenue</span>
-          </GlassCard>
-        </div>
+          <OrganizerPartnershipUpsell orgSlug={slug} variant="dashboard" />
+        </>
       )}
 
       {/* Events section */}

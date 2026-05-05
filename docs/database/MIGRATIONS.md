@@ -29,6 +29,13 @@ At minimum, shared environments used for event workflows should have applied:
 - `028_tickets_core_free_rsvp.sql` (`ticket_types`, `orders`, `order_items`, `tickets`, `mint_free_rsvp_ticket_for_registration` RPC; free RSVP = $0 completed order)
 - `029_ticket_types_org_crud_and_mint_tier.sql` (per-tier `capacity` / sale window; org CRUD policies on `ticket_types`; anon read tiers for published events; mint RPC optional `p_ticket_type_id`)
 - `030_stripe_checkout_fulfillment.sql` / `20260411120000_stripe_checkout_fulfillment.sql` (unique `orders.stripe_checkout_session_id`; `fulfill_stripe_checkout_for_ticket` RPC for webhook mint after Stripe Checkout)
+- `20260420231755_posts_content_image_urls.sql` — optional **`posts.content_image_urls`** gallery (≤6; admin-authored posts).
+
+**Local / community event listings:** `20260505163945_add_event_kind_and_external_rsvp.sql` — adds **`events.event_kind`** (`official` \| `community`, default **`official`**) and nullable **`events.external_rsvp_url`** (http(s)); community rows use external RSVP instead of ViZb-hosted flow (see **`docs/contracts/events.md`**).
+
+**Organizer lightweight metrics / reuse:** `20260505195500_event_public_detail_views.sql` — adds **`events.public_detail_view_count`** (default **0**) and **`increment_event_public_detail_views(p_slug)`** (`SECURITY DEFINER`) for **`POST /api/events/[slug]/view`** beacons while published.
+
+**Trust + listing moderation:** `20260505184652_event_staff_pick_and_listing_reports.sql` — adds **`events.is_staff_pick`** (default **false**; editorial highlight) and **`event_listing_reports`** (`event_id`, `user_id`, `body`, timestamps; **unique** `(event_id, user_id)`). RLS: authenticated **INSERT** when `user_id = auth.uid()` and parent event is **published**; **staff_admin** **SELECT** only (see **`docs/contracts/events.md`**).
 
 ## Quick verification
 

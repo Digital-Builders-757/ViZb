@@ -13,8 +13,12 @@ import {
   OpenMicLineupPanel,
   type OpenMicLineupEntryRow,
 } from "@/components/organizer/open-mic-lineup-panel"
+import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
 import { normalizeCategories } from "@/lib/events/categories"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
+import { eventKindBadgeLong, isCommunityEvent } from "@/lib/events/event-kind"
+import { OrganizerEventPowerToolsCard } from "@/components/organizer/organizer-event-power-tools-card"
+import { AdminEventStaffPickSwitch } from "@/components/admin/admin-event-staff-pick-switch"
 
 export default async function AdminEventDetailPage({
   params,
@@ -48,7 +52,7 @@ export default async function AdminEventDetailPage({
   const { data: event } = await supabase
     .from("events")
     .select(
-      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, flyer_url, organizations(name, slug)",
+      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, flyer_url, event_kind, external_rsvp_url, public_detail_view_count, is_staff_pick, organizations(name, slug)",
     )
     .eq("id", id)
     .single()
@@ -63,6 +67,10 @@ export default async function AdminEventDetailPage({
 
   const orgRel = event.organizations as unknown as { slug: string } | null
   const organizerOrgSlug = orgRel?.slug ?? null
+
+  const evtKindRaw = (event as { event_kind?: string }).event_kind
+  const externalRsvp = (event as { external_rsvp_url?: string | null }).external_rsvp_url ?? null
+  const communityListing = isCommunityEvent(evtKindRaw)
 
   let lineupEntries: OpenMicLineupEntryRow[] = []
   if (eventHasOpenMicCategory(editFormCategories)) {
@@ -124,6 +132,12 @@ export default async function AdminEventDetailPage({
   const checkedIn = rows.filter((r) => r.status === "checked_in").length
   const cancelled = rows.filter((r) => r.status === "cancelled").length
 
+  const vcRaw = (event as { public_detail_view_count?: unknown }).public_detail_view_count
+  const viewCountStaff =
+    typeof vcRaw === "number" && Number.isFinite(vcRaw) ? Math.max(0, Math.trunc(vcRaw)) : 0
+
+  const staffPickOn = Boolean((event as { is_staff_pick?: boolean | null }).is_staff_pick)
+
   return (
     <div>
       <Link
@@ -140,11 +154,43 @@ export default async function AdminEventDetailPage({
           <h1 className="mt-2 font-serif text-xl md:text-3xl font-bold text-foreground text-balance">
             {event.title}
           </h1>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
+              {eventKindBadgeLong(evtKindRaw)}
+            </span>
+          </div>
           <p className="mt-2 text-sm text-muted-foreground">
             /events/{event.slug} • {event.city} • {event.venue_name}
           </p>
         </div>
+        <div className="flex w-full md:w-auto flex-col gap-2 sm:flex-row">
+          {(event.status as string) === "draft" && (
+            <SubmitReviewButton eventId={event.id} />
+          )}
+          {(event.status as string) === "rejected" && (
+            <SubmitReviewButton eventId={event.id} variant="resubmit" />
+          )}
+        </div>
       </div>
+
+      {organizerOrgSlug ? (
+        <OrganizerEventPowerToolsCard
+          orgSlug={organizerOrgSlug}
+          eventId={event.id}
+          eventStatus={event.status as string}
+          viewCount={viewCountStaff}
+          activeRsvps={confirmed + checkedIn}
+          checkedInCount={checkedIn}
+          showDuplicate
+        />
+      ) : null}
+
+      <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-4 flex items-center gap-2">
+          Trust &amp; discovery
+        </h2>
+        <AdminEventStaffPickSwitch eventId={event.id} initialStaffPick={staffPickOn} />
+      </GlassCard>
 
       <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-6 flex items-center gap-2">
@@ -183,11 +229,23 @@ export default async function AdminEventDetailPage({
               </p>
             )}
             {!flyerUrl &&
-              ["draft", "rejected"].includes(event.status as string) && (
+              ["draft", "rejected"].includes(event.status as string) &&
+              !communityListing && (
                 <p className="mt-3 text-xs text-amber-500 font-mono">
                   A flyer is required before submitting for review.
                 </p>
               )}
+            {communityListing && ["draft", "rejected"].includes(event.status as string) ? (
+              <p className="mt-3 text-xs text-muted-foreground font-mono leading-relaxed max-w-xl">
+                Local listings don&apos;t need a flyer. Add an external RSVP link in{" "}
+                <span className="text-[color:var(--neon-text0)]">Event details</span> before submitting for review.
+                {!externalRsvp?.trim() ? (
+                  <span className="block mt-2 text-amber-500">
+                    RSVP link missing — submission for review will be blocked until set.
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
           </div>
         </div>
       </GlassCard>
@@ -201,6 +259,7 @@ export default async function AdminEventDetailPage({
           Same editor as the organizer dashboard — use for urgent fixes (e.g. RSVP cap). Staff only.
         </p>
         <EventDetailsEditForm
+          community={communityListing}
           key={`${event.id}-${(event as { updated_at?: string }).updated_at ?? ""}`}
           event={{
             id: event.id,
@@ -215,6 +274,7 @@ export default async function AdminEventDetailPage({
             categories: editFormCategories,
             status: event.status as string,
             rsvp_capacity: (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null,
+            external_rsvp_url: externalRsvp,
             updated_at: (event as { updated_at?: string }).updated_at,
           }}
         />
@@ -237,7 +297,11 @@ export default async function AdminEventDetailPage({
           RSVPs
         </h2>
         <p className="text-sm text-muted-foreground">
-          Staff rollup for this event.
+          {communityListing ? (
+            <>Attendees typically RSVP on the host site. ViZb RSVPs remain empty unless registrations were attempted.</>
+          ) : (
+            <>Staff rollup for this event.</>
+          )}
         </p>
 
         {rsvpError ? (

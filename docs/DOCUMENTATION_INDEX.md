@@ -46,6 +46,9 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `development/ENGINEERING_COMMANDS.md` | **Canonical Cursor command doctrine** |
 | `development/LLM_GUARDRAILS.md` | **How to contribute cleanly (LLMs + humans)** — preflight + footguns |
 | `development/PUSH_FORWARD_ROADMAP.md` | Priorities after env/Supabase hardening — what to do next |
+| `ROADMAP_RUNNER.md` | Cursor-ready ship order companion, mirrors the product roadmap |
+| `plans/VIZB_PRODUCT_ROADMAP.md` | Product roadmap for official/local events, discovery, attendance, trust, and growth |
+| `work-orders/` | Short implementation orders tied to roadmap items, starting with `local-events-work-order.md` |
 | `development/BRANCHING.md` | **`develop` first** — feature PRs → `develop`, releases → `main`; GitHub + CI expectations |
 | `brand/` | Voice, content, social, event creative patterns |
 | `diagrams/` | Conceptual architecture maps |

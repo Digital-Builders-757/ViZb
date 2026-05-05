@@ -118,7 +118,7 @@ describe("submitEventForReview", () => {
     expect(result.error).toBe("Only draft or rejected events can be submitted for review.")
   })
 
-  it("returns error if event has no flyer", async () => {
+  it("returns error if event has no flyer (official listings)", async () => {
     mockSelectResults.events = {
       data: {
         id: "evt-1",
@@ -126,6 +126,8 @@ describe("submitEventForReview", () => {
         slug: "test-event",
         status: "draft",
         flyer_url: null,
+        event_kind: "official",
+        external_rsvp_url: null,
       },
       error: null,
     }
@@ -134,6 +136,25 @@ describe("submitEventForReview", () => {
     expect(result.error).toBe(
       "Please upload a flyer before submitting for review.",
     )
+  })
+
+  it("returns error if community listing has no valid external RSVP URL", async () => {
+    mockSelectResults.events = {
+      data: {
+        id: "evt-comm",
+        org_id: "org-1",
+        slug: "community-event",
+        status: "draft",
+        flyer_url: null,
+        event_kind: "community",
+        external_rsvp_url: null,
+      },
+      error: null,
+    }
+    mockSelectResults.membership = { data: { role: "editor" }, error: null }
+
+    const result = await submitEventForReview("evt-comm")
+    expect(result.error).toContain("RSVP URL")
   })
 
   it("returns error if caller is not an org member", async () => {

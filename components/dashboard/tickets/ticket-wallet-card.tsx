@@ -82,11 +82,17 @@ export function TicketWalletCard({
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
+            <span
+              className={
+                status === "checked_in"
+                  ? "inline-flex items-center rounded-full border border-emerald-400/45 bg-emerald-400/12 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-emerald-100"
+                  : "inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]"
+              }
+            >
               {status === "checked_in"
                 ? "Checked in"
                 : status === "confirmed"
-                  ? "Confirmed"
+                  ? "Confirmed for entry"
                   : status === "cancelled"
                     ? "Cancelled"
                     : status.replace(/_/g, " ")}
@@ -103,6 +109,19 @@ export function TicketWalletCard({
               </span>
             ) : null}
           </div>
+
+          {status !== "cancelled" && (status === "confirmed" || status === "checked_in") ? (
+            <div className="mt-3 rounded-xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/22 px-3 py-2.5">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
+                At the door
+              </p>
+              <p className="mt-1 text-[11px] leading-relaxed text-[color:var(--neon-text1)]">
+                {status === "checked_in"
+                  ? "You’re checked in. Keep this ticket handy until you leave."
+                  : "Use Show this at the door below so staff can scan your QR or type your backup code."}
+              </p>
+            </div>
+          ) : null}
 
           <p className="mt-2 text-[10px] font-mono text-[color:var(--neon-text2)]">
             Ticket issued{" "}

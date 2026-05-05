@@ -2,6 +2,7 @@ import { z } from "zod"
 
 export const INTEREST_OPTIONS = [
   "sponsorship",
+  "organizer_promotion",
   "newsletter_placement",
   "event_partnership",
   "brand_collaboration",

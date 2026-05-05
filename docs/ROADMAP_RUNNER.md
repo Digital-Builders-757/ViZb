@@ -1,99 +1,74 @@
-# ROADMAP_RUNNER — ViZb (ship order)
+# ROADMAP_RUNNER — ViZb ship order
 
-Purpose: stop re-prompting. This is the canonical backlog + Definitions of Done.
+Purpose: this is the Cursor-ready execution queue that mirrors `docs/plans/VIZB_PRODUCT_ROADMAP.md`.
 
 Rules
-- Work on feature branches → PR into `develop` → release PR `develop` → `main`.
+- Work top to bottom, one item at a time.
+- Preserve the official vs local/community distinction.
 - Prefer minimal diffs and existing primitives.
-- No production DB changes unless explicitly approved (running `supabase db push` is a separate, intentional step).
+- Do not create a second event system unless the schema truly requires it.
+- After each item, update the docs, verify, and stop in a shippable state.
 
 ---
 
-## Item 1 — Marketing first impression (Electric Neon)
-**Status:** SHIPPED (landing + events cohesion, waitlist pending PR)
+## Item 1 — Local / community events lane
+**Status:** DONE (May 5, 2026) — Verified: migration `20260505163945_add_event_kind_and_external_rsvp.sql`; `npm run typecheck` / `test` / `lint` / `build` green.
+
+Use `docs/work-orders/local-events-work-order.md`.
 
 Done means
-- Landing hero + trending rail + premium events cards
-- /events filter pills + trending strip
-- Consistent neon/glass language across marketing sections
+- Admin can create local/community events under the platform events area.
+- Public listings clearly label them as not official ViZb events.
+- RSVP links open in a new tab.
+- Official ViZb event behavior is unchanged.
 
 ---
 
-## Item 2 — My Vibes (Saved events) v1
-**Status:** READY
+## Item 2 — Discovery that feels local
+**Status:** DONE (May 5, 2026) — `/events`: discovery presets, search, sort, curated rails; see `lib/events/discovery-filters.ts`.
 
-Goal
-- Private, per-user saved events that power a dashboard planner module.
-
-Definition of Done (v1)
-A) Persistence (Supabase + RLS)
-- New table: `event_saves`
-  - columns: `id uuid primary key default gen_random_uuid()`, `user_id uuid not null`, `event_id uuid not null`, `created_at timestamptz not null default now()`
-  - unique: `(user_id, event_id)`
-  - indexes on `(user_id, created_at)` and `(event_id)`
-- RLS enabled:
-  - user can `select/insert/delete` their own rows
-  - no updates required (delete+insert)
-
-B) Actions + UI
-- Save/Unsave button (label: **My Vibes**) on:
-  - `/events` cards (timeline)
-  - `/events/[slug]` event detail
-  - dashboard calendar event detail panel
-- Signed out:
-  - show "Sign in to save" (link to `/login`)
-
-C) Dashboard module
-- Add module above calendar: **My Vibes — This Week**
-- Shows saved upcoming events grouped by day (next 7–14 days)
-- Empty state CTA: Explore events
-
-D) Events filter
-- `/events` page: toggle chip **My Vibes**
-- When enabled, timeline shows only saved events (signed-in only)
-
-E) Export
-- "Add My Vibes to Calendar" downloads one ICS containing upcoming saved events (next 30 days)
-
-Verification checklist
-- `npm run ci` passes
-- RLS works: user cannot read/write other users' saves
-- Save persists across refresh
-- Mobile: no overflow; buttons reachable; drawer/panel actions work
-
-Files (suggested)
-- Migration: `supabase/migrations/<ts>_event_saves.sql` (+ optional `scripts/0xx_event_saves.sql` mirror)
-- Server actions: `app/actions/vibes.ts`
-- Queries: `lib/events/my-vibes-queries.ts` (or extend dashboard queries)
-- UI: `components/events/my-vibes-toggle.tsx`, `components/events/my-vibes-button.tsx`
-- Dashboard module: `components/dashboard/my-vibes-week.tsx`
+Done means
+- Search, filters, and featured rails help users find the right event fast.
+- The feed feels curated, local, and useful.
 
 ---
 
-## Item 3 — Tickets v1 (QR) + Check-in Scanner (Organizer Ops)
-**Status:** AFTER Item 2 (next big rock)
+## Item 3 — Save, share, and return
+**Status:** DONE (May 5, 2026) — My Vibes + share/copy on `/events/[slug]`; calendar (Google + .ics) on detail; RSVP / paid success dialog next steps; dashboard quick action to My Vibes. Verified: `npm run typecheck`, `lint`, `build`.
 
-Goal
-- Members get a ticket wallet with signed QR codes; organizers check people in quickly on-site.
-
-Definition of Done (v1)
-A) Ticket wallet (member): **`/tickets`** (canonical; `/dashboard/tickets` alias) shows RSVP-backed tickets with event details, tap-to-reveal QR, status (Confirmed / Checked in / Cancelled).
-B) QR payload: signed HMAC token (not raw IDs); `POST /api/checkin/scan` verifies signature + event match and performs check-in.
-C) Organizer scanner: `/organizer/[slug]/events/[eventSlug]/check-in` — camera (best effort) + paste fallback; clear success/failure states; attendee display name when available.
-D) Permissions: RLS / app layer — staff_admin or org owner/admin for that event (existing `event_registrations` update policy + scan gate).
-E) QA: `npm run ci` passes; re-scan shows already checked in; no middleware/auth red-zone changes.
-
-Files (reference)
-- `lib/ticket-qr-token.ts`, `lib/checkin-scan-permissions.ts`, `app/api/checkin/scan/route.ts`
-- `components/dashboard/tickets/ticket-qr-reveal.tsx`, `components/organizer/event-check-in-scanner.tsx`
-- Env: `TICKET_QR_SECRET` (see `.env.example`)
+Done means
+- Saved events / My Vibes works cleanly.
+- Users can add events to calendar, share them, and get a clear return path.
 
 ---
 
-## Item 4 — Calendar v2 polish follow-ups
-**Status:** AFTER Item 3
+## Item 4 — Attendance and door flow
+**Status:** DONE (May 5, 2026) — Guest: event + wallet + success dialog door copy; RSVP cap / “spots left” messaging; checked-in vs confirmed UI. Organizer: published-event door strip; attendees RSVP limit bar; status badges; manual check-in `router.refresh`; scanner clears manual code; revalidate check-in route. Verified: `npm run typecheck`, `lint`, `build`.
 
-Ideas
-- Add "My Vibes" filter inside calendar shell
-- Add tiny hero "This week" strip on dashboard
-- Better empty states + onboarding copy
+Done means
+- RSVP-backed attendance is easy to manage.
+- Ticket and check-in flows are clear for guests and organizers.
+
+---
+
+## Item 5 — Organizer power tools
+**Status:** DONE (May 5, 2026) — Duplicate draft (+ schedule shift), organizer/admin snapshot (views · RSVPs · check-ins), public view beacon + RPC; migration `20260505195500_event_public_detail_views.sql`. Verified: `npm run typecheck`, `lint`, `build`.
+
+Done means
+- Recurring events, templates, flyer import, and publish tools reduce admin friction.
+
+---
+
+## Item 6 — Trust and community signals
+**Status:** DONE (May 5, 2026) — Staff editorial highlight (`events.is_staff_pick` → **Staff pick** badge + **ViZb picks** rail on `/events`); signed-in **Report listing** on `/events/[slug]` with `event_listing_reports` + staff review at `/admin/event-listing-reports`. Migration `20260505184652_event_staff_pick_and_listing_reports.sql`. Verified: `npm run typecheck`, `lint`, `build`.
+
+Done means
+- Users can trust the listings and spot curated or verified content quickly.
+
+---
+
+## Item 7 — Growth and monetization
+**Status:** DONE (May 5, 2026) — Inquiry-only revenue path: organizer upsells + expanded `/advertise` labeling; new interest type `organizer_promotion`; email attribution via `lib/partnerships/advertise-context.ts`; `docs/contracts/sponsors.md`. Verified: `npm run typecheck`, `lint`, `build`.
+
+Done means
+- Revenue paths exist, but they stay tasteful and do not pollute the experience.

@@ -65,8 +65,12 @@ export function EventRsvpCta({
   const [successTicketId, setSuccessTicketId] = useState<string | null>(null)
 
   const isConfirmed = status === "confirmed" || status === "checked_in"
+  const isCheckedInDoor = status === "checked_in"
   const isFull =
     rsvpCapacity != null && rsvpCapacity > 0 && occupied >= rsvpCapacity && !isConfirmed
+  const spotsLeft =
+    rsvpCapacity != null && rsvpCapacity > 0 ? Math.max(0, rsvpCapacity - occupied) : null
+  const fewSpotsLeft = spotsLeft !== null && spotsLeft > 0 && spotsLeft <= 8 && !isConfirmed && !isFull
   const capLabel =
     rsvpCapacity != null && rsvpCapacity > 0
       ? `${Math.min(occupied, rsvpCapacity)} / ${rsvpCapacity} RSVPs`
@@ -94,6 +98,17 @@ export function EventRsvpCta({
       {capLabel ? (
         <p className="mb-2 text-xs font-mono uppercase tracking-wider text-[color:var(--neon-text2)]">
           {capLabel}
+          {isFull ? (
+            <span className="ml-2 inline font-sans normal-case text-[color:var(--neon-text1)]">
+              — RSVP list is full.
+            </span>
+          ) : null}
+        </p>
+      ) : null}
+      {fewSpotsLeft ? (
+        <p className="mb-2 text-xs leading-relaxed text-amber-200/90">
+          Only <span className="font-mono">{spotsLeft}</span> RSVP spot{spotsLeft === 1 ? "" : "s"} left at the
+          posted limit.
         </p>
       ) : null}
       {!isSignedIn ? (
@@ -102,10 +117,32 @@ export function EventRsvpCta({
         </p>
       ) : null}
       {isSignedIn && (hasActiveTicket || isConfirmed) ? (
-        <div className="mb-3">
-          <span className="inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
-            {hasActiveTicket ? "Added to My Tickets" : "RSVP saved"}
-          </span>
+        <div className="mb-3 space-y-2">
+          {isCheckedInDoor ? (
+            <>
+              <span className="inline-flex items-center rounded-full border border-emerald-400/45 bg-emerald-400/14 px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-emerald-100">
+                Checked in
+              </span>
+              <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+                You&apos;re checked in — head inside and enjoy.
+              </p>
+            </>
+          ) : (
+            <>
+              <span className="inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
+                {hasActiveTicket ? "Confirmed — in My Tickets" : "RSVP saved"}
+              </span>
+              <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+                <span className="text-[color:var(--neon-text1)]">At the door:</span> open{" "}
+                <span className="text-[color:var(--neon-text0)]">My Tickets</span>, expand{" "}
+                <span className="text-[color:var(--neon-text0)]">Show this at the door</span>, and let staff scan your
+                QR or enter your backup code.
+              </p>
+              <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+                Share the event or add it to your calendar using the buttons above.
+              </p>
+            </>
+          )}
         </div>
       ) : null}
       {isFull ? (
@@ -227,7 +264,7 @@ export function EventRsvpCta({
             <NeonButton asChild fullWidth shape="xl">
               <Link href={openTicketHref}>{openTicketLabel}</Link>
             </NeonButton>
-            {isConfirmed ? (
+            {isConfirmed && !isCheckedInDoor ? (
               <NeonButton
                 type="button"
                 fullWidth

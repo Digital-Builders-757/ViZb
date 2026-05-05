@@ -17,6 +17,11 @@ interface CreateEventFormProps {
   orgName: string
   /** Staff admin: back/cancel go to `/admin`, success to `/admin/events/[id]`. Default: organizer URLs. */
   flow?: "organizer" | "admin"
+  /**
+   * `community` — local/third-party listings (platform org only, staff-enforced server-side).
+   * Omits ViZb RSVP cap UI; RSVP link optional at draft creation.
+   */
+  variant?: "official" | "community"
 }
 
 function SectionHeader({ icon: Icon, label, number }: { icon: React.ElementType; label: string; number: string }) {
@@ -34,7 +39,13 @@ function SectionHeader({ icon: Icon, label, number }: { icon: React.ElementType;
   )
 }
 
-export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }: CreateEventFormProps) {
+export function CreateEventForm({
+  orgId,
+  orgSlug,
+  orgName,
+  flow = "organizer",
+  variant = "official",
+}: CreateEventFormProps) {
   const router = useRouter()
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -68,7 +79,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
       return
     }
 
-    if (selectedCategories.size === 0) {
+    if (variant !== "community" && selectedCategories.size === 0) {
       setError("Select at least one category.")
       setLoading(false)
       return
@@ -77,20 +88,25 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
     const form = e.currentTarget
     const formData = new FormData(form)
     formData.set("org_id", orgId)
-    for (const c of selectedCategories) {
-      formData.append("categories", c)
+    if (variant === "community") {
+      formData.set("event_kind", "community")
     }
-
-    if (rsvpMode === "unlimited") {
-      formData.set("rsvp_capacity", "")
-    } else {
-      const capRaw = rsvpCapInput.trim()
-      if (!capRaw) {
-        setError("Enter a maximum number of free RSVPs, or choose Unlimited RSVPs.")
-        setLoading(false)
-        return
+    if (variant !== "community") {
+      for (const c of selectedCategories) {
+        formData.append("categories", c)
       }
-      formData.set("rsvp_capacity", capRaw)
+
+      if (rsvpMode === "unlimited") {
+        formData.set("rsvp_capacity", "")
+      } else {
+        const capRaw = rsvpCapInput.trim()
+        if (!capRaw) {
+          setError("Enter a maximum number of free RSVPs, or choose Unlimited RSVPs.")
+          setLoading(false)
+          return
+        }
+        formData.set("rsvp_capacity", capRaw)
+      }
     }
 
     const startDateTime = `${format(startDate, "yyyy-MM-dd")}T${startTime}`
@@ -142,15 +158,34 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
       <div className="mb-8">
         <div className="mb-2 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-neon-a" />
-          <span className="font-mono text-xs uppercase tracking-widest text-neon-a">New Event</span>
+          <span className="font-mono text-xs uppercase tracking-widest text-neon-a">
+            {variant === "community" ? "New community listing" : "New Event"}
+          </span>
         </div>
         <h1 className="text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">
-          Create Event
+          {variant === "community" ? "Create local / community event" : "Create Event"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--neon-text1)]">
-          Fill in the details below to create a new event draft for <span className="text-neon-a/90">{orgName}</span>.
-          After the draft is created, you’ll land on the event detail screen where you can upload the flyer before
-          submitting it for review.
+          {variant === "community" ? (
+            <>
+              Add a third-party listing for <span className="text-neon-a/90">{orgName}</span>. After you save the draft,
+              set an RSVP link on the detail page — it&apos;s required before submitting for review. Flyer/image is optional
+              but recommended.
+            </>
+          ) : (
+            <>
+              Fill in the details below to create a new event draft for <span className="text-neon-a/90">{orgName}</span>.
+              After the draft is created, you’ll land on the event detail screen where you can upload the flyer before
+              submitting it for review.
+            </>
+          )}
+        </p>
+        <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-[color:var(--neon-text2)]">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-neon-a">Speed tip</span>
+          <span className="text-[color:var(--neon-text1)]"> · </span>
+          Reuse a past event: open it in Organizer (or Admin), then use{" "}
+          <span className="text-[color:var(--neon-text0)]">Duplicate draft</span> — optional +1 week / +1 month shifts,
+          ticket tiers copy over; official events still need a new flyer before review.
         </p>
       </div>
 
@@ -192,31 +227,33 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
                 </div>
 
                 {/* Categories (multi-select) */}
-                <fieldset className="flex min-w-0 flex-col gap-3">
-                  <legend className={`${labelClass} mb-1`}>
-                    Categories <span className="text-neon-a">*</span>
-                  </legend>
-                  <p className={`${helpTextClass} -mt-1`}>
-                    Pick all that apply, it helps people discover your event faster.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {EVENT_CATEGORY_OPTIONS.map((cat) => {
-                      const on = selectedCategories.has(cat.value)
-                      return (
-                        <button
-                          key={cat.value}
-                          type="button"
-                          onClick={() => toggleCategory(cat.value)}
-                          className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
-                            on ? chipOnClass : chipOffClass
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </fieldset>
+                {variant !== "community" ? (
+                  <fieldset className="flex min-w-0 flex-col gap-3">
+                    <legend className={`${labelClass} mb-1`}>
+                      Categories <span className="text-neon-a">*</span>
+                    </legend>
+                    <p className={`${helpTextClass} -mt-1`}>
+                      Pick all that apply, it helps people discover your event faster.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {EVENT_CATEGORY_OPTIONS.map((cat) => {
+                        const on = selectedCategories.has(cat.value)
+                        return (
+                          <button
+                            key={cat.value}
+                            type="button"
+                            onClick={() => toggleCategory(cat.value)}
+                            className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
+                              on ? chipOnClass : chipOffClass
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </fieldset>
+                ) : null}
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
@@ -233,6 +270,27 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
                   <p className={helpTextClass}>Markdown is not supported yet. Keep it plain text for now.</p>
                 </div>
 
+                {variant === "community" ? (
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="external_rsvp_url" className={labelClass}>
+                      RSVP link (optional now)
+                    </label>
+                    <input
+                      id="external_rsvp_url"
+                      name="external_rsvp_url"
+                      type="url"
+                      inputMode="url"
+                      placeholder="https://…"
+                      className={inputClass}
+                    />
+                    <p className={helpTextClass}>
+                      Add a valid https link before submitting for review. You can also paste it on the event page after
+                      creating the draft.
+                    </p>
+                  </div>
+                ) : null}
+
+                {variant !== "community" ? (
                 <div className="flex flex-col gap-3">
                   <div>
                     <span className={labelClass}>RSVP capacity</span>
@@ -287,6 +345,7 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
                     <p className={helpTextClass}>No limit, as many free RSVPs as you need.</p>
                   )}
                 </div>
+                ) : null}
               </div>
             </section>
 
@@ -466,7 +525,9 @@ export function CreateEventForm({ orgId, orgSlug, orgName, flow = "organizer" }:
                 </Link>
               </div>
               <p className="hidden font-mono text-[11px] text-[color:var(--neon-text2)] sm:block">
-                Create the draft first, then upload the flyer on the event page.
+                {variant === "community"
+                  ? "Draft first — add RSVP link on the detail page before submitting for review."
+                  : "Create the draft first, then upload the flyer on the event page."}
               </p>
             </div>
           </div>

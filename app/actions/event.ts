@@ -1,10 +1,15 @@
 "use server"
 
-import { requireAuth, requireAdmin } from "@/lib/auth-helpers"
+import { requireAuth, requireAdmin, requireOrgMember } from "@/lib/auth-helpers"
 import { slugify } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
 import type { SupabaseClient } from "@supabase/supabase-js"
-import { parseCategoriesFromFormData } from "@/lib/events/categories"
+import { addMonths, addWeeks } from "date-fns"
+import {
+  parseCategoriesFromFormData,
+  normalizeCategories,
+  isValidEventCategory,
+} from "@/lib/events/categories"
 import { parseRsvpCapacityField } from "@/lib/events/rsvp-capacity"
 import {
   EVENT_FLYER_ALLOWED_MIME_TYPES,
@@ -13,6 +18,15 @@ import {
   EVENT_FLYER_TOO_LARGE_MESSAGE,
 } from "@/lib/events/flyer-upload-constraints"
 import { augmentStorageErrorMessage } from "@/lib/supabase/storage-errors"
+import { getPlatformOrgSlug } from "@/lib/orgs/platform-org"
+import {
+  EVENT_KIND_COMMUNITY,
+  EVENT_KIND_OFFICIAL,
+  isCommunityEvent,
+  parseExternalRsvpUrl,
+  parseExternalRsvpUrlOptional,
+  type EventKind,
+} from "@/lib/events/event-kind"
 
 /** Staff admin or org member with one of the allowed roles (for Server Actions; mirrors RLS intent). */
 async function isStaffOrHasOrgRole(
@@ -47,18 +61,62 @@ export async function createEvent(formData: FormData) {
   const venueName = (formData.get("venue_name") as string)?.trim()
   const address = (formData.get("address") as string)?.trim() || null
   const city = (formData.get("city") as string)?.trim()
-  const categories = parseCategoriesFromFormData(formData)
+  const categoriesInput = parseCategoriesFromFormData(formData)
 
   if (!orgId || !title || !startsAt || !venueName || !city) {
     return { error: "Please fill in all required fields." }
   }
 
-  if (!categories) {
+  const kindRaw = String(formData.get("event_kind") ?? "").trim()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("platform_role")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  const isStaffAdmin = profile?.platform_role === "staff_admin"
+  const platformSlug = getPlatformOrgSlug()
+  const { data: platformOrgRow } = await supabase
+    .from("organizations")
+    .select("id")
+    .eq("slug", platformSlug)
+    .maybeSingle()
+  const platformOrgId = platformOrgRow?.id ?? null
+
+  let event_kind: EventKind = EVENT_KIND_OFFICIAL
+  if (
+    kindRaw === EVENT_KIND_COMMUNITY &&
+    isStaffAdmin &&
+    platformOrgId !== null &&
+    orgId === platformOrgId
+  ) {
+    event_kind = EVENT_KIND_COMMUNITY
+  }
+
+  let categories = categoriesInput
+  if (event_kind === EVENT_KIND_COMMUNITY) {
+    if (!categories?.length) {
+      categories = ["other"]
+    }
+  } else if (!categories) {
     return { error: "Select at least one valid category." }
   }
 
-  const parsedCap = parseRsvpCapacityField(formData)
-  if (parsedCap.error) return { error: parsedCap.error }
+  let rsvp_capacity: number | null = null
+  if (event_kind === EVENT_KIND_COMMUNITY) {
+    rsvp_capacity = null
+  } else {
+    const parsedCap = parseRsvpCapacityField(formData)
+    if (parsedCap.error) return { error: parsedCap.error }
+    rsvp_capacity = parsedCap.capacity
+  }
+
+  let external_rsvp_url: string | null = null
+  if (event_kind === EVENT_KIND_COMMUNITY) {
+    const ext = parseExternalRsvpUrlOptional(formData.get("external_rsvp_url"))
+    if (!ext.ok) return { error: ext.error }
+    external_rsvp_url = ext.url
+  }
 
   const canCreate = await isStaffOrHasOrgRole(supabase, user.id, orgId, ["owner", "admin", "editor"])
   if (!canCreate) {
@@ -104,7 +162,9 @@ export async function createEvent(formData: FormData) {
       address,
       city,
       categories,
-      rsvp_capacity: parsedCap.capacity,
+      rsvp_capacity,
+      event_kind,
+      external_rsvp_url,
       status: "draft" as const,
       created_by: user.id,
     })
@@ -212,6 +272,7 @@ export async function uploadEventFlyer(formData: FormData) {
     revalidatePath(`/events/${event.slug}`)
     revalidatePath("/events")
     revalidatePath("/dashboard")
+    revalidatePath(`/admin/events/${eventId}`)
 
     return { success: true, flyerUrl }
   } catch (err) {
@@ -275,7 +336,7 @@ export async function submitEventForReview(eventId: string) {
 
   const { data: event, error: fetchError } = await supabase
     .from("events")
-    .select("id, org_id, slug, status, flyer_url")
+    .select("id, org_id, slug, status, flyer_url, event_kind, external_rsvp_url")
     .eq("id", eventId)
     .single()
 
@@ -287,7 +348,13 @@ export async function submitEventForReview(eventId: string) {
     return { error: "Only draft or rejected events can be submitted for review." }
   }
 
-  if (!event.flyer_url) {
+  const kind = ((event as { event_kind?: string }).event_kind as EventKind | undefined) ?? EVENT_KIND_OFFICIAL
+  if (isCommunityEvent(kind)) {
+    const extParsed = parseExternalRsvpUrl((event as { external_rsvp_url?: string | null }).external_rsvp_url)
+    if (!extParsed.ok) {
+      return { error: extParsed.error }
+    }
+  } else if (!event.flyer_url) {
     return { error: "Please upload a flyer before submitting for review." }
   }
 
@@ -332,6 +399,7 @@ export async function submitEventForReview(eventId: string) {
   revalidatePath(`/events/${event.slug}`)
   revalidatePath("/events")
   revalidatePath("/dashboard")
+  revalidatePath(`/admin/events/${eventId}`)
 
   return { success: true }
 }
@@ -349,7 +417,7 @@ export async function reviewEvent(formData: FormData) {
 
   const { data: event, error: fetchError } = await supabase
     .from("events")
-    .select("id, org_id, slug, status, title")
+    .select("id, org_id, slug, status, title, event_kind, external_rsvp_url")
     .eq("id", eventId)
     .single()
 
@@ -359,6 +427,15 @@ export async function reviewEvent(formData: FormData) {
 
   if (event.status !== "pending_review") {
     return { error: "Only events pending review can be approved or rejected." }
+  }
+
+  const evKind =
+    (((event as { event_kind?: string }).event_kind as EventKind | undefined) ?? EVENT_KIND_OFFICIAL)
+  if (action === "approve" && isCommunityEvent(evKind)) {
+    const extOk = parseExternalRsvpUrl((event as { external_rsvp_url?: string | null }).external_rsvp_url)
+    if (!extOk.ok) {
+      return { error: extOk.error }
+    }
   }
 
   const newStatus = action === "approve" ? "published" : "rejected"
@@ -422,13 +499,17 @@ export async function updateEventDetails(formData: FormData) {
 
   const { data: event, error: fetchError } = await supabase
     .from("events")
-    .select("id, org_id, slug, status")
+    .select("id, org_id, slug, status, event_kind")
     .eq("id", eventId)
     .single()
 
   if (fetchError || !event) {
     return { error: "Event not found." }
   }
+
+  const existingKind =
+    (((event as { event_kind?: string }).event_kind as EventKind | undefined) ?? EVENT_KIND_OFFICIAL)
+  const community = isCommunityEvent(existingKind)
 
   const canEdit = await isStaffOrHasOrgRole(supabase, user.id, event.org_id, [
     "owner",
@@ -451,17 +532,26 @@ export async function updateEventDetails(formData: FormData) {
   const venueName = String(formData.get("venue_name") ?? "").trim()
   const address = String(formData.get("address") ?? "").trim() || null
   const city = String(formData.get("city") ?? "").trim()
-  const categories = parseCategoriesFromFormData(formData)
+  const categoriesRaw = parseCategoriesFromFormData(formData)
 
   if (!title || !startsAt || !venueName || !city) {
     return { error: "Please fill in all required fields." }
   }
 
-  if (!categories) {
+  let categories = categoriesRaw
+  if (community) {
+    if (!categories?.length) {
+      categories = ["other"]
+    }
+  } else if (!categories) {
     return { error: "Select at least one valid category." }
   }
 
-  const parsedCap = parseRsvpCapacityField(formData)
+  let parsedCap = { capacity: null as number | null, error: null as string | null }
+  if (!community) {
+    const capResult = parseRsvpCapacityField(formData)
+    parsedCap = { capacity: capResult.capacity ?? null, error: capResult.error ?? null }
+  }
   if (parsedCap.error) return { error: parsedCap.error }
 
   const startDate = new Date(startsAt)
@@ -476,7 +566,7 @@ export async function updateEventDetails(formData: FormData) {
     }
   }
 
-  if (parsedCap.capacity != null) {
+  if (!community && parsedCap.capacity != null) {
     const { count, error: cntErr } = await supabase
       .from("event_registrations")
       .select("*", { count: "exact", head: true })
@@ -495,21 +585,25 @@ export async function updateEventDetails(formData: FormData) {
   }
 
   const now = new Date().toISOString()
-  const { error: updateError } = await supabase
-    .from("events")
-    .update({
-      title,
-      description,
-      starts_at: startsAt,
-      ends_at: endsAt,
-      venue_name: venueName,
-      address,
-      city,
-      categories,
-      rsvp_capacity: parsedCap.capacity,
-      updated_at: now,
-    })
-    .eq("id", eventId)
+  const patch: Record<string, unknown> = {
+    title,
+    description,
+    starts_at: startsAt,
+    ends_at: endsAt,
+    venue_name: venueName,
+    address,
+    city,
+    categories,
+    updated_at: now,
+  }
+  patch.rsvp_capacity = community ? null : parsedCap.capacity
+  if (community) {
+    const extParsed = parseExternalRsvpUrlOptional(formData.get("external_rsvp_url"))
+    if (!extParsed.ok) return { error: extParsed.error }
+    patch.external_rsvp_url = extParsed.url
+  }
+
+  const { error: updateError } = await supabase.from("events").update(patch).eq("id", eventId)
 
   if (updateError) {
     return { error: `Failed to update event: ${updateError.message}` }
@@ -527,6 +621,7 @@ export async function updateEventDetails(formData: FormData) {
   revalidatePath(`/events/${event.slug}`)
   revalidatePath(`/lineup/${event.slug}`)
   revalidatePath("/events")
+  revalidatePath(`/admin/events/${eventId}`)
   revalidatePath("/dashboard")
 
   return { success: true }
@@ -638,3 +733,209 @@ export async function unarchiveEvent(eventId: string) {
   return { success: true, title: event.title }
 }
 
+export type OrganizerDuplicateScheduleShift = "none" | "one_week" | "two_weeks" | "one_month"
+
+function applyDuplicateScheduleShift(
+  startsAt: string,
+  endsAt: string | null,
+  shift: OrganizerDuplicateScheduleShift,
+): { starts_at: string; ends_at: string | null } {
+  const start = new Date(startsAt)
+  if (Number.isNaN(start.getTime()) || shift === "none") {
+    return { starts_at: startsAt, ends_at: endsAt }
+  }
+
+  let nextStart = start
+  if (shift === "one_week") nextStart = addWeeks(start, 1)
+  else if (shift === "two_weeks") nextStart = addWeeks(start, 2)
+  else if (shift === "one_month") nextStart = addMonths(start, 1)
+
+  const deltaMs = nextStart.getTime() - start.getTime()
+  let nextEndsIso: string | null = endsAt ?? null
+  if (endsAt) {
+    const end = new Date(endsAt)
+    if (!Number.isNaN(end.getTime())) {
+      const nextEnd = new Date(end.getTime() + deltaMs)
+      if (!Number.isNaN(nextEnd.getTime()) && nextEnd.getTime() > nextStart.getTime()) {
+        nextEndsIso = nextEnd.toISOString()
+      } else {
+        nextEndsIso = null
+      }
+    }
+  }
+
+  return { starts_at: nextStart.toISOString(), ends_at: nextEndsIso }
+}
+
+/**
+ * Create a draft by copying an existing org event + ticket tiers. Flyer is not copied.
+ * Optional schedule shift supports recurring-style workflows without a full recurrence schema.
+ */
+export async function duplicateOrganizerEventDraft(params: {
+  sourceEventId: string
+  orgSlug: string
+  scheduleShift: OrganizerDuplicateScheduleShift
+}) {
+  const sourceEventId = params.sourceEventId?.trim()
+  const orgSlug = params.orgSlug?.trim()
+  if (!sourceEventId || !orgSlug) {
+    return { error: "Missing parameters." }
+  }
+
+  const { user, supabase, org, membership } = await requireOrgMember(orgSlug)
+  if (!["owner", "admin", "editor"].includes(membership.role)) {
+    return { error: "You don't have permission to duplicate events for this organization." }
+  }
+
+  const { data: src, error: fetchErr } = await supabase
+    .from("events")
+    .select(
+      "id, org_id, title, description, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, event_kind, external_rsvp_url",
+    )
+    .eq("id", sourceEventId)
+    .eq("org_id", org.id)
+    .single()
+
+  if (fetchErr || !src) {
+    return { error: "Event not found." }
+  }
+
+  const row = src as {
+    title: string
+    description: string | null
+    starts_at: string
+    ends_at: string | null
+    venue_name: string
+    address: string | null
+    city: string
+    categories: unknown
+    rsvp_capacity: number | null
+    event_kind: string | null
+    external_rsvp_url: string | null
+  }
+
+  const kind: EventKind = isCommunityEvent(row.event_kind ?? undefined) ? EVENT_KIND_COMMUNITY : EVENT_KIND_OFFICIAL
+  const times = applyDuplicateScheduleShift(row.starts_at, row.ends_at, params.scheduleShift)
+  const startDate = new Date(times.starts_at)
+  if (Number.isNaN(startDate.getTime())) {
+    return { error: "Invalid start date on source event." }
+  }
+  if (times.ends_at) {
+    const endDate = new Date(times.ends_at)
+    if (!Number.isNaN(endDate.getTime()) && endDate <= startDate) {
+      return { error: "Shifted dates are invalid — try None or edit after duplicate." }
+    }
+  }
+
+  let categories = normalizeCategories(row.categories).filter(isValidEventCategory)
+  if (kind === EVENT_KIND_COMMUNITY) {
+    if (categories.length === 0) categories = ["other"]
+  } else if (categories.length === 0) {
+    return { error: "Source event has no valid ViZb categories to copy." }
+  }
+
+  let rsvp_capacity: number | null = row.rsvp_capacity
+  let external_rsvp_url = row.external_rsvp_url ?? null
+  if (kind === EVENT_KIND_COMMUNITY) {
+    rsvp_capacity = null
+    const parsed = parseExternalRsvpUrlOptional(external_rsvp_url ?? "")
+    if (!parsed.ok && Boolean(external_rsvp_url?.trim())) {
+      return { error: "Source listing has an invalid external RSVP URL — fix the original, then duplicate." }
+    }
+    external_rsvp_url = parsed.ok ? parsed.url : null
+  } else {
+    external_rsvp_url = null
+  }
+
+  const baseTitle = `${row.title.trim()} · Copy`.slice(0, 280)
+  let slug = slugify(baseTitle)
+  if (!slug) slug = `event-${Date.now()}`
+
+  const { data: clash } = await supabase
+    .from("events")
+    .select("slug")
+    .eq("org_id", org.id)
+    .eq("slug", slug)
+    .maybeSingle()
+
+  if (clash?.slug) {
+    slug = `${slug}-${Date.now().toString(36).slice(-4)}`
+  }
+
+  const { data: created, error: insErr } = await supabase
+    .from("events")
+    .insert({
+      org_id: org.id,
+      title: baseTitle || row.title.trim(),
+      slug,
+      description: row.description ?? null,
+      starts_at: times.starts_at,
+      ends_at: times.ends_at,
+      venue_name: row.venue_name,
+      address: row.address,
+      city: row.city,
+      categories,
+      rsvp_capacity,
+      event_kind: kind,
+      external_rsvp_url,
+      flyer_url: null,
+      status: "draft" as const,
+      created_by: user.id,
+      published_at: null,
+      reviewed_by: null,
+      reviewed_at: null,
+      review_notes: null,
+    })
+    .select("id, slug")
+    .single()
+
+  if (insErr || !created?.id || !created?.slug) {
+    return { error: insErr ? `Failed to create draft: ${insErr.message}` : "Duplicate failed." }
+  }
+
+  const newId = created.id as string
+  const newSlug = created.slug as string
+
+  const { data: tiers, error: tierFetchErr } = await supabase
+    .from("ticket_types")
+    .select("name, price_cents, sort_order, is_default_rsvp, capacity, sales_starts_at, sales_ends_at")
+    .eq("event_id", sourceEventId)
+
+  if (!tierFetchErr && tiers?.length) {
+    const payloads = tiers.map((t) => {
+      const tr = t as {
+        name: string
+        price_cents: number | null
+        sort_order: number | null
+        is_default_rsvp: boolean | null
+        capacity: number | null
+        sales_starts_at: string | null
+        sales_ends_at: string | null
+      }
+      const pc = typeof tr.price_cents === "number" ? tr.price_cents : Number(tr.price_cents ?? 0)
+      const so = typeof tr.sort_order === "number" ? tr.sort_order : Number(tr.sort_order ?? 0)
+      return {
+        event_id: newId,
+        name: String(tr.name),
+        price_cents: Number.isFinite(pc) ? pc : 0,
+        sort_order: Number.isFinite(so) ? so : 0,
+        is_default_rsvp: Boolean(tr.is_default_rsvp),
+        capacity: typeof tr.capacity === "number" ? tr.capacity : tr.capacity,
+        sales_starts_at: tr.sales_starts_at,
+        sales_ends_at: tr.sales_ends_at,
+      }
+    })
+
+    const { error: tierInsErr } = await supabase.from("ticket_types").insert(payloads)
+    if (tierInsErr) {
+      await supabase.from("events").delete().eq("id", newId)
+      return { error: `Could not duplicate ticket tiers: ${tierInsErr.message}` }
+    }
+  }
+
+  revalidatePath(`/organizer/${orgSlug}`)
+  revalidatePath(`/organizer/${orgSlug}/events/${newSlug}`)
+  revalidatePath("/admin")
+
+  return { success: true, eventId: newId, slug: newSlug }
+}
