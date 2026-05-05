@@ -48,7 +48,7 @@ export function AppPreview() {
           <div>
             <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
               <span className="h-px w-8 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] animate-pulse" />
-              Coming soon
+              Built for the scene
             </span>
             <h2 className="mt-4 font-serif text-5xl font-bold leading-[0.92] text-[color:var(--neon-text0)] sm:text-6xl">
               The
@@ -58,16 +58,16 @@ export function AppPreview() {
               app
             </h2>
             <p className="mt-7 max-w-md text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-              Discover events, connect with creators, and never miss a vibe. The VIZB app is launching soon — be the
-              first to know.
+              Discover events, save what you care about, and move from discovery to checkout without losing the vibe.
+              This preview mirrors the live product direction and the workflows we’re actively shipping.
             </p>
 
             {/* Feature list - with animated neon lines */}
             <div className="mt-10 space-y-4">
               {[
                 "Discover local events",
-                "Connect with creators",
-                "Exclusive drops & access",
+                "Save events to your timeline",
+                "Buy tickets faster",
               ].map((feature, i) => (
                 <div key={i} className="group flex items-center gap-4">
                   <span 
