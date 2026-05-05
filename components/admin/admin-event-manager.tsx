@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 
 interface AdminEvent {
   id: string
@@ -37,6 +38,8 @@ interface AdminEvent {
   venue_name: string | null
   city: string | null
   categories: string[]
+  event_kind?: "official" | "community"
+  is_staff_pick?: boolean
   created_at: string
   organizations: { name: string; slug: string } | null
 }
@@ -54,13 +57,22 @@ const STATUS_TABS = [
   { key: "archived", label: "Archived" },
 ] as const
 
+const KIND_TABS = [
+  { key: "all", label: "All kinds" },
+  { key: "official", label: "ViZb" },
+  { key: "community", label: "Local" },
+] as const
+
 export function AdminEventManager({ events }: AdminEventManagerProps) {
   const router = useRouter()
   const [search, setSearch] = useState("")
   const [activeTab, setActiveTab] = useState("all")
+  const [kindTab, setKindTab] = useState<"all" | "official" | "community">("all")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const filtered = useMemo(() => {
     return events.filter((e) => {
+      const kind = e.event_kind ?? "official"
+      if (kindTab !== "all" && kind !== kindTab) return false
       if (activeTab !== "all" && e.status !== activeTab) return false
       if (search) {
         const q = search.toLowerCase()
@@ -72,7 +84,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
       }
       return true
     })
-  }, [events, activeTab, search])
+  }, [events, activeTab, kindTab, search])
 
   const counts = useMemo(() => {
     const visible = events
@@ -151,6 +163,23 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
         </div>
 
         <div className="flex flex-wrap gap-1.5">
+          {KIND_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setKindTab(tab.key)}
+              className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-colors ${
+                kindTab === tab.key
+                  ? "border-neon-b text-neon-b bg-neon-b/5"
+                  : "border-border text-muted-foreground hover:border-muted-foreground/50 bg-transparent"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab.key}
@@ -183,6 +212,8 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
             const StatusIcon = config.icon
             const isDeleting = deletingId === event.id
             const dateStr = formatDate(event.starts_at)
+            const ek = event.event_kind ?? "official"
+            const pick = event.is_staff_pick === true
 
             return (
               <div
@@ -204,6 +235,20 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         <StatusIcon className="w-3 h-3" />
                         {config.label}
                       </span>
+                      {ek === "community" ? (
+                        <span className="inline-flex items-center text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border border-violet-500/40 text-violet-300 bg-violet-500/10">
+                          Local Event
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border border-neon-a/35 text-[color:var(--neon-text0)] bg-neon-a/8">
+                          ViZb Event
+                        </span>
+                      )}
+                      {pick ? (
+                        <span className={`inline-flex items-center ${STAFF_PICK_BADGE_CLASS}`}>
+                          {STAFF_PICK_BADGE_LABEL}
+                        </span>
+                      ) : null}
                     </div>
 
                     <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground flex-wrap">

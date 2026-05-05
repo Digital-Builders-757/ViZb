@@ -19,7 +19,9 @@ export default async function OrganizerEventCheckInPage({
   if (!canScan) {
     return (
       <GlassCard className="p-6">
-        <p className="text-sm text-[color:var(--neon-text1)]">Only org owners/admins can check in attendees.</p>
+        <p className="text-sm text-[color:var(--neon-text1)]">
+          Only organization owners, admins, or ViZb staff can check in guests.
+        </p>
         <NeonLink href={`/organizer/${orgSlug}/events/${eventSlug}`} className="mt-4 inline-flex" variant="secondary">
           Back
         </NeonLink>

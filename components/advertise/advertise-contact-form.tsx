@@ -6,6 +6,7 @@ import { BUDGET_OPTIONS, INTEREST_OPTIONS } from "@/lib/advertise-contact-schema
 
 const INTEREST_LABELS: Record<(typeof INTEREST_OPTIONS)[number], string> = {
   sponsorship: "Sponsorship / paid placement",
+  organizer_promotion: "Promote my organizer or events (ViZb partnership)",
   newsletter_placement: "Newsletter or email feature",
   event_partnership: "Event or venue partnership",
   brand_collaboration: "Brand / creative collaboration",
@@ -26,9 +27,15 @@ const inputClass =
 
 interface AdvertiseContactFormProps {
   emailConfigured: boolean
+  submissionContextLine?: string
+  defaultInterestType?: (typeof INTEREST_OPTIONS)[number]
 }
 
-export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormProps) {
+export function AdvertiseContactForm({
+  emailConfigured,
+  submissionContextLine,
+  defaultInterestType,
+}: AdvertiseContactFormProps) {
   const [state, setState] = useState<Awaited<ReturnType<typeof submitAdvertiseInquiry>> | null>(null)
   const [pending, setPending] = useState(false)
 
@@ -154,6 +161,10 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
         <input id="companyWebsite" name="companyWebsite" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
+      {submissionContextLine ? (
+        <input type="hidden" name="submissionContext" value={submissionContextLine} readOnly />
+      ) : null}
+
       <div>
         <label htmlFor="interestType" className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
           What are you interested in? <span className="text-[color:var(--neon-a)]">*</span>
@@ -162,7 +173,7 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
           id="interestType"
           name="interestType"
           required
-          defaultValue=""
+          defaultValue={defaultInterestType ?? ""}
           className={`${inputClass} mt-2`}
           aria-invalid={!!fieldErrors?.interestType}
         >
@@ -215,7 +226,8 @@ export function AdvertiseContactForm({ emailConfigured }: AdvertiseContactFormPr
 
       <div className="flex flex-col gap-3 border-t border-[color:var(--neon-hairline)] pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-md text-xs text-[color:var(--neon-text2)]">
-          Submissions go to our partnerships inbox. We typically reply within a few business days.
+          Submissions go to our partnerships inbox. We typically reply within a few business days. Sponsored or paid
+          placements are always labeled wherever they appear — never mixed with editorial Staff picks.
         </p>
         <button
           type="submit"

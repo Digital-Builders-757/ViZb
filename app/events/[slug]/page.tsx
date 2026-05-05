@@ -4,20 +4,30 @@ import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2 } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2, ExternalLink } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
-import { NeonButton } from "@/components/ui/neon-button"
 import { Suspense } from "react"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 import { EventStripeReturn } from "@/components/events/event-stripe-return"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { EventShareRow } from "@/components/events/event-share-row"
+import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
 import { mintFreeRsvpTicketForRegistration } from "@/lib/tickets/mint-free-rsvp-ticket"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
+import {
+  eventKindBadgeLong,
+  isCommunityEvent,
+  parseExternalRsvpUrl,
+  STAFF_PICK_BADGE_CLASS,
+  STAFF_PICK_BADGE_LABEL,
+} from "@/lib/events/event-kind"
+import { EventPublicViewBeacon } from "@/components/events/event-public-view-beacon"
+import { ReportEventListingDialog } from "@/components/events/report-event-listing-dialog"
 
 interface PublicEvent {
   id: string
@@ -88,7 +98,7 @@ export default async function PublicEventDetailPage({
     .from("events")
     .select(`
       id, title, slug, description, starts_at, ends_at,
-      venue_name, address, city, categories, flyer_url, rsvp_capacity,
+      venue_name, address, city, categories, flyer_url, rsvp_capacity, event_kind, external_rsvp_url, is_staff_pick,
       organizations!inner ( name, slug )
     `)
     .eq("slug", slug)
@@ -101,6 +111,12 @@ export default async function PublicEventDetailPage({
 
   // Supabase returns the !inner join as an object { name, slug }
   const org = rawEvent.organizations as unknown as { name: string; slug: string }
+
+  const listingCommunity = isCommunityEvent((rawEvent as { event_kind?: string | null }).event_kind)
+  const staffPick = Boolean((rawEvent as { is_staff_pick?: boolean | null }).is_staff_pick)
+  const externalField = (rawEvent as { external_rsvp_url?: string | null }).external_rsvp_url
+  const externalParsed = listingCommunity ? parseExternalRsvpUrl(externalField) : null
+  const externalRsvpHref = externalParsed?.ok ? externalParsed.url : null
 
   const cap = (rawEvent as { rsvp_capacity?: number | null }).rsvp_capacity
   const rsvp_capacity = cap == null || typeof cap !== "number" ? null : cap
@@ -124,11 +140,13 @@ export default async function PublicEventDetailPage({
 
   let rsvpOccupied = 0
   try {
-    const { data: occ, error: occErr } = await supabase.rpc("published_event_rsvp_occupied_count", {
-      p_event_id: event.id,
-    })
-    if (!occErr && occ != null && Number.isFinite(Number(occ))) {
-      rsvpOccupied = Number(occ)
+    if (!listingCommunity) {
+      const { data: occ, error: occErr } = await supabase.rpc("published_event_rsvp_occupied_count", {
+        p_event_id: event.id,
+      })
+      if (!occErr && occ != null && Number.isFinite(Number(occ))) {
+        rsvpOccupied = Number(occ)
+      }
     }
   } catch {
     rsvpOccupied = 0
@@ -138,37 +156,38 @@ export default async function PublicEventDetailPage({
   type PublicPaidTier = { id: string; name: string; price_cents: number }
   let freeTicketTiers: PublicFreeTier[] = []
   let paidTicketTiers: PublicPaidTier[] = []
-  try {
-    const { data: ttRows } = await supabase
-      .from("ticket_types")
-      .select("id, name, price_cents, sort_order, sales_starts_at, sales_ends_at")
-      .eq("event_id", event.id)
-      .order("sort_order", { ascending: true })
+  if (!listingCommunity) {
+    try {
+      const { data: ttRows } = await supabase
+        .from("ticket_types")
+        .select("id, name, price_cents, sort_order, sales_starts_at, sales_ends_at")
+        .eq("event_id", event.id)
+        .order("sort_order", { ascending: true })
 
-    const now = new Date()
-    for (const row of ttRows ?? []) {
-      const pr = row as {
-        id: string
-        name: string
-        price_cents: number | null
-        sales_starts_at: string | null
-        sales_ends_at: string | null
+      const now = new Date()
+      for (const row of ttRows ?? []) {
+        const pr = row as {
+          id: string
+          name: string
+          price_cents: number | null
+          sales_starts_at: string | null
+          sales_ends_at: string | null
+        }
+        if (pr.sales_starts_at && new Date(pr.sales_starts_at) > now) continue
+        if (pr.sales_ends_at && new Date(pr.sales_ends_at) < now) continue
+        const pc = typeof pr.price_cents === "number" ? pr.price_cents : Number(pr.price_cents)
+        if (!Number.isFinite(pc)) continue
+        if (pc === 0) {
+          freeTicketTiers.push({ id: pr.id, name: pr.name })
+        } else if (pc > 0) {
+          paidTicketTiers.push({ id: pr.id, name: pr.name, price_cents: pc })
+        }
       }
-      if (pr.sales_starts_at && new Date(pr.sales_starts_at) > now) continue
-      if (pr.sales_ends_at && new Date(pr.sales_ends_at) < now) continue
-      const pc = typeof pr.price_cents === "number" ? pr.price_cents : Number(pr.price_cents)
-      if (!Number.isFinite(pc)) continue
-      if (pc === 0) {
-        freeTicketTiers.push({ id: pr.id, name: pr.name })
-      } else if (pc > 0) {
-        paidTicketTiers.push({ id: pr.id, name: pr.name, price_cents: pc })
-      }
+    } catch {
+      freeTicketTiers = []
+      paidTicketTiers = []
     }
-  } catch {
-    freeTicketTiers = []
-    paidTicketTiers = []
   }
-
   const stripeCheckoutEnabled =
     Boolean(process.env.STRIPE_SECRET_KEY?.trim()) &&
     Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim())
@@ -189,67 +208,68 @@ export default async function PublicEventDetailPage({
   let initialTicketId: string | null = null
 
   if (user) {
-    try {
-      const { data: ticketRows } = await supabase
-        .from("tickets")
-        .select("id, event_registrations!inner ( status )")
-        .eq("user_id", user.id)
-        .eq("event_id", event.id)
+    if (!listingCommunity) {
+      try {
+        const { data: ticketRows } = await supabase
+          .from("tickets")
+          .select("id, event_registrations!inner ( status )")
+          .eq("user_id", user.id)
+          .eq("event_id", event.id)
 
-      const activeRows = (ticketRows ?? []).filter((row) => {
-        const st = registrationStatusFromJoin(row.event_registrations)
-        return st === "confirmed" || st === "checked_in"
-      })
-      hasActiveTicket = activeRows.length > 0
-      initialTicketId = activeRows[0]?.id ?? null
-    } catch {
-      hasActiveTicket = false
-      initialTicketId = null
-    }
-
-    let registrationId: string | null = null
-    try {
-      const { data, error } = await supabase
-        .from("event_registrations")
-        .select("id, status")
-        .eq("event_id", event.id)
-        .eq("user_id", user.id)
-        .maybeSingle()
-
-      if (!error) {
-        registrationId = data?.id ?? null
-        const status = data?.status as typeof initialRsvpStatus
-        initialRsvpStatus = status ?? null
+        const activeRows = (ticketRows ?? []).filter((row) => {
+          const st = registrationStatusFromJoin(row.event_registrations)
+          return st === "confirmed" || st === "checked_in"
+        })
+        hasActiveTicket = activeRows.length > 0
+        initialTicketId = activeRows[0]?.id ?? null
+      } catch {
+        hasActiveTicket = false
+        initialTicketId = null
       }
-    } catch {
-      // In dev/staging, the migration may not be applied yet.
-      initialRsvpStatus = null
-      registrationId = null
-    }
 
-    if (
-      registrationId &&
-      (initialRsvpStatus === "confirmed" || initialRsvpStatus === "checked_in") &&
-      !hasActiveTicket
-    ) {
-      const minted = await mintFreeRsvpTicketForRegistration(supabase, registrationId, null)
-      if (!("error" in minted)) {
-        try {
-          const { data: ticketRowsAfter } = await supabase
-            .from("tickets")
-            .select("id, event_registrations!inner ( status )")
-            .eq("user_id", user.id)
-            .eq("event_id", event.id)
+      let registrationId: string | null = null
+      try {
+        const { data, error } = await supabase
+          .from("event_registrations")
+          .select("id, status")
+          .eq("event_id", event.id)
+          .eq("user_id", user.id)
+          .maybeSingle()
 
-          const activeAfter = (ticketRowsAfter ?? []).filter((row) => {
-            const st = registrationStatusFromJoin(row.event_registrations)
-            return st === "confirmed" || st === "checked_in"
-          })
-          hasActiveTicket = activeAfter.length > 0
-          initialTicketId = activeAfter[0]?.id ?? null
-        } catch {
-          hasActiveTicket = false
-          initialTicketId = null
+        if (!error) {
+          registrationId = data?.id ?? null
+          const status = data?.status as typeof initialRsvpStatus
+          initialRsvpStatus = status ?? null
+        }
+      } catch {
+        initialRsvpStatus = null
+        registrationId = null
+      }
+
+      if (
+        registrationId &&
+        (initialRsvpStatus === "confirmed" || initialRsvpStatus === "checked_in") &&
+        !hasActiveTicket
+      ) {
+        const minted = await mintFreeRsvpTicketForRegistration(supabase, registrationId, null)
+        if (!("error" in minted)) {
+          try {
+            const { data: ticketRowsAfter } = await supabase
+              .from("tickets")
+              .select("id, event_registrations!inner ( status )")
+              .eq("user_id", user.id)
+              .eq("event_id", event.id)
+
+            const activeAfter = (ticketRowsAfter ?? []).filter((row) => {
+              const st = registrationStatusFromJoin(row.event_registrations)
+              return st === "confirmed" || st === "checked_in"
+            })
+            hasActiveTicket = activeAfter.length > 0
+            initialTicketId = activeAfter[0]?.id ?? null
+          } catch {
+            hasActiveTicket = false
+            initialTicketId = null
+          }
         }
       }
     }
@@ -288,6 +308,7 @@ export default async function PublicEventDetailPage({
 
   return (
     <main className="min-h-screen bg-[color:var(--neon-bg0)]">
+      <EventPublicViewBeacon slug={slug} />
       <Navbar />
 
       <section className="pt-24 sm:pt-28 pb-16 md:pb-24 px-4 sm:px-8">
@@ -327,6 +348,15 @@ export default async function PublicEventDetailPage({
                 )}
                 {/* Category badges */}
                 <div className="absolute top-4 left-4 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
+                  <span
+                    className={`rounded-full border px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur ${
+                      listingCommunity
+                        ? "border-violet-500/55 bg-violet-500/25 text-[color:var(--neon-text0)]"
+                        : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 text-[color:var(--neon-text0)]"
+                    }`}
+                  >
+                    {listingCommunity ? "Local Event · not ViZb-hosted" : "ViZb Event"}
+                  </span>
                   {event.categories.length > 0 ? (
                     event.categories.map((c) => (
                       <span
@@ -366,6 +396,20 @@ export default async function PublicEventDetailPage({
                 <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[color:var(--neon-text0)] mt-3 text-balance leading-tight">
                   {event.title}
                 </h1>
+
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/45 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
+                    {listingCommunity ? eventKindBadgeLong("community") : eventKindBadgeLong("official")}
+                  </span>
+                  {staffPick ? (
+                    <span className={`${STAFF_PICK_BADGE_CLASS} px-3 py-1`}>{STAFF_PICK_BADGE_LABEL}</span>
+                  ) : null}
+                  {listingCommunity ? (
+                    <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)] max-w-xl">
+                      Listed for discovery; hosted by a third party — confirm details with the organizer.
+                    </p>
+                  ) : null}
+                </div>
 
                 {/* Date/Time */}
                 <div className="mt-6 grid gap-3">
@@ -425,95 +469,179 @@ export default async function PublicEventDetailPage({
               {/* CTA area */}
               <div className="mt-8">
                 <GlassCard className="p-4 md:p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
-                      <Users className="w-4 h-4" />
-                      {paidTicketTiers.length > 0 ? "Tickets & RSVP" : "RSVP"}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
-                      <Ticket className="w-4 h-4" />
-                      {stripeCheckoutEnabled && paidTicketTiers.length > 0
-                        ? "Card checkout"
-                        : paidTicketTiers.length > 0
-                          ? "Configure Stripe"
-                          : "Free tier"}
-                    </div>
-                  </div>
+                  {listingCommunity ? (
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <ExternalLink className="w-5 h-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
+                        <div className="min-w-0">
+                          <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                            RSVP elsewhere
+                          </p>
+                          <p className="mt-2 text-[14px] leading-relaxed text-[color:var(--neon-text1)]">
+                            RSVP for this listing happens on the host&apos;s site. We&apos;ll open it in a new tab.
+                          </p>
+                        </div>
+                      </div>
+                      {externalRsvpHref ? (
+                        <a
+                          href={externalRsvpHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="vibe-cta-gradient vibe-focus-ring inline-flex w-full min-h-11 items-center justify-center gap-2 px-8 py-3 text-xs font-mono font-bold uppercase tracking-widest sm:inline-flex sm:w-auto"
+                        >
+                          Open RSVP link
+                          <ExternalLink className="h-4 w-4" aria-hidden />
+                        </a>
+                      ) : (
+                        <p className="text-sm text-[color:var(--neon-text2)]">
+                          RSVP link is not available right now — check back later.
+                        </p>
+                      )}
 
-                  <Suspense fallback={null}>
-                    <EventStripeReturn
-                      eventPath={`/events/${event.slug}`}
-                      eventTitle={event.title}
-                      startsAt={event.starts_at}
-                      venueName={event.venue_name}
-                      city={event.city}
-                      eventPublicUrl={eventPublicUrl}
-                    />
-                  </Suspense>
+                      <div className="mt-4 space-y-3 border-t border-[color:var(--neon-hairline)] pt-4">
+                        <MyVibesButton
+                          eventId={event.id}
+                          eventSlug={event.slug}
+                          isSignedIn={isSignedIn}
+                          initialSaved={initialVibesSaved}
+                          authHref={authHref}
+                          variant="detail"
+                        />
+                        <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
+                        <EventCalendarActions
+                          title={event.title}
+                          startsAt={event.starts_at}
+                          venueName={event.venue_name}
+                          city={event.city}
+                          eventUrl={eventPublicUrl}
+                          className="mt-0"
+                        />
+                        <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+                          Save this listing to My Vibes to find it faster later.
+                        </p>
+                        {isSignedIn ? (
+                          <NeonLink
+                            href="/dashboard#my-vibes-week-heading"
+                            variant="secondary"
+                            size="sm"
+                            className="w-full sm:w-auto"
+                          >
+                            Open My Vibes
+                          </NeonLink>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
+                          <Users className="w-4 h-4" />
+                          {paidTicketTiers.length > 0 ? "Tickets & RSVP" : "RSVP"}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-[color:var(--neon-text2)] font-mono uppercase tracking-widest">
+                          <Ticket className="w-4 h-4" />
+                          {stripeCheckoutEnabled && paidTicketTiers.length > 0
+                            ? "Card checkout"
+                            : paidTicketTiers.length > 0
+                              ? "Configure Stripe"
+                              : "Free tier"}
+                        </div>
+                      </div>
 
-                  <div className="mt-4 space-y-3">
-                    <MyVibesButton
+                      <Suspense fallback={null}>
+                        <EventStripeReturn
+                          eventPath={`/events/${event.slug}`}
+                          eventTitle={event.title}
+                          startsAt={event.starts_at}
+                          venueName={event.venue_name}
+                          city={event.city}
+                          eventPublicUrl={eventPublicUrl}
+                        />
+                      </Suspense>
+
+                      <div className="mt-4 space-y-3">
+                        <MyVibesButton
+                          eventId={event.id}
+                          eventSlug={event.slug}
+                          isSignedIn={isSignedIn}
+                          initialSaved={initialVibesSaved}
+                          authHref={authHref}
+                          variant="detail"
+                        />
+                        <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
+                        <EventCalendarActions
+                          title={event.title}
+                          startsAt={event.starts_at}
+                          venueName={event.venue_name}
+                          city={event.city}
+                          eventUrl={eventPublicUrl}
+                          className="mt-0"
+                        />
+                        <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
+                          Saved events show up in your dashboard and calendar export.
+                        </p>
+                        {isSignedIn ? (
+                          <NeonLink
+                            href="/dashboard#my-vibes-week-heading"
+                            variant="secondary"
+                            size="sm"
+                            className="w-full sm:w-auto"
+                          >
+                            Open My Vibes
+                          </NeonLink>
+                        ) : null}
+                      </div>
+
+                      {eventHasOpenMicCategory(event.categories) ? (
+                        <div className="mt-4">
+                          <Link
+                            href={`/lineup/${event.slug}`}
+                            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline"
+                          >
+                            <Mic2 className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                            Open mic lineup
+                          </Link>
+                          <p className="mt-1 text-[11px] text-[color:var(--neon-text2)]">
+                            Shareable order of performers (when the host marks slots public).
+                          </p>
+                        </div>
+                      ) : null}
+
+                      <EventRsvpCta
+                        key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
+                        eventId={event.id}
+                        isSignedIn={isSignedIn}
+                        initialStatus={initialRsvpStatus}
+                        authHref={authHref}
+                        rsvpCapacity={event.rsvp_capacity}
+                        rsvpOccupied={rsvpOccupied}
+                        freeTicketTiers={freeTicketTiers}
+                        paidTicketTiers={paidTicketTiers}
+                        stripeCheckoutEnabled={stripeCheckoutEnabled}
+                        hasActiveTicket={hasActiveTicket}
+                        initialTicketId={initialTicketId}
+                        eventTitle={event.title}
+                        startsAt={event.starts_at}
+                        venueName={event.venue_name}
+                        city={event.city}
+                        eventPublicUrl={eventPublicUrl}
+                      />
+
+                      <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
+                        Free RSVP stays $0. Paid tiers use Stripe Checkout; canceling an RSVP does not refund card
+                        charges.
+                      </p>
+                    </>
+                  )}
+
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--neon-hairline)]/50 pt-4">
+                    <ReportEventListingDialog
                       eventId={event.id}
                       eventSlug={event.slug}
                       isSignedIn={isSignedIn}
-                      initialSaved={initialVibesSaved}
-                      authHref={authHref}
-                      variant="detail"
+                      loginHref={authHref}
                     />
-                    <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
-                      Saved events show up in your dashboard and calendar export.
-                    </p>
-                    {isSignedIn ? (
-                      <NeonLink
-                        href="/dashboard#my-vibes-week-heading"
-                        variant="secondary"
-                        size="sm"
-                        className="w-full sm:w-auto"
-                      >
-                        Open My Vibes
-                      </NeonLink>
-                    ) : null}
                   </div>
-
-                  {eventHasOpenMicCategory(event.categories) ? (
-                    <div className="mt-4">
-                      <Link
-                        href={`/lineup/${event.slug}`}
-                        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)] hover:underline"
-                      >
-                        <Mic2 className="w-3.5 h-3.5 shrink-0" aria-hidden />
-                        Open mic lineup
-                      </Link>
-                      <p className="mt-1 text-[11px] text-[color:var(--neon-text2)]">
-                        Shareable order of performers (when the host marks slots public).
-                      </p>
-                    </div>
-                  ) : null}
-
-                  <EventRsvpCta
-                    key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
-                    eventId={event.id}
-                    isSignedIn={isSignedIn}
-                    initialStatus={initialRsvpStatus}
-                    authHref={authHref}
-                    rsvpCapacity={event.rsvp_capacity}
-                    rsvpOccupied={rsvpOccupied}
-                    freeTicketTiers={freeTicketTiers}
-                    paidTicketTiers={paidTicketTiers}
-                    stripeCheckoutEnabled={stripeCheckoutEnabled}
-                    hasActiveTicket={hasActiveTicket}
-                    initialTicketId={initialTicketId}
-                    eventTitle={event.title}
-                    startsAt={event.starts_at}
-                    venueName={event.venue_name}
-                    city={event.city}
-                    eventPublicUrl={eventPublicUrl}
-                  />
-
-                  <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
-                    Free RSVP stays $0. Paid tiers use Stripe Checkout; canceling an RSVP does not refund card
-                    charges.
-                  </p>
                 </GlassCard>
               </div>
             </div>

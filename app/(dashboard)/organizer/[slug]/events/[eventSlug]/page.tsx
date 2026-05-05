@@ -10,6 +10,7 @@ import {
   MapPin,
   ArrowLeft,
   ImageIcon,
+  Camera,
 } from "lucide-react"
 import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
@@ -27,6 +28,9 @@ import {
 } from "@/components/organizer/open-mic-lineup-panel"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 import { GlassCard } from "@/components/ui/glass-card"
+import { Button } from "@/components/ui/button"
+import { OrganizerEventPowerToolsCard } from "@/components/organizer/organizer-event-power-tools-card"
+import { OrganizerPartnershipUpsell } from "@/components/organizer/organizer-partnership-upsell"
 
 export default async function EventDetailPage({
   params,
@@ -34,8 +38,10 @@ export default async function EventDetailPage({
   params: Promise<{ slug: string; eventSlug: string }>
 }) {
   const { slug, eventSlug } = await params
-  const { org } = await requireOrgMember(slug)
+  const { org, membership, profile } = await requireOrgMember(slug)
   const supabase = await createClient()
+  const canUseDoorTools =
+    profile?.platform_role === "staff_admin" || ["owner", "admin"].includes(membership.role)
 
   const { data: event } = await supabase
     .from("events")
@@ -90,6 +96,13 @@ export default async function EventDetailPage({
   const checkedIn = rsvpRows.filter((r) => r.status === "checked_in").length
   const cancelled = rsvpRows.filter((r) => r.status === "cancelled").length
   const total = rsvpRows.length
+
+  const evMetrics = event as { public_detail_view_count?: unknown }
+  const viewCountRaw = evMetrics.public_detail_view_count
+  const viewCount =
+    typeof viewCountRaw === "number" && Number.isFinite(viewCountRaw) ? Math.max(0, Math.trunc(viewCountRaw)) : 0
+  const activeRsvpsRollup = confirmed + checkedIn
+  const canDuplicateEvent = ["owner", "admin", "editor"].includes(membership.role)
 
   let ticketTypeRows: OrganizerTicketTypeRow[] = []
   try {
@@ -219,6 +232,56 @@ export default async function EventDetailPage({
           )}
         </div>
       </div>
+
+      {event.status === "published" && canUseDoorTools ? (
+        <div className="mt-4 rounded-2xl border border-border bg-muted/10 p-4 md:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-neon-a">Door check-in</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Fast QR scan plus manual code entry for dim venues.
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                <span className="font-mono text-foreground">{checkedIn}</span> checked in ·{" "}
+                <span className="font-mono text-foreground">{confirmed}</span> confirmed (not yet scanned) ·{" "}
+                <span className="font-mono text-foreground">{total}</span> total RSVPs
+                {(event as { rsvp_capacity?: number | null }).rsvp_capacity ? (
+                  <>
+                    {" "}
+                    · RSVP cap{" "}
+                    <span className="font-mono text-foreground">
+                      {(event as { rsvp_capacity?: number | null }).rsvp_capacity}
+                    </span>
+                  </>
+                ) : null}
+              </p>
+            </div>
+            <Button
+              className="h-11 w-full shrink-0 font-mono text-[10px] uppercase tracking-widest sm:w-auto sm:min-w-[11rem]"
+              asChild
+            >
+              <Link href={`/organizer/${slug}/events/${eventSlug}/check-in`}>
+                <Camera className="mr-2 h-4 w-4" />
+                Open door scanner
+              </Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      <OrganizerEventPowerToolsCard
+        orgSlug={slug}
+        eventId={event.id}
+        eventStatus={event.status}
+        viewCount={viewCount}
+        activeRsvps={activeRsvpsRollup}
+        checkedInCount={checkedIn}
+        showDuplicate={canDuplicateEvent}
+      />
+
+      {event.status === "published" ? (
+        <OrganizerPartnershipUpsell orgSlug={slug} eventSlug={eventSlug} variant="event" />
+      ) : null}
 
       {/* Archived banner */}
       {event.status === "archived" ? (

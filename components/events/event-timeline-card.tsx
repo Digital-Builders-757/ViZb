@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Clock } from "lucide-react"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
 import { GlassCard } from "@/components/ui/glass-card"
 
@@ -20,6 +21,8 @@ interface EventTimelineCardProps {
     flyer_url: string | null
     org_name: string
     org_slug: string | null
+    event_kind?: "official" | "community"
+    is_staff_pick?: boolean
   }
   index: number
   isSignedIn: boolean
@@ -69,6 +72,8 @@ export function EventTimelineCard({
   )
 
   const isArchive = tone === "archive"
+  const kind = event.event_kind ?? "official"
+  const staffPick = event.is_staff_pick === true
 
   return (
     <GlassCard
@@ -169,6 +174,22 @@ export function EventTimelineCard({
               >
                 {event.org_name}
               </span>
+              <span className="h-1 w-1 rounded-full bg-[color:var(--neon-text2)]/60" />
+              <span
+                className={`rounded-full border px-2.5 py-0.5 text-[9px] sm:text-[10px] font-mono uppercase tracking-widest ${
+                  kind === "community"
+                    ? "border-violet-500/45 text-violet-200 bg-violet-500/12"
+                    : "border-[color:var(--neon-hairline)] text-[color:var(--neon-text0)] bg-[color:var(--neon-surface)]/40"
+                }`}
+              >
+                {eventKindBadgeShort(kind)}
+              </span>
+              {staffPick ? (
+                <>
+                  <span className="h-1 w-1 rounded-full bg-[color:var(--neon-text2)]/60" />
+                  <span className={`${STAFF_PICK_BADGE_CLASS} px-2.5 py-0.5`}>{STAFF_PICK_BADGE_LABEL}</span>
+                </>
+              ) : null}
               <span className="h-1 w-1 rounded-full bg-[color:var(--neon-text2)]/60" />
               <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-mono text-[color:var(--neon-text2)]">
                 <Clock className="h-3 w-3 shrink-0" />

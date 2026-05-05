@@ -7,6 +7,7 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import { eventKindBadgeShort } from "@/lib/events/event-kind"
 
 type HeroEvent = {
   title: string
@@ -15,6 +16,7 @@ type HeroEvent = {
   city: string
   categories: string[]
   flyer_url: string | null
+  event_kind?: string | null
 }
 
 function heroEventWhen(startsAt: string) {
@@ -34,7 +36,7 @@ export async function HeroSection() {
     const supabase = await createClient()
     const { data } = await supabase
       .from("events")
-      .select("title, slug, starts_at, city, categories, flyer_url")
+      .select("title, slug, starts_at, city, categories, flyer_url, event_kind")
       .eq("status", "published")
       .gte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: true })
@@ -157,6 +159,13 @@ export async function HeroSection() {
                           <p className="line-clamp-2 text-sm font-semibold leading-snug text-[color:var(--neon-text0)]">
                             {e.title}
                           </p>
+                          {e.event_kind === "community" ? (
+                            <p className="mt-2">
+                              <span className="inline-flex rounded-full border border-violet-500/45 bg-violet-500/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-violet-200">
+                                {eventKindBadgeShort("community")}
+                              </span>
+                            </p>
+                          ) : null}
                           <p className="mt-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
                             {heroEventWhen(e.starts_at)}{" "}
                             <span className="text-[color:var(--neon-text2)]/70">·</span> {e.city}

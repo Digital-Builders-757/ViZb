@@ -1,6 +1,7 @@
 "use client"
 
 import { CalendarPlus, Download } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 /** Google Calendar `dates` param: UTC compact form `YYYYMMDDTHHmmssZ`. */
 function toGoogleCalendarUtc(d: Date) {
@@ -75,12 +76,15 @@ export function EventCalendarActions({
   venueName,
   city,
   eventUrl,
+  className,
 }: {
   title: string
   startsAt: string
   venueName: string
   city: string
   eventUrl: string
+  /** Use `mt-0` when the parent already stacks spacing (e.g. `space-y-*`). */
+  className?: string
 }) {
   const start = new Date(startsAt)
   if (Number.isNaN(start.getTime())) {
@@ -111,7 +115,7 @@ export function EventCalendarActions({
   }
 
   return (
-    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+    <div className={cn("mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap", className)}>
       <a
         href={googleHref}
         target="_blank"

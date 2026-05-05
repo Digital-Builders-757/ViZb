@@ -1,4 +1,4 @@
-import { CalendarDays, Compass } from "lucide-react"
+import { CalendarDays, Compass, Heart } from "lucide-react"
 
 import { NeonLink } from "@/components/ui/neon-link"
 
@@ -8,6 +8,16 @@ export function MemberHomeQuickActions() {
       <NeonLink href="/events" fullWidth className="sm:min-w-[min(100%,12rem)] sm:flex-1" shape="xl">
         <Compass className="h-4 w-4 shrink-0" aria-hidden />
         Browse events
+      </NeonLink>
+      <NeonLink
+        href="/dashboard#my-vibes-week-heading"
+        variant="secondary"
+        fullWidth
+        className="sm:min-w-[min(100%,12rem)] sm:flex-1"
+        shape="xl"
+      >
+        <Heart className="h-4 w-4 shrink-0" aria-hidden />
+        My Vibes
       </NeonLink>
       <NeonLink
         href="/tickets"

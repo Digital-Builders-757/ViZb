@@ -53,6 +53,7 @@ export async function organizerCheckInRegistration(params: {
   }
 
   revalidatePath(`/organizer/${orgSlug}/events/${eventSlug}`)
+  revalidatePath(`/organizer/${orgSlug}/events/${eventSlug}/check-in`)
   revalidatePath("/tickets")
   revalidatePath("/dashboard/tickets")
   return { success: true }

@@ -58,7 +58,20 @@ export default async function AdminPage() {
   const supabase = await createClient()
 
   // Fetch counts + data in parallel
-  const [profilesResult, orgsResult, pendingAppsResult, activeInvitesResult, pendingEventsResult, draftPostsResult, publishedPostsResult, applicationsData, pendingEventsData, usersData, allEventsData] = await Promise.all([
+  const [
+    profilesResult,
+    orgsResult,
+    pendingAppsResult,
+    activeInvitesResult,
+    pendingEventsResult,
+    draftPostsResult,
+    publishedPostsResult,
+    listingReportsResult,
+    applicationsData,
+    pendingEventsData,
+    usersData,
+    allEventsData,
+  ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("organizations").select("id", { count: "exact", head: true }),
     supabase
@@ -81,6 +94,7 @@ export default async function AdminPage() {
       .from("posts")
       .select("id", { count: "exact", head: true })
       .eq("status", "published"),
+    supabase.from("event_listing_reports").select("id", { count: "exact", head: true }),
     supabase
       .from("host_applications")
       .select(
@@ -96,7 +110,9 @@ export default async function AdminPage() {
     supabase.rpc("admin_list_users"),
     supabase
       .from("events")
-      .select("id, title, slug, status, starts_at, venue_name, city, categories, created_at, organizations(name, slug)")
+      .select(
+        "id, title, slug, status, starts_at, venue_name, city, categories, event_kind, is_staff_pick, created_at, organizations(name, slug)",
+      )
       .order("created_at", { ascending: false }),
   ])
 
@@ -107,6 +123,7 @@ export default async function AdminPage() {
   const pendingEvents = pendingEventsResult.count ?? 0
   const draftPosts = draftPostsResult.count ?? 0
   const publishedPosts = publishedPostsResult.count ?? 0
+  const listingReportsTotal = listingReportsResult.error ? 0 : listingReportsResult.count ?? 0
   const applications = applicationsData.data ?? []
   const reviewEventsList = (pendingEventsData.data ?? []).map((e) => ({
     ...e,
@@ -119,6 +136,9 @@ export default async function AdminPage() {
   const allEvents = (allEventsData.data ?? []).map((e) => ({
     ...e,
     categories: normalizeCategories((e as { categories?: unknown }).categories),
+    event_kind: ((e as { event_kind?: string }).event_kind === "community" ? "community" : "official") as
+      | "official"
+      | "community",
     organizations: normalizeOrganization(
       e.organizations as OrgSnippet | OrgSnippet[] | null | undefined,
     ),
@@ -185,6 +205,44 @@ export default async function AdminPage() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <NeonLink href="/admin/events/new" shape="xl" className="sm:w-auto">
                 New platform event
+              </NeonLink>
+              <NeonLink href="#events" variant="secondary" shape="xl" className="sm:w-auto">
+                All events
+              </NeonLink>
+            </div>
+          </div>
+        </GlassCard>
+
+        <GlassCard className="mt-4 p-4 md:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-[color:var(--neon-text0)]">Listing reports</p>
+              <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
+                Signed-in attendees can flag inaccurate or spammy listings — review here (no noisy dashboard required).
+              </p>
+              <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Total reports recorded: {listingReportsTotal}
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <NeonLink href="/admin/event-listing-reports" shape="xl" variant="secondary" className="sm:w-auto">
+                Review reports
+              </NeonLink>
+            </div>
+          </div>
+        </GlassCard>
+
+        <GlassCard className="mt-4 p-4 md:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-[color:var(--neon-text0)]">Local / Community events</p>
+              <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
+                Third-party listings for discovery—they share the platform org but appear as community events publicly, with RSVP on an external link.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <NeonLink href="/admin/events/new/community" shape="xl" className="sm:w-auto">
+                New community event
               </NeonLink>
               <NeonLink href="#events" variant="secondary" shape="xl" className="sm:w-auto">
                 All events
@@ -314,6 +372,14 @@ export default async function AdminPage() {
                 className="font-medium text-foreground underline-offset-4 hover:text-neon-a hover:underline"
               >
                 Create a platform event (ViZb org)
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/admin/events/new/community"
+                className="font-medium text-foreground underline-offset-4 hover:text-neon-a hover:underline"
+              >
+                Create a community / local listing
               </Link>
             </li>
             <li>
