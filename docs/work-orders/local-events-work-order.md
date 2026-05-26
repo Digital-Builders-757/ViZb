@@ -63,3 +63,8 @@ Suggested types:
 - The goal is not a second events product.
 - The goal is a cleaner, better-labeled version of the same events system.
 - If there is already an admin dashboard card for Platform events, add the local/community card right under it.
+
+## Current status
+- Baseline local/community event support has since shipped through `events.event_kind = 'community'`, external RSVP support, admin creation, and public labels.
+- The remaining product gap is the end-to-end **flyer upload** workflow for admin-created community listings.
+- Follow-up execution doc: `docs/work-orders/community-event-flyer-upload-work-order.md`
