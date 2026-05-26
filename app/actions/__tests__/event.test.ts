@@ -5,7 +5,7 @@
  * 1. submitEventForReview: event existence, status, flyer, membership
  * 2. uploadEventFlyer: status gate (only draft/pending)
  */
-import { EVENT_FLYER_MAX_BYTES, EVENT_FLYER_TOO_LARGE_MESSAGE } from "@/lib/events/flyer-upload-constraints"
+import { EVENT_FLYER_MAX_BYTES, EVENT_FLYER_TOO_LARGE_MESSAGE, EVENT_FLYER_EMPTY_MESSAGE } from "@/lib/events/flyer-upload-constraints"
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest"
 
 // --- Mocks ---
@@ -212,6 +212,15 @@ describe("uploadEventFlyer", () => {
 
     const result = await uploadEventFlyer(formData)
     expect(result.error).toBe("Missing event ID or file.")
+  })
+
+  it("returns error if file is empty", async () => {
+    const formData = new FormData()
+    formData.set("event_id", "evt-1")
+    formData.set("flyer", new File([], "empty.jpg", { type: "image/jpeg" }))
+
+    const result = await uploadEventFlyer(formData)
+    expect(result.error).toBe(EVENT_FLYER_EMPTY_MESSAGE)
   })
 
   it("returns error if file type is not an image", async () => {

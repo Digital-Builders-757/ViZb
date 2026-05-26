@@ -20,5 +20,25 @@ export const EVENT_FLYER_INVALID_TYPE_MESSAGE =
 
 export const EVENT_FLYER_TOO_LARGE_MESSAGE = "File too large. Maximum size is 5MB."
 
+export const EVENT_FLYER_EMPTY_MESSAGE = "File is empty."
+
 /** For <input accept="..."> */
 export const EVENT_FLYER_ACCEPT_ATTR = EVENT_FLYER_ALLOWED_MIME_TYPES.join(",")
+
+export type EventFlyerValidationResult =
+  | { ok: true }
+  | { ok: false; error: string }
+
+/** Client-side validation for event flyer file picks (mirrors server action checks). */
+export function validateEventFlyerFile(file: File): EventFlyerValidationResult {
+  if (file.size === 0) {
+    return { ok: false, error: EVENT_FLYER_EMPTY_MESSAGE }
+  }
+  if (!(EVENT_FLYER_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
+    return { ok: false, error: EVENT_FLYER_INVALID_TYPE_MESSAGE }
+  }
+  if (file.size > EVENT_FLYER_MAX_BYTES) {
+    return { ok: false, error: EVENT_FLYER_TOO_LARGE_MESSAGE }
+  }
+  return { ok: true }
+}

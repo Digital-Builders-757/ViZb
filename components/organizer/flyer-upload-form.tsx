@@ -7,10 +7,7 @@ import { useRouter } from "next/navigation"
 import { uploadEventFlyer, removeEventFlyer } from "@/app/actions/event"
 import {
   EVENT_FLYER_ACCEPT_ATTR,
-  EVENT_FLYER_ALLOWED_MIME_TYPES,
-  EVENT_FLYER_INVALID_TYPE_MESSAGE,
-  EVENT_FLYER_MAX_BYTES,
-  EVENT_FLYER_TOO_LARGE_MESSAGE,
+  validateEventFlyerFile,
 } from "@/lib/events/flyer-upload-constraints"
 import { Upload, Trash2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -30,13 +27,9 @@ export function FlyerUploadForm({ eventId, currentFlyerUrl }: FlyerUploadFormPro
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Client-side validation
-    if (!(EVENT_FLYER_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
-      toast.error(EVENT_FLYER_INVALID_TYPE_MESSAGE)
-      return
-    }
-    if (file.size > EVENT_FLYER_MAX_BYTES) {
-      toast.error(EVENT_FLYER_TOO_LARGE_MESSAGE)
+    const validation = validateEventFlyerFile(file)
+    if (!validation.ok) {
+      toast.error(validation.error)
       return
     }
 

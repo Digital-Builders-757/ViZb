@@ -63,3 +63,10 @@ Suggested types:
 - The goal is not a second events product.
 - The goal is a cleaner, better-labeled version of the same events system.
 - If there is already an admin dashboard card for Platform events, add the local/community card right under it.
+
+## Current status
+- Baseline local/community event support has shipped through `events.event_kind = 'community'`, external RSVP support, admin creation, and public labels.
+- **Flyers:** Community listings may use `events.flyer_url` like official events. Flyer is **optional for submission/review** (review requires `external_rsvp_url` only) but **recommended for feed/discovery visibility**.
+- **Admin create:** `/admin/events/new/community` supports optional inline flyer upload during draft creation (`createEvent` → `uploadEventFlyer`).
+- **Admin detail:** `/admin/events/[id]` remains the fallback for upload, replace, and remove via `FlyerUploadForm` (including recovery after a failed create-time upload).
+- Full flyer-upload execution doc: `docs/work-orders/community-event-flyer-upload-work-order.md`

@@ -1,15 +1,29 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { createEvent } from "@/app/actions/event"
-import { ArrowLeft, CalendarIcon, MapPin, FileText, Clock, Sparkles, X } from "lucide-react"
+import { createEvent, uploadEventFlyer } from "@/app/actions/event"
+import { ArrowLeft, CalendarIcon, MapPin, FileText, Clock, Sparkles, X, ImageIcon, Upload } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
+import {
+  EVENT_FLYER_ACCEPT_ATTR,
+  validateEventFlyerFile,
+} from "@/lib/events/flyer-upload-constraints"
 import { GlassCard } from "@/components/ui/glass-card"
+
+const FLYER_UPLOAD_REASON_MAX_LEN = 240
+
+function buildFlyerUploadFailureUrl(eventId: string, reason: string) {
+  const params = new URLSearchParams({ flyer_upload: "failed" })
+  const trimmed = reason.trim().slice(0, FLYER_UPLOAD_REASON_MAX_LEN)
+  if (trimmed) params.set("reason", trimmed)
+  return `/admin/events/${eventId}?${params.toString()}`
+}
 
 interface CreateEventFormProps {
   orgId: string
@@ -47,8 +61,15 @@ export function CreateEventForm({
   variant = "official",
 }: CreateEventFormProps) {
   const router = useRouter()
+  const flyerInputRef = useRef<HTMLInputElement>(null)
+  const submittingRef = useRef(false)
+  const showCommunityFlyerPicker = flow === "admin" && variant === "community"
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [uploadingFlyer, setUploadingFlyer] = useState(false)
+  const [flyerFile, setFlyerFile] = useState<File | null>(null)
+  const [flyerPreviewUrl, setFlyerPreviewUrl] = useState<string | null>(null)
+  const [flyerError, setFlyerError] = useState("")
   const [startDate, setStartDate] = useState<Date | undefined>()
   const [endDate, setEndDate] = useState<Date | undefined>()
   const [startTime, setStartTime] = useState("19:00")
@@ -58,6 +79,40 @@ export function CreateEventForm({
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [rsvpMode, setRsvpMode] = useState<"unlimited" | "capped">("unlimited")
   const [rsvpCapInput, setRsvpCapInput] = useState("")
+
+  useEffect(() => {
+    return () => {
+      if (flyerPreviewUrl) URL.revokeObjectURL(flyerPreviewUrl)
+    }
+  }, [flyerPreviewUrl])
+
+  function clearFlyerSelection() {
+    if (flyerPreviewUrl) URL.revokeObjectURL(flyerPreviewUrl)
+    setFlyerFile(null)
+    setFlyerPreviewUrl(null)
+    setFlyerError("")
+    if (flyerInputRef.current) flyerInputRef.current.value = ""
+  }
+
+  function handleFlyerSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validation = validateEventFlyerFile(file)
+    if (!validation.ok) {
+      setFlyerError(validation.error)
+      setFlyerFile(null)
+      if (flyerPreviewUrl) URL.revokeObjectURL(flyerPreviewUrl)
+      setFlyerPreviewUrl(null)
+      if (flyerInputRef.current) flyerInputRef.current.value = ""
+      return
+    }
+
+    setFlyerError("")
+    if (flyerPreviewUrl) URL.revokeObjectURL(flyerPreviewUrl)
+    setFlyerFile(file)
+    setFlyerPreviewUrl(URL.createObjectURL(file))
+  }
 
   function toggleCategory(value: string) {
     setSelectedCategories((prev) => {
@@ -70,68 +125,116 @@ export function CreateEventForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (submittingRef.current) return
+
+    submittingRef.current = true
     setError("")
     setLoading(true)
 
-    if (!startDate) {
-      setError("Please select a start date.")
-      setLoading(false)
-      return
-    }
+    let leavingPage = false
 
-    if (variant !== "community" && selectedCategories.size === 0) {
-      setError("Select at least one category.")
-      setLoading(false)
-      return
-    }
-
-    const form = e.currentTarget
-    const formData = new FormData(form)
-    formData.set("org_id", orgId)
-    if (variant === "community") {
-      formData.set("event_kind", "community")
-    }
-    if (variant !== "community") {
-      for (const c of selectedCategories) {
-        formData.append("categories", c)
+    try {
+      if (!startDate) {
+        setError("Please select a start date.")
+        return
       }
 
-      if (rsvpMode === "unlimited") {
-        formData.set("rsvp_capacity", "")
-      } else {
-        const capRaw = rsvpCapInput.trim()
-        if (!capRaw) {
-          setError("Enter a maximum number of free RSVPs, or choose Unlimited RSVPs.")
-          setLoading(false)
+      if (variant !== "community" && selectedCategories.size === 0) {
+        setError("Select at least one category.")
+        return
+      }
+
+      if (showCommunityFlyerPicker && flyerFile) {
+        const validation = validateEventFlyerFile(flyerFile)
+        if (!validation.ok) {
+          setFlyerError(validation.error)
           return
         }
-        formData.set("rsvp_capacity", capRaw)
       }
-    }
 
-    const startDateTime = `${format(startDate, "yyyy-MM-dd")}T${startTime}`
-    formData.set("starts_at", startDateTime)
+      const form = e.currentTarget
+      const formData = new FormData(form)
+      formData.set("org_id", orgId)
+      if (variant === "community") {
+        formData.set("event_kind", "community")
+      }
+      if (variant !== "community") {
+        for (const c of selectedCategories) {
+          formData.append("categories", c)
+        }
 
-    if (endDate) {
-      const endDateTime = `${format(endDate, "yyyy-MM-dd")}T${endTime}`
-      formData.set("ends_at", endDateTime)
-    }
+        if (rsvpMode === "unlimited") {
+          formData.set("rsvp_capacity", "")
+        } else {
+          const capRaw = rsvpCapInput.trim()
+          if (!capRaw) {
+            setError("Enter a maximum number of free RSVPs, or choose Unlimited RSVPs.")
+            return
+          }
+          formData.set("rsvp_capacity", capRaw)
+        }
+      }
 
-    const result = await createEvent(formData)
+      const startDateTime = `${format(startDate, "yyyy-MM-dd")}T${startTime}`
+      formData.set("starts_at", startDateTime)
 
-    if (result.error) {
-      setError(result.error)
-      setLoading(false)
-      return
-    }
+      if (endDate) {
+        const endDateTime = `${format(endDate, "yyyy-MM-dd")}T${endTime}`
+        formData.set("ends_at", endDateTime)
+      }
 
-    if (result.success && result.event) {
+      const result = await createEvent(formData)
+
+      if (result.error) {
+        setError(result.error)
+        return
+      }
+
+      if (!result.success || !result.event) {
+        setError("Event was created but the response was incomplete. Refresh and check Admin before trying again.")
+        return
+      }
+
+      const eventId = result.event.id
+
+      if (showCommunityFlyerPicker && flyerFile) {
+        setUploadingFlyer(true)
+        try {
+          const uploadFormData = new FormData()
+          uploadFormData.set("event_id", eventId)
+          uploadFormData.set("flyer", flyerFile)
+
+          const uploadResult = await uploadEventFlyer(uploadFormData)
+
+          if (uploadResult.error) {
+            leavingPage = true
+            router.push(buildFlyerUploadFailureUrl(eventId, uploadResult.error))
+            router.refresh()
+            return
+          }
+        } catch {
+          leavingPage = true
+          router.push(buildFlyerUploadFailureUrl(eventId, "An unexpected error occurred during upload."))
+          router.refresh()
+          return
+        } finally {
+          setUploadingFlyer(false)
+        }
+      }
+
+      leavingPage = true
       if (flow === "admin") {
-        router.push(`/admin/events/${result.event.id}`)
+        router.push(`/admin/events/${eventId}`)
       } else {
         router.push(`/organizer/${orgSlug}/events/${result.event.slug}`)
       }
       router.refresh()
+    } finally {
+      if (!leavingPage) {
+        submittingRef.current = false
+        setLoading(false)
+        setUploadingFlyer(false)
+      }
     }
   }
 
@@ -168,9 +271,9 @@ export function CreateEventForm({
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--neon-text1)]">
           {variant === "community" ? (
             <>
-              Add a third-party listing for <span className="text-neon-a/90">{orgName}</span>. After you save the draft,
-              set an RSVP link on the detail page — it&apos;s required before submitting for review. Flyer/image is optional
-              but recommended.
+              Add a third-party listing for <span className="text-neon-a/90">{orgName}</span>. You can attach an optional
+              flyer now or later — it improves feed visibility. Set an RSVP link before submitting for review (here or on
+              the detail page).
             </>
           ) : (
             <>
@@ -287,6 +390,73 @@ export function CreateEventForm({
                       Add a valid https link before submitting for review. You can also paste it on the event page after
                       creating the draft.
                     </p>
+                  </div>
+                ) : null}
+
+                {showCommunityFlyerPicker ? (
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <span className={labelClass}>Flyer (optional)</span>
+                      <p className={`${helpTextClass} mt-1 max-w-xl`}>
+                        Optional for submission, but strongly recommended for feed visibility and click-through. JPEG, PNG,
+                        WebP, or GIF — max 5MB.
+                      </p>
+                    </div>
+
+                    {flyerError ? (
+                      <p className="text-sm text-destructive">{flyerError}</p>
+                    ) : null}
+
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                      <div className="relative aspect-[4/5] w-full max-w-[160px] shrink-0 overflow-hidden border border-[color:var(--neon-hairline)] bg-white/[0.02]">
+                        {flyerPreviewUrl ? (
+                          <Image
+                            src={flyerPreviewUrl}
+                            alt="Flyer preview"
+                            fill
+                            sizes="160px"
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                            <ImageIcon className="h-8 w-8 text-[color:var(--neon-text2)]/70" />
+                            <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                              No flyer
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label
+                          className={`inline-flex cursor-pointer items-center gap-2 border border-neon-a/30 px-4 py-2.5 text-xs font-mono uppercase tracking-widest text-neon-a transition-colors hover:bg-neon-a/10 ${
+                            loading ? "pointer-events-none opacity-50" : ""
+                          }`}
+                        >
+                          <Upload className="h-4 w-4" />
+                          {flyerFile ? "Replace flyer" : "Select flyer"}
+                          <input
+                            ref={flyerInputRef}
+                            type="file"
+                            accept={EVENT_FLYER_ACCEPT_ATTR}
+                            onChange={handleFlyerSelect}
+                            disabled={loading}
+                            className="sr-only"
+                          />
+                        </label>
+                        {flyerFile ? (
+                          <button
+                            type="button"
+                            onClick={clearFlyerSelection}
+                            disabled={loading}
+                            className="border border-[color:var(--neon-hairline)] px-4 py-2.5 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text1)] transition-colors hover:border-destructive/30 hover:text-destructive disabled:opacity-50"
+                          >
+                            Remove
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 ) : null}
 
@@ -515,7 +685,11 @@ export function CreateEventForm({
                   disabled={loading}
                   className="vibe-cta-gradient vibe-focus-ring flex-1 px-8 py-3 text-xs font-mono font-bold uppercase tracking-widest disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
                 >
-                  {loading ? "Creating..." : "Create Draft"}
+                  {loading
+                    ? uploadingFlyer
+                      ? "Uploading flyer..."
+                      : "Creating..."
+                    : "Create Draft"}
                 </button>
                 <Link
                   href={flow === "admin" ? "/admin" : `/organizer/${orgSlug}`}
@@ -526,7 +700,7 @@ export function CreateEventForm({
               </div>
               <p className="hidden font-mono text-[11px] text-[color:var(--neon-text2)] sm:block">
                 {variant === "community"
-                  ? "Draft first — add RSVP link on the detail page before submitting for review."
+                  ? "Optional flyer improves discovery — RSVP link required before review."
                   : "Create the draft first, then upload the flyer on the event page."}
               </p>
             </div>
