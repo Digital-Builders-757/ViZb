@@ -41,6 +41,9 @@ Current `event_status` values (see `scripts/003_create_enums.sql` + `scripts/008
 - Columns **`events.event_kind`** (`official` \| `community`, default `official`) and **`events.external_rsvp_url`** (nullable http(s) URL).
 - Migration: `supabase/migrations/20260505163945_add_event_kind_and_external_rsvp.sql`.
 - **`community`** rows are intended for third-party listings: **submit for review** requires a valid **`external_rsvp_url`** (no in-app flyer requirement). **`official`** rows keep the existing flyer requirement before review.
+- **Community flyers:** **`community`** listings may set **`events.flyer_url`** (same storage/rendering as official events). Flyer is **optional for submission/review** but **recommended for discovery** on public surfaces that read **`flyer_url`**.
+- **Admin community create:** `/admin/events/new/community` lets staff attach an optional flyer during draft creation (two-step: `createEvent` then `uploadEventFlyer`); uses the same `event-flyers` bucket as the detail-page uploader. Upload failure after draft creation redirects to `/admin/events/[id]?flyer_upload=failed&reason=…` for recovery.
+- **Admin community detail:** `/admin/events/[id]` keeps **`FlyerUploadForm`** as the fallback/maintenance surface for upload, replace, and remove (including after create-time upload is skipped or fails).
 - **`createEvent`:** `event_kind=community` is accepted only for **staff_admin** creating under the **platform** org (see `lib/orgs/platform-org.ts`); otherwise the row stays `official`.
 - **Public:** `/events` and `/events/[slug]` label **`community`** rows **Local Event** (not ViZb-hosted); primary RSVP is the external link (`target="_blank"`, `rel="noopener noreferrer"`).
 

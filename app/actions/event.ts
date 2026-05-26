@@ -13,6 +13,7 @@ import {
 import { parseRsvpCapacityField } from "@/lib/events/rsvp-capacity"
 import {
   EVENT_FLYER_ALLOWED_MIME_TYPES,
+  EVENT_FLYER_EMPTY_MESSAGE,
   EVENT_FLYER_INVALID_TYPE_MESSAGE,
   EVENT_FLYER_MAX_BYTES,
   EVENT_FLYER_TOO_LARGE_MESSAGE,
@@ -198,6 +199,10 @@ export async function uploadEventFlyer(formData: FormData) {
 
     if (!eventId || !file) {
       return { error: "Missing event ID or file." }
+    }
+
+    if (file.size === 0) {
+      return { error: EVENT_FLYER_EMPTY_MESSAGE }
     }
 
     if (!(EVENT_FLYER_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {

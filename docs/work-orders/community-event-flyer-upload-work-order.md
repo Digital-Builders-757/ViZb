@@ -10,7 +10,20 @@ Ship a true end-to-end flyer upload workflow for **community / local events** cr
 
 This is a product-completion task, not a storage-infrastructure task.
 
-## Why this work order exists
+## Current status (shipped)
+
+**Behavior (matches shipped code):**
+- **Community listings may include flyers** — stored in `events.flyer_url` via the existing `event-flyers` bucket and `uploadEventFlyer` action.
+- **Flyer is optional for submission/review** — `submitEventForReview` for `event_kind=community` requires a valid `external_rsvp_url`, not a flyer.
+- **Flyer is recommended for discovery** — create and detail copy frame it as optional for review but strongly recommended for feed visibility and click-through on `/events`, `/events/[slug]`, and homepage rails that read `flyer_url`.
+- **Admin create supports inline upload** — `/admin/events/new/community` (`CreateEventForm` with `flow="admin"` + `variant="community"`) accepts an optional flyer picker; orchestration is two-step (`createEvent`, then `uploadEventFlyer` against the new id).
+- **Detail page is the fallback/maintenance surface** — `/admin/events/[id]` keeps `FlyerUploadForm` for upload, replace, and remove after create (including when create-time upload is skipped or fails).
+
+**Implementation notes:**
+- Upload failure after draft creation redirects to `/admin/events/[id]?flyer_upload=failed&reason=…` with a recovery banner inside the Event Flyer card; the draft is preserved and `createEvent` is not retried.
+- Official admin create (`/admin/events/new`) is unchanged — no inline flyer picker; flyer remains required before review for `event_kind=official`.
+
+## Why this work order existed
 The repo already supports:
 - `events.flyer_url`
 - Supabase Storage bucket `event-flyers`
@@ -18,10 +31,10 @@ The repo already supports:
 - edit-page upload UI via `FlyerUploadForm`
 - public feed/detail rendering that reads `flyer_url`
 
-What is still missing from the actual admin experience:
-- the **new community event** flow does not let staff attach a flyer before or during draft creation
-- community-event copy currently frames flyer as optional and secondary, which makes the upload path easy to miss
-- the resulting workflow feels incomplete even though the underlying upload system exists
+What was missing from the admin experience (now addressed):
+- the **new community event** flow did not let staff attach a flyer before or during draft creation
+- community-event copy framed flyer as optional and secondary, which made the upload path easy to miss
+- the resulting workflow felt incomplete even though the underlying upload system existed
 
 The outcome should be: **admin can create a community event and attach a flyer in the same flow without hunting for a second screen**.
 
@@ -40,10 +53,10 @@ The outcome should be: **admin can create a community event and attach a flyer i
   - `app/events/page.tsx`
   - `app/events/[slug]/page.tsx`
 
-### Product gap
-- `CreateEventForm` does not currently capture a flyer file
-- the admin “new community event” flow therefore feels like “create first, maybe remember to upload later”
-- user perception is correct: for community events, the workflow does not currently feel like a real upload feature even though the lower-level primitives exist
+### Product gap (closed)
+- ~~`CreateEventForm` does not currently capture a flyer file~~ — shipped for admin + community variant
+- ~~the admin “new community event” flow therefore feels like “create first, maybe remember to upload later”~~
+- ~~user perception is correct: for community events, the workflow does not currently feel like a real upload feature even though the lower-level primitives exist~~
 
 ## Product decision
 Do **not** invent a second media system.
@@ -79,7 +92,7 @@ The fix is to close the orchestration gap in the **admin create flow** and make 
 ## User workflows
 
 ### Workflow A: Admin creates a community event with flyer
-1. Staff admin opens `/admin/events/new`
+1. Staff admin opens `/admin/events/new/community`
 2. Staff chooses the community/local listing path
 3. Form includes the current fields plus an optional flyer picker
 4. Staff completes title, date/time, location, description, external RSVP link, and optionally selects a flyer
@@ -100,8 +113,8 @@ The fix is to close the orchestration gap in the **admin create flow** and make 
 3. User is not left guessing
 4. UI shows:
    - draft created successfully
-   - flyer upload failed
-   - direct path to continue on `/admin/events/[id]`
+   - flyer upload failed (with `reason` when available)
+   - direct path to continue on `/admin/events/[id]` and retry via `FlyerUploadForm`
 5. No duplicate event should be created
 
 ### Workflow D: Admin edits existing community event flyer later
@@ -246,8 +259,10 @@ The fix is to close the orchestration gap in the **admin create flow** and make 
 
 ## Cursor handoff
 
-### Task
-Implement the missing end-to-end flyer upload workflow for admin-created community events by wiring the existing event flyer upload pipeline into the admin create flow.
+**Status: implemented.** The items below describe the shipped behavior; use this doc for maintenance/regression context, not greenfield implementation.
+
+### Task (complete)
+End-to-end flyer upload for admin-created community events is wired through `CreateEventForm` + `uploadEventFlyer`.
 
 ### Hard constraints
 - Reuse existing `uploadEventFlyer` and storage bucket patterns

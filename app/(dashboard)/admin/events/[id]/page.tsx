@@ -22,11 +22,15 @@ import { AdminEventStaffPickSwitch } from "@/components/admin/admin-event-staff-
 
 export default async function AdminEventDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ flyer_upload?: string; reason?: string }>
 }) {
   await requireAdmin()
   const { id } = await params
+  const { flyer_upload: flyerUploadStatus, reason: flyerUploadReasonRaw } = await searchParams
+  const flyerUploadReason = flyerUploadReasonRaw?.trim() || null
 
   if (!isServerSupabaseConfigured()) {
     return (
@@ -198,6 +202,20 @@ export default async function AdminEventDetailPage({
           Event Flyer
         </h2>
 
+        {flyerUploadStatus === "failed" ? (
+          <div className="mb-4 border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+            <p className="text-sm text-amber-400">
+              Draft created successfully, but the flyer upload failed.
+            </p>
+            {flyerUploadReason ? (
+              <p className="mt-1 text-sm text-amber-200/90">{flyerUploadReason}</p>
+            ) : null}
+            <p className="mt-1 text-sm text-muted-foreground">
+              Use the uploader below to try again — your draft is saved.
+            </p>
+          </div>
+        ) : null}
+
         <div className="flex flex-col md:flex-row gap-6">
           <div className="relative w-full md:w-64 aspect-[4/5] overflow-hidden border border-border bg-secondary shrink-0">
             {flyerUrl ? (
@@ -237,8 +255,9 @@ export default async function AdminEventDetailPage({
               )}
             {communityListing && ["draft", "rejected"].includes(event.status as string) ? (
               <p className="mt-3 text-xs text-muted-foreground font-mono leading-relaxed max-w-xl">
-                Local listings don&apos;t need a flyer. Add an external RSVP link in{" "}
-                <span className="text-[color:var(--neon-text0)]">Event details</span> before submitting for review.
+                Flyer is optional for submission but strongly recommended for feed visibility. Add an external RSVP
+                link in <span className="text-[color:var(--neon-text0)]">Event details</span> before submitting for
+                review.
                 {!externalRsvp?.trim() ? (
                   <span className="block mt-2 text-amber-500">
                     RSVP link missing — submission for review will be blocked until set.
