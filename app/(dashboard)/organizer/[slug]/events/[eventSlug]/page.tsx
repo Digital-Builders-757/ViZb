@@ -27,6 +27,7 @@ import {
   type OpenMicLineupEntryRow,
 } from "@/components/organizer/open-mic-lineup-panel"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
+import { isCommunityEvent } from "@/lib/events/event-kind"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { OrganizerEventPowerToolsCard } from "@/components/organizer/organizer-event-power-tools-card"
@@ -182,6 +183,9 @@ export default async function EventDetailPage({
   const endTimeStr = endsAt
     ? endsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
     : null
+
+  const communityListing = isCommunityEvent((event as { event_kind?: string }).event_kind)
+  const externalRsvp = (event as { external_rsvp_url?: string | null }).external_rsvp_url ?? null
 
   return (
     <div>
@@ -366,8 +370,24 @@ export default async function EventDetailPage({
         </p>
 
         <EventDetailsEditForm
+          community={communityListing}
           key={`${event.id}-${(event as { updated_at?: string }).updated_at ?? ""}`}
-          event={event}
+          event={{
+            id: event.id as string,
+            org_id: event.org_id as string,
+            title: event.title as string,
+            description: (event as { description?: string | null }).description ?? null,
+            starts_at: event.starts_at as string,
+            ends_at: (event as { ends_at?: string | null }).ends_at ?? null,
+            venue_name: event.venue_name as string,
+            address: (event as { address?: string | null }).address ?? null,
+            city: event.city as string,
+            categories,
+            status: event.status as string,
+            rsvp_capacity: (event as { rsvp_capacity?: number | null }).rsvp_capacity ?? null,
+            external_rsvp_url: externalRsvp,
+            updated_at: (event as { updated_at?: string }).updated_at,
+          }}
         />
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">

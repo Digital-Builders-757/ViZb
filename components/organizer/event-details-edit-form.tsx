@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Save, X } from "lucide-react"
 import { toast } from "sonner"
 import { updateEventDetails } from "@/app/actions/event"
-import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
+import { EventCategoryPicker } from "@/components/events/event-category-picker"
 
 export function EventDetailsEditForm({
   event,
@@ -69,11 +69,12 @@ export function EventDetailsEditForm({
         fd.set("org_id", event.org_id)
         for (const c of selected) fd.append("categories", c)
 
-        if (community) {
-          if (selected.size === 0) {
-            fd.append("categories", "other")
-          }
-        } else {
+        if (selected.size === 0) {
+          setError("Select at least one category.")
+          return
+        }
+
+        if (!community) {
           if (rsvpMode === "unlimited") {
             fd.set("rsvp_capacity", "")
           } else {
@@ -108,8 +109,9 @@ export function EventDetailsEditForm({
           {community ? (
             <>
               <span className="font-mono uppercase tracking-wider text-muted-foreground/90">Local listing</span> —
-              title, schedule, venue, description, and external RSVP link save below. RSVP on ViZb is not used — users go
-              to your link in a new tab.
+              title, schedule, venue, description, categories, and external RSVP link save below. Categories control which
+              filters on <span className="font-mono text-foreground/85">/events</span> include this listing. RSVP on ViZb is
+              not used — users go to your link in a new tab.
             </>
           ) : (
             <>
@@ -308,31 +310,17 @@ export function EventDetailsEditForm({
         </div>
       </div>
 
-      {!community ? (
-        <fieldset className="flex flex-col gap-3">
-          <legend className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Categories</legend>
-          <div className="flex flex-wrap gap-2">
-            {EVENT_CATEGORY_OPTIONS.map((cat) => {
-              const on = selected.has(cat.value)
-              return (
-                <button
-                  key={cat.value}
-                  type="button"
-                  onClick={() => toggleCategory(cat.value)}
-                  disabled={archived}
-                  className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors disabled:opacity-50 ${
-                    on
-                      ? "border-neon-a bg-neon-a/10 text-foreground"
-                      : "border-border text-muted-foreground hover:border-muted-foreground/50"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              )
-            })}
-          </div>
-        </fieldset>
-      ) : null}
+      <EventCategoryPicker
+        selected={selected}
+        onToggle={toggleCategory}
+        disabled={archived}
+        required
+        helpText={
+          community
+            ? "Pick all that apply — drives category filters on the public events page."
+            : "Pick all that apply — used for discovery on /events."
+        }
+      />
 
       <div
         className={`sticky bottom-0 z-10 mt-8 -mx-1 px-1 pt-5 pb-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-[color:var(--neon-hairline)] bg-gradient-to-t from-[color:var(--neon-bg0)] via-[color:color-mix(in_srgb,var(--neon-bg0)_96%,var(--neon-b)_4%)] to-transparent backdrop-blur-md shadow-[0_-12px_40px_rgba(0,0,0,0.5)] ring-1 ring-[color:var(--neon-hairline)]/50`}

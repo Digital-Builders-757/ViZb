@@ -94,14 +94,10 @@ export async function createEvent(formData: FormData) {
     event_kind = EVENT_KIND_COMMUNITY
   }
 
-  let categories = categoriesInput
-  if (event_kind === EVENT_KIND_COMMUNITY) {
-    if (!categories?.length) {
-      categories = ["other"]
-    }
-  } else if (!categories) {
+  if (!categoriesInput) {
     return { error: "Select at least one valid category." }
   }
+  const categories = categoriesInput
 
   let rsvp_capacity: number | null = null
   if (event_kind === EVENT_KIND_COMMUNITY) {
@@ -543,14 +539,10 @@ export async function updateEventDetails(formData: FormData) {
     return { error: "Please fill in all required fields." }
   }
 
-  let categories = categoriesRaw
-  if (community) {
-    if (!categories?.length) {
-      categories = ["other"]
-    }
-  } else if (!categories) {
+  if (!categoriesRaw) {
     return { error: "Select at least one valid category." }
   }
+  const categories = categoriesRaw
 
   let parsedCap = { capacity: null as number | null, error: null as string | null }
   if (!community) {
@@ -832,11 +824,9 @@ export async function duplicateOrganizerEventDraft(params: {
     }
   }
 
-  let categories = normalizeCategories(row.categories).filter(isValidEventCategory)
-  if (kind === EVENT_KIND_COMMUNITY) {
-    if (categories.length === 0) categories = ["other"]
-  } else if (categories.length === 0) {
-    return { error: "Source event has no valid ViZb categories to copy." }
+  const categories = normalizeCategories(row.categories).filter(isValidEventCategory)
+  if (categories.length === 0) {
+    return { error: "Source event has no valid categories to copy — set categories on the original first." }
   }
 
   let rsvp_capacity: number | null = row.rsvp_capacity
