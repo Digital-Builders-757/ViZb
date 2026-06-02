@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** April 21, 2026
+**Last updated:** June 2, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -37,6 +37,7 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | Admin **post cover** or organizer **flyer** upload: **`Bucket not found`** (Storage API) | The linked Supabase project has no **`post-covers`** / **`event-flyers`** row in **`storage.buckets`** (migrations not applied on that project) | Run **`supabase db push`** against the same project as **`NEXT_PUBLIC_SUPABASE_URL`**; migration **`20260420224705_storage_buckets_event_flyers_and_posts.sql`** creates **`post-covers`**, **`event-flyers`**, and **`posts`** buckets + RLS — or create buckets manually in **Storage** (match public flag + MIME/size limits from that migration) |
 | Admin **Save** on a post appears to do **nothing** (no redirect / no error) | **`content_image_urls`** hidden field is not valid JSON, or includes URLs not under Storage **`/posts/`** (server rejects the save) | Use only images added via **Images in post** (or ensure the hidden field is a JSON array of Supabase **`posts`** bucket public URLs); check browser devtools **Network** for the form POST |
 | **Open mic:** performers in dashboard but **`/lineup/[slug]`** empty or 404 | Row is **pending** / **Public off** / wrong status; event **not published**; or slug mismatch | Dashboard panel shows per-row public eligibility; public page only lists **`is_public`** + **confirmed** or **performed**; **`/lineup/...`** requires **published** open-mic event — see **`docs/OPEN_MIC_LINEUP.md`** |
+| Admin **Create Draft** on **`/admin/events/new/community`** lands on **404** at **`/admin/events/[id]`** (draft may exist in Admin → All events) | Production DB missing **`is_staff_pick`** / **`public_detail_view_count`** (migrations **`20260505184652`**, **`20260505195500`**) while **`event_kind`** was already applied — detail **`SELECT`** fails and page called **`notFound()`** | Run **`supabase migration list`** (Remote must match Local); **`supabase db push`** on the production-linked project; confirm columns with SQL in **`docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md`** |
 | **ViZb logo** shows a **black square** on loading / dark UI | **`public/vizb-logo.png`** was **RGB** (no alpha) — black is part of the bitmap, not “transparency” | Re-export from design as **PNG with transparency**, or replace with **RGBA**; confirm with `python -c "from PIL import Image; print(Image.open('public/vizb-logo.png').mode)"` → **`RGBA`**; see **`lib/brand-assets.ts`** |
 
 _Add rows as recurring issues appear._ `/ship` should append here when a fix addresses a repeatable failure mode.

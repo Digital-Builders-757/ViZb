@@ -3,7 +3,7 @@ import Image from "next/image"
 
 import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
+import { NeonLink } from "@/components/ui/neon-link"
 import { ArrowLeft, FileText, ImageIcon, Users } from "lucide-react"
 import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { GlassCard } from "@/components/ui/glass-card"
@@ -53,7 +53,7 @@ export default async function AdminEventDetailPage({
 
   const supabase = await createClient()
 
-  const { data: event } = await supabase
+  const { data: event, error: eventError } = await supabase
     .from("events")
     .select(
       "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, flyer_url, event_kind, external_rsvp_url, public_detail_view_count, is_staff_pick, organizations(name, slug)",
@@ -61,7 +61,45 @@ export default async function AdminEventDetailPage({
     .eq("id", id)
     .single()
 
-  if (!event) notFound()
+  if (eventError || !event) {
+    const message = eventError?.message?.trim() || "Event not found or you do not have access."
+    const looksLikeSchemaDrift =
+      /column|schema cache|does not exist|42703|42P01/i.test(message)
+
+    return (
+      <div className="space-y-6">
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-neon-a transition-colors"
+        >
+          <ArrowLeft className="w-3 h-3" />
+          Back to Admin
+        </Link>
+        <GlassCard className="p-6">
+          <p className="font-mono text-xs uppercase tracking-widest text-destructive">Could not load event</p>
+          <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+          {looksLikeSchemaDrift ? (
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              Production database may be missing recent migrations. Apply pending files with{" "}
+              <span className="font-mono text-foreground">supabase db push</span> (see{" "}
+              <span className="font-mono text-foreground">docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md</span>
+              ), especially{" "}
+              <span className="font-mono text-foreground">20260505184652</span> and{" "}
+              <span className="font-mono text-foreground">20260505195500</span>.
+            </p>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              If you just created a draft, check Admin → All events — the row may exist even when this page cannot load
+              it.
+            </p>
+          )}
+          <NeonLink href="/admin#events" variant="secondary" shape="xl" className="mt-4 inline-flex">
+            Back to all events
+          </NeonLink>
+        </GlassCard>
+      </div>
+    )
+  }
 
   const flyerUrl = (event as { flyer_url?: string | null }).flyer_url ?? null
 
