@@ -123,6 +123,8 @@ export function Navbar() {
         : "text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]",
     )
 
+  const onHome = pathname === "/"
+  const onAbout = pathname === "/about"
   const onEvents = pathname === "/events" || pathname.startsWith("/events/")
   const onPosts = pathname === "/p" || pathname.startsWith("/p/")
   const onAdvertise = pathname.startsWith("/advertise")
@@ -155,6 +157,9 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
+            <Link href="/" className={navText(onHome)} aria-current={onHome ? "page" : undefined}>
+              Home
+            </Link>
             <Link href="/events" className={navText(onEvents)} aria-current={onEvents ? "page" : undefined}>
               Events
             </Link>
@@ -168,7 +173,7 @@ export function Navbar() {
             >
               Advertise
             </Link>
-            <Link href="/#about" className={navText(pathname === "/")}>
+            <Link href="/about" className={navText(onAbout)} aria-current={onAbout ? "page" : undefined}>
               About
             </Link>
 
@@ -218,6 +223,9 @@ export function Navbar() {
       {isOpen && (
         <div className="md:hidden border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/92 backdrop-blur-xl">
           <div className="px-4 py-6 space-y-4">
+            <Link href="/" className={navText(onHome, true)} onClick={() => setIsOpen(false)}>
+              Home
+            </Link>
             <Link href="/events" className={navText(onEvents, true)} onClick={() => setIsOpen(false)}>
               Events
             </Link>
@@ -227,7 +235,7 @@ export function Navbar() {
             <Link href="/advertise" className={navText(onAdvertise, true)} onClick={() => setIsOpen(false)}>
               Advertise
             </Link>
-            <Link href="/#about" className={navText(pathname === "/", true)} onClick={() => setIsOpen(false)}>
+            <Link href="/about" className={navText(onAbout, true)} onClick={() => setIsOpen(false)}>
               About
             </Link>
 

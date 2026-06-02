@@ -22,10 +22,16 @@ export function Footer() {
             <div>
               <h4 className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-4">Navigate</h4>
               <div className="space-y-2">
+                <Link href="/" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
+                  Home
+                </Link>
+                <Link href="/about" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
+                  About
+                </Link>
                 <Link href="/events" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
                   Events
                 </Link>
-                <Link href="/#waitlist" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
+                <Link href="/about#waitlist" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
                   Join the list
                 </Link>
                 <Link href="/host/apply" className="block text-sm text-[color:var(--neon-text0)] hover:text-[color:var(--neon-a)] transition-colors">
