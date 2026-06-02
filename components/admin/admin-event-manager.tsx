@@ -270,9 +270,24 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                           {event.city ? `, ${event.city}` : ""}
                         </span>
                       )}
-                      {event.categories.length > 0 && (
-                        <span className="capitalize text-muted-foreground">
+                      {event.categories.length > 0 ? (
+                        <span
+                          className={
+                            event.categories.length === 1 && event.categories[0] === "other"
+                              ? "text-amber-400/90"
+                              : "capitalize text-muted-foreground"
+                          }
+                        >
                           {event.categories.map((c) => formatCategoryLabel(c)).join(" · ")}
+                          {event.categories.length === 1 && event.categories[0] === "other" ? (
+                            <span className="ml-1 font-mono text-[10px] normal-case tracking-normal text-muted-foreground">
+                              — edit categories on detail page
+                            </span>
+                          ) : null}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[10px] text-amber-400/90">
+                          No categories — edit on detail page
                         </span>
                       )}
                     </div>
@@ -283,7 +298,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                     <a
                       href={`/admin/events/${event.id}`}
                       className="p-2 border border-border text-muted-foreground hover:text-neon-a hover:border-neon-a/30 transition-colors bg-transparent"
-                      title="Open staff event detail"
+                      title="Edit event (including categories)"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </a>

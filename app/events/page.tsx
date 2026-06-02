@@ -9,7 +9,11 @@ import { Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { EVENT_CATEGORY_OPTIONS, normalizeCategories } from "@/lib/events/categories"
+import {
+  EVENT_CATEGORY_OPTIONS,
+  isValidEventCategory,
+  normalizeCategories,
+} from "@/lib/events/categories"
 import {
   DISCOVERY_PRESET_OPTIONS,
   applyDiscoveryPreset,
@@ -350,8 +354,10 @@ export default async function EventsExplorePage({
       .order("starts_at", { ascending: true })
 
     // Apply category filter (event must include this tag in its categories array)
-    if (activeFilter && activeFilter !== "all") {
-      upcomingQuery = upcomingQuery.contains("categories", [activeFilter.toLowerCase()])
+    const categorySlug =
+      activeFilter && activeFilter !== "all" ? activeFilter.toLowerCase() : null
+    if (categorySlug && isValidEventCategory(categorySlug)) {
+      upcomingQuery = upcomingQuery.contains("categories", [categorySlug])
     }
 
     // Fetch all events from the last 30 days onward in one query (category filter applied above)

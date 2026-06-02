@@ -313,7 +313,9 @@ export default async function AdminEventDetailPage({
           Event details
         </h2>
         <p className="text-sm text-muted-foreground mb-2">
-          Same editor as the organizer dashboard — use for urgent fixes (e.g. RSVP cap). Staff only.
+          Same editor as the organizer dashboard — use for urgent fixes (e.g. RSVP cap, categories). Set categories here
+          so the event appears under the right filters on <span className="font-mono text-foreground/90">/events</span>.
+          Staff only.
         </p>
         <EventDetailsEditForm
           community={communityListing}

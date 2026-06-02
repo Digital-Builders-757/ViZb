@@ -9,7 +9,7 @@ import Image from "next/image"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
+import { EventCategoryPicker } from "@/components/events/event-category-picker"
 import {
   EVENT_FLYER_ACCEPT_ATTR,
   validateEventFlyerFile,
@@ -139,7 +139,7 @@ export function CreateEventForm({
         return
       }
 
-      if (variant !== "community" && selectedCategories.size === 0) {
+      if (selectedCategories.size === 0) {
         setError("Select at least one category.")
         return
       }
@@ -158,11 +158,11 @@ export function CreateEventForm({
       if (variant === "community") {
         formData.set("event_kind", "community")
       }
-      if (variant !== "community") {
-        for (const c of selectedCategories) {
-          formData.append("categories", c)
-        }
+      for (const c of selectedCategories) {
+        formData.append("categories", c)
+      }
 
+      if (variant !== "community") {
         if (rsvpMode === "unlimited") {
           formData.set("rsvp_capacity", "")
         } else {
@@ -271,9 +271,10 @@ export function CreateEventForm({
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--neon-text1)]">
           {variant === "community" ? (
             <>
-              Add a third-party listing for <span className="text-neon-a/90">{orgName}</span>. You can attach an optional
-              flyer now or later — it improves feed visibility. Set an RSVP link before submitting for review (here or on
-              the detail page).
+              Add a third-party listing for <span className="text-neon-a/90">{orgName}</span>. Choose categories so the
+              event appears under the right filters on <span className="font-mono text-[color:var(--neon-text0)]">/events</span>.
+              You can attach an optional flyer now or later — it improves feed visibility. Set an RSVP link before submitting
+              for review (here or on the detail page).
             </>
           ) : (
             <>
@@ -329,34 +330,20 @@ export function CreateEventForm({
                   <p className={helpTextClass}>Keep it short and catchy, this is what people see first.</p>
                 </div>
 
-                {/* Categories (multi-select) */}
-                {variant !== "community" ? (
-                  <fieldset className="flex min-w-0 flex-col gap-3">
-                    <legend className={`${labelClass} mb-1`}>
-                      Categories <span className="text-neon-a">*</span>
-                    </legend>
-                    <p className={`${helpTextClass} -mt-1`}>
-                      Pick all that apply, it helps people discover your event faster.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {EVENT_CATEGORY_OPTIONS.map((cat) => {
-                        const on = selectedCategories.has(cat.value)
-                        return (
-                          <button
-                            key={cat.value}
-                            type="button"
-                            onClick={() => toggleCategory(cat.value)}
-                            className={`border px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
-                              on ? chipOnClass : chipOffClass
-                            }`}
-                          >
-                            {cat.label}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </fieldset>
-                ) : null}
+                <EventCategoryPicker
+                  selected={selectedCategories}
+                  onToggle={toggleCategory}
+                  required
+                  legendClassName={`${labelClass} mb-1`}
+                  helpTextClassName={`${helpTextClass} -mt-1`}
+                  chipOnClassName={chipOnClass}
+                  chipOffClassName={chipOffClass}
+                  helpText={
+                    variant === "community"
+                      ? "Pick all that apply — drives category chips on the public events page (avoid Other unless nothing else fits)."
+                      : "Pick all that apply, it helps people discover your event faster."
+                  }
+                />
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
