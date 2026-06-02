@@ -277,7 +277,12 @@ Think like a creative director plus product designer, not just a code formatter.
 | Open mic panel: GlassCard + vibe inputs | Done |
 | Event edit form: vibe inputs + sticky bar | Done |
 | Admin overview: GlassCard stat grid + posts quick links card | Done |
-| Public event detail polish (icon hierarchy) | Light pass (clock accent) |
+| Public event detail polish (icon hierarchy) | **Done (redesign handoff):** `AppShell` + `WaterFrame` flyer, gradient title, `OceanDivider` |
+| Posts `/p`, `/p/[slug]`: `SectionTitle`, `WaterFrame` cover | **Done (redesign handoff)** |
+| `/advertise`: neon organizer callout + `OceanDivider` | **Done (redesign handoff)** |
+| `/lineup`: ambient orbs → `neon-a/b/c` tokens | **Done (redesign handoff)** |
+| `docs/REDESIGN_HANDOFF.md` + external LLM brief + screenshots script | **Done** |
+| Brand doc drift (Poppins, glass radius, neon triad) | **Done** — `BRAND_SYSTEM`, constitution, coding standards |
 | Remaining `.form-card` / `input-premium` pockets | **Done (ship polish):** organizer event detail flyer + details shells, admin event detail shells, ticket tiers + attendees panels, create-event + host-application + admin create-org forms → `GlassCard` + `card-accent-*` + `vibe-input-glass` / `vibe-cta-gradient` |
 
 ## Finish pass (ship to `develop`) — finalized 2026-04-18

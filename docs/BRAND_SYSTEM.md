@@ -83,7 +83,7 @@ The ViBE neon gradient is the brand's most recognizable visual element. It flows
 | **Never use raw colors** | Always reference semantic tokens (`bg-background`, `text-primary`, etc.) |
 | **No `bg-white` or `text-white`** | Use `bg-foreground` and `text-foreground` |
 | **No `bg-black`** | Use `bg-background` |
-| **Blue is the only accent** | No random purples, greens, or oranges unless they serve a data viz purpose |
+| **Neon spectrum discipline** | Public glass UI uses `--neon-a` (cyan), `--neon-b` (violet), `--neon-c` (magenta) as a **controlled triad**; shadcn `--primary` (ViBE Blue) remains for semantic CTAs and links. No random greens/oranges unless data viz or explicit warning states |
 | **Dark mode only** | Do not create light mode variants (this may change post-MVP) |
 
 ---
@@ -94,7 +94,7 @@ The ViBE neon gradient is the brand's most recognizable visual element. It flows
 
 | Font | Tailwind Class | Role | Weight Range |
 |------|---------------|------|-------------|
-| **Space Grotesk** | `font-sans` | Body text, buttons, navigation, form labels, UI chrome | 400-700 |
+| **Poppins** | `font-sans` | Body text, buttons, navigation, form labels, UI chrome | 300-700 |
 | **Playfair Display** | `font-serif` | Editorial headlines, hero text, section titles, blockquotes | 400-700 |
 | **JetBrains Mono** | `font-mono` | Labels, timestamps, badges, metadata, code snippets, photo credits | 400-500 |
 
@@ -150,21 +150,21 @@ Use the Tailwind spacing scale. Avoid arbitrary values.
 
 ---
 
-## 5. Corner Radius (Zero Radius Rule)
+## 5. Corner Radius (Neon Glass System)
 
-**ViBE uses `--radius: 0rem` globally.** This is a deliberate brand choice that creates the editorial, magazine-cut aesthetic.
+**Public marketing and discovery surfaces** use a **neon glass** radius system: soft corners on frosted panels, pills on chips and primary CTAs. shadcn inherits `--radius: 1rem` from [`app/globals.css`](../app/globals.css).
 
 | Element | Radius | Note |
 |---------|--------|------|
-| Buttons | `0` | Sharp corners. This is the ViBE look. |
-| Cards | `0` | Zero radius by default via `--radius` token |
-| Inputs | `0` | Sharp. Consistent with buttons. |
-| Modals/Popovers | `0` | Everything sharp. |
-| Avatars / Thumbnails | `rounded-full` | **Exception:** circular avatars and small thumbnails are allowed |
-| Phone mockup | `rounded-[3rem]` | **Exception:** the app preview phone shell mimics real hardware |
-| Pill badges | `rounded-full` | **Exception:** status pills (e.g., in the app mockup tab selector) |
+| `GlassCard` / glass panels | `rounded-xl` | Primary public card shell (`components/ui/glass-card.tsx`) |
+| `WaterFrame` | `rounded-xl` | Image / flyer containers |
+| Primary CTAs (`NeonLink`, `NeonButton`) | `rounded-full` or `rounded-xl` | Gradient-border buttons |
+| Status / category chips | `rounded-full` | Mono uppercase pills |
+| shadcn inputs / dialogs | `--radius` (1rem) | Forms and overlays |
+| Avatars / thumbnails | `rounded-full` | Circular media |
+| Phone mockup | `rounded-[3rem]` | App preview hardware shell |
 
-**Dashboard rule:** Do not introduce `rounded-lg`, `rounded-xl`, or any soft radius on dashboard cards, tables, or panels. This is the #1 way dashboards drift from the ViBE brand.
+**Dashboard / admin:** Prefer `GlassCard` with the same glass radius for cohesion with public pages. Avoid ad-hoc mixed radius on the same screen (e.g. sharp tables + pill cards with no system).
 
 ---
 
@@ -439,13 +439,13 @@ Info:      border-l-2 border-accent bg-card text-foreground
 
 | Violation | Why It Breaks Brand | Fix |
 |-----------|-------------------|-----|
-| `rounded-lg` on dashboard cards | Soft corners kill the editorial edge | Remove. `--radius: 0` handles it. |
+| Mixed radius on one screen | Sharp tables + random pills with no system | Use `GlassCard` (`rounded-xl`) + mono pill chips consistently |
 | White or light backgrounds | ViBE is dark-mode-only | Use `bg-background` or `bg-card` |
 | Stock photography | Feels generic, not community-driven | Use real ViBE event photos |
 | Colorful status badges (green/orange/red pills) | Clashes with the monochrome + blue palette | Use bordered mono badges with `text-primary`, `text-muted-foreground`, `text-destructive` |
 | Gradient backgrounds on cards | Feels cheap, not editorial | Use solid `bg-card` with `border-border` |
 | Sans-serif for hero headlines | Loses the editorial distinction | Use `font-serif` for page/section titles |
 | Emojis anywhere | Not the ViBE tone | Remove. Use icons if needed. |
-| Multiple accent colors | Breaks the disciplined palette | Blue (`--primary`) is the only accent |
+| Uncontrolled accent colors | Breaks the disciplined palette | Use `--neon-a/b/c` triad + `--primary` (ViBE Blue) per §2.3 |
 | Busy/cluttered layouts | ViBE is editorial = generous whitespace | Add breathing room, reduce density |
 | Generic SaaS templates | If it could be Stripe Dashboard, it's wrong | Apply ViBE patterns from Section 9 |

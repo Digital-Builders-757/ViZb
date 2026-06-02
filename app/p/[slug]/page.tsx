@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { OceanDivider } from "@/components/ui/ocean-divider"
+import { WaterFrame } from "@/components/ui/water-frame"
 import { getPublishedPostBySlug } from "@/lib/posts/posts"
 import { MarkdownContent } from "@/components/posts/markdown"
 
@@ -78,22 +79,20 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
           ) : null}
 
           {post.cover_image_url ? (
-            <GlassCard className="mt-8 overflow-hidden p-0" emphasis>
-              <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
-                <Image
-                  src={post.cover_image_url}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 900px"
-                  priority
-                />
-                <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/85 via-[color:var(--neon-bg0)]/20 to-transparent"
-                  aria-hidden
-                />
-              </div>
-            </GlassCard>
+            <WaterFrame className="relative mt-8 aspect-[16/9] w-full overflow-hidden rounded-xl">
+              <Image
+                src={post.cover_image_url}
+                alt={post.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 900px"
+                priority
+              />
+              <div
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/85 via-[color:var(--neon-bg0)]/20 to-transparent"
+                aria-hidden
+              />
+            </WaterFrame>
           ) : null}
 
           {post.video_url ? (

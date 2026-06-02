@@ -331,7 +331,7 @@ Three font families are loaded. Use the correct Tailwind classes:
 
 | Font | Class | Usage |
 |------|-------|-------|
-| Space Grotesk | `font-sans` | Body text, UI elements, buttons |
+| Poppins | `font-sans` | Body text, UI elements, buttons |
 | Playfair Display | `font-serif` | Editorial headings, blockquotes |
 | JetBrains Mono | `font-mono` | Code, labels, badge text, timestamps |
 

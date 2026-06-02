@@ -42,6 +42,9 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `DOCS_OVERHAUL_PLAN_2026.md` | Hygiene, immutable paths, archive rules |
 | `VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md` | **April 2026 hygiene pass** — audit log, DOD, validation, deferred work |
 | `VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md` | Site-wide neon / glass UI overhaul — checklist, tokens, migration notes |
+| `REDESIGN_HANDOFF.md` | External LLM / designer export — tokens, routes, components, screenshot paths |
+| `REDESIGN_EXTERNAL_LLM_BRIEF.md` | Copy-paste prompts for mood boards and section hierarchy |
+| `redesign/` | Screenshot assets (`npm run redesign:screenshots`) |
 | `CURSOR_COMMANDS_REFERENCE.md` | Command → required reads |
 | `development/ENGINEERING_COMMANDS.md` | **Canonical Cursor command doctrine** |
 | `development/LLM_GUARDRAILS.md` | **How to contribute cleanly (LLMs + humans)** — preflight + footguns |
