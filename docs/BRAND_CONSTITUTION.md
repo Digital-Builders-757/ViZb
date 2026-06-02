@@ -19,9 +19,9 @@ ViBE is **young, cultural, energetic, inclusive, authentic, bold, editorial, mov
 | Law | Detail |
 |-----|--------|
 | **Dark-first** | Default experience is dark; light mode is out of scope until spec says otherwise. |
-| **Sharp UI** | Zero-radius (or brand-defined radius) discipline per `BRAND_SYSTEM` — no soft generic cards-by-default. |
+| **Glass UI** | Neon glass radius discipline per `BRAND_SYSTEM` §5 — frosted panels and pill CTAs, not generic flat shadcn cards on public surfaces. |
 | **High contrast** | Readable, accessible contrast; neon gradient is for **brand moments** only (hero, key titles, primary CTAs). |
-| **Typography** | **Space Grotesk** (`font-sans`) for UI chrome and body; editorial serif for headlines per `BRAND_SYSTEM`; mono for labels/metadata. |
+| **Typography** | **Poppins** (`font-sans`) for UI chrome and body; Playfair Display (`font-serif`) for headlines per `BRAND_SYSTEM`; JetBrains Mono for labels/metadata. |
 | **Palette** | **ViBE Blue** (`--primary`), **cyan accent** family — canonical hex/tokens only from `BRAND_SYSTEM` §2. |
 
 ---

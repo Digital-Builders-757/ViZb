@@ -14,6 +14,7 @@
     "start": "next start",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "redesign:screenshots": "playwright test tests/e2e/redesign-screenshots.spec.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

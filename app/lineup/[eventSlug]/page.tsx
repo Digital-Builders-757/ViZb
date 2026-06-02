@@ -126,16 +126,16 @@ export default async function PublicLineupPage({
       <div className="fixed inset-0 bg-[color:var(--neon-bg0)]/55 z-[1]" aria-hidden />
 
       <div
-        className="fixed top-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl animate-pulse z-[1]"
+        className="fixed top-20 right-10 z-[1] h-40 w-40 animate-pulse rounded-full bg-[color:var(--neon-a)]/15 blur-3xl"
         aria-hidden
       />
       <div
-        className="fixed bottom-32 left-10 w-32 h-32 bg-[#00BDFF]/15 rounded-full blur-3xl animate-pulse z-[1]"
+        className="fixed bottom-32 left-10 z-[1] h-32 w-32 animate-pulse rounded-full bg-[color:var(--neon-b)]/12 blur-3xl"
         style={{ animationDelay: "1s" }}
         aria-hidden
       />
       <div
-        className="fixed top-1/2 right-1/4 w-24 h-24 bg-[#0C74E8]/10 rounded-full blur-3xl animate-pulse z-[1]"
+        className="fixed top-1/2 right-1/4 z-[1] h-24 w-24 animate-pulse rounded-full bg-[color:var(--neon-c)]/10 blur-3xl"
         style={{ animationDelay: "2s" }}
         aria-hidden
       />

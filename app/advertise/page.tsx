@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import { AdvertiseContactForm } from "@/components/advertise/advertise-contact-form"
 import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
+import { OceanDivider } from "@/components/ui/ocean-divider"
 import { WaterFrame } from "@/components/ui/water-frame"
 import { getAdminInboxEmail, isAdvertiseEmailConfigured } from "@/lib/email/project-env"
 import { buildAdvertiseSubmissionContext } from "@/lib/partnerships/advertise-context"
@@ -88,8 +89,10 @@ export default async function AdvertisePage({
                 </ul>
 
                 {fromOrganizer ? (
-                  <p className="mt-5 rounded-lg border border-amber-500/25 bg-amber-500/[0.07] px-4 py-3 text-xs leading-relaxed text-[color:var(--neon-text1)]">
-                    <span className="font-mono uppercase tracking-widest text-amber-200/95">Organizer pathway</span>{" "}
+                  <p className="mt-5 rounded-xl border border-[color:var(--neon-b)]/35 bg-[color:var(--neon-b)]/[0.08] px-4 py-3 text-xs leading-relaxed text-[color:var(--neon-text1)]">
+                    <span className="font-mono uppercase tracking-widest text-[color:var(--neon-b)]">
+                      Organizer pathway
+                    </span>{" "}
                     — Tell us what you’re promoting next; we routed you here from the organizer tools so replies can tie
                     back to your org or event slug when relevant.
                   </p>
@@ -108,6 +111,8 @@ export default async function AdvertisePage({
           </div>
         </section>
       </main>
+
+      <OceanDivider variant="soft" density="normal" withLine={false} />
 
       <Footer />
     </AppShell>

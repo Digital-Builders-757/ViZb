@@ -8,8 +8,11 @@ import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2, ExternalLink }
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
+import { OceanDivider } from "@/components/ui/ocean-divider"
+import { WaterFrame } from "@/components/ui/water-frame"
 import { Suspense } from "react"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 import { EventStripeReturn } from "@/components/events/event-stripe-return"
@@ -307,11 +310,15 @@ export default async function PublicEventDetailPage({
     : null
 
   return (
-    <main className="min-h-screen bg-[color:var(--neon-bg0)]">
-      <EventPublicViewBeacon slug={slug} />
-      <Navbar />
+    <AppShell
+      withNeonBackdrop
+      className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+    >
+      <main className="min-h-screen">
+        <EventPublicViewBeacon slug={slug} />
+        <Navbar />
 
-      <section className="pt-24 sm:pt-28 pb-16 md:pb-24 px-4 sm:px-8">
+        <section className="px-4 pb-16 pt-24 sm:px-8 sm:pt-28 md:pb-24">
         <div className="max-w-[1200px] mx-auto">
           {/* Back */}
           <Link
@@ -326,7 +333,7 @@ export default async function PublicEventDetailPage({
           <div className="mt-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Flyer */}
             <div className="w-full lg:w-1/2">
-              <GlassCard className="relative aspect-[4/5] overflow-hidden p-0">
+              <WaterFrame className="relative aspect-[4/5] overflow-hidden rounded-xl">
                 {event.flyer_url ? (
                   <Image
                     src={event.flyer_url}
@@ -337,17 +344,17 @@ export default async function PublicEventDetailPage({
                     priority
                   />
                 ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-7xl md:text-9xl font-bold text-primary/15 font-mono">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[color:var(--neon-bg1)]">
+                    <span className="font-mono text-7xl font-bold text-[color:var(--neon-a)]/20 md:text-9xl">
                       {startsAt.getDate()}
                     </span>
-                    <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mt-2">
+                    <p className="mt-2 font-mono text-sm uppercase tracking-widest text-[color:var(--neon-text2)]">
                       {startsAt.toLocaleDateString("en-US", { month: "long" })}
                     </p>
                   </div>
                 )}
                 {/* Category badges */}
-                <div className="absolute top-4 left-4 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
+                <div className="absolute left-4 top-4 z-10 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
                   <span
                     className={`rounded-full border px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur ${
                       listingCommunity
@@ -375,10 +382,10 @@ export default async function PublicEventDetailPage({
 
                 {/* readability overlay */}
                 <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/82 via-[color:var(--neon-bg0)]/22 to-transparent"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/82 via-[color:var(--neon-bg0)]/22 to-transparent"
                   aria-hidden
                 />
-              </GlassCard>
+              </WaterFrame>
             </div>
 
             {/* Details */}
@@ -393,8 +400,8 @@ export default async function PublicEventDetailPage({
                 </Link>
 
                 {/* Title */}
-                <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[color:var(--neon-text0)] mt-3 text-balance leading-tight">
-                  {event.title}
+                <h1 className="mt-3 text-balance font-serif text-3xl font-bold leading-tight text-[color:var(--neon-text0)] sm:text-4xl md:text-5xl">
+                  <span className="neon-gradient-text">{event.title}</span>
                 </h1>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -660,9 +667,12 @@ export default async function PublicEventDetailPage({
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      <Footer />
-    </main>
+        <OceanDivider variant="soft" density="normal" withLine={false} />
+
+        <Footer />
+      </main>
+    </AppShell>
   )
 }

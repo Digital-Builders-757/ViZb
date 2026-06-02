@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer"
 import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { OceanDivider } from "@/components/ui/ocean-divider"
+import { SectionTitle } from "@/components/ui/section-title"
 import { getLatestPublishedPosts } from "@/lib/posts/posts"
 import { PostCard } from "@/components/posts/post-card"
 
@@ -27,12 +28,7 @@ export default async function PostsIndexPage() {
         <section className="px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
           <div className="mx-auto max-w-[1200px]">
             <header className="max-w-2xl">
-              <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-                Updates
-              </span>
-              <h1 className="mt-2 font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl">
-                From VIZB
-              </h1>
+              <SectionTitle kicker="Updates" title="From VIZB" gradient />
               <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
                 Culture drops, recaps, and what’s next — editorial drops from the team.
               </p>

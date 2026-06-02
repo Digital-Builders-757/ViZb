@@ -165,9 +165,9 @@
 }
 
 @theme inline {
-  --font-sans: "Poppins", "Poppins Fallback", system-ui;
-  --font-serif: "Playfair Display", "Playfair Display Fallback", serif;
-  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", monospace;
+  --font-sans: var(--font-poppins), "Poppins", system-ui, sans-serif;
+  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
   /* ViBE brand spectrum */
   --color-brand-blue: #0D40FF;
   --color-brand-blue-mid: #0C74E8;
