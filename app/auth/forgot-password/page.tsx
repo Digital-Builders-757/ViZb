@@ -21,22 +21,40 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    console.log("🔧 [DEBUG] Form submitted")
     setIssue(null)
     setFieldHint(null)
+    
+    console.log("🔧 [DEBUG] Email entered:", email)
     if (!emailOk(email)) {
+      console.log("❌ [DEBUG] Email validation failed")
       setFieldHint("Enter a valid email address.")
       return
     }
+    console.log("✅ [DEBUG] Email validation passed")
+    
     setLoading(true)
     try {
       const supabase = createClient()
-      const redirectTo =
-        process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-        `${window.location.origin}/auth/callback`
+      console.log("🔧 [DEBUG] Supabase client created")
+      
+      // Dynamic redirect URL for both development and production
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || window.location.origin
+      const redirectTo = `${baseUrl}/auth/callback/recovery`
+      console.log("🔧 [DEBUG] Redirect URL:", redirectTo)
+      console.log("🔧 [DEBUG] Calling resetPasswordForEmail for:", email.trim())
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo,
       })
+      
       if (error) {
+        console.error("❌ [DEBUG] Supabase error:", error)
+        console.error("❌ [DEBUG] Error details:", {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        })
         setIssue(
           mapAuthError(error, "reset", {
             onNetworkRetry: () => setIssue(null),
@@ -45,9 +63,14 @@ export default function ForgotPasswordPage() {
         )
         return
       }
+      
+      console.log("✅ [DEBUG] Password reset email sent successfully!")
       setDone(true)
+    } catch (err) {
+      console.error("❌ [DEBUG] Unexpected error:", err)
     } finally {
       setLoading(false)
+      console.log("🔧 [DEBUG] Loading state set to false")
     }
   }
 
