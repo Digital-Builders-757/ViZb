@@ -68,6 +68,7 @@ export default function ResetPasswordPage() {
     } catch (err) {
       console.error("❌ [DEBUG] Unexpected error:", err)
       setIssue({
+        code: "unexpected_error",
         title: "Something went wrong",
         message: "An unexpected error occurred. Please try again.",
         severity: "error",
