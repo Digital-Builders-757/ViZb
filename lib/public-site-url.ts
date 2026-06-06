@@ -9,7 +9,7 @@ export function normalizePublicSiteUrl(raw?: string | null): string {
 }
 
 export function getPublicSiteOrigin(): string {
-  return normalizePublicSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)
+  return normalizePublicSiteUrl(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL)
 }
 
 /** Path only; safe for same-origin links. */

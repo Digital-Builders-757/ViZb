@@ -86,8 +86,13 @@ export async function createEventTicketType(formData: FormData) {
     is_default_rsvp: false,
     sort_order: nextSort,
     capacity: cap,
+    quantity_total: cap,
+    quantity_sold: 0,
+    is_active: true,
     sales_starts_at: salesStartsAt,
     sales_ends_at: salesEndsAt,
+    sales_start_at: salesStartsAt,
+    sales_end_at: salesEndsAt,
   })
 
   if (error) return { error: error.message }
@@ -172,8 +177,11 @@ export async function updateEventTicketType(formData: FormData) {
       name,
       price_cents: nextPriceCents ?? existingType.price_cents,
       capacity: cap,
+      quantity_total: cap,
       sales_starts_at: salesStartsAt,
       sales_ends_at: salesEndsAt,
+      sales_start_at: salesStartsAt,
+      sales_end_at: salesEndsAt,
       ...(sortOrder !== undefined ? { sort_order: sortOrder } : {}),
     })
     .eq("id", ticketTypeId)

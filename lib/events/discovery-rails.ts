@@ -1,4 +1,4 @@
-/** Pure helpers for `/events` discovery rails (Starting soon, ViZb picks, Local lineup). */
+/** Pure helpers for `/events` discovery rails (Starting soon, ViZb picks). */
 
 export type DiscoveryRailEvent = {
   id: string
@@ -9,7 +9,6 @@ export type DiscoveryRailEvent = {
 
 const TRENDING_LIMIT = 3
 const STAFF_PICKS_LIMIT = 6
-const LOCAL_PICKS_LIMIT = 6
 
 export function buildDiscoveryRails<T extends DiscoveryRailEvent>(upcoming: T[]) {
   const staffPicks = upcoming.filter((e) => e.is_staff_pick).slice(0, STAFF_PICKS_LIMIT)
@@ -22,9 +21,5 @@ export function buildDiscoveryRails<T extends DiscoveryRailEvent>(upcoming: T[])
       : upcoming.filter((e) => !staffPickIds.has(e.id))
   const trending = trendingPool.slice(0, TRENDING_LIMIT)
 
-  const localPicks = upcoming
-    .filter((e) => e.event_kind === "community" && !staffPickIds.has(e.id))
-    .slice(0, LOCAL_PICKS_LIMIT)
-
-  return { trending, staffPicks, localPicks }
+  return { trending, staffPicks }
 }

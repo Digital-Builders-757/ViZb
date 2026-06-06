@@ -163,7 +163,7 @@ export default async function PublicEventDetailPage({
     try {
       const { data: ttRows } = await supabase
         .from("ticket_types")
-        .select("id, name, price_cents, sort_order, sales_starts_at, sales_ends_at")
+        .select("id, name, price_cents, sort_order, is_active, sales_starts_at, sales_ends_at, sales_start_at, sales_end_at")
         .eq("event_id", event.id)
         .order("sort_order", { ascending: true })
 
@@ -173,11 +173,17 @@ export default async function PublicEventDetailPage({
           id: string
           name: string
           price_cents: number | null
+          is_active?: boolean | null
           sales_starts_at: string | null
           sales_ends_at: string | null
+          sales_start_at?: string | null
+          sales_end_at?: string | null
         }
-        if (pr.sales_starts_at && new Date(pr.sales_starts_at) > now) continue
-        if (pr.sales_ends_at && new Date(pr.sales_ends_at) < now) continue
+        if (pr.is_active === false) continue
+        const saleStartsAt = pr.sales_start_at ?? pr.sales_starts_at
+        const saleEndsAt = pr.sales_end_at ?? pr.sales_ends_at
+        if (saleStartsAt && new Date(saleStartsAt) > now) continue
+        if (saleEndsAt && new Date(saleEndsAt) < now) continue
         const pc = typeof pr.price_cents === "number" ? pr.price_cents : Number(pr.price_cents)
         if (!Number.isFinite(pc)) continue
         if (pc === 0) {
