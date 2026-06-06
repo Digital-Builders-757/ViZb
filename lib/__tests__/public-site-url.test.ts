@@ -28,14 +28,21 @@ describe("getPublicLineupPath", () => {
 })
 
 describe("getPublicLineupAbsoluteUrl", () => {
-  it("returns null when NEXT_PUBLIC_SITE_URL is unset", () => {
+  it("returns null when NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_APP_URL are unset", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "")
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "")
     expect(getPublicLineupAbsoluteUrl("signal-91")).toBe(null)
   })
 
-  it("joins origin and path when set", () => {
+  it("joins origin and path when NEXT_PUBLIC_SITE_URL is set", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://www.example.com/")
     expect(getPublicLineupAbsoluteUrl("signal-91")).toBe("https://www.example.com/lineup/signal-91")
+  })
+
+  it("falls back to NEXT_PUBLIC_APP_URL", () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "")
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://app.example.com/")
+    expect(getPublicLineupAbsoluteUrl("signal-91")).toBe("https://app.example.com/lineup/signal-91")
   })
 })
 

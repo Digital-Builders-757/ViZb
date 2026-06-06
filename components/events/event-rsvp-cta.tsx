@@ -8,6 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button"
 import { cancelRsvp, rsvpToEvent } from "@/app/actions/registrations"
 import { createTicketCheckoutSession } from "@/app/actions/ticket-checkout"
 import { formatUsdFromCents } from "@/lib/money/usd"
+import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
 import { TicketAddedSuccessDialog } from "@/components/events/ticket-added-success-dialog"
 
 export type PublicPaidTier = { id: string; name: string; price_cents: number }
@@ -90,6 +91,8 @@ export function EventRsvpCta({
   }
 
   const paidOnSale = paidTicketTiers.filter((t) => t.price_cents > 0)
+  const selectedPaidTier = paidOnSale.find((t) => t.id === selectedPaidTierId) ?? paidOnSale[0] ?? null
+  const selectedPaidAmounts = selectedPaidTier ? calculateTicketCheckoutAmounts(selectedPaidTier.price_cents) : null
   const canBuyPaid =
     stripeCheckoutEnabled && paidOnSale.length > 0 && !hasActiveTicket && !isFull && !isConfirmed
 
@@ -177,7 +180,7 @@ export function EventRsvpCta({
                 <span>
                   {t.name}{" "}
                   <span className="text-[color:var(--neon-text2)]">
-                    ({formatUsdFromCents(t.price_cents)})
+                    ({formatUsdFromCents(t.price_cents)} + {formatUsdFromCents(calculateTicketCheckoutAmounts(t.price_cents).platformFeeCents)} fee)
                   </span>
                 </span>
               </label>
@@ -216,6 +219,14 @@ export function EventRsvpCta({
         </p>
       ) : null}
 
+      {selectedPaidAmounts ? (
+        <p className="mb-3 text-xs leading-relaxed text-[color:var(--neon-text2)]">
+          Ticket subtotal <span className="text-[color:var(--neon-text1)]">{formatUsdFromCents(selectedPaidAmounts.subtotalCents)}</span>
+          {" · "}ViZb fee <span className="text-[color:var(--neon-text1)]">{formatUsdFromCents(selectedPaidAmounts.platformFeeCents)}</span>
+          {" · "}Total today <span className="text-[color:var(--neon-text0)]">{formatUsdFromCents(selectedPaidAmounts.totalCents)}</span>
+        </p>
+      ) : null}
+
       <div
         className={`grid grid-cols-1 gap-3 ${paidOnSale.length > 0 ? "sm:grid-cols-2" : ""}`}
       >
@@ -229,7 +240,7 @@ export function EventRsvpCta({
                 window.location.href = authHref
                 return
               }
-              const tier = paidOnSale.find((t) => t.id === selectedPaidTierId) ?? paidOnSale[0]
+              const tier = selectedPaidTier
               if (!tier) return
 
               startTransition(async () => {

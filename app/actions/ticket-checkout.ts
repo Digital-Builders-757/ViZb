@@ -1,13 +1,29 @@
 "use server"
 
+import { z } from "zod"
+
 import { requireAuth } from "@/lib/auth-helpers"
+import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
+import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { getStripe } from "@/lib/stripe/server"
 import { isStripeCheckoutConfigured } from "@/lib/stripe/env"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
 
+const checkoutParamsSchema = z.object({
+  eventId: z.string().uuid(),
+  ticketTypeId: z.string().uuid(),
+})
+
 function siteOriginFromEnv(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000"
-  return raw.replace(/\/$/, "")
+  return getPublicSiteOrigin() || "http://localhost:3000"
+}
+
+function coercePositiveInteger(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) return Math.trunc(value)
+  const parsed = Number(value)
+  if (Number.isFinite(parsed) && parsed > 0) return Math.trunc(parsed)
+  return null
 }
 
 export async function createTicketCheckoutSession(params: {
@@ -18,15 +34,19 @@ export async function createTicketCheckoutSession(params: {
     return { error: "Online checkout is not configured yet." }
   }
 
-  const eventId = String(params.eventId ?? "").trim()
-  const ticketTypeId = String(params.ticketTypeId ?? "").trim()
-  if (!eventId || !ticketTypeId) return { error: "Missing event or ticket type." }
+  const parsed = checkoutParamsSchema.safeParse(params)
+  if (!parsed.success) {
+    return { error: "Missing event or ticket type." }
+  }
 
+  const { eventId, ticketTypeId } = parsed.data
   const { user, supabase } = await requireAuth()
 
   const { data: tt, error: ttErr } = await supabase
     .from("ticket_types")
-    .select("id, event_id, name, price_cents, currency, capacity, sales_starts_at, sales_ends_at")
+    .select(
+      "id, event_id, name, price_cents, currency, capacity, quantity_total, quantity_sold, is_active, sales_starts_at, sales_ends_at, sales_start_at, sales_end_at",
+    )
     .eq("id", ticketTypeId)
     .eq("event_id", eventId)
     .maybeSingle()
@@ -40,11 +60,18 @@ export async function createTicketCheckoutSession(params: {
     return { error: "This tier is free — use RSVP instead." }
   }
 
+  const isActive = tt.is_active == null ? true : Boolean(tt.is_active)
+  if (!isActive) {
+    return { error: "This ticket tier is not active right now." }
+  }
+
   const now = new Date()
-  if (tt.sales_starts_at && new Date(tt.sales_starts_at) > now) {
+  const saleStartsAt = tt.sales_start_at ?? tt.sales_starts_at
+  const saleEndsAt = tt.sales_end_at ?? tt.sales_ends_at
+  if (saleStartsAt && new Date(saleStartsAt) > now) {
     return { error: "This tier is not on sale yet." }
   }
-  if (tt.sales_ends_at && new Date(tt.sales_ends_at) < now) {
+  if (saleEndsAt && new Date(saleEndsAt) < now) {
     return { error: "Sales have ended for this tier." }
   }
 
@@ -69,8 +96,8 @@ export async function createTicketCheckoutSession(params: {
     }
   }
 
-  if (tt.capacity != null) {
-    const cap = tt.capacity
+  const quantityTotal = coercePositiveInteger(tt.quantity_total ?? tt.capacity)
+  if (quantityTotal != null) {
     const { data: soldRows, error: cntErr } = await supabase
       .from("tickets")
       .select("event_registrations!inner ( status )")
@@ -83,7 +110,7 @@ export async function createTicketCheckoutSession(params: {
       return st === "confirmed" || st === "checked_in"
     }).length
 
-    if (sold >= cap) {
+    if (sold >= quantityTotal) {
       return { error: "This tier is sold out." }
     }
   }
@@ -118,40 +145,123 @@ export async function createTicketCheckoutSession(params: {
     return { error: "Only USD checkout is supported right now." }
   }
 
+  const { subtotalCents, platformFeeCents, totalCents } = calculateTicketCheckoutAmounts(price)
+
+  let admin: ReturnType<typeof createServiceRoleClient>
+  try {
+    admin = createServiceRoleClient()
+  } catch {
+    return { error: "Checkout service is not configured on the server yet." }
+  }
+
+  const { data: order, error: orderErr } = await admin
+    .from("orders")
+    .insert({
+      user_id: user.id,
+      event_id: eventId,
+      status: "pending_payment",
+      subtotal_cents: subtotalCents,
+      platform_fee_cents: platformFeeCents,
+      total_cents: totalCents,
+      currency,
+    })
+    .select("id")
+    .single()
+
+  if (orderErr || !order) {
+    return { error: orderErr?.message ?? "Could not create pending order." }
+  }
+
+  const { error: orderItemErr } = await admin.from("order_items").insert({
+    order_id: order.id,
+    ticket_type_id: ticketTypeId,
+    quantity: 1,
+    unit_price_cents: subtotalCents,
+    line_total_cents: subtotalCents,
+  })
+
+  if (orderItemErr) {
+    await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+    return { error: orderItemErr.message }
+  }
+
   const origin = siteOriginFromEnv()
   const slug = String(eventRow.slug)
   const productName = `${String(eventRow.title)} — ${String(tt.name)}`
 
-  const stripe = getStripe()
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer_email: user.email ?? undefined,
-    client_reference_id: user.id,
-    metadata: {
-      user_id: user.id,
-      event_id: eventId,
-      ticket_type_id: ticketTypeId,
-    },
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency,
-          unit_amount: price,
-          product_data: {
-            name: productName,
-          },
+  try {
+    const stripe = getStripe()
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: user.email ?? undefined,
+      client_reference_id: user.id,
+      metadata: {
+        order_id: order.id,
+        user_id: user.id,
+        event_id: eventId,
+        ticket_type_id: ticketTypeId,
+      },
+      payment_intent_data: {
+        metadata: {
+          order_id: order.id,
+          user_id: user.id,
+          event_id: eventId,
+          ticket_type_id: ticketTypeId,
         },
       },
-    ],
-    success_url: `${origin}/events/${slug}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/events/${slug}?checkout=cancelled`,
-  })
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency,
+            unit_amount: subtotalCents,
+            product_data: {
+              name: productName,
+            },
+          },
+        },
+        ...(platformFeeCents > 0
+          ? [
+              {
+                quantity: 1,
+                price_data: {
+                  currency,
+                  unit_amount: platformFeeCents,
+                  product_data: {
+                    name: `ViZb platform fee — ${String(eventRow.title)}`,
+                  },
+                },
+              },
+            ]
+          : []),
+      ],
+      success_url: `${origin}/events/${slug}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/events/${slug}?checkout=cancelled`,
+    })
 
-  if (!session.url) {
-    return { error: "Could not start checkout session." }
+    if (!session.url || !session.id) {
+      await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+      return { error: "Could not start checkout session." }
+    }
+
+    const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : null
+    const { error: updateOrderErr } = await admin
+      .from("orders")
+      .update({
+        stripe_checkout_session_id: session.id,
+        ...(paymentIntentId ? { stripe_payment_intent_id: paymentIntentId } : {}),
+      })
+      .eq("id", order.id)
+
+    if (updateOrderErr) {
+      await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+      return { error: updateOrderErr.message }
+    }
+
+    return { url: session.url }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not start checkout session."
+    await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+    return { error: message }
   }
-
-  return { url: session.url }
 }
-
