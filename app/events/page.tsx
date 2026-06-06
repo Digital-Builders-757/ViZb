@@ -461,9 +461,9 @@ export default async function EventsExplorePage({
   const hasUnfilteredUpcoming = upcomingBase.length > 0
   const hasUnfilteredPast = flatPastBase.length > 0
 
-  const { trending, staffPicks, localPicks } = buildDiscoveryRails(upcomingBase)
+  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
   const showDiscoveryRails =
-    !vibesSignedOutGate && (trending.length > 0 || localPicks.length > 0 || staffPicks.length > 0)
+    !vibesSignedOutGate && (trending.length > 0 || staffPicks.length > 0)
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
     if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
@@ -798,39 +798,6 @@ export default async function EventsExplorePage({
                 <div className="mt-5 hidden md:grid md:grid-cols-3 md:gap-4">
                   {staffPicks.map((e) => (
                     <EventsCompactGlanceCard key={`pick-${e.id}`} e={e} variant="staffPick" />
-                  ))}
-                </div>
-              </div>
-            </section>
-          ) : null}
-
-          {localPicks.length > 0 ? (
-            <section className="px-4 pb-2 pt-6 sm:px-8 md:pt-8">
-              <div className="mx-auto max-w-[1200px]">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-violet-200/90">
-                      Local &amp; community lineup
-                    </p>
-                    <p className="mt-1 max-w-lg text-xs text-[color:var(--neon-text1)]/90">
-                      Third-party listings — RSVP opens on the host&apos;s site. Always double-check details.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mobile: snap scroll carousel */}
-                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                  {localPicks.map((e) => (
-                    <div key={e.id} className="snap-start w-[88vw] shrink-0">
-                      <EventsCompactGlanceCard e={e} variant="local" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Desktop: tight multi-column grid */}
-                <div className="mt-5 hidden md:grid md:grid-cols-2 md:gap-3 lg:grid-cols-4">
-                  {localPicks.map((e) => (
-                    <EventsCompactGlanceCard key={e.id} e={e} variant="local" size="compact" />
                   ))}
                 </div>
               </div>

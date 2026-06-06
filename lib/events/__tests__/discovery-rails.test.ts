@@ -15,21 +15,20 @@ function evt(
 }
 
 describe("buildDiscoveryRails", () => {
-  it("routes official events to trending and community to localPicks", () => {
+  it("routes official events to trending", () => {
     const upcoming = [
       evt("o1", { event_kind: "official" }),
       evt("c1", { event_kind: "community" }),
       evt("o2", { event_kind: "official" }),
     ]
 
-    const { trending, staffPicks, localPicks } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(trending.map((e) => e.id)).toEqual(["o1", "o2"])
-    expect(localPicks.map((e) => e.id)).toEqual(["c1"])
     expect(staffPicks).toEqual([])
   })
 
-  it("excludes staff picks from trending and localPicks", () => {
+  it("excludes staff picks from trending", () => {
     const upcoming = [
       evt("o1", { event_kind: "official", is_staff_pick: true }),
       evt("o2", { event_kind: "official" }),
@@ -37,11 +36,10 @@ describe("buildDiscoveryRails", () => {
       evt("c2", { event_kind: "community" }),
     ]
 
-    const { trending, staffPicks, localPicks } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(staffPicks.map((e) => e.id)).toEqual(["o1", "c1"])
     expect(trending.map((e) => e.id)).toEqual(["o2"])
-    expect(localPicks.map((e) => e.id)).toEqual(["c2"])
   })
 
   it("falls back to upcoming minus staff picks when no official events", () => {
@@ -51,11 +49,10 @@ describe("buildDiscoveryRails", () => {
       evt("c3", { event_kind: "community", is_staff_pick: true }),
     ]
 
-    const { trending, staffPicks, localPicks } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(staffPicks.map((e) => e.id)).toEqual(["c3"])
     expect(trending.map((e) => e.id)).toEqual(["c1", "c2"])
-    expect(localPicks.map((e) => e.id)).toEqual(["c1", "c2"])
   })
 
   it("enforces slice limits", () => {
@@ -69,10 +66,9 @@ describe("buildDiscoveryRails", () => {
       ),
     ]
 
-    const { trending, staffPicks, localPicks } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(trending).toHaveLength(3)
     expect(staffPicks).toHaveLength(6)
-    expect(localPicks).toHaveLength(6)
   })
 })
