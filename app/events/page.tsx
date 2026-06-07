@@ -1,7 +1,7 @@
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { logError } from "@/lib/log"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { ThreeBackgroundWrapper } from "@/components/three-background-wrapper"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
 import { OceanDivider } from "@/components/ui/ocean-divider"
@@ -320,9 +320,12 @@ export default async function EventsExplorePage({
   const pastCutoffISO = pastCutoff.toISOString()
 
   let allEvents: PublicEventRow[] | null = null
+  let eventsLoadError = false
+
+  let supabase: Awaited<ReturnType<typeof createClient>> | null = null
 
   if (isServerSupabaseConfigured()) {
-    const supabase = await createClient()
+    supabase = await createClient()
 
     const selectFields = `
     id,
@@ -342,26 +345,25 @@ export default async function EventsExplorePage({
     organizations ( name, slug )
   `
 
-    // Upcoming + happening now:
-    //   If ends_at exists: include when ends_at >= now (still happening)
-    //   If ends_at is null: include when starts_at >= now
-    // Supabase doesn't support OR across columns easily, so fetch broadly and filter in JS
     let upcomingQuery = supabase
       .from("events")
       .select(selectFields)
       .eq("status", "published")
       .gte("starts_at", pastCutoffISO)
       .order("starts_at", { ascending: true })
+      .limit(120)
 
-    // Apply category filter (event must include this tag in its categories array)
     const categorySlug =
       activeFilter && activeFilter !== "all" ? activeFilter.toLowerCase() : null
     if (categorySlug && isValidEventCategory(categorySlug)) {
       upcomingQuery = upcomingQuery.contains("categories", [categorySlug])
     }
 
-    // Fetch all events from the last 30 days onward in one query (category filter applied above)
-    const { data } = await upcomingQuery
+    const { data, error } = await upcomingQuery
+    if (error) {
+      logError("events.discovery", error, { category: categorySlug ?? "all" })
+      eventsLoadError = true
+    }
     allEvents = data as PublicEventRow[] | null
   } else if (process.env.NODE_ENV === "production") {
     await createClient()
@@ -369,14 +371,13 @@ export default async function EventsExplorePage({
 
   let eventsUser: { id: string } | null = null
   let savedEventIds: string[] = []
-  if (isServerSupabaseConfigured()) {
-    const supabaseAuth = await createClient()
+  if (supabase) {
     const {
       data: { user },
-    } = await supabaseAuth.auth.getUser()
+    } = await supabase.auth.getUser()
     if (user) {
       eventsUser = { id: user.id }
-      savedEventIds = await fetchMySavedEventIds(supabaseAuth, user.id)
+      savedEventIds = await fetchMySavedEventIds(supabase, user.id)
     }
   }
 
@@ -461,9 +462,9 @@ export default async function EventsExplorePage({
   const hasUnfilteredUpcoming = upcomingBase.length > 0
   const hasUnfilteredPast = flatPastBase.length > 0
 
-  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
+  const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcomingBase)
   const showDiscoveryRails =
-    !vibesSignedOutGate && (trending.length > 0 || staffPicks.length > 0)
+    trending.length > 0 || staffPicks.length > 0 || localCommunity.length > 0
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
     if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
@@ -546,10 +547,8 @@ export default async function EventsExplorePage({
 
   return (
     <main className="relative min-h-screen bg-[color:var(--neon-bg0)] overflow-hidden">
-      {/* Three.js particle background -- fixed behind all content */}
-      <div className="fixed inset-0 z-0">
-        <ThreeBackgroundWrapper />
-      </div>
+      {/* Static backdrop — skips Three.js on /events for faster first paint */}
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,209,255,0.12),transparent_55%),radial-gradient(ellipse_60%_50%_at_90%_80%,rgba(157,77,255,0.10),transparent_50%)]" />
 
       {/* Dark overlay for text readability */}
       <div className="fixed inset-0 bg-[color:var(--neon-bg0)]/45 z-[1]" />
@@ -589,6 +588,18 @@ export default async function EventsExplorePage({
             <span className="font-mono uppercase tracking-widest text-[color:var(--neon-a)]/90">DMV &amp; beyond</span>
             {" · "}Norfolk, Virginia Beach, Richmond, Charlottesville, and the 757 — anchored in Eastern time.
           </p>
+
+          {eventsLoadError ? (
+            <div
+              role="alert"
+              className="mt-6 max-w-lg rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 backdrop-blur"
+            >
+              <p className="font-mono text-[10px] uppercase tracking-widest text-amber-200">Events couldn&apos;t load</p>
+              <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
+                Try refreshing the page. If this keeps happening, our team has been notified via server logs.
+              </p>
+            </div>
+          ) : null}
 
           {/* Search */}
           <form
@@ -631,11 +642,21 @@ export default async function EventsExplorePage({
             ) : null}
           </form>
 
-          {/* Category bar */}
-          <div className="mt-10 flex flex-col gap-4 border-t border-[color:var(--neon-hairline)]/35 pt-8 md:mt-12">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-              Category
-            </p>
+          {/* Filters — category + time presets in labeled rows */}
+          <div className="mt-10 flex flex-col gap-3 border-t border-[color:var(--neon-hairline)]/35 pt-8 md:mt-12">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                Browse
+              </p>
+              {discoveryPreset || searchQ.trim() || (activeFilter && activeFilter !== "all") || vibesFilter ? (
+                <Link
+                  href={`/events${eventsListingQuery(listingBare())}`}
+                  className="inline-flex min-h-[36px] shrink-0 items-center rounded-full border border-dashed border-[color:var(--neon-hairline)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-text0)]"
+                >
+                  Reset all
+                </Link>
+              ) : null}
+            </div>
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
             {EVENT_LISTING_FILTERS.map((cat) => {
               const isActive =
@@ -674,10 +695,6 @@ export default async function EventsExplorePage({
             </Link>
             </div>
 
-            {/* Discovery presets */}
-            <p className="mt-5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-              Discovery
-            </p>
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
               {DISCOVERY_PRESET_OPTIONS.map((d) => {
                 const active = discoveryPreset === d.value
@@ -696,19 +713,7 @@ export default async function EventsExplorePage({
                   </Link>
                 )
               })}
-              {discoveryPreset || searchQ.trim() ? (
-                <Link
-                  href={`/events${eventsListingQuery(listingBare())}`}
-                  className="inline-flex min-h-[40px] shrink-0 items-center rounded-full border border-dashed border-[color:var(--neon-hairline)] px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-text0)]"
-                >
-                  Reset filters
-                </Link>
-              ) : null}
             </div>
-            <p className="max-w-xl text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
-              <span className="font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Family-friendly</span>{" "}
-              highlights workshops &amp; socials for now — tag-driven filters can tighten this later.
-            </p>
           </div>
         </div>
       </section>
@@ -798,6 +803,43 @@ export default async function EventsExplorePage({
                 <div className="mt-5 hidden md:grid md:grid-cols-3 md:gap-4">
                   {staffPicks.map((e) => (
                     <EventsCompactGlanceCard key={`pick-${e.id}`} e={e} variant="staffPick" />
+                  ))}
+                </div>
+              </div>
+            </section>
+          ) : null}
+
+          {localCommunity.length > 0 ? (
+            <section className="px-4 pb-2 pt-6 sm:px-8 md:pt-8">
+              <div className="mx-auto max-w-[1200px]">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-violet-200/90">
+                      Local &amp; community
+                    </p>
+                    <p className="mt-1 max-w-lg text-xs text-[color:var(--neon-text1)]/90">
+                      Submitted by organizers and hosts across the DMV — discover what&apos;s happening near you.
+                    </p>
+                  </div>
+                  <Link
+                    href="/events#timeline"
+                    className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)]"
+                  >
+                    Full timeline →
+                  </Link>
+                </div>
+
+                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
+                  {localCommunity.map((e) => (
+                    <div key={`local-mob-${e.id}`} className="snap-start w-[88vw] shrink-0">
+                      <EventsCompactGlanceCard e={e} variant="local" />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 hidden md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-4">
+                  {localCommunity.map((e) => (
+                    <EventsCompactGlanceCard key={`local-${e.id}`} e={e} variant="local" />
                   ))}
                 </div>
               </div>
@@ -937,6 +979,7 @@ export default async function EventsExplorePage({
                                 isSignedIn={isSignedInForVibes}
                                 isSaved={savedIdSet.has(event.id)}
                                 vibeAuthHref={vibeAuthHref}
+                                interactive={false}
                               />
                             )
                             runningIndex++
@@ -974,6 +1017,7 @@ export default async function EventsExplorePage({
                             isSaved={savedIdSet.has(event.id)}
                             vibeAuthHref={vibeAuthHref}
                             tone="archive"
+                            interactive={false}
                           />
                         </div>
                       )
@@ -984,8 +1028,7 @@ export default async function EventsExplorePage({
                 </div>
               )}
             </>
-          ) : vibesSignedOutGate ? null : (
-            /* Empty State */
+          ) : vibesSignedOutGate ? null : eventsLoadError ? null : (
             <div className="flex flex-col items-center py-16 text-center md:py-28">
               <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/15 md:h-24 md:w-24">
                 <Calendar className="h-8 w-8 text-[color:var(--neon-text2)] md:h-10 md:w-10" />

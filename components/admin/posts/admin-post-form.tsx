@@ -24,14 +24,13 @@ export type AdminPostDraft = {
 export function AdminPostForm({
   initial,
   action,
-  submitLabel = "Save",
   postId,
+  mode = "edit",
 }: {
   initial?: Partial<AdminPostDraft>
   action: (formData: FormData) => void
-  submitLabel?: string
-  /** When set, cover uploads use `post-covers/{postId}/…`. */
   postId?: string
+  mode?: "create" | "edit"
 }) {
   const [draft, setDraft] = useState<AdminPostDraft>({
     title: initial?.title ?? "",
@@ -44,6 +43,10 @@ export function AdminPostForm({
     existing_slug: initial?.existing_slug ?? "",
     existing_published_at: initial?.existing_published_at ?? "",
   })
+
+  const isDraft = draft.status === "draft"
+  const isPublished = draft.status === "published"
+  const isArchived = draft.status === "archived"
 
   return (
     <form action={action} className="space-y-6">
@@ -118,23 +121,30 @@ export function AdminPostForm({
           />
         </label>
 
-        <div className="grid gap-4 md:grid-cols-2 mt-4">
-          <label className="block">
-            <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Status</span>
-            <select
-              name="status"
-              className="vibe-input-glass mt-2"
-              value={draft.status}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, status: e.target.value as AdminPostDraft["status"] }))
-              }
-            >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
-          </label>
-        </div>
+        {mode === "edit" ? (
+          <div className="mt-4 md:max-w-xl">
+            <label className="block">
+              <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+                Archive or change status
+              </span>
+              <select
+                name="status"
+                className="vibe-input-glass mt-2"
+                value={draft.status}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, status: e.target.value as AdminPostDraft["status"] }))
+                }
+              >
+                <option value="draft">Draft — hidden from /p</option>
+                <option value="published">Published — live on /p</option>
+                <option value="archived">Archived — removed from public feed</option>
+              </select>
+            </label>
+            <p className="mt-2 text-xs text-[color:var(--neon-text2)]">
+              Use Publish below to go live. Choose Archived to hide without deleting.
+            </p>
+          </div>
+        ) : null}
       </GlassCard>
 
       <GlassCard className="p-5 md:p-6">
@@ -165,14 +175,42 @@ export function AdminPostForm({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <NeonButton fullWidth shape="xl" type="submit">
-            {submitLabel}
-          </NeonButton>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {mode === "create" ? (
+            <>
+              <NeonButton fullWidth shape="xl" type="submit" name="intent" value="draft" variant="secondary">
+                Save as draft
+              </NeonButton>
+              <NeonButton fullWidth shape="xl" type="submit" name="intent" value="publish">
+                Create &amp; publish
+              </NeonButton>
+            </>
+          ) : isArchived ? (
+            <NeonButton fullWidth shape="xl" type="submit" name="intent" value="save">
+              Save changes
+            </NeonButton>
+          ) : isPublished ? (
+            <NeonButton fullWidth shape="xl" type="submit" name="intent" value="save">
+              Save changes
+            </NeonButton>
+          ) : (
+            <>
+              <NeonButton fullWidth shape="xl" type="submit" name="intent" value="draft" variant="secondary">
+                Save draft
+              </NeonButton>
+              <NeonButton fullWidth shape="xl" type="submit" name="intent" value="publish">
+                Publish
+              </NeonButton>
+            </>
+          )}
         </div>
 
         <p className="mt-3 text-xs text-[color:var(--neon-text2)]">
-          This is what readers see on the public post page after you publish.
+          {isPublished
+            ? "Saving updates the live post on /p immediately."
+            : isArchived
+              ? "Archived posts stay out of the public feed."
+              : "Drafts are only visible here in admin until you publish."}
         </p>
       </GlassCard>
     </form>

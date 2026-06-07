@@ -225,6 +225,7 @@ export async function HomeTimelineSection() {
                           isSignedIn={isSignedIn}
                           isSaved={savedIdSet.has(event.id)}
                           vibeAuthHref={vibeAuthHref}
+                          interactive={false}
                         />
                       )
                       runningIndex++

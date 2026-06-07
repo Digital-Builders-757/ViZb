@@ -25,11 +25,18 @@ export default async function AdminEditPostPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ saved?: string; created?: string; status?: string; error?: string; message?: string }>
+  searchParams: Promise<{
+    saved?: string
+    created?: string
+    published?: string
+    status?: string
+    error?: string
+    message?: string
+  }>
 }) {
   await requireAdmin()
   const { id } = await params
-  const { saved, created, status: statusParam, error, message } = await searchParams
+  const { saved, created, published, status: statusParam, error, message } = await searchParams
 
   if (!isServerSupabaseConfigured()) {
     return (
@@ -95,6 +102,9 @@ export default async function AdminEditPostPage({
   const displayStatus = normalizePostStatus(statusParam, post.status as PostStatus)
   const showSaved = saved === "1"
   const showCreated = created === "1"
+  const justPublished = published === "1" || displayStatus === "published"
+  const isLive = post.status === "published"
+  const isArchived = post.status === "archived"
 
   return (
     <div className="space-y-6">
@@ -104,6 +114,19 @@ export default async function AdminEditPostPage({
           <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)]">Edit Post</h1>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
             Draft, publish, or archive a post that appears on the public feed.
+          </p>
+          <p className="mt-3">
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-widest ${
+                isLive
+                  ? "border-emerald-500/45 bg-emerald-500/12 text-emerald-100"
+                  : isArchived
+                    ? "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 text-[color:var(--neon-text2)]"
+                    : "border-amber-500/45 bg-amber-500/12 text-amber-100"
+              }`}
+            >
+              {isLive ? "Live on /p" : isArchived ? "Archived — not public" : "Draft — not public yet"}
+            </span>
           </p>
         </div>
 
@@ -136,21 +159,23 @@ export default async function AdminEditPostPage({
 
       {showSaved ? (
         <GlassCard className="p-5">
-          <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Saved</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
+            {justPublished && showSaved ? "Published" : "Saved"}
+          </p>
           <p className="mt-2 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            Changes saved.{" "}
-            {displayStatus === "published"
-              ? "This post is live."
-              : displayStatus === "archived"
-                ? "This post is archived and hidden from the public feed."
-                : "This post is not published yet."}
+            {justPublished && showSaved
+              ? "Your post is live on /p and the homepage feed. Use View public to preview."
+              : displayStatus === "published"
+                ? "Changes saved. This post remains live on /p."
+                : displayStatus === "archived"
+                  ? "Changes saved. This post stays archived and hidden from the public feed."
+                  : "Changes saved as a draft. Publish when you’re ready for readers to see it."}
           </p>
         </GlassCard>
       ) : null}
 
       <AdminPostForm
         postId={post.id}
-        submitLabel="Save changes"
         action={boundUpdatePost}
         initial={{
           title: post.title,
@@ -171,7 +196,7 @@ export default async function AdminEditPostPage({
             Updated {new Date(post.updated_at).toLocaleString()}
           </p>
           <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-            {post.published_at ? `Published ${new Date(post.published_at).toLocaleString()}` : "Not published"}
+            {post.published_at ? `Published ${new Date(post.published_at).toLocaleString()}` : "Not published yet"}
           </p>
         </div>
       </GlassCard>

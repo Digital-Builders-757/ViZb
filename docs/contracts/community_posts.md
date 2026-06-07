@@ -92,7 +92,8 @@ Admin (staff only):
   - Admin sees an on-page **Could not load post** card with guidance (not a silent redirect to the list).
 - Form save failures redirect with **`?error=`** query params on `/admin/posts/new` or `/admin/posts/[id]`:
   - `slug_taken`, `empty_slug`, `invalid_images`, `validation`, `db_error`, `not_configured`
-  - Success: create → `?created=1`; update → `?saved=1&status={draft|published|archived}`
+  - Success: create → `?created=1`; update → `?saved=1&status={draft|published|archived}`; publish also sets `published=1`
+  - Failures log under **`[admin.posts.save]`** / **`[admin.posts.create]`** — see `docs/journeys/admin_publishes_post.md`.
 - Create/update actions call **`revalidatePath`** for `/admin/posts`, `/admin`, and public surfaces when status is `published`.
 
 ## Consistency requirement (avoid "two apps")

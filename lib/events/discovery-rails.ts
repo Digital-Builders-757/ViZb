@@ -9,6 +9,7 @@ export type DiscoveryRailEvent = {
 
 const TRENDING_LIMIT = 3
 const STAFF_PICKS_LIMIT = 6
+const LOCAL_COMMUNITY_LIMIT = 4
 
 export function buildDiscoveryRails<T extends DiscoveryRailEvent>(upcoming: T[]) {
   const staffPicks = upcoming.filter((e) => e.is_staff_pick).slice(0, STAFF_PICKS_LIMIT)
@@ -21,5 +22,10 @@ export function buildDiscoveryRails<T extends DiscoveryRailEvent>(upcoming: T[])
       : upcoming.filter((e) => !staffPickIds.has(e.id))
   const trending = trendingPool.slice(0, TRENDING_LIMIT)
 
-  return { trending, staffPicks }
+  const railFeaturedIds = new Set([...trending.map((e) => e.id), ...staffPickIds])
+  const localCommunity = upcoming
+    .filter((e) => e.event_kind === "community" && !railFeaturedIds.has(e.id))
+    .slice(0, LOCAL_COMMUNITY_LIMIT)
+
+  return { trending, staffPicks, localCommunity }
 }

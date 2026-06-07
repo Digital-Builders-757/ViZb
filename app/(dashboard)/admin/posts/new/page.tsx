@@ -20,7 +20,12 @@ export default async function AdminNewPostPage({
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Admin</span>
         <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)]">New Post</h1>
         <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Create a post for the public feed.
+          Create a post for the public feed. Save as draft or publish when ready.
+        </p>
+        <p className="mt-3">
+          <span className="inline-flex rounded-full border border-amber-500/45 bg-amber-500/12 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-amber-100">
+            New — not public until published
+          </span>
         </p>
       </header>
 
@@ -34,7 +39,7 @@ export default async function AdminNewPostPage({
         </GlassCard>
       ) : null}
 
-      <AdminPostForm submitLabel="Create post" action={createPost} />
+      <AdminPostForm action={createPost} mode="create" />
     </div>
   )
 }

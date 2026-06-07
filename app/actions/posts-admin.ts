@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 
 import { requireAdmin } from "@/lib/auth-helpers"
+import { logError } from "@/lib/log"
 import { isTrustedBodyImageUrl, parseContentImageUrlsJson } from "@/lib/posts/body-image-upload-constraints"
 import type { AdminPostFormErrorCode } from "@/lib/posts/admin-post-errors"
 import { deriveExcerptFromMarkdown, slugify } from "@/lib/posts/utils"
@@ -17,6 +18,14 @@ function redirectWithPostError(path: string, code: AdminPostFormErrorCode, extra
     }
   }
   redirect(`${path}?${params.toString()}`)
+}
+
+function resolveStatusFromForm(formData: FormData): string {
+  const intent = String(formData.get("intent") ?? "save")
+  const status = String(formData.get("status") ?? "draft")
+  if (intent === "publish") return "published"
+  if (intent === "draft") return "draft"
+  return status
 }
 
 function revalidatePostSurfaces(slug: string | undefined, status: string) {
@@ -44,18 +53,21 @@ export async function createPost(formData: FormData) {
   const video_url = String(formData.get("video_url") ?? "").trim()
   const content_md = String(formData.get("content_md") ?? "").trim()
   const content_image_urls_raw = String(formData.get("content_image_urls") ?? "")
-  const status = String(formData.get("status") ?? "draft")
+  const status = resolveStatusFromForm(formData)
 
   if (!title || !content_md) {
+    logError("admin.posts.create", "validation")
     redirectWithPostError("/admin/posts/new", "validation")
   }
 
   if (!resolvedSlug) {
+    logError("admin.posts.create", "empty_slug")
     redirectWithPostError("/admin/posts/new", "empty_slug")
   }
 
   const content_image_urls_parsed = parseContentImageUrlsJson(content_image_urls_raw)
   if (content_image_urls_parsed === null || !content_image_urls_parsed.every(isTrustedBodyImageUrl)) {
+    logError("admin.posts.create", "invalid_images")
     redirectWithPostError("/admin/posts/new", "invalid_images")
   }
 
@@ -82,6 +94,7 @@ export async function createPost(formData: FormData) {
     if ((error as { code?: string }).code === "23505") {
       redirectWithPostError("/admin/posts/new", "slug_taken", { slug: resolvedSlug })
     }
+    logError("admin.posts.create", error)
     redirectWithPostError("/admin/posts/new", "db_error", { message: error.message })
   }
 
@@ -89,11 +102,13 @@ export async function createPost(formData: FormData) {
   const createdSlug = data?.slug
   const createdStatus = data?.status
   if (!createdId) {
+    logError("admin.posts.create", "no_id_returned")
     redirectWithPostError("/admin/posts/new", "db_error", { message: "Post was not created." })
   }
 
   revalidatePostSurfaces(createdSlug, createdStatus ?? status)
-  redirect(`/admin/posts/${createdId}?created=1`)
+  const publishedQs = status === "published" ? "&published=1" : ""
+  redirect(`/admin/posts/${createdId}?created=1${publishedQs}`)
 }
 
 export async function updatePost(postId: string, formData: FormData) {
@@ -113,16 +128,18 @@ export async function updatePost(postId: string, formData: FormData) {
   const video_url = String(formData.get("video_url") ?? "").trim()
   const content_md = String(formData.get("content_md") ?? "").trim()
   const content_image_urls_raw = String(formData.get("content_image_urls") ?? "")
-  const status = String(formData.get("status") ?? "draft")
+  const status = resolveStatusFromForm(formData)
   const existingPublishedAtRaw = String(formData.get("existing_published_at") ?? "").trim()
   const existingPublishedAt = existingPublishedAtRaw || null
 
   if (!title || !existingSlug || !content_md) {
+    logError("admin.posts.save", "validation", { postId })
     redirectWithPostError(editPath, "validation")
   }
 
   const content_image_urls_parsed = parseContentImageUrlsJson(content_image_urls_raw)
   if (content_image_urls_parsed === null || !content_image_urls_parsed.every(isTrustedBodyImageUrl)) {
+    logError("admin.posts.save", "invalid_images", { postId })
     redirectWithPostError(editPath, "invalid_images")
   }
 
@@ -146,11 +163,13 @@ export async function updatePost(postId: string, formData: FormData) {
     .eq("id", postId)
 
   if (error) {
+    logError("admin.posts.save", error, { postId })
     redirectWithPostError(editPath, "db_error", { message: error.message })
   }
 
   revalidatePostSurfaces(existingSlug, status)
-  redirect(`${editPath}?saved=1&status=${encodeURIComponent(status)}`)
+  const publishedQs = status === "published" ? "&published=1" : ""
+  redirect(`${editPath}?saved=1&status=${encodeURIComponent(status)}${publishedQs}`)
 }
 
 export async function archivePost(postId: string) {

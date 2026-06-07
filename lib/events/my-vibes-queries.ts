@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { logError } from "@/lib/log"
 import { normalizeCategories } from "@/lib/events/categories"
 
 const EVENT_SELECT_FOR_JOIN = `
@@ -44,7 +45,7 @@ export async function fetchMySavedEventIds(supabase: SupabaseClient, userId: str
   const { data, error } = await supabase.from("event_saves").select("event_id").eq("user_id", userId)
 
   if (error) {
-    console.error("event_saves list:", error.message)
+    logError("events.my_vibes", error, { op: "list_saves" })
     return []
   }
 
@@ -80,7 +81,7 @@ async function fetchSavedEventsJoined(supabase: SupabaseClient, userId: string):
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.error("event_saves join:", error.message)
+    logError("events.my_vibes", error, { op: "join_saves" })
     return []
   }
 
