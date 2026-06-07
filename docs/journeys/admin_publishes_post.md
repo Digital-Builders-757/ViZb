@@ -23,7 +23,7 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
    - (Optional) Cover image (upload to Storage) / Video URL
    - Status = `draft`
 5. Admin submits.
-6. System creates row in `public.posts` and redirects to **`/admin/posts/[id]`**.
+6. System creates row in `public.posts` and redirects to **`/admin/posts/[id]?created=1`**.
 
 **Expected results:**
 - Post is visible in **`/admin/posts`** under **Draft**.
@@ -36,7 +36,7 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
 1. Admin opens the post editor **`/admin/posts/[id]`**.
 2. Admin changes status to `published`.
 3. Admin saves.
-4. System sets `published_at` (if not already set) and redirects back to editor with `?saved=1`.
+4. System sets `published_at` (if not already set) and redirects back to editor with `?saved=1&status=published`.
 
 **Expected results:**
 - Post appears on public:
@@ -54,5 +54,11 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
 - Post remains visible in admin under **Archived**.
 
 ## Failure modes & handling
-- **Slug collision:** If slug already exists, admin sees a friendly message and must change slug.
-- **Supabase env missing in preview:** Admin pages should render a safe message instead of crashing.
+- **Slug collision:** Redirect to `/admin/posts/new?error=slug_taken&slug=…` with an on-page message; change the title so the auto-generated slug is unique.
+- **Empty slug:** Title has no letters/numbers → `?error=empty_slug`.
+- **Invalid gallery JSON / URLs:** `?error=invalid_images` — use **Images in post** uploads only (Storage `posts` bucket paths).
+- **Missing title or content:** `?error=validation`.
+- **Database / RLS errors:** `?error=db_error&message=…`.
+- **Supabase env missing:** Setup card on new/edit; `?error=not_configured` if submit is attempted without env.
+- **Edit page load failure:** Missing post or schema drift shows **Could not load post** with migration hints (not a blind redirect).
+- **Public preview 404:** `/p/[slug]` only serves **published** posts. Drafts show `(not public yet)` in the admin list; use **View public** only after publishing.
