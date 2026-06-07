@@ -1,4 +1,5 @@
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { logError } from "@/lib/log"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
@@ -20,6 +21,7 @@ export async function POST(_req: NextRequest, context: { params: Promise<{ slug:
     const supabase = await createClient()
     const { error } = await supabase.rpc("increment_event_public_detail_views", { p_slug: trimmed })
     if (error) {
+      logError("events.view_beacon", error, { slug: trimmed })
       return NextResponse.json({ ok: false }, { status: 503 })
     }
     return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } })

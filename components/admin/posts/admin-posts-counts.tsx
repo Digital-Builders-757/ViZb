@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
+import { logError } from "@/lib/log"
 
 export async function AdminPostsCounts() {
   const supabase = await createClient()
 
-  // Use HEAD+count queries (no row transfer) to keep this fast at scale.
   const [total, draft, published, archived] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }),
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "draft"),
@@ -11,7 +11,14 @@ export async function AdminPostsCounts() {
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "archived"),
   ])
 
-  if (total.error || draft.error || published.error || archived.error) return null
+  if (total.error || draft.error || published.error || archived.error) {
+    logError("admin.posts.counts", total.error ?? draft.error ?? published.error ?? archived.error)
+    return (
+      <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-amber-100">
+        Counts unavailable
+      </span>
+    )
+  }
 
   const counts = {
     total: total.count ?? 0,

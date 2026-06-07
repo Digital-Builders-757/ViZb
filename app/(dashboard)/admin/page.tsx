@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { requireAdmin } from "@/lib/auth-helpers"
+import { logError } from "@/lib/log"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { isServiceRoleConfigured } from "@/lib/supabase/project-env"
@@ -116,6 +117,40 @@ export default async function AdminPage() {
       .order("created_at", { ascending: false }),
   ])
 
+  const queryErrors: string[] = []
+  const countResults = [
+    { label: "profiles", result: profilesResult },
+    { label: "organizations", result: orgsResult },
+    { label: "host_applications", result: pendingAppsResult },
+    { label: "org_invites", result: activeInvitesResult },
+    { label: "events_pending", result: pendingEventsResult },
+    { label: "posts_draft", result: draftPostsResult },
+    { label: "posts_published", result: publishedPostsResult },
+    { label: "listing_reports", result: listingReportsResult },
+  ]
+  for (const { label, result } of countResults) {
+    if (result.error) {
+      logError("admin.overview", result.error, { query: label })
+      queryErrors.push(label)
+    }
+  }
+  if (applicationsData.error) {
+    logError("admin.overview", applicationsData.error, { query: "applications_list" })
+    queryErrors.push("applications_list")
+  }
+  if (pendingEventsData.error) {
+    logError("admin.overview", pendingEventsData.error, { query: "events_review" })
+    queryErrors.push("events_review")
+  }
+  if (usersData.error) {
+    logError("admin.overview", usersData.error, { query: "admin_list_users" })
+    queryErrors.push("admin_list_users")
+  }
+  if (allEventsData.error) {
+    logError("admin.overview", allEventsData.error, { query: "all_events" })
+    queryErrors.push("all_events")
+  }
+
   const totalUsers = profilesResult.count ?? 0
   const totalOrgs = orgsResult.count ?? 0
   const pendingApps = pendingAppsResult.count ?? 0
@@ -155,6 +190,17 @@ export default async function AdminPage() {
       <p className="text-sm text-muted-foreground mt-2">
         Manage organizations, review host applications, and generate invite links.
       </p>
+
+      {queryErrors.length > 0 ? (
+        <GlassCard className="mt-6 border border-amber-500/35 p-4 md:p-5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-amber-200">Some admin data could not load</p>
+          <p className="mt-2 text-sm text-[color:var(--neon-text1)]">
+            Counts or queues may be incomplete. Check Vercel/server logs for{" "}
+            <span className="font-mono text-[color:var(--neon-text0)]">[admin.overview]</span> entries, or see{" "}
+            <span className="font-mono text-[color:var(--neon-text0)]">docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md</span>.
+          </p>
+        </GlassCard>
+      ) : null}
 
       {/* Content */}
       <div className="mt-8 md:mt-10">

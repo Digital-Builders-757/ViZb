@@ -28,6 +28,8 @@ interface EventTimelineCardProps {
   isSignedIn: boolean
   isSaved: boolean
   vibeAuthHref: string
+  /** `interactive` tilt/glare — off on long listing pages for faster hydration. */
+  interactive?: boolean
   /** `archive` = past events: quieter emphasis, smaller type rhythm. */
   tone?: "default" | "archive"
 }
@@ -39,6 +41,7 @@ export function EventTimelineCard({
   isSaved,
   vibeAuthHref,
   tone = "default",
+  interactive = true,
 }: EventTimelineCardProps) {
   const start = new Date(event.starts_at)
   const detailHref = `/events/${event.slug}`
@@ -77,7 +80,7 @@ export function EventTimelineCard({
 
   return (
     <GlassCard
-      interactive
+      interactive={interactive}
       role="article"
       className={`vibe-glass-panel relative flex flex-col ${
         isEven ? "md:flex-row" : "md:flex-row-reverse"

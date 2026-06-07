@@ -81,6 +81,7 @@ Admin (staff only):
 - If Supabase env is missing locally or table isn’t migrated yet:
   - Public: posts module returns empty and does not break page.
   - Admin: posts list shows "setup required" and links to `docs/plans/POSTS_MVP.md`.
+- Post save/create failures redirect with `?error=` codes (`missing_fields`, `invalid_images`, `save_failed`, `slug_taken`) and log under **`[admin.posts.save]`** / **`[admin.posts.create]`** — see `docs/journeys/admin_publishes_post.md`.
 
 ## Consistency requirement (avoid "two apps")
 
