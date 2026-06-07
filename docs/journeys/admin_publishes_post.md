@@ -17,7 +17,7 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
 3. Admin lands on **`/admin/posts/new`**.
 4. Admin fills title, optional caption, Markdown content, optional cover/video/images.
 5. Admin clicks **Save as draft** (or **Create & publish** to go live immediately).
-6. System creates row in `public.posts` and redirects to **`/admin/posts/[id]`**.
+6. System creates row in `public.posts` and redirects to **`/admin/posts/[id]?created=1`**.
 
 **Expected results:**
 - Post is visible in **`/admin/posts`** under **Draft** (unless published on create).
@@ -27,7 +27,7 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
 1. Admin opens **`/admin/posts/[id]`**.
 2. Editor shows a status badge: **Draft — not public yet**, **Live on /p**, or **Archived**.
 3. Admin clicks **Publish** (or sets status to Published and saves).
-4. System sets `published_at` (if not already set) and redirects with `?saved=1&published=1`.
+4. System sets `published_at` (if not already set) and redirects with `?saved=1&status=published&published=1`.
 
 **Expected results:**
 - Post appears on **`/p`** and **`/p/[slug]`**.
@@ -41,11 +41,15 @@ A staff admin creates a Markdown post and publishes it so it appears on public s
 - Post remains visible in admin under **Archived**.
 
 ## Failure modes & handling
-- **Slug collision:** Redirect `?error=slug_taken` with friendly copy on **`/admin/posts/new`**.
-- **Missing fields / invalid images:** Redirect `?error=missing_fields` or `?error=invalid_images` with amber banner on editor.
-- **DB save failure:** Redirect `?error=save_failed`; server logs **`[admin.posts.save]`** or **`[admin.posts.create]`** (see `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`).
-- **Supabase env missing in preview:** Admin pages render a safe message instead of crashing.
+- **Slug collision:** Redirect to `/admin/posts/new?error=slug_taken&slug=…` with on-page message.
+- **Empty slug:** Title has no letters/numbers → `?error=empty_slug`.
+- **Invalid gallery JSON / URLs:** `?error=invalid_images` — use **Images in post** uploads only.
+- **Missing title or content:** `?error=validation`.
+- **Database / RLS errors:** `?error=db_error&message=…`.
+- **Supabase env missing:** Setup card; `?error=not_configured` if submit without env.
+- **Edit page load failure:** **Could not load post** card with migration hints (not a blind redirect).
+- **Public preview 404:** `/p/[slug]` only serves **published** posts.
 
 ## Logging (staff troubleshooting)
-- Application logs use scoped prefixes in Vercel/server output: **`[admin.posts.save]`**, **`[admin.posts.create]`**, **`[admin.posts.counts]`**.
-- No secrets, tokens, or raw credentials are logged.
+- Server logs use scoped prefixes: **`[admin.posts.save]`**, **`[admin.posts.create]`**, **`[admin.posts.counts]`**.
+- See `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md` and `docs/OPERATIONS.md`.

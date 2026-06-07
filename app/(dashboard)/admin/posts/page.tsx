@@ -139,6 +139,11 @@ export default async function AdminPostsPage({
                     </Link>
                     <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
                       /p/{p.slug}
+                      {p.status !== "published" ? (
+                        <span className="ml-2 normal-case tracking-normal text-[color:var(--neon-text2)]">
+                          (not public yet)
+                        </span>
+                      ) : null}
                     </p>
                   </div>
                   <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">

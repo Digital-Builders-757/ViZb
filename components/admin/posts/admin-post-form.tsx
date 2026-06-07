@@ -15,6 +15,10 @@ export type AdminPostDraft = {
   content_md: string
   content_image_urls: string[]
   status: "draft" | "published" | "archived"
+  /** Set on edit only — slug is not editable after create. */
+  existing_slug?: string
+  /** ISO timestamp or empty — preserves publish date on edit. */
+  existing_published_at?: string
 }
 
 export function AdminPostForm({
@@ -36,6 +40,8 @@ export function AdminPostForm({
     content_md: initial?.content_md ?? "",
     content_image_urls: initial?.content_image_urls?.length ? [...initial.content_image_urls] : [],
     status: initial?.status ?? "draft",
+    existing_slug: initial?.existing_slug ?? "",
+    existing_published_at: initial?.existing_published_at ?? "",
   })
 
   const isDraft = draft.status === "draft"
@@ -70,6 +76,12 @@ export function AdminPostForm({
 
         <input type="hidden" name="cover_image_url" value={draft.cover_image_url} readOnly />
         <input type="hidden" name="content_image_urls" value={JSON.stringify(draft.content_image_urls)} readOnly />
+        {draft.existing_slug ? (
+          <input type="hidden" name="existing_slug" value={draft.existing_slug} readOnly />
+        ) : null}
+        {draft.existing_published_at !== undefined ? (
+          <input type="hidden" name="existing_published_at" value={draft.existing_published_at} readOnly />
+        ) : null}
 
         <div className="mt-4">
           <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">

@@ -39,6 +39,13 @@ Fields (MVP):
 
 Canonical SQL + RLS: `docs/plans/POSTS_MVP.md`
 
+**Migrations (preferred over manual SQL):**
+- `supabase/migrations/20260607193500_posts_mvp_base.sql` — `public.posts` table + `platform_role` + RLS
+- `supabase/migrations/20260420231755_posts_content_image_urls.sql` — gallery column
+- `supabase/migrations/20260420224705_storage_buckets_event_flyers_and_posts.sql` — Storage buckets
+
+Apply with `supabase db push` on the project matching `NEXT_PUBLIC_SUPABASE_URL`.
+
 ## Cover images (storage)
 
 - **Bucket:** `post-covers` (public read; **INSERT/UPDATE/DELETE** restricted to `staff_admin` via `storage.objects` policies).
@@ -81,7 +88,13 @@ Admin (staff only):
 - If Supabase env is missing locally or table isn’t migrated yet:
   - Public: posts module returns empty and does not break page.
   - Admin: posts list shows "setup required" and links to `docs/plans/POSTS_MVP.md`.
-- Post save/create failures redirect with `?error=` codes (`missing_fields`, `invalid_images`, `save_failed`, `slug_taken`) and log under **`[admin.posts.save]`** / **`[admin.posts.create]`** — see `docs/journeys/admin_publishes_post.md`.
+- If **`/admin/posts/[id]`** cannot load a post (missing row, schema drift, RLS):
+  - Admin sees an on-page **Could not load post** card with guidance (not a silent redirect to the list).
+- Form save failures redirect with **`?error=`** query params on `/admin/posts/new` or `/admin/posts/[id]`:
+  - `slug_taken`, `empty_slug`, `invalid_images`, `validation`, `db_error`, `not_configured`
+  - Success: create → `?created=1`; update → `?saved=1&status={draft|published|archived}`; publish also sets `published=1`
+  - Failures log under **`[admin.posts.save]`** / **`[admin.posts.create]`** — see `docs/journeys/admin_publishes_post.md`.
+- Create/update actions call **`revalidatePath`** for `/admin/posts`, `/admin`, and public surfaces when status is `published`.
 
 ## Consistency requirement (avoid "two apps")
 
