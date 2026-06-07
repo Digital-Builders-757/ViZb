@@ -1,74 +1,18 @@
-import { redirect } from "next/navigation"
-
 import { requireAdmin } from "@/lib/auth-helpers"
-import { isTrustedBodyImageUrl, parseContentImageUrlsJson } from "@/lib/posts/body-image-upload-constraints"
-import { slugify, deriveExcerptFromMarkdown } from "@/lib/posts/utils"
-import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { isServerSupabaseConfigured } from "@/lib/supabase/server"
+import { createPost } from "@/app/actions/posts-admin"
 
+import { AdminPostErrorBanner } from "@/components/admin/posts/admin-post-error-banner"
 import { AdminPostForm } from "@/components/admin/posts/admin-post-form"
 import { GlassCard } from "@/components/ui/glass-card"
 
 export default async function AdminNewPostPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; slug?: string }>
+  searchParams: Promise<{ error?: string; slug?: string; message?: string }>
 }) {
   await requireAdmin()
-  const { error, slug } = await searchParams
-
-  async function createPost(formData: FormData) {
-    "use server"
-
-    if (!isServerSupabaseConfigured()) return
-
-    const title = String(formData.get("title") ?? "").trim()
-    const resolvedSlug = slugify(title)
-
-    const excerptRaw = String(formData.get("excerpt") ?? "").trim()
-    const cover_image_url = String(formData.get("cover_image_url") ?? "").trim()
-    const video_url = String(formData.get("video_url") ?? "").trim()
-    const content_md = String(formData.get("content_md") ?? "").trim()
-    const content_image_urls_raw = String(formData.get("content_image_urls") ?? "")
-    const status = String(formData.get("status") ?? "draft")
-
-    if (!title || !resolvedSlug || !content_md) return
-
-    const content_image_urls_parsed = parseContentImageUrlsJson(content_image_urls_raw)
-    if (content_image_urls_parsed === null) return
-    if (!content_image_urls_parsed.every(isTrustedBodyImageUrl)) return
-
-    const supabase = await createClient()
-
-    const excerpt = excerptRaw || deriveExcerptFromMarkdown(content_md)
-
-    const { data, error } = await supabase
-      .from("posts")
-      .insert({
-        title,
-        slug: resolvedSlug,
-        excerpt: excerpt ? excerpt : null,
-        content_md,
-        cover_image_url: cover_image_url || null,
-        video_url: video_url || null,
-        content_image_urls: content_image_urls_parsed,
-        status,
-        published_at: status === "published" ? new Date().toISOString() : null,
-      })
-      .select("id")
-      .single()
-
-    if (error) {
-      // Friendly handling for the most common issue: slug uniqueness
-      if ((error as any).code === "23505") {
-        return redirect(`/admin/posts/new?error=slug_taken&slug=${encodeURIComponent(resolvedSlug)}`)
-      }
-      return
-    }
-
-    if (!data?.id) return
-
-    redirect(`/admin/posts/${data.id}`)
-  }
+  const { error, slug, message } = await searchParams
 
   return (
     <div className="space-y-6">
@@ -80,16 +24,7 @@ export default async function AdminNewPostPage({
         </p>
       </header>
 
-      {error === "slug_taken" ? (
-        <GlassCard className="p-5">
-          <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">Link already in use</p>
-          <p className="mt-2 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            Another post already uses a URL like{" "}
-            <span className="font-mono text-[color:var(--neon-text0)]">/p/{slug}</span>. Try a more specific title (or add a
-            few words) so the link is unique, then save again.
-          </p>
-        </GlassCard>
-      ) : null}
+      <AdminPostErrorBanner error={error} slug={slug} dbMessage={message} />
 
       {!isServerSupabaseConfigured() ? (
         <GlassCard className="p-6">
