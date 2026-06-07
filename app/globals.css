@@ -338,6 +338,38 @@
   }
 }
 
+/* Events listing — resting dual-tone border glow (CSS-only, no animation) */
+.events-neon-card {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--neon-a) 14%, transparent),
+    0 0 20px rgb(0 209 255 / 0.08),
+    0 0 32px rgb(157 77 255 / 0.05);
+}
+
+.events-neon-card-archive {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--neon-hairline) 40%, transparent),
+    0 0 12px rgb(0 209 255 / 0.04);
+}
+
+.events-neon-card-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.group:hover .events-neon-card-hover,
+.events-neon-card-hover:hover {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--neon-a) 28%, transparent),
+    0 0 28px rgb(0 209 255 / 0.14),
+    0 0 48px rgb(157 77 255 / 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .events-neon-card-hover {
+    transition: none;
+  }
+}
+
 /**
  * Branded keyboard focus (focus-visible). Outline-only preserves component box-shadows.
  */

@@ -9,8 +9,7 @@
 2. Curated rails appear above the timeline when data exists:
    - **Starting soon** — official events first (hero + compact cards)
    - **ViZb picks** — staff editorial highlights
-   - **Local & community** — community-submitted listings not already featured above
-3. Full **timeline** below (`#timeline`) with date headers and flyer-forward cards.
+3. Full **timeline** below (`#timeline`) with date headers and flyer-forward cards — includes **official** and **community** listings (community rows show **Local Event** badge).
 4. Opens event detail; sees accurate title, time, venue text, CTA (sign in to RSVP / get tickets when available; community listings use external RSVP in a new tab).
 
 ## Acceptance
@@ -24,3 +23,4 @@
 
 - **`/events`** uses a static CSS backdrop instead of Three.js for faster first paint.
 - Timeline cards disable interactive tilt on listing pages to reduce client hydration cost.
+- Card neon glow is **CSS-only** (`.events-neon-card` utilities in **`app/globals.css`**) — no extra JS or assets.

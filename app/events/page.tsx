@@ -25,7 +25,7 @@ import {
   type TicketStub,
 } from "@/lib/events/discovery-filters"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
-import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
+import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 
@@ -123,7 +123,7 @@ function EventHeroCard({ e }: { e: FlatEvent }) {
   return (
     <Link
       href={`/events/${e.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/18 backdrop-blur transition-all duration-300 hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_40px_rgba(0,209,255,0.14)]"
+      className="events-neon-card events-neon-card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/18 backdrop-blur hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -188,33 +188,30 @@ function EventHeroCard({ e }: { e: FlatEvent }) {
   )
 }
 
-/** Shared compact glance card for rails (starting soon / local picks). */
+/** Shared compact glance card for rails (starting soon / ViZb picks). */
 function EventsCompactGlanceCard({
   e,
   variant,
   size = "default",
 }: {
   e: FlatEvent
-  variant: "default" | "local" | "staffPick"
+  variant: "default" | "staffPick"
   size?: "default" | "compact"
 }) {
   const { visible: trendCats, extraCount: trendCatExtra } = sliceCategoriesForDisplay(e.categories, 1)
-  const isLocal = variant === "local"
   const isStaffRail = variant === "staffPick"
   const isCompact = size === "compact"
   const borderHover = isStaffRail
     ? "hover:border-amber-500/45 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_28px_rgba(245,158,11,0.12)]"
-    : isLocal
-    ? "hover:border-violet-500/50 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_rgba(139,92,246,0.14)]"
     : "hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_rgba(0,209,255,0.12)]"
 
   return (
     <Link
       href={`/events/${e.slug}`}
-      className={`group relative overflow-hidden rounded-xl border bg-[color:var(--neon-surface)]/18 backdrop-blur transition-all duration-300 ${
+      className={`events-neon-card events-neon-card-hover group relative overflow-hidden rounded-xl border bg-[color:var(--neon-surface)]/18 backdrop-blur ${
         isCompact ? "p-2.5" : "p-3.5 sm:p-4"
       } ${
-        isStaffRail ? "border-amber-500/35" : isLocal ? "border-violet-500/35" : "border-[color:var(--neon-hairline)]/90"
+        isStaffRail ? "border-amber-500/35" : "border-[color:var(--neon-hairline)]/90"
       } ${borderHover}`}
     >
       <div
@@ -222,9 +219,7 @@ function EventsCompactGlanceCard({
         style={{
           background: isStaffRail
             ? "radial-gradient(800px circle at 15% 0%, rgba(245,158,11,0.14), transparent 50%)"
-            : isLocal
-              ? "radial-gradient(800px circle at 15% 0%, rgba(139,92,246,0.16), transparent 50%)"
-              : "radial-gradient(800px circle at 15% 0%, rgba(0,209,255,0.14), transparent 50%)",
+            : "radial-gradient(800px circle at 15% 0%, rgba(0,209,255,0.14), transparent 50%)",
         }}
         aria-hidden
       />
@@ -252,13 +247,6 @@ function EventsCompactGlanceCard({
             <p className="mb-1">
               <span className={`inline-flex ${STAFF_PICK_BADGE_CLASS} px-2 py-0.5 font-mono text-[9px]`}>
                 {STAFF_PICK_BADGE_LABEL}
-              </span>
-            </p>
-          ) : null}
-          {isLocal ? (
-            <p className="mb-1">
-              <span className="inline-flex rounded-full border border-violet-500/45 bg-violet-500/12 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-violet-100">
-                {eventKindBadgeShort("community")}
               </span>
             </p>
           ) : null}
@@ -462,9 +450,8 @@ export default async function EventsExplorePage({
   const hasUnfilteredUpcoming = upcomingBase.length > 0
   const hasUnfilteredPast = flatPastBase.length > 0
 
-  const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcomingBase)
-  const showDiscoveryRails =
-    trending.length > 0 || staffPicks.length > 0 || localCommunity.length > 0
+  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
+  const showDiscoveryRails = trending.length > 0 || staffPicks.length > 0
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
     if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
@@ -628,7 +615,7 @@ export default async function EventsExplorePage({
             />
             <button
               type="submit"
-              className="vibe-focus-ring shrink-0 rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/12 px-7 py-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors hover:bg-[color:var(--neon-a)]/22"
+              className="vibe-focus-ring shrink-0 rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/12 px-7 py-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] transition-[background-color,box-shadow] hover:bg-[color:var(--neon-a)]/22 hover:shadow-[var(--vibe-neon-glow-subtle)]"
             >
               Search
             </button>
@@ -808,43 +795,6 @@ export default async function EventsExplorePage({
               </div>
             </section>
           ) : null}
-
-          {localCommunity.length > 0 ? (
-            <section className="px-4 pb-2 pt-6 sm:px-8 md:pt-8">
-              <div className="mx-auto max-w-[1200px]">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-violet-200/90">
-                      Local &amp; community
-                    </p>
-                    <p className="mt-1 max-w-lg text-xs text-[color:var(--neon-text1)]/90">
-                      Submitted by organizers and hosts across the DMV — discover what&apos;s happening near you.
-                    </p>
-                  </div>
-                  <Link
-                    href="/events#timeline"
-                    className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)]"
-                  >
-                    Full timeline →
-                  </Link>
-                </div>
-
-                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                  {localCommunity.map((e) => (
-                    <div key={`local-mob-${e.id}`} className="snap-start w-[88vw] shrink-0">
-                      <EventsCompactGlanceCard e={e} variant="local" />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-5 hidden md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-4">
-                  {localCommunity.map((e) => (
-                    <EventsCompactGlanceCard key={`local-${e.id}`} e={e} variant="local" />
-                  ))}
-                </div>
-              </div>
-            </section>
-          ) : null}
         </>
       ) : null}
 
@@ -958,7 +908,7 @@ export default async function EventsExplorePage({
               {hasUpcoming && (
                 <div className="relative">
                   {/* Vertical timeline line -- desktop only */}
-                  <div className="hidden md:block absolute left-[5px] top-0 bottom-0 w-px bg-[color:var(--neon-a)]/25 shadow-[0_0_10px_rgb(0_209_255/0.18)]" />
+                  <div className="hidden md:block absolute left-[5px] top-0 bottom-0 w-px bg-[color:var(--neon-a)]/25 shadow-[0_0_18px_rgb(0_209_255/0.28)]" />
 
                   {dateKeys.map((dateKey, di) => {
                     // dateKey is YYYY-MM-DD in ET; parse as noon ET for display

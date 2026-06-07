@@ -22,11 +22,10 @@ describe("buildDiscoveryRails", () => {
       evt("o2", { event_kind: "official" }),
     ]
 
-    const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(trending.map((e) => e.id)).toEqual(["o1", "o2"])
     expect(staffPicks).toEqual([])
-    expect(localCommunity.map((e) => e.id)).toEqual(["c1"])
   })
 
   it("excludes staff picks from trending", () => {
@@ -37,11 +36,10 @@ describe("buildDiscoveryRails", () => {
       evt("c2", { event_kind: "community" }),
     ]
 
-    const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(staffPicks.map((e) => e.id)).toEqual(["o1", "c1"])
     expect(trending.map((e) => e.id)).toEqual(["o2"])
-    expect(localCommunity.map((e) => e.id)).toEqual(["c2"])
   })
 
   it("falls back to upcoming minus staff picks when no official events", () => {
@@ -51,11 +49,10 @@ describe("buildDiscoveryRails", () => {
       evt("c3", { event_kind: "community", is_staff_pick: true }),
     ]
 
-    const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(staffPicks.map((e) => e.id)).toEqual(["c3"])
     expect(trending.map((e) => e.id)).toEqual(["c1", "c2"])
-    expect(localCommunity).toEqual([])
   })
 
   it("enforces slice limits", () => {
@@ -69,25 +66,9 @@ describe("buildDiscoveryRails", () => {
       ),
     ]
 
-    const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcoming)
+    const { trending, staffPicks } = buildDiscoveryRails(upcoming)
 
     expect(trending).toHaveLength(3)
     expect(staffPicks).toHaveLength(6)
-    expect(localCommunity.length).toBeLessThanOrEqual(4)
-  })
-
-  it("excludes trending and staff picks from local community rail", () => {
-    const upcoming = [
-      evt("o1", { event_kind: "official" }),
-      evt("c1", { event_kind: "community", is_staff_pick: true }),
-      evt("c2", { event_kind: "community" }),
-      evt("c3", { event_kind: "community" }),
-    ]
-
-    const { trending, staffPicks, localCommunity } = buildDiscoveryRails(upcoming)
-
-    expect(trending.map((e) => e.id)).toEqual(["o1"])
-    expect(staffPicks.map((e) => e.id)).toEqual(["c1"])
-    expect(localCommunity.map((e) => e.id)).toEqual(["c2", "c3"])
   })
 })
