@@ -1,17 +1,17 @@
 # Contract: RSVPs, free tickets & orders
 
-**Status:** MVP — **free RSVP + $0 tickets** + **Stripe Checkout** for paid tiers (requires DB migration `030` / `20260411120000_stripe_checkout_fulfillment.sql` + Stripe env)
+**Status:** MVP — free RSVP + `$0` tickets + paid Stripe Checkout
 
-**Last updated:** April 17, 2026
+**Last updated:** June 8, 2026
 
 ## Goal (V1 shipped)
 
-Deliver a **free RSVP** flow that:
+Deliver a registration/ticket flow that:
 
 - Lets an authenticated user RSVP on a **published** event (optional **RSVP cap** on `events.rsvp_capacity`).
 - Persists entitlement in **`event_registrations`** and issues a **`tickets`** row (16-char hex **`ticket_code`**) via **`mint_free_rsvp_ticket_for_registration`** ($0 completed **`orders`** + line item). A **confirmed** or **checked_in** RSVP must always have a matching **`tickets`** row (`event_registration_id`); the app **self-heals** on `/events/[slug]` when a registration exists without a ticket (legacy/orphan data) by calling the same mint RPC again.
 - Surfaces passes in the member wallet at **`/tickets`** and **`/tickets/[ticketId]`** ( **`/dashboard/tickets`** remains an alias).
-- Lets organizers define **free** tiers on **`ticket_types`** (name, sort, optional per-tier capacity, optional sale window); public event page can show a **tier chooser** when multiple $0 tiers are on sale.
+- Lets organizers define **free and paid** tiers on **`ticket_types`** (name, price, sort, capacity, sale window); public event detail chooses free RSVP or paid checkout based on tier.
 
 ## Data model
 
@@ -26,7 +26,9 @@ Deliver a **free RSVP** flow that:
 
 - Source: `supabase/migrations/20260410142142_tickets_core_free_rsvp.sql` (mirror: `scripts/028_tickets_core_free_rsvp.sql`).
 - Tier editor extensions (capacity, sale window, org CRUD policies, optional mint arg): `supabase/migrations/20260410144936_ticket_types_org_crud_and_mint_tier.sql` (mirror: `scripts/029_ticket_types_org_crud_and_mint_tier.sql`).
+- Paid checkout upgrade: `supabase/migrations/20260606000500_stripe_ticketing_mvp_upgrade.sql`.
 - **Free RSVP:** one **`tickets`** row per registration (`event_registration_id` UNIQUE), tied to a $0 **`ticket_type`** (including the seeded default **RSVP** tier).
+- **Paid checkout:** `orders.status` starts as `pending_payment`; Stripe webhook fulfillment marks the order completed and mints the ticket/registration through RPC.
 
 ### `public.events.rsvp_capacity`
 
@@ -57,7 +59,9 @@ Deliver a **free RSVP** flow that:
 ## Paid checkout (Stripe)
 
 - Server action: `app/actions/ticket-checkout.ts` → `createTicketCheckoutSession` (published event, paid tier, capacities).
-- Webhook: `POST /api/stripe/webhook` handles `checkout.session.completed` and calls `fulfill_stripe_checkout_for_ticket` with **service_role** (idempotent on `orders.stripe_checkout_session_id`).
+- Webhook: `POST /api/stripe/webhook` handles `checkout.session.completed`, `payment_intent.payment_failed`, and `checkout.session.expired`.
+- Fulfillment RPC: **`fulfill_stripe_ticket_order`** in `supabase/migrations/20260606000500_stripe_ticketing_mvp_upgrade.sql`.
+- Idempotency: `webhook_logs` plus Stripe session/order identifiers; client return is never trusted as fulfillment proof.
 - Env: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL` (success/cancel URLs).
 
 ## Door QR (check-in)

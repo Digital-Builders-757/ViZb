@@ -1,7 +1,7 @@
 # Contract: events
 
-**Status:** STUB  
-**Spec:** `docs/VIBE_APP_SPECIFICATION.md` (events schema + RLS)  
+**Status:** MVP  
+**Spec:** `docs/SYSTEM_DESIGN.md` + `docs/VIBE_APP_SPECIFICATION.md` (historical schema/RLS reference)  
 **Layer 1:** `docs/EVENTS_SOURCE_OF_TRUTH.md`  
 **Code:** `app/actions/event.ts`, `app/events/**`, `app/(dashboard)/organizer/**`, admin review UI
 
@@ -54,6 +54,12 @@ Current `event_status` values (see `scripts/003_create_enums.sql` + `scripts/008
 - Migration: **`supabase/migrations/20260505184652_event_staff_pick_and_listing_reports.sql`**.
 - **Public UX:** **`Report listing`** on **`/events/[slug]`** (signed-in submits; signed-out sees sign-in prompt). Staff queue: **`/admin/event-listing-reports`**.
 - **Verified vs community listings:** **`official`** events continue to read as **ViZb Event** (in-app ticketing/RSVP where enabled); **`community`** rows remain clearly third-party (**Local Event** + external RSVP copy).
+
+## Public discovery rails
+
+- `/events` currently renders **Starting soon** and **ViZb picks** rails when data exists.
+- The former **Local & community** rail has been removed to shorten scroll depth. Community listings remain in the full timeline and event detail pages with the **Local Event** badge.
+- Rail logic lives in `lib/events/discovery-rails.ts`; search/preset/category filtering lives in `lib/events/discovery-filters.ts`.
 
 ## Public detail view counter (organizer metrics)
 

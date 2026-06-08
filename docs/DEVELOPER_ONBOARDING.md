@@ -1,8 +1,10 @@
 # ViBE -- Developer & AI Agent Onboarding Guide
 
-**Last Updated:** February 5, 2026
+**Last Updated:** June 8, 2026
 
-Read this first. It takes 5 minutes and prevents hours of mistakes.
+> **Superseded for current product state:** Use **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** and **[ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md)** for accurate setup, shipped features, and commands. This file is kept only for immutable Cursor path references and historical context.
+
+Do **not** use the feature-status sections below as current truth. Auth, events, tickets, organizer tools, admin, posts, and check-in now exist in production code paths.
 
 **AI agents:** start with **`AGENT_ONBOARDING.md`** and **`VIBE_PROJECT_CONTEXT_PROMPT.md`** at the repo root, then return here. Command doctrine: **`docs/development/ENGINEERING_COMMANDS.md`** (ViBE Operating Doctrine).
 

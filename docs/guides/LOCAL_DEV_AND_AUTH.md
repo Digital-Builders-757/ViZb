@@ -1,6 +1,6 @@
 # Local dev server + Supabase auth (login & dashboard)
 
-**Last updated:** March 30, 2026
+**Last updated:** June 8, 2026
 
 Use this when you want **localhost** working end-to-end: **Next.js dev server**, **Supabase Auth**, and **dashboard** after sign-in.
 
@@ -11,7 +11,7 @@ Use this when you want **localhost** working end-to-end: **Next.js dev server**,
 **No — not for the normal workflow in this repo.**
 
 - The app is built for **hosted Supabase** (cloud project). You only need **Node.js**, **npm**, and a **`.env.local`** file with your project URL and anon key.
-- **Docker** (or `supabase start`) is **optional**. Some teams run Supabase locally via the [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started); this repository does **not** ship a `docker-compose.yml` or `supabase/config.toml`. If you add local Supabase later, that is a separate setup.
+- **Docker** (or `supabase start`) is **optional**. The repository now includes `supabase/config.toml`, but the default team workflow remains **hosted Supabase**. Local reset is not a full greenfield bootstrap by itself because the project has a dual SQL history (`scripts/` bootstrap + `supabase/migrations/` deltas) and the config may reference a missing `supabase/seed.sql`.
 
 ---
 
@@ -99,7 +99,7 @@ Sign-up and confirmation emails are sent by **Supabase**, not by the Next.js `re
 
 ## 6. After this works
 
-Run **`npm run ci`** before pushing. For dashboard UI work, follow **`docs/BRAND_CONSTITUTION.md`** and use **`/brand-check`** for visible changes. Next priorities: **`docs/development/PUSH_FORWARD_ROADMAP.md`**.
+Run **`npm run ci`** before pushing. For dashboard UI work, follow **`docs/BRAND_CONSTITUTION.md`** and use **`/brand-check`** for visible changes. For current architecture and safe contribution paths, start with **`docs/DEVELOPER_GUIDE.md`** and **`docs/SYSTEM_DESIGN.md`**.
 
 ---
 

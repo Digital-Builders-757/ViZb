@@ -1,6 +1,6 @@
 # Operations
 
-**Last updated:** June 7, 2026  
+**Last updated:** June 8, 2026  
 **Audience:** Operators, release engineers, on-call
 
 Runtime assumptions, deploy flow, integrations, background work, and troubleshooting entry points for ViZb.
@@ -202,6 +202,10 @@ Missing buckets → upload errors in flyer/post flows. Apply storage migrations 
 
 Local equivalent before push: `npm run ci && npm run test:e2e`
 
+**Known process mismatch:** [development/BRANCHING.md](./development/BRANCHING.md) and [development/RELEASING.md](./development/RELEASING.md) describe hotfix PRs to `main`, but `release-guard.yml` currently allows only `develop` as the head branch for `main` PRs. Until that workflow is changed, production hotfixes should either go through `develop` or be explicitly coordinated before opening a `fix/*` → `main` PR.
+
+**Coverage gap:** CI does not verify Supabase migration parity and does not currently exercise Stripe webhook fulfillment end-to-end.
+
 ---
 
 ## Failure points and troubleshooting
@@ -218,6 +222,7 @@ Primary runbook: [troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md](./troublesho
 | Wrong project data | `NEXT_PUBLIC_SUPABASE_URL` mismatch | Compare Vercel env to intended project |
 | Admin cannot access | `platform_role` not `staff_admin` | SQL update on `profiles` |
 | Webhook retries forever | 500 from missing service role or RPC | Logs + migration `20260606000500` |
+| Admin user list missing | `admin_list_users` RPC absent or remote-only | Confirm RPC exists on target Supabase project |
 
 ### Wallet passes
 
@@ -234,6 +239,8 @@ Seed and verify: [database/NOTIFICATIONS_QA_SEED.md](./database/NOTIFICATIONS_QA
 `supabase/config.toml` exists (Postgres 17). `supabase/seed.sql` is **referenced but may be missing** — `db reset` seed step can fail.
 
 Default team workflow: **hosted Supabase** + `.env.local`. See [guides/LOCAL_DEV_AND_AUTH.md](./guides/LOCAL_DEV_AND_AUTH.md).
+
+CLI migrations are not a full greenfield rebuild path by themselves. Base tables/enums/helpers still depend on the historical `scripts/` bootstrap track.
 
 ---
 

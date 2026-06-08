@@ -26,7 +26,12 @@ Details, merge policy, and hotfixes: [`docs/development/BRANCHING.md`](docs/deve
 
 | Start here | Purpose |
 |------------|---------|
-| [`docs/DOCUMENTATION_INDEX.md`](docs/DOCUMENTATION_INDEX.md) | Full map of docs and layers |
+| [`docs/README.md`](docs/README.md) | **Documentation front door** (June 2026 rewrite) |
+| [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Full system design and data flows |
+| [`docs/ARCHITECTURE_OVERVIEW.md`](docs/ARCHITECTURE_OVERVIEW.md) | Short orientation for devs and agents |
+| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Local setup, commands, safe contribution |
+| [`docs/DOCUMENTATION_INDEX.md`](docs/DOCUMENTATION_INDEX.md) | Legacy full map of docs and layers |
+| [`docs/MIGRATION_MAP.md`](docs/MIGRATION_MAP.md) | Keep / merge / archive map for older docs |
 | [`docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md`](docs/VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md) | Hygiene / doc pass log (audit, DOD, validation) |
 | [`AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) | AI / agent quick path |
 | [`VIBE_PROJECT_CONTEXT_PROMPT.md`](VIBE_PROJECT_CONTEXT_PROMPT.md) | Pre-change checklist (ViBE Operating Doctrine) |
