@@ -1,6 +1,6 @@
-# Journey: Public discovery → Member dashboard (Option A: events-first)
+# Journey: public discovery → member dashboard
 
-**Status:** MVP (in progress)
+**Status:** MVP
 
 ## Goal
 
@@ -20,7 +20,7 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
   - Events: trending + culture picks
   - Posts: "From ViZb" (latest published posts)
 - `/events` — full public events timeline
-- `/events/[slug]` — public event detail (dual CTA shown; actions may be disabled until wired)
+- `/events/[slug]` — public event detail; free RSVP/paid ticket actions require sign-in when needed
 - `/p/[slug]` — public post detail (markdown)
 - `/login`, `/signup`
 
@@ -38,7 +38,7 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 
 ---
 
-## Flow: Guest lands → discovers → converts
+## Flow: guest lands → discovers → converts
 
 1) **Guest lands on `/`**
    - Sees same neon/glass visual language as the dashboard (Starfield + glass cards)
@@ -51,8 +51,8 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 
 3) **Guest opens `/events/[slug]`**
    - Views flyer, time/location blocks
-   - Sees dual CTA (Get Tickets + RSVP)
-   - If not logged in and CTA requires account: prompt to login/signup
+   - Sees RSVP/ticket CTA for official events or external RSVP for community listings
+   - If not logged in and CTA requires account: prompt to login/signup with return path
 
 4) **Guest reads content `/p/[slug]`**
    - Posts reinforce brand voice, culture, and momentum
@@ -63,15 +63,16 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 
 ---
 
-## Flow: Member returns → operates
+## Flow: member returns → operates
 
 1) **Member lands on `/dashboard`**
    - Calendar + upcoming
    - Culture picks deep-link into `/events?category=...`
    - Ticket state shown on **`/tickets`** (home quick links use the canonical path)
 
-2) **Ticket purchase (future)**
-   - Event detail CTA goes live
+2) **RSVP / ticket purchase**
+   - Free RSVP mints a `$0` ticket
+   - Paid checkout redirects through Stripe and fulfills by webhook
    - Orders/RSVP contract governs behavior (see `docs/contracts/rsvps.md`)
 
 ---
@@ -82,16 +83,15 @@ Dashboard is the "main guide" once logged in — but the public surfaces must fe
 - Shared primitives: `GlassCard`, `NeonButton`, chips/tags
 - Shared shell behavior: top bar height, safe-area, spacing rhythm
 - Public pages must not re-introduce generic "marketing" typography/spacing that diverges from the dashboard.
+- `/events` is intentionally public and outside dashboard chrome even when a signed-in user reaches it from the sidebar.
 
 ---
 
 ## Operational notes
 
-- Posts are Supabase-native (Markdown) for MVP.
-  - Plan/SQL/RLS: `docs/plans/POSTS_MVP.md`
+- Posts are Supabase-native for MVP.
   - Contract: `docs/contracts/community_posts.md`
 
 - Upgrade path:
-  - Replace markdown renderer with `react-markdown` + sanitization
-  - Add embed support for videos
-  - Introduce headless CMS only if the editorial workflow demands it.
+  - Add richer embeds only if editorial workflow demands it.
+  - Introduce a headless CMS only when staff editing constraints justify another system.

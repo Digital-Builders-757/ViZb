@@ -1,19 +1,21 @@
 # Agent onboarding — ViBE / ViZb
 
-**Last updated:** April 1, 2026
+**Last updated:** June 8, 2026
 
 Five-minute path for a new AI agent or developer.
 
 ## Read in order
 
-1. **`VIBE_PROJECT_CONTEXT_PROMPT.md`** — Full pre-change checklist (ViBE Operating Doctrine).
-2. **`database_schema_audit.md`** — Where SQL lives and how audits work.
-3. **`docs/DOCUMENTATION_INDEX.md`** — Spine: Layer 1–3, contracts, journeys, guides.
-4. **`docs/development/LLM_GUARDRAILS.md`** — Preflight + clean-code guardrails + footguns.
-5. **`docs/development/BRANCHING.md`** — PRs target **`develop`** (merge commit); release **`develop` → `main`** (merge commit only — **do not squash-merge into `main`**).
-6. **`docs/ARCHITECTURE_CONSTITUTION.md`** — Non-negotiables (short).
-7. **`docs/diagrams/airport-model.md`** — Zones for `/plan`, `/triage`, `/debug`.  
-8. **`docs/diagrams/README.md`** — Which other diagram to open (auth, roles, infra, lifecycle).
+1. **`docs/ARCHITECTURE_OVERVIEW.md`** — 5-minute system orientation (June 2026).
+2. **`VIBE_PROJECT_CONTEXT_PROMPT.md`** — Full pre-change checklist (ViBE Operating Doctrine).
+3. **`database_schema_audit.md`** — Where SQL lives and how audits work.
+4. **`docs/README.md`** — Documentation front door; links to SYSTEM_DESIGN, DEVELOPER_GUIDE, OPERATIONS.
+5. **`docs/DOCUMENTATION_INDEX.md`** — Legacy full spine: Layer 1–3, contracts, journeys, guides.
+6. **`docs/development/LLM_GUARDRAILS.md`** — Preflight + clean-code guardrails + footguns.
+7. **`docs/development/BRANCHING.md`** — PRs target **`develop`** (merge commit); release **`develop` → `main`** (merge commit only — **do not squash-merge into `main`**).
+8. **`docs/ARCHITECTURE_CONSTITUTION.md`** — Non-negotiables (short).
+9. **`docs/diagrams/airport-model.md`** — Zones for `/plan`, `/triage`, `/debug`.  
+10. **`docs/diagrams/README.md`** — Which other diagram to open (auth, roles, infra, lifecycle).
 
 ## Feature entrypoints (common)
 
@@ -35,6 +37,7 @@ Five-minute path for a new AI agent or developer.
 
 - Run **`npm run typecheck`**, **`npm run test`**, **`npm run lint`**, **`npm run build`** (or use **`/verify`**).
 - Prefer a **feature branch** off **`develop`** and a **PR into `develop`** (merge commit); use **`/ship`** to push your **current branch**. Supabase schema: **`docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md`**.
+- For architecture or docs work, start from **`docs/README.md`** and **`docs/SYSTEM_DESIGN.md`**; older specs/work-orders may be historical.
 
 ## Commands
 

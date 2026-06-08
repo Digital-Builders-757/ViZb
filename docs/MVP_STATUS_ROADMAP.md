@@ -66,11 +66,11 @@
 | Phase | Name | Status | Completion |
 |-------|------|--------|------------|
 | Phase 1 | Auth + Dashboard Shell | COMPLETE | 100% |
-| Phase 2 | Events + Media (Public Feed) | IN PROGRESS (mostly shipped) | 75% |
-| Phase 3 | Ticket Types + Free RSVP | IN PROGRESS (free path + wallet + RSVP→ticket hardening + **`open_mic`** category; paid tiers next) | ~68% |
-| Phase 4 | Paid Tickets (Stripe Checkout) | IN PROGRESS (checkout + webhook mint shipped; needs env + DB `030`) | ~45% |
-| Phase 5 | Door Check-In | NOT STARTED | 0% |
-| Phase 6 | Admin Workflows + Polish | IN PROGRESS (~50% — site-wide **neon / glass** UI in `feat/visual-overhaul-neon-glass`; **ship polish:** organizer/admin/event forms migrated off legacy `form-card` / `input-premium` to `GlassCard` + `vibe-input-glass` / `vibe-cta-gradient`; see `docs/VIZB_VISUAL_OVERHAUL_MASTER_PLAN.md`) | ~52% |
+| Phase 2 | Events + Media (Public Feed) | MVP shipped; ongoing polish | 90% |
+| Phase 3 | Ticket Types + Free RSVP | MVP shipped — free RSVP, ticket wallet, tier CRUD, open-mic category | 90% |
+| Phase 4 | Paid Tickets (Stripe Checkout) | MVP shipped — checkout + webhook mint; ops/env hardening remains | 80% |
+| Phase 5 | Door Check-In | MVP shipped — QR scan API + manual check-in/undo | 75% |
+| Phase 6 | Admin Workflows + Polish | MVP shipped; ongoing UX/ops polish | 80% |
 
 ### P0 / maintenance (no product phase change)
 
@@ -95,6 +95,8 @@
 - **June 2, 2026 — Homepage timeline-first MVP:** Public **`/`** is now intro + CTAs + **`HomeTimelineSection`** (**`EventTimelineCard`** preview, up to 12 events, My Vibes parity); hero tag pills and trending mini-grid removed; compact hero (no full-viewport lock). Editorial marquee, bento, stats, app preview, and waitlist moved to new **`/about`**; navbar adds **Home**, **About** → **`/about`**. Components: **`components/home-timeline-section.tsx`**, **`components/hero-photo-grid.tsx`**, **`app/about/page.tsx`**. Verified: **`npm run typecheck`**, **`npm run test`**, **`npm run lint`**, **`npm run build`**.
 - **June 7, 2026 — Admin posts workflow trust fix (#114):** Centralized **`createPost`** / **`updatePost`** in **`app/actions/posts-admin.ts`** with **`?error=`** redirects and **`revalidatePath`** on publish; edit page shows **Could not load post** card (schema drift / not found) instead of silent list bounce; success banners **`?created=1`**, **`?saved=1&status=`**; idempotent migration **`20260607193500_posts_mvp_base.sql`**. Docs: **`docs/contracts/community_posts.md`**, **`docs/journeys/admin_publishes_post.md`**, **`docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`**. Verified: **`npm run ci`**.
 - **June 7, 2026 — ViBE discovery roadmap batch (#113–#118):** **`lib/log.ts`** scoped server logging + admin/load-error banners (**#118**); **`/events`** first-visit perf — static backdrop (no Three.js), query **`.limit(120)`**, non-interactive timeline cards (**#116**); post editor **Save draft / Publish** buttons + status badges on top of #114 actions (**#115**); **Local & community** rail + browse filter cleanup, rails visible when My Vibes signed-out (**#117**); docs: **`docs/OPERATIONS.md`**, **`docs/performance/README.md`**, journeys, contracts, troubleshooting. Issues **#113–#118** closed. Verified: **`npm run ci`** (149 tests).
+- **June 7, 2026 — Events page scroll + neon polish:** Removed **Local & community** discovery rail from **`/events`** (community listings remain in **Full timeline** with **Local Event** badge). Added CSS-only **`.events-neon-card`** glow utilities on timeline + rail cards, stronger timeline spine, search CTA hover glow. **`buildDiscoveryRails()`** now returns **`{ trending, staffPicks }`** only. Verified: **`npm run typecheck`**, **`npm run test`** (148), **`npm run lint`**, **`npm run build`**.
+- **June 8, 2026 — Documentation architecture rewrite:** Core docs spine hardened around **`docs/README.md`**, **`SYSTEM_DESIGN.md`**, **`ARCHITECTURE_OVERVIEW.md`**, **`DEVELOPER_GUIDE.md`**, **`REPO_MAP.md`**, **`OPERATIONS.md`**, and **`DECISIONS.md`**. Layer 2 contracts and Layer 3 journeys updated for shipped auth, events, RSVP/paid tickets, check-in, profiles, media, notifications, host/admin flows. Remaining cleanup is archival/brand/spec split, not current behavior discovery.
 
 ---
 
@@ -129,7 +131,7 @@
 
 **Still outstanding for Phase 4+:** Stripe Tax / partial refunds automation; Connect payouts; dedicated door UI polish (Phase 5)
 
-**Shipped (Phase 4 slice — April 2026):** `createTicketCheckoutSession` (`app/actions/ticket-checkout.ts`), `POST /api/stripe/webhook` (returns **500/503** on fulfillment / config failure so Stripe retries; **200** only on success or benign skips), `fulfill_stripe_checkout_for_ticket` RPC (`20260411120000_stripe_checkout_fulfillment.sql` / `scripts/030_stripe_checkout_fulfillment.sql`), paid tier pricing in organizer panel, public **Buy ticket** on `/events/[slug]`. **P0 next:** staging/prod checkout smoke test + watch Stripe webhook deliveries after deploy.
+**Shipped (Phase 4 slice — April/June 2026):** `createTicketCheckoutSession` (`app/actions/ticket-checkout.ts`), `POST /api/stripe/webhook` (returns **500/503** on fulfillment / config failure so Stripe retries; **200** only on success or benign skips), current `fulfill_stripe_ticket_order` RPC (`supabase/migrations/20260606000500_stripe_ticketing_mvp_upgrade.sql`; supersedes older `fulfill_stripe_checkout_for_ticket`), paid tier pricing in organizer panel, public **Buy ticket** on `/events/[slug]`. **P0 next:** staging/prod checkout smoke test + watch Stripe webhook deliveries after deploy.
 
 **DB hygiene (April 2026):** Migration `20260410120500_enable_pgcrypto.sql` ensures `pgcrypto`; ticket SQL uses `extensions.gen_random_bytes(8)` so `supabase db push` works when `search_path` omits `extensions`. Out-of-order remote history: `supabase db push --include-all`.
 
@@ -412,7 +414,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **API routes / actions:**
 - [x] `app/actions/ticket-checkout.ts` — `createTicketCheckoutSession` (server action creates Checkout Session)
-- [x] `app/api/stripe/webhook/route.ts` — `checkout.session.completed` → `fulfill_stripe_checkout_for_ticket` (service role)
+- [x] `app/api/stripe/webhook/route.ts` — `checkout.session.completed` → `fulfill_stripe_ticket_order` (service role)
 
 **Page enhancements:**
 - [x] `/events/[slug]` — paid tier picker + **Buy ticket**; return handling via `EventStripeReturn`

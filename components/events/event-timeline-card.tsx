@@ -82,12 +82,12 @@ export function EventTimelineCard({
     <GlassCard
       interactive={interactive}
       role="article"
-      className={`vibe-glass-panel relative flex flex-col ${
+      className={`group vibe-glass-panel events-neon-card-hover relative flex flex-col ${
         isEven ? "md:flex-row" : "md:flex-row-reverse"
-      } gap-0 ${isArchive ? "md:gap-6" : "md:gap-8"} rounded-2xl p-0 ${
+      } gap-0 ${isArchive ? "md:gap-6 events-neon-card-archive" : "md:gap-8 events-neon-card"} rounded-2xl p-0 ${
         isArchive
-          ? "bg-[color:var(--neon-surface)]/10 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-hairline)_55%,transparent)]"
-          : "bg-[color:var(--neon-surface)]/18 shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent)]"
+          ? "bg-[color:var(--neon-surface)]/10"
+          : "bg-[color:var(--neon-surface)]/18"
       }`}
     >
       {/* Flyer column: fixed-height image area (categories live in details column) */}

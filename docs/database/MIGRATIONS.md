@@ -28,7 +28,8 @@ At minimum, shared environments used for event workflows should have applied:
 - `20260410120500_enable_pgcrypto.sql` when using Supabase CLI history (`pgcrypto`; ticket code generation)
 - `028_tickets_core_free_rsvp.sql` (`ticket_types`, `orders`, `order_items`, `tickets`, `mint_free_rsvp_ticket_for_registration` RPC; free RSVP = $0 completed order)
 - `029_ticket_types_org_crud_and_mint_tier.sql` (per-tier `capacity` / sale window; org CRUD policies on `ticket_types`; anon read tiers for published events; mint RPC optional `p_ticket_type_id`)
-- `030_stripe_checkout_fulfillment.sql` / `20260411120000_stripe_checkout_fulfillment.sql` (unique `orders.stripe_checkout_session_id`; `fulfill_stripe_checkout_for_ticket` RPC for webhook mint after Stripe Checkout)
+- `030_stripe_checkout_fulfillment.sql` / `20260411120000_stripe_checkout_fulfillment.sql` (historical `fulfill_stripe_checkout_for_ticket` RPC; superseded for current app fulfillment)
+- `20260606000500_stripe_ticketing_mvp_upgrade.sql` (current `fulfill_stripe_ticket_order` RPC, `webhook_logs`, platform fee fields, ticket quantity recalculation)
 - `20260420231755_posts_content_image_urls.sql` — optional **`posts.content_image_urls`** gallery (≤6; admin-authored posts).
 
 **Local / community event listings:** `20260505163945_add_event_kind_and_external_rsvp.sql` — adds **`events.event_kind`** (`official` \| `community`, default **`official`**) and nullable **`events.external_rsvp_url`** (http(s)); community rows use external RSVP instead of ViZb-hosted flow (see **`docs/contracts/events.md`**).

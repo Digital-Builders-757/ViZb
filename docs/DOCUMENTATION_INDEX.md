@@ -1,8 +1,26 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** April 20, 2026
+**Last Updated:** June 8, 2026
+
+> **Start here instead:** [`docs/README.md`](./README.md) — June 2026 documentation front door with links to [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md), [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md), [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md), [REPO_MAP.md](./REPO_MAP.md), [OPERATIONS.md](./OPERATIONS.md), and [DECISIONS.md](./DECISIONS.md).
 
 Single entry point for the **events + community + brand** platform (repo **ViZb**). Everything else is reference or archive.
+
+---
+
+## Core docs (June 2026 rewrite)
+
+| Doc | Purpose |
+|-----|---------|
+| [README.md](./README.md) | Documentation front door |
+| [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) | Product purpose, architecture, domains, flows, risks |
+| [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md) | 5-minute orientation |
+| [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | Setup, commands, testing, contribution |
+| [REPO_MAP.md](./REPO_MAP.md) | Repository layout and key files |
+| [OPERATIONS.md](./OPERATIONS.md) | Deploy, migrations, integrations, troubleshooting |
+| [DECISIONS.md](./DECISIONS.md) | Architectural decision log |
+| [DOCS_AUDIT_2026.md](./DOCS_AUDIT_2026.md) | Documentation audit summary |
+| [MIGRATION_MAP.md](./MIGRATION_MAP.md) | Keep / merge / archive map for old docs |
 
 ---
 
