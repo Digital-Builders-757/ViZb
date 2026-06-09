@@ -7,6 +7,11 @@ import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
 import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { getStripe } from "@/lib/stripe/server"
 import { isStripeCheckoutConfigured } from "@/lib/stripe/env"
+import {
+  fulfillPaidCheckoutSession,
+  readCheckoutSessionUserId,
+  revalidateAfterTicketFulfillment,
+} from "@/lib/stripe/fulfill-checkout-session"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
 
@@ -264,4 +269,55 @@ export async function createTicketCheckoutSession(params: {
     await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
     return { error: message }
   }
+}
+
+const checkoutSessionIdSchema = z.string().min(8)
+
+/**
+ * Idempotent fallback when Stripe webhooks are delayed or misconfigured (common on Vercel Preview).
+ * Retrieves the paid Checkout Session and runs the same fulfillment RPC as the webhook.
+ */
+export async function syncPaidTicketCheckoutSession(
+  sessionId: string,
+): Promise<{ ticketId?: string; error?: string }> {
+  if (!isStripeCheckoutConfigured()) {
+    return { error: "Online checkout is not configured yet." }
+  }
+
+  const parsed = checkoutSessionIdSchema.safeParse(sessionId.trim())
+  if (!parsed.success) {
+    return { error: "Invalid checkout session." }
+  }
+
+  const { user } = await requireAuth()
+
+  let admin: ReturnType<typeof createServiceRoleClient>
+  try {
+    admin = createServiceRoleClient()
+  } catch {
+    return { error: "Checkout service is not configured on the server yet." }
+  }
+
+  let session
+  try {
+    const stripe = getStripe()
+    session = await stripe.checkout.sessions.retrieve(parsed.data)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not verify checkout session."
+    return { error: message }
+  }
+
+  const sessionUserId = readCheckoutSessionUserId(session)
+  if (!sessionUserId || sessionUserId !== user.id) {
+    return { error: "This checkout session does not belong to your account." }
+  }
+
+  const fulfilled = await fulfillPaidCheckoutSession(admin, session)
+  if (!fulfilled.ok) {
+    return { error: fulfilled.error }
+  }
+
+  revalidateAfterTicketFulfillment(fulfilled.eventSlug)
+
+  return { ticketId: fulfilled.ticketId ?? undefined }
 }

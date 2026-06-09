@@ -2,6 +2,12 @@ import { revalidatePath } from "next/cache"
 import type Stripe from "stripe"
 
 import { getStripeWebhookSecret } from "@/lib/stripe/env"
+import {
+  fulfillPaidCheckoutSession,
+  readCheckoutSessionEventId,
+  readCheckoutSessionOrderId,
+  revalidateAfterTicketFulfillment,
+} from "@/lib/stripe/fulfill-checkout-session"
 import { getStripe } from "@/lib/stripe/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 
@@ -73,15 +79,6 @@ async function markWebhookProcessed(admin: ReturnType<typeof createServiceRoleCl
   }
 }
 
-async function revalidateEventPaths(admin: ReturnType<typeof createServiceRoleClient>, eventId: string | null) {
-  if (!eventId) return
-
-  const { data: eventRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle()
-  if (eventRow?.slug) {
-    revalidatePath(`/events/${eventRow.slug}`)
-  }
-}
-
 async function markOrderStatus(
   admin: ReturnType<typeof createServiceRoleClient>,
   {
@@ -127,6 +124,7 @@ async function markOrderStatus(
 export async function POST(request: Request) {
   const webhookSecret = getStripeWebhookSecret()
   if (!webhookSecret) {
+    console.error("[stripe webhook] STRIPE_WEBHOOK_SECRET is not configured")
     return new Response("Stripe webhook is not configured.", { status: 503 })
   }
 
@@ -159,64 +157,69 @@ export async function POST(request: Request) {
       return new Response("ok", { status: 200 })
     }
 
-    let affectedEventId: string | null = null
+    let eventSlug: string | null = null
 
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session
+        const orderId = readCheckoutSessionOrderId(session)
+        const eventId = readCheckoutSessionEventId(session)
+
         if (session.payment_status !== "paid") {
+          console.info("[stripe webhook] checkout.session.completed skipped unpaid session", {
+            sessionId: session.id,
+            orderId,
+            paymentStatus: session.payment_status,
+          })
           break
         }
 
-        const orderId = readString(session.metadata?.order_id)
-        const eventId = readString(session.metadata?.event_id)
-        const sessionId = readString(session.id)
-        const paymentIntentId =
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : readString(session.payment_intent?.id)
-
-        if (!orderId || !sessionId) {
+        if (!orderId || !session.id) {
           throw new Error("Missing order_id or session id on checkout.session.completed")
         }
 
-        const { error: fulfillError } = await admin.rpc("fulfill_stripe_ticket_order", {
-          p_order_id: orderId,
-          p_stripe_checkout_session_id: sessionId,
-          p_stripe_payment_intent_id: paymentIntentId,
-          p_amount_total_cents: session.amount_total,
-          p_currency: (session.currency ?? "usd").toLowerCase(),
-        })
-
-        if (fulfillError) {
-          throw new Error(fulfillError.message)
+        const fulfilled = await fulfillPaidCheckoutSession(admin, session)
+        if (!fulfilled.ok) {
+          console.error("[stripe webhook] fulfillment failed", {
+            eventId: event.id,
+            orderId,
+            sessionId: session.id,
+            error: fulfilled.error,
+          })
+          throw new Error(fulfilled.error)
         }
 
-        affectedEventId = eventId
-        revalidatePath("/tickets")
-        revalidatePath("/dashboard/tickets")
+        eventSlug = fulfilled.eventSlug
+        revalidateAfterTicketFulfillment(eventSlug)
         break
       }
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent
-        affectedEventId = await markOrderStatus(admin, {
+        const affectedEventId = await markOrderStatus(admin, {
           orderId: readString(paymentIntent.metadata?.order_id),
           paymentIntentId: readString(paymentIntent.id),
           nextStatus: "failed",
         })
-        revalidatePath("/tickets")
-        revalidatePath("/dashboard/tickets")
+        if (affectedEventId) {
+          const { data: eventRow } = await admin.from("events").select("slug").eq("id", affectedEventId).maybeSingle()
+          eventSlug = readString(eventRow?.slug)
+        }
+        revalidateAfterTicketFulfillment(eventSlug)
         break
       }
 
       case "checkout.session.expired": {
         const session = event.data.object as Stripe.Checkout.Session
-        affectedEventId = await markOrderStatus(admin, {
-          orderId: readString(session.metadata?.order_id),
+        const affectedEventId = await markOrderStatus(admin, {
+          orderId: readCheckoutSessionOrderId(session),
           sessionId: readString(session.id),
           nextStatus: "expired",
         })
+        if (affectedEventId) {
+          const { data: eventRow } = await admin.from("events").select("slug").eq("id", affectedEventId).maybeSingle()
+          eventSlug = readString(eventRow?.slug)
+        }
         break
       }
 
@@ -225,11 +228,11 @@ export async function POST(request: Request) {
     }
 
     await markWebhookProcessed(admin, recorded.logId)
-    await revalidateEventPaths(admin, affectedEventId)
 
     return new Response("ok", { status: 200 })
   } catch (err) {
-    console.error("[stripe webhook] processing failed", err)
+    const message = err instanceof Error ? err.message : "Webhook processing failed."
+    console.error("[stripe webhook] processing failed", { eventId: event.id, type: event.type, message, err })
     return new Response("Webhook processing failed.", { status: 500 })
   }
 }

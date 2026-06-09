@@ -28,6 +28,11 @@ import {
   parseExternalRsvpUrlOptional,
   type EventKind,
 } from "@/lib/events/event-kind"
+import {
+  DEFAULT_PAID_TIER_NAME,
+  MIN_PAID_TICKET_CENTS,
+  parsePaidTierPriceUsd,
+} from "@/lib/tickets/paid-tier-validation"
 
 /** Staff admin or org member with one of the allowed roles (for Server Actions; mirrors RLS intent). */
 async function isStaffOrHasOrgRole(
@@ -49,6 +54,88 @@ async function isStaffOrHasOrgRole(
     .eq("user_id", userId)
     .single()
   return !!(membership && allowedRoles.includes(membership.role))
+}
+
+function parseOptionalIntFromForm(formData: FormData, key: string): number | null {
+  const raw = formData.get(key)
+  if (raw == null || String(raw).trim() === "") return null
+  const n = Number.parseInt(String(raw).trim(), 10)
+  return Number.isFinite(n) ? n : null
+}
+
+function parseOptionalIsoFromForm(formData: FormData, key: string): string | null {
+  const raw = formData.get(key)
+  if (raw == null || String(raw).trim() === "") return null
+  const d = new Date(String(raw))
+  if (Number.isNaN(d.getTime())) return null
+  return d.toISOString()
+}
+
+function parseIsActiveFromForm(formData: FormData): boolean {
+  const raw = formData.get("is_active")
+  if (raw == null) return true
+  const s = String(raw).trim().toLowerCase()
+  return s === "true" || s === "1" || s === "on"
+}
+
+async function seedOfficialEventTicketTiers(
+  supabase: SupabaseClient,
+  eventId: string,
+  formData: FormData,
+): Promise<string | null> {
+  const ticketMode = String(formData.get("ticket_mode") ?? "free_rsvp").trim()
+
+  const { error: rsvpErr } = await supabase.from("ticket_types").insert({
+    event_id: eventId,
+    name: "RSVP",
+    price_cents: 0,
+    is_default_rsvp: true,
+    sort_order: 0,
+  })
+  if (rsvpErr) return rsvpErr.message
+
+  if (ticketMode !== "paid") return null
+
+  const name = String(formData.get("paid_tier_name") ?? DEFAULT_PAID_TIER_NAME).trim()
+  if (name.length < 1) return "Tier name is required."
+  if (name.length > 120) return "Tier name is too long."
+
+  const priceRaw = String(formData.get("price_usd") ?? "").trim()
+  const parsedPrice = parsePaidTierPriceUsd(priceRaw)
+  if ("error" in parsedPrice) return parsedPrice.error
+  if (parsedPrice.cents < MIN_PAID_TICKET_CENTS) {
+    return "Paid ticket price must be at least $0.50."
+  }
+
+  const cap = parseOptionalIntFromForm(formData, "capacity")
+  if (cap != null && cap < 1) return "Quantity must be at least 1, or leave blank."
+
+  const salesStartsAt = parseOptionalIsoFromForm(formData, "sales_starts_at")
+  const salesEndsAt = parseOptionalIsoFromForm(formData, "sales_ends_at")
+  if (salesStartsAt && salesEndsAt && salesStartsAt > salesEndsAt) {
+    return "Sale start must be before sale end."
+  }
+
+  const isActive = parseIsActiveFromForm(formData)
+
+  const { error: paidErr } = await supabase.from("ticket_types").insert({
+    event_id: eventId,
+    name,
+    price_cents: parsedPrice.cents,
+    currency: "usd",
+    is_default_rsvp: false,
+    sort_order: 1,
+    capacity: cap,
+    quantity_total: cap,
+    quantity_sold: 0,
+    is_active: isActive,
+    sales_starts_at: salesStartsAt,
+    sales_ends_at: salesEndsAt,
+    sales_start_at: salesStartsAt,
+    sales_end_at: salesEndsAt,
+  })
+
+  return paidErr?.message ?? null
 }
 
 export async function createEvent(formData: FormData) {
@@ -172,6 +259,13 @@ export async function createEvent(formData: FormData) {
     return { error: `Failed to create event: ${error.message}` }
   }
 
+  if (event_kind === EVENT_KIND_OFFICIAL) {
+    const tierErr = await seedOfficialEventTicketTiers(supabase, event.id, formData)
+    if (tierErr) {
+      return { error: `Event created but ticketing setup failed: ${tierErr}` }
+    }
+  }
+
   const { data: org } = await supabase
     .from("organizations")
     .select("slug")
@@ -182,6 +276,8 @@ export async function createEvent(formData: FormData) {
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath("/dashboard")
   revalidatePath("/admin")
+  revalidatePath(`/admin/events/${event.id}`)
+  revalidatePath(`/events/${event.slug}`)
 
   return { success: true, event, orgSlug }
 }

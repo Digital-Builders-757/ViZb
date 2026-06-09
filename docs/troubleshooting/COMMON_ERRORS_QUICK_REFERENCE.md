@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** June 7, 2026
+**Last updated:** June 9, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -25,7 +25,8 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | Door **QR missing** on wallet or scanner returns **`scanner_not_configured`** | **`TICKET_QR_SECRET`** unset or too short in server env | Set **`TICKET_QR_SECRET`** (≥16 chars) per **`.env.example`**; redeploy; see **`docs/contracts/rsvps.md`** (Door QR) |
 | Saving event categories fails with **check constraint** on **`events.categories`** | DB still on pre-**`open_mic`** constraint, or CLI pushed to the **wrong** Supabase project | Confirm **`NEXT_PUBLIC_SUPABASE_URL`** matches the project you ran **`supabase db push`** against; apply **`supabase/migrations/20260417202850_add_open_mic_event_category.sql`** (`supabase db push`; run **`supabase migration list`** until Remote shows **`20260417202850`**) |
 | Organizer **cannot save** ticket types; or anon **cannot** load public tier list | Migration **`20260410144936_ticket_types_org_crud_and_mint_tier.sql`** / **`029`** not applied | Run **`supabase db push`**; confirm `ticket_types` columns + INSERT/UPDATE/DELETE policies + anon SELECT on published events |
-| **Paid** checkout succeeds in Stripe but **no ticket** / webhook logs show RPC error | Migration **`20260411120000_stripe_checkout_fulfillment.sql`** / **`030`** not applied, or **`SUPABASE_SERVICE_ROLE_KEY`** missing on server | Apply **`030`**; set service role in host env; confirm Stripe webhook URL **`/api/stripe/webhook`** and signing secret match **`STRIPE_WEBHOOK_SECRET`** |
+| **Paid** checkout succeeds in Stripe but **no ticket** / webhook logs show RPC error | Migration **`20260411120000_stripe_checkout_fulfillment.sql`** / **`030`** not applied, or **`SUPABASE_SERVICE_ROLE_KEY`** missing on server | Apply **`030`** + **`20260606000500`**; set service role in host env; confirm Stripe webhook URL **`/api/stripe/webhook`** and signing secret match **`STRIPE_WEBHOOK_SECRET`** |
+| **Paid** checkout succeeds on **Vercel Preview** but ticket missing; Stripe webhook shows **no delivery** or wrong URL | Preview hostname changes per deploy — Stripe webhook may still point at production/local | Set Preview **`STRIPE_WEBHOOK_SECRET`** + **`SUPABASE_SERVICE_ROLE_KEY`**; register webhook for that Preview URL **or** rely on return-path sync: **`syncPaidTicketCheckoutSession`** runs when buyer lands with **`?session_id=`** (June 2026, #129) |
 | **`supabase db push`**: “inserted before the last migration” / out-of-order history | Remote has a newer migration version row than some local files | Run **`supabase db push --include-all`** (review pending list first) |
 | **`function gen_random_bytes(integer) does not exist`** when applying ticket migrations | `pgcrypto` in **`extensions`** schema; session **`search_path`** lacks **`extensions`** | Apply **`20260410120500_enable_pgcrypto.sql`**; ensure ticket mint SQL uses **`extensions.gen_random_bytes(...)`** (see repo migrations **028–030** mirrors) |
 | Stripe webhook returns **500** / retries | Fulfillment RPC failed or transient DB error — **intended** so Stripe redelivers (handler is idempotent on `stripe_checkout_session_id`) | Fix root cause (RLS, migration, metadata); replay event in Stripe Dashboard if needed |
