@@ -15,6 +15,7 @@ import {
   validateEventFlyerFile,
 } from "@/lib/events/flyer-upload-constraints"
 import { GlassCard } from "@/components/ui/glass-card"
+import { EventTicketingCreateFields } from "@/components/admin/event-ticketing-section"
 
 const FLYER_UPLOAD_REASON_MAX_LEN = 240
 
@@ -64,6 +65,7 @@ export function CreateEventForm({
   const flyerInputRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
   const showCommunityFlyerPicker = flow === "admin" && variant === "community"
+  const showAdminTicketing = flow === "admin" && variant === "official"
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [uploadingFlyer, setUploadingFlyer] = useState(false)
@@ -181,6 +183,18 @@ export function CreateEventForm({
       if (endDate) {
         const endDateTime = `${format(endDate, "yyyy-MM-dd")}T${endTime}`
         formData.set("ends_at", endDateTime)
+      }
+
+      const ticketMode = String(formData.get("ticket_mode") ?? "free_rsvp")
+      if (ticketMode === "paid") {
+        if (!formData.get("is_active")) {
+          formData.set("is_active", "false")
+        }
+        const priceRaw = String(formData.get("price_usd") ?? "").trim()
+        if (!priceRaw) {
+          setError("Enter a price for the paid ticket tier.")
+          return
+        }
       }
 
       const result = await createEvent(formData)
@@ -659,6 +673,13 @@ export function CreateEventForm({
                 </div>
               </div>
             </section>
+
+            {showAdminTicketing ? (
+              <>
+                <div className="section-divider my-8" />
+                <EventTicketingCreateFields />
+              </>
+            ) : null}
           </div>
         </GlassCard>
 

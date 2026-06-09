@@ -19,6 +19,10 @@ import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 import { eventKindBadgeLong, isCommunityEvent } from "@/lib/events/event-kind"
 import { OrganizerEventPowerToolsCard } from "@/components/organizer/organizer-event-power-tools-card"
 import { AdminEventStaffPickSwitch } from "@/components/admin/admin-event-staff-pick-switch"
+import {
+  EventTicketingSection,
+  type AdminPaidTierRow,
+} from "@/components/admin/event-ticketing-section"
 
 export default async function AdminEventDetailPage({
   params,
@@ -180,6 +184,66 @@ export default async function AdminEventDetailPage({
 
   const staffPickOn = Boolean((event as { is_staff_pick?: boolean | null }).is_staff_pick)
 
+  let paidTier: AdminPaidTierRow | null = null
+  if (!communityListing) {
+    try {
+      let { data: ttData } = await supabase
+        .from("ticket_types")
+        .select(
+          "id, name, price_cents, is_default_rsvp, capacity, is_active, sales_starts_at, sales_ends_at",
+        )
+        .eq("event_id", id)
+        .order("sort_order", { ascending: true })
+
+      const rows = (ttData ?? []) as Array<{
+        id: string
+        name: string
+        price_cents: number
+        is_default_rsvp: boolean
+        capacity: number | null
+        is_active: boolean
+        sales_starts_at: string | null
+        sales_ends_at: string | null
+      }>
+
+      if (rows.length === 0) {
+        const { error: seedErr } = await supabase.from("ticket_types").insert({
+          event_id: id,
+          name: "RSVP",
+          price_cents: 0,
+          is_default_rsvp: true,
+          sort_order: 0,
+        })
+        if (!seedErr) {
+          const { data: ttAgain } = await supabase
+            .from("ticket_types")
+            .select(
+              "id, name, price_cents, is_default_rsvp, capacity, is_active, sales_starts_at, sales_ends_at",
+            )
+            .eq("event_id", id)
+            .order("sort_order", { ascending: true })
+          ttData = ttAgain
+        }
+      }
+
+      const allRows = (ttData ?? []) as typeof rows
+      const paidRow = allRows.find((r) => !r.is_default_rsvp && r.price_cents > 0)
+      if (paidRow) {
+        paidTier = {
+          id: paidRow.id,
+          name: paidRow.name,
+          price_cents: paidRow.price_cents,
+          capacity: paidRow.capacity,
+          is_active: paidRow.is_active !== false,
+          sales_starts_at: paidRow.sales_starts_at,
+          sales_ends_at: paidRow.sales_ends_at,
+        }
+      }
+    } catch {
+      paidTier = null
+    }
+  }
+
   return (
     <div>
       <Link
@@ -338,6 +402,15 @@ export default async function AdminEventDetailPage({
           }}
         />
       </GlassCard>
+
+      {!communityListing && organizerOrgSlug ? (
+        <EventTicketingSection
+          orgSlug={organizerOrgSlug}
+          eventId={event.id}
+          eventSlug={event.slug as string}
+          paidTier={paidTier}
+        />
+      ) : null}
 
       {eventHasOpenMicCategory(editFormCategories) ? (
         <OpenMicLineupPanel

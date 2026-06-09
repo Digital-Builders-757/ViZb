@@ -92,7 +92,7 @@ export function EventTicketTypesPanel({
                 const fd = new FormData(e.currentTarget)
                 startTransition(async () => {
                   const res = await updateEventTicketType(fd)
-                  if (res.error) toast.error(res.error)
+                  if ("error" in res && res.error) toast.error(res.error)
                   else toast.success("Tier updated.")
                 })
               }}
@@ -185,7 +185,7 @@ export function EventTicketTypesPanel({
                   fd.set("ticket_type_id", t.id)
                   startTransition(async () => {
                     const res = await deleteEventTicketType(fd)
-                    if (res.error) toast.error(res.error)
+                    if ("error" in res && res.error) toast.error(res.error)
                     else toast.success("Tier removed.")
                   })
                 }}
@@ -212,7 +212,7 @@ export function EventTicketTypesPanel({
             const fd = new FormData(e.currentTarget)
             startTransition(async () => {
               const res = await createEventTicketType(fd)
-              if (res.error) toast.error(res.error)
+              if ("error" in res && res.error) toast.error(res.error)
               else {
                 toast.success("Tier added.")
                 e.currentTarget.reset()
