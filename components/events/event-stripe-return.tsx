@@ -3,10 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { syncPaidTicketCheckoutSession } from "@/app/actions/ticket-checkout"
 import { TicketAddedSuccessDialog } from "@/components/events/ticket-added-success-dialog"
 
 /**
- * Clears Stripe return query params and nudges a refresh so the wallet updates after webhook fulfillment.
+ * Clears Stripe return query params, syncs fulfillment when webhooks are delayed/missing, then refreshes.
  */
 export function EventStripeReturn({
   eventPath,
@@ -31,6 +32,7 @@ export function EventStripeReturn({
     checkout: searchParams.get("checkout"),
   }))
   const [dialogDismissed, setDialogDismissed] = useState(false)
+  const [fulfilledTicketId, setFulfilledTicketId] = useState<string | null>(null)
   const paidSuccessOpen = Boolean(stripeReturnParams.session) && !dialogDismissed
 
   useEffect(() => {
@@ -40,8 +42,16 @@ export function EventStripeReturn({
 
     if (sessionId) {
       handled.current = true
-      router.replace(eventPath)
-      router.refresh()
+      void (async () => {
+        const result = await syncPaidTicketCheckoutSession(sessionId)
+        if ("error" in result && result.error) {
+          toast.error(result.error)
+        } else if (result.ticketId) {
+          setFulfilledTicketId(result.ticketId)
+        }
+        router.replace(eventPath)
+        router.refresh()
+      })()
       return
     }
 
@@ -58,7 +68,7 @@ export function EventStripeReturn({
       onOpenChange={(next) => {
         if (!next) setDialogDismissed(true)
       }}
-      ticketId={null}
+      ticketId={fulfilledTicketId}
       eventTitle={eventTitle}
       startsAt={startsAt}
       venueName={venueName}
