@@ -73,7 +73,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             </div>
           </div>
           {post.excerpt ? (
-            <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
+            <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
               {post.excerpt}
             </p>
           ) : null}

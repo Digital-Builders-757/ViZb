@@ -44,8 +44,8 @@ export default function SignUpSuccessPage() {
                     Check your inbox
                   </h1>
                   <p className="mt-5 max-w-lg text-[color:var(--neon-text2)]">
-                    We’ve sent a confirmation link to your email. Open it to
-                    activate your account and join the movement.
+                    We&apos;ve sent a confirmation link to your email. Open it to
+                    activate your account and start exploring events.
                   </p>
                 </div>
 

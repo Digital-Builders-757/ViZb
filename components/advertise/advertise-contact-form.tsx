@@ -54,7 +54,7 @@ export function AdvertiseContactForm({
   const fieldErrors = state && !state.ok ? state.fieldErrors : undefined
 
   return (
-    <form id="advertise-inquiry-form" action={onSubmit} className="relative space-y-8">
+    <form id="advertise-inquiry-form" action={onSubmit} className="relative space-y-5">
       {!emailConfigured && (
         <div
           className="rounded-lg border-2 border-amber-400/50 bg-amber-500/15 px-4 py-3 text-sm font-medium text-amber-100 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
@@ -232,7 +232,7 @@ export function AdvertiseContactForm({
         <button
           type="submit"
           disabled={pending}
-          className="vibe-focus-ring group relative shrink-0 overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] transition-shadow duration-300 hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="vibe-focus-ring group relative min-h-11 shrink-0 overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] transition-shadow duration-300 hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span className="absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%]" />
           <span className="relative z-10 flex items-center justify-center rounded-lg bg-[color:var(--neon-bg0)]/80 px-8 py-3 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors group-hover:bg-[color:var(--neon-bg0)]/60">

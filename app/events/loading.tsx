@@ -40,7 +40,7 @@ export default function EventsLoading() {
               {Array.from({ length: 2 }).map((_, i) => (
                 <div
                   key={i}
-                  className="events-neon-card flex flex-col overflow-hidden rounded-xl border border-[color:var(--neon-hairline)]/50 md:flex-row"
+                  className="events-neon-card flex flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/50 md:flex-row"
                 >
                   <div className="aspect-[4/5] w-full animate-pulse bg-[color:var(--neon-surface)]/25 md:aspect-auto md:min-h-[320px] md:w-1/2" />
                   <div className="flex w-full flex-col justify-between p-5 md:w-1/2 md:p-8">
