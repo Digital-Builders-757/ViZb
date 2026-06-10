@@ -28,6 +28,7 @@ import {
   parseExternalRsvpUrlOptional,
   type EventKind,
 } from "@/lib/events/event-kind"
+import { revalidatePublicEventDiscoveryPaths } from "@/lib/events/revalidate-public-discovery"
 import {
   DEFAULT_PAID_TIER_NAME,
   MIN_PAID_TICKET_CENTS,
@@ -574,8 +575,7 @@ export async function reviewEvent(formData: FormData) {
   const orgSlug = org?.slug || event.org_id
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
-  revalidatePath(`/events/${event.slug}`)
-  revalidatePath("/events")
+  revalidatePublicEventDiscoveryPaths(event.slug)
   revalidatePath("/admin")
   revalidatePath("/dashboard")
 
@@ -763,8 +763,7 @@ export async function archiveEvent(eventId: string) {
 
   const orgSlug = org?.slug || event.org_id
   revalidatePath(`/organizer/${orgSlug}`)
-  revalidatePath(`/events/${event.slug}`)
-  revalidatePath("/events")
+  revalidatePublicEventDiscoveryPaths(event.slug)
   revalidatePath("/admin")
   revalidatePath("/dashboard")
 
@@ -818,8 +817,7 @@ export async function unarchiveEvent(eventId: string) {
   const orgSlug = org?.slug || event.org_id
   revalidatePath(`/organizer/${orgSlug}`)
   revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
-  revalidatePath(`/events/${event.slug}`)
-  revalidatePath("/events")
+  revalidatePublicEventDiscoveryPaths(event.slug)
   revalidatePath("/admin")
   revalidatePath("/dashboard")
 

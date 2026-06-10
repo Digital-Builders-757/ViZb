@@ -5,6 +5,10 @@ import { TimelineDateHeader } from "@/components/events/timeline-date-header"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import {
+  isPublicListingEventStatus,
+  PUBLIC_EVENT_LISTING_STATUS,
+} from "@/lib/events/public-listing"
 
 const HOME_TIMELINE_LIMIT = 12
 
@@ -34,6 +38,7 @@ type PublicEventRow = {
   city: string
   categories: string[]
   flyer_url: string | null
+  status?: string | null
   event_kind?: string | null
   is_staff_pick?: boolean | null
   organizations: { name: string; slug: string } | null
@@ -123,7 +128,9 @@ export async function HomeTimelineSection() {
   let isSignedIn = false
   let savedIdSet = new Set<string>()
 
-  if (isServerSupabaseConfigured()) {
+  const supabaseConfigured = isServerSupabaseConfigured()
+
+  if (supabaseConfigured) {
     const supabase = await createClient()
 
     const { data } = await supabase
@@ -139,17 +146,20 @@ export async function HomeTimelineSection() {
         city,
         categories,
         flyer_url,
+        status,
         event_kind,
         is_staff_pick,
         organizations ( name, slug )
       `,
       )
-      .eq("status", "published")
+      .eq("status", PUBLIC_EVENT_LISTING_STATUS)
       .gte("starts_at", new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString())
       .order("starts_at", { ascending: true })
       .limit(HOME_TIMELINE_LIMIT * 2)
 
-    const rows = (data as PublicEventRow[] | null) ?? []
+    const rows = ((data as PublicEventRow[] | null) ?? []).filter((row) =>
+      isPublicListingEventStatus(row.status),
+    )
     events = rows
       .map(flattenEventRow)
       .filter((e) => isUpcomingOrOngoing(e, now))
@@ -168,7 +178,8 @@ export async function HomeTimelineSection() {
     await createClient()
   }
 
-  if (events.length === 0) {
+  // Dev-only placeholder when Supabase is not wired — never mask an empty live feed.
+  if (!supabaseConfigured && events.length === 0) {
     events = MOCK_EVENTS
   }
 
