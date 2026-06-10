@@ -44,7 +44,16 @@
 - `app/events/loading.tsx`
 - `app/advertise/page.tsx`
 - `app/signup/page.tsx`
+- `app/login/page.tsx`
+- `app/auth/forgot-password/page.tsx`
 - `app/auth/sign-up-success/page.tsx`
+- `app/loading.tsx`
+- `app/p/page.tsx`
+- `app/p/[slug]/page.tsx`
+- `components/posts/post-card.tsx`
+- `components/app-preview.tsx`
+- `components/auth/auth-alert.tsx`
+- `components/brand/header-brand-mark.tsx`
 - `app/globals.css`
 - `docs/DOCUMENTATION_INDEX.md`
 - `docs/MVP_STATUS_ROADMAP.md`
@@ -75,6 +84,8 @@ npm run lint
 npm run build
 rg "—|–" app components lib -g "*.tsx" -g "*.ts"
 ```
+
+**Follow-up pass (same branch):** login/forgot-password/signup form polish, global loading tagline, posts glass/glow, app-preview copy/motion, navbar logo sizing, auth-alert glow tuning.
 
 Results:
 

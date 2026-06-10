@@ -9,6 +9,7 @@ import { FullLogoImage } from "@/components/brand/full-logo-image"
 import { useRouter } from "next/navigation"
 
 import { AuthAlert } from "@/components/auth/auth-alert"
+import { NeonButton } from "@/components/ui/neon-button"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { PENDING_VERIFY_EMAIL_KEY } from "@/lib/auth/pending-verify-email"
 import { supportMailtoHref } from "@/lib/auth/support-contact"
@@ -212,7 +213,7 @@ export default function SignUpPage() {
           {/* Form with glass card */}
           <form
             onSubmit={handleSignUp}
-            className="mt-10 space-y-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
+            className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
           >
             <div className="min-h-0 space-y-4">
               {validationBanner ? (
@@ -316,16 +317,9 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="vibe-focus-ring group relative w-full overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(0,209,255,0.45),0_0_64px_rgba(157,77,255,0.3)] transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%]" />
-              <span className="relative z-10 flex items-center justify-center w-full bg-[color:var(--neon-bg0)]/80 group-hover:bg-[color:var(--neon-bg0)]/60 px-8 py-4 rounded-lg text-xs uppercase tracking-widest font-bold text-[color:var(--neon-text0)] transition-colors">
-                {loading ? "Creating account..." : "Create Account"}
-              </span>
-            </button>
+            <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
+              {loading ? "Creating account..." : "Create Account"}
+            </NeonButton>
           </form>
 
           {/* Back to landing */}

@@ -12,7 +12,7 @@ const imageProps: Record<
   navbar: {
     width: 220,
     height: 72,
-    className: "h-9 w-auto max-h-10 shrink-0 sm:h-10",
+    className: "h-8 w-auto max-h-9 shrink-0 sm:h-9 md:h-10",
     priority: true,
   },
   sidebar: {

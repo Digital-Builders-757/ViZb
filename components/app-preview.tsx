@@ -47,19 +47,14 @@ export function AppPreview() {
           {/* Content */}
           <div>
             <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
-              <span className="h-px w-8 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] animate-pulse" />
+              <span className="h-px w-8 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)]" />
               Built for the scene
             </span>
-            <h2 className="mt-4 font-serif text-5xl font-bold leading-[0.92] text-[color:var(--neon-text0)] sm:text-6xl">
-              The
-              <br />
-              <span className="neon-gradient-text">VIZB</span>
-              <br />
-              app
+            <h2 className="mt-4 text-balance font-serif text-4xl font-bold leading-[0.95] text-[color:var(--neon-text0)] sm:text-5xl md:text-6xl">
+              The <span className="neon-gradient-text">VIZB</span> app
             </h2>
-            <p className="mt-7 max-w-md text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-              Discover events, save what you care about, and move from discovery to checkout without losing the vibe.
-              This preview mirrors the live product direction and the workflows we’re actively shipping.
+            <p className="mt-7 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+              Save events, grab tickets, and move from discovery to checkout without losing the scene.
             </p>
 
             {/* Feature list - with animated neon lines */}
@@ -70,11 +65,10 @@ export function AppPreview() {
                 "Buy tickets faster",
               ].map((feature, i) => (
                 <div key={i} className="group flex items-center gap-4">
-                  <span 
-                    className="h-px w-10 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] shadow-[0_0_14px_rgba(0,209,255,0.4)] transition-all duration-500 group-hover:w-16 group-hover:shadow-[0_0_20px_rgba(0,209,255,0.6)]"
-                    style={{ animationDelay: `${i * 0.2}s` }}
+                  <span
+                    className="h-px w-10 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] shadow-[0_0_10px_rgba(0,209,255,0.25)] motion-safe:transition-all motion-safe:duration-500 motion-reduce:transition-none group-hover:w-14 group-hover:shadow-[0_0_16px_rgba(0,209,255,0.35)]"
                   />
-                  <span className="font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors duration-300 group-hover:text-[color:var(--neon-a)]">
+                  <span className="font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-text0)] motion-safe:transition-colors motion-safe:duration-300 motion-reduce:transition-none group-hover:text-[color:var(--neon-a)]">
                     {feature}
                   </span>
                 </div>

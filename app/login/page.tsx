@@ -9,6 +9,7 @@ import { FullLogoImage } from "@/components/brand/full-logo-image"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { AuthAlert } from "@/components/auth/auth-alert"
+import { NeonButton } from "@/components/ui/neon-button"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { supportMailtoHref } from "@/lib/auth/support-contact"
 import { getSafeRedirectPath } from "@/lib/utils"
@@ -111,14 +112,13 @@ export default function LoginPage() {
             <br />
             <span className="neon-gradient-text">Back</span>
           </h1>
-          <p className="text-[color:var(--neon-text1)] mt-6 max-w-md leading-relaxed">
-            Sign in to manage your events, connect with your community, and never miss a vibe.
+          <p className="mt-6 max-w-md leading-relaxed text-[color:var(--neon-text1)]">
+            Sign in to save events, grab tickets, and stay close to what&apos;s happening in Virginia.
           </p>
 
-          {/* Decorative neon element */}
           <div className="mt-10 flex items-center gap-3">
             <span className="h-px w-12 bg-gradient-to-r from-[color:var(--neon-b)] to-[color:var(--neon-a)] shadow-[0_0_10px_rgba(157,77,255,0.5)]" />
-            <span className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-b)]">The 757 Awaits</span>
+            <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-b)]">757 &amp; DMV</span>
           </div>
         </div>
       </div>
@@ -157,7 +157,7 @@ export default function LoginPage() {
           {/* Form with glass card */}
           <form
             onSubmit={handleLogin}
-            className="mt-10 space-y-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
+            className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
           >
             <div className="space-y-4">
               {authIssue ? (
@@ -232,16 +232,9 @@ export default function LoginPage() {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="vibe-focus-ring group relative w-full overflow-hidden rounded-lg p-[2px] shadow-[var(--vibe-neon-glow)] hover:shadow-[0_0_32px_rgba(157,77,255,0.45),0_0_64px_rgba(0,209,255,0.3)] transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--neon-b)] via-[color:var(--neon-a)] to-[color:var(--neon-b)] bg-[length:200%_100%]" />
-              <span className="relative z-10 flex items-center justify-center w-full bg-[color:var(--neon-bg0)]/80 group-hover:bg-[color:var(--neon-bg0)]/60 px-8 py-4 rounded-lg text-xs uppercase tracking-widest font-bold text-[color:var(--neon-text0)] transition-colors">
-                {loading ? "Signing in..." : "Sign In"}
-              </span>
-            </button>
+            <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
+              {loading ? "Signing in..." : "Sign In"}
+            </NeonButton>
           </form>
 
           {/* Back to landing */}

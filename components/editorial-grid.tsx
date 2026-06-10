@@ -16,7 +16,7 @@ export function EditorialGrid() {
               alt="Real people connecting in a garden setting"
               fill
               sizes="(max-width: 768px) 100vw, 58vw"
-              className="object-cover transition-transform duration-700 hover:scale-[1.03]"
+              className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-reduce:transition-none hover:scale-[1.02]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/25 to-transparent" />
             <div
@@ -54,7 +54,7 @@ export function EditorialGrid() {
                 alt="Host an event with VIZB"
                 fill
                 sizes="(max-width: 768px) 100vw, 42vw"
-                className="object-cover object-[center_35%] transition-transform duration-700 group-hover:scale-[1.03]"
+                className="object-cover object-[center_35%] motion-safe:transition-transform motion-safe:duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/25 to-transparent" />
               <div
@@ -90,7 +90,7 @@ export function EditorialGrid() {
                 alt="Curated events crowd"
                 fill
                 sizes="(max-width: 768px) 100vw, 42vw"
-                className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-[1.03]"
+                className="object-cover object-[center_25%] motion-safe:transition-transform motion-safe:duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">

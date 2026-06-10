@@ -11,7 +11,7 @@ import { NeonButton } from "@/components/ui/neon-button"
 
 const variantStyles = {
   error: {
-    wrap: "border-2 border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/10 shadow-[0_0_28px_rgba(157,77,255,0.14),inset_0_1px_0_rgb(255_255_255/0.05)]",
+    wrap: "border-2 border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/10 shadow-[0_0_22px_rgba(157,77,255,0.11),inset_0_1px_0_rgb(255_255_255/0.05)]",
     title: "text-[color:var(--neon-text0)]",
     message: "text-[color:var(--neon-text1)]",
     hint: "text-[color:var(--neon-text2)]",
@@ -27,7 +27,7 @@ const variantStyles = {
     role: "alert" as const,
   },
   success: {
-    wrap: "border-2 border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 shadow-[0_0_28px_rgba(0,209,255,0.14),inset_0_1px_0_rgb(255_255_255/0.05)]",
+    wrap: "border-2 border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 shadow-[0_0_22px_rgba(0,209,255,0.11),inset_0_1px_0_rgb(255_255_255/0.05)]",
     title: "text-[color:var(--neon-text0)]",
     message: "text-[color:var(--neon-text1)]",
     hint: "text-[color:var(--neon-text2)]",
