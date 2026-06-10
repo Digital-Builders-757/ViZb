@@ -647,26 +647,13 @@ export default async function PublicEventDetailPage({
                     </>
                   )}
 
-                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--neon-hairline)]/50 pt-4">
+                  <div className="mt-5 border-t border-[color:var(--neon-hairline)]/50 pt-4">
                     <ReportEventListingDialog
                       eventId={event.id}
                       eventSlug={event.slug}
                       isSignedIn={isSignedIn}
                       loginHref={authHref}
                     />
-                    <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
-                      Saved events show up in your dashboard and calendar export.
-                    </p>
-                    {isSignedIn ? (
-                      <NeonLink
-                        href="/dashboard#my-vibes-week-heading"
-                        variant="secondary"
-                        size="sm"
-                        className="w-full sm:w-auto"
-                      >
-                        Open My Vibes
-                      </NeonLink>
-                    ) : null}
                   </div>
                 </GlassCard>
               </div>
