@@ -2,9 +2,11 @@
 
 import type React from "react"
 import { useState } from "react"
-import { CheckCircle2, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { subscribeToWaitlist } from "@/app/actions/subscribe"
 import { OceanDivider } from "@/components/ui/ocean-divider"
+import { EmptyStateCard } from "@/components/ui/empty-state-card"
+import { NeonButton } from "@/components/ui/neon-button"
 
 export function WaitlistSection() {
   const [email, setEmail] = useState("")
@@ -47,32 +49,23 @@ export function WaitlistSection() {
           <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
             Stay connected
           </span>
-          <h2 className="mt-4 font-serif text-5xl font-bold leading-[0.92] text-[color:var(--neon-text0)] sm:text-6xl">
-            <span className="neon-gradient-text">Join</span> the
-            <br />
-            movement
+          <h2 className="mt-4 text-balance font-serif text-4xl font-bold leading-[0.95] text-[color:var(--neon-text0)] sm:text-5xl md:text-6xl">
+            Get the <span className="neon-gradient-text">drop</span>
           </h2>
-          <p className="mt-7 text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+          <p className="mt-7 max-w-prose mx-auto text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
             New events. Pop-ups. Collaborations. No spam. Just the good stuff.
           </p>
 
           {submitted ? (
-            <div className="mt-10 overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 p-8 text-left backdrop-blur">
-              <div className="flex items-start gap-4">
-                <div className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/35 text-[color:var(--neon-a)] shadow-[0_0_18px_rgba(0,209,255,0.18)]">
-                  <CheckCircle2 className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-serif text-xl font-bold text-[color:var(--neon-text0)]">You&apos;re on the list</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[color:var(--neon-text1)]">
-                    {message}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <EmptyStateCard
+              className="mt-10 text-left"
+              kicker="Confirmed"
+              title="You're on the list"
+              description={message}
+            />
           ) : (
-            <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-4">
-              <div className="grid gap-3 sm:grid-cols-2">
+            <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-5">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <input
                   type="email"
                   placeholder="Email"
@@ -92,11 +85,7 @@ export function WaitlistSection() {
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="vibe-focus-ring inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[color:var(--neon-a)] px-8 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-bg0)] shadow-[0_0_30px_rgba(0,209,255,0.26)] transition hover:brightness-110 disabled:opacity-50"
-              >
+              <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -105,7 +94,7 @@ export function WaitlistSection() {
                 ) : (
                   "Subscribe"
                 )}
-              </button>
+              </NeonButton>
             </form>
           )}
 

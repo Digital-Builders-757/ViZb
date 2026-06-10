@@ -15,9 +15,9 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" })
 
 export const metadata: Metadata = {
-  title: "VIZB | Driving Culture Forward",
+  title: "VIZB | Virginia Isn't Boring",
   description:
-    "VIZB creates experiences that bring people together — music, culture, creativity, and community — all across Virginia.",
+    "Discover events across Virginia and the DMV. Parties, pop-ups, workshops, and culture worth pulling up to.",
   generator: "v0.app",
   icons: {
     icon: "/icon.png",

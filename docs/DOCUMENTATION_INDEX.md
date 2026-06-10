@@ -72,6 +72,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `work-orders/` | Short implementation orders tied to roadmap items, starting with `local-events-work-order.md` |
 | `development/BRANCHING.md` | **`develop` first** — feature PRs → `develop`, releases → `main`; GitHub + CI expectations |
 | `brand/` | Voice, content, social, event creative patterns |
+| `design/` | Visual polish audits and launch refinement notes (`LAUNCH_VISUAL_POLISH_AUDIT.md`) |
 | `diagrams/` | Conceptual architecture maps |
 | `contracts/` | Layer 2 — `INDEX.md` + per-domain `.md` |
 | `journeys/` | Layer 3 — `INDEX.md` + per-journey `.md` |

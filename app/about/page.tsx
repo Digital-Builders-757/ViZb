@@ -13,11 +13,11 @@ import { OceanDivider } from "@/components/ui/ocean-divider"
 export const metadata: Metadata = {
   title: "About | VIZB",
   description:
-    "Who we are — VIZB curates Virginia events, community, and culture across Hampton Roads, the DMV, and beyond.",
+    "Who we are. VIZB is Virginia's timeline for events, community, and culture across Hampton Roads, the DMV, and beyond.",
   openGraph: {
     title: "About | VIZB",
     description:
-      "Who we are — VIZB curates Virginia events, community, and culture across Hampton Roads, the DMV, and beyond.",
+      "Who we are. VIZB is Virginia's timeline for events, community, and culture across Hampton Roads, the DMV, and beyond.",
   },
 }
 
@@ -38,16 +38,15 @@ export default function AboutPage() {
                   <span className="h-2 w-2 animate-pulse rounded-full bg-[color:var(--neon-a)]" />
                   Who we are
                 </span>
-                <h1 className="mt-6 font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl md:text-5xl">
-                  Driving culture forward in Virginia.
+                <h1 className="mt-6 text-balance font-serif text-3xl font-bold text-[color:var(--neon-text0)] sm:text-4xl md:text-5xl">
+                  Virginia isn&apos;t boring. We prove it every weekend.
                 </h1>
-                <p className="mt-6 max-w-xl text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-                  VIZB is a timeline-first community platform — real events, real people, and real
-                  connections across the 757, Hampton Roads, the DMV, and beyond.
+                <p className="mt-6 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+                  VIZB is a timeline for real events and real people across the 757, Hampton Roads, the
+                  DMV, and beyond.
                 </p>
-                <p className="mt-4 max-w-xl text-sm leading-relaxed text-[color:var(--neon-text2)] sm:text-base">
-                  We curate what&apos;s worth pulling up to so you spend less time searching and more
-                  time in the room.
+                <p className="mt-4 max-w-prose text-sm leading-relaxed text-[color:var(--neon-text2)] sm:text-base">
+                  Less scrolling. More showing up. That&apos;s the whole point.
                 </p>
               </div>
               <HeroPhotoGrid />

@@ -24,8 +24,8 @@ export function EmptyStateCard({
         "relative overflow-hidden p-6 md:p-8",
         // gradient edge + soft glow (mockup feel) without making the whole card loud
         "before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:ring-1 before:ring-[color:var(--neon-hairline)]",
-        "after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-0.5 after:bg-gradient-to-r after:from-[color:var(--neon-a)]/55 after:via-[color:var(--neon-b)]/45 after:to-[color:var(--neon-c)]/35",
-        "shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_12%,transparent),0_0_28px_rgb(0_209_255/0.12)]",
+        "after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-0.5 after:bg-gradient-to-r after:from-[color:var(--neon-a)]/45 after:via-[color:var(--neon-b)]/35 after:to-[color:var(--neon-c)]/28",
+        "shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_10%,transparent),0_0_22px_rgb(0_209_255/0.09)]",
         className,
       )}
       {...props}

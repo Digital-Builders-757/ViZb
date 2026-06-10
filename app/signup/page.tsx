@@ -161,15 +161,13 @@ export default function SignUpPage() {
         <div className="absolute right-0 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-[color:var(--neon-a)]/50 to-transparent" />
 
         <div className="relative z-10 px-16">
-          <h1 className="headline-lg text-[color:var(--neon-text0)] uppercase">
+          <h1 className="headline-lg uppercase text-[color:var(--neon-text0)]">
             Join
             <br />
-            The
-            <br />
-            <span className="neon-gradient-text">Movement</span>
+            <span className="neon-gradient-text">VIZB</span>
           </h1>
-          <p className="text-[color:var(--neon-text1)] mt-6 max-w-md leading-relaxed">
-            Create your account and start discovering events, connecting with creators, and building community.
+          <p className="mt-6 max-w-md leading-relaxed text-[color:var(--neon-text1)]">
+            Create your account. Save events, grab tickets, and stay close to what&apos;s happening in Virginia.
           </p>
 
           {/* Decorative neon element */}

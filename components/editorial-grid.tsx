@@ -37,7 +37,7 @@ export function EditorialGrid() {
                 Real connections.
               </h3>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-[color:var(--neon-text1)]">
-                A timeline that makes it easy to pull up — and a community that makes it worth it.
+                A timeline that makes it easy to pull up. A community that makes it worth it.
               </p>
             </div>
           </WaterFrame>
@@ -73,7 +73,7 @@ export function EditorialGrid() {
                   Host with VIZB
                 </h3>
                 <p className="mt-2 max-w-sm text-sm leading-relaxed text-[color:var(--neon-text1)]">
-                  Bring your event to the VIZB timeline — we&apos;ll help you pack the room.
+                  Bring your event to the VIZB timeline. We&apos;ll help you pack the room.
                 </p>
                 <span className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-a)] transition-all group-hover:gap-3">
                   Submit an event
