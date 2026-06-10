@@ -31,6 +31,7 @@ function eventDetailPath(eventUrl: string): string {
 }
 
 export type TicketAddedSuccessVariant = "rsvp" | "paid"
+export type PaidFulfillmentState = "syncing" | "confirmed" | "pending" | "error"
 
 export function TicketAddedSuccessDialog({
   open,
@@ -42,6 +43,7 @@ export function TicketAddedSuccessDialog({
   city,
   eventUrl,
   variant = "rsvp",
+  paidFulfillmentState = null,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -53,6 +55,7 @@ export function TicketAddedSuccessDialog({
   /** Absolute or path URL shown in calendar description */
   eventUrl: string
   variant?: TicketAddedSuccessVariant
+  paidFulfillmentState?: PaidFulfillmentState | null
 }) {
   const start = new Date(startsAt)
   const calendarEnd = Number.isNaN(start.getTime()) ? null : new Date(start.getTime() + 2 * 60 * 60 * 1000)
@@ -73,10 +76,27 @@ export function TicketAddedSuccessDialog({
   const openTicketHref = ticketId ? `/tickets/${ticketId}` : "/tickets"
   const openTicketLabel = ticketId ? "Open My Ticket" : "Open My Tickets"
 
+  const paidTitle =
+    paidFulfillmentState === "confirmed"
+      ? "Ticket confirmed"
+      : paidFulfillmentState === "syncing"
+        ? "Confirming payment"
+        : paidFulfillmentState === "error"
+          ? "Payment received — check My Tickets"
+          : "Payment received"
+
   const bodyCopy =
     variant === "paid"
-      ? "Payment received. Your ticket should appear in My Tickets shortly—refresh there if you do not see it yet."
+      ? paidFulfillmentState === "confirmed"
+        ? "Ticket confirmed — open My Tickets to view your door QR and backup code."
+        : paidFulfillmentState === "syncing"
+          ? "Payment received. We're confirming your ticket now. This usually takes a few seconds."
+          : paidFulfillmentState === "error"
+            ? "Payment may have succeeded but we couldn't confirm the ticket yet. Open My Tickets and refresh — your ticket should appear shortly."
+            : "Payment received. We're confirming your ticket now. Check My Tickets in a moment."
       : "You’re on the list. Your RSVP is saved and your ticket is now in My Tickets."
+
+  const dialogTitle = variant === "paid" ? paidTitle : "Added to My Tickets"
 
   const eventPath = eventDetailPath(eventUrl)
 
@@ -84,7 +104,7 @@ export function TicketAddedSuccessDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)] sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-[color:var(--neon-text0)]">Added to My Tickets</DialogTitle>
+          <DialogTitle className="text-[color:var(--neon-text0)]">{dialogTitle}</DialogTitle>
           <DialogDescription className="space-y-2 text-[color:var(--neon-text1)]">
             <span className="block">{bodyCopy}</span>
             <span className="block text-[13px] leading-relaxed text-[color:var(--neon-text2)]">

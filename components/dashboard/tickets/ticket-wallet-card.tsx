@@ -28,6 +28,9 @@ export function TicketWalletCard({
   qrToken,
   ticketSigningConfigured,
   ticketQrEligible,
+  qrDefaultOpen = false,
+  qrShowFullBackupCode = false,
+  qrSize = 200,
 }: {
   ticketId: string
   /** Public-facing ticket reference (16-char hex); not used for door QR. */
@@ -46,6 +49,9 @@ export function TicketWalletCard({
   ticketSigningConfigured: boolean
   /** Registration status allows QR and event is within show-at-door window. */
   ticketQrEligible: boolean
+  qrDefaultOpen?: boolean
+  qrShowFullBackupCode?: boolean
+  qrSize?: number
 }) {
   const start = new Date(e.starts_at)
   const dateValid = !Number.isNaN(start.getTime())
@@ -146,7 +152,13 @@ export function TicketWalletCard({
         ? null
         : qrToken
           ? (
-              <TicketQrReveal token={qrToken} label={`Check-in QR for ${e.title}`} />
+              <TicketQrReveal
+                token={qrToken}
+                label={`Check-in QR for ${e.title}`}
+                defaultOpen={qrDefaultOpen}
+                showFullBackupCode={qrShowFullBackupCode}
+                size={qrSize}
+              />
             )
           : status === "confirmed" || status === "checked_in"
             ? (

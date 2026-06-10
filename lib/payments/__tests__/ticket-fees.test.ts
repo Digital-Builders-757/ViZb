@@ -1,10 +1,19 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import {
   calculatePlatformFeeCents,
   calculateTicketCheckoutAmounts,
+  getPlatformFeeFixedCentsFromEnv,
+  getPlatformFeePercentFromEnv,
   VIZB_PLATFORM_FEE_BPS,
 } from "@/lib/payments/ticket-fees"
+
+const baseEnv = { ...process.env }
+
+afterEach(() => {
+  process.env = { ...baseEnv }
+  vi.unstubAllEnvs()
+})
 
 describe("calculatePlatformFeeCents", () => {
   it("calculates the default 5% platform fee in cents", () => {
@@ -37,5 +46,29 @@ describe("calculateTicketCheckoutAmounts", () => {
       platformFeeCents: 50,
       totalCents: 2_050,
     })
+  })
+
+  it("adds fixed cents from env override", () => {
+    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "0")
+    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "99")
+    expect(calculateTicketCheckoutAmounts(1_000)).toEqual({
+      subtotalCents: 1_000,
+      platformFeeCents: 99,
+      totalCents: 1_099,
+    })
+  })
+})
+
+describe("platform fee env parsing", () => {
+  it("defaults percent and fixed when unset", () => {
+    expect(getPlatformFeePercentFromEnv()).toEqual({ ok: true, value: 5, usingDefault: true })
+    expect(getPlatformFeeFixedCentsFromEnv()).toEqual({ ok: true, value: 0, usingDefault: true })
+  })
+
+  it("rejects invalid env values", () => {
+    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "bad")
+    expect(getPlatformFeePercentFromEnv().ok).toBe(false)
+    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "1.5")
+    expect(getPlatformFeeFixedCentsFromEnv().ok).toBe(false)
   })
 })
