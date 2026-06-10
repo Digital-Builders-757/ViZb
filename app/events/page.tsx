@@ -28,6 +28,9 @@ import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/eve
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { isPublicListingEventStatus } from "@/lib/events/public-listing"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Events | VIZB",
@@ -352,7 +355,9 @@ export default async function EventsExplorePage({
       logError("events.discovery", error, { category: categorySlug ?? "all" })
       eventsLoadError = true
     }
-    allEvents = data as PublicEventRow[] | null
+    allEvents = (data as PublicEventRow[] | null)?.filter((row) =>
+      isPublicListingEventStatus(row.status),
+    ) ?? null
   } else if (process.env.NODE_ENV === "production") {
     await createClient()
   }

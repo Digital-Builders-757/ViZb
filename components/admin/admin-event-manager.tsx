@@ -343,6 +343,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                       </a>
                     )}
 
+                    {event.status !== "archived" ? (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <button
@@ -421,6 +422,7 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
+                    ) : null}
                   </div>
                 </div>
               </div>

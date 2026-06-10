@@ -29,6 +29,7 @@ Current `event_status` values (see `scripts/003_create_enums.sql` + `scripts/008
 - `scripts/022_add_event_archived.sql`
 - `scripts/023_lock_archived_events.sql`
 - `scripts/024_allow_staff_update_archived.sql` (fix: allow staff to update archived for unarchive/moderation)
+- `scripts/030_fix_event_archive_rls_with_check.sql` / `supabase/migrations/20260610043000_fix_event_archive_rls_with_check.sql` (fix: explicit WITH CHECK so archive transitions persist; staff archive uses service role in `archiveEvent`)
 
 ## RSVP capacity (optional)
 
