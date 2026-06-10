@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 import { requireAdmin, requireAuth } from "@/lib/auth-helpers"
+import { revalidatePublicEventDiscoveryPaths } from "@/lib/events/revalidate-public-discovery"
 
 const staffPickSchema = z.object({
   eventId: z.string().uuid(),
@@ -55,9 +56,7 @@ export async function setEventStaffPickFromAdmin(
 
   revalidatePath("/admin")
   revalidatePath(`/admin/events/${eventId}`)
-  revalidatePath("/events")
-  revalidatePath(`/events/${row.slug}`)
-  revalidatePath("/")
+  revalidatePublicEventDiscoveryPaths(row.slug)
 
   return { ok: true, message: isStaffPick ? "Marked as Staff pick." : "Staff pick removed." }
 }
