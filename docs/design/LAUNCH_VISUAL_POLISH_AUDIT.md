@@ -1,8 +1,8 @@
 # Launch Visual Polish Audit
 
-**Branch:** `polish/launch-visual-pass`  
+**Branch:** `polish/launch-visual-pass` (merged PR #149 → `develop`)  
 **Date:** June 10, 2026  
-**Issues:** #135–#148
+**Issues:** #135–#148 (closed June 10, 2026)
 
 ## What was reviewed
 
@@ -85,7 +85,9 @@ npm run build
 rg "—|–" app components lib -g "*.tsx" -g "*.ts"
 ```
 
-**Follow-up pass (same branch):** login/forgot-password/signup form polish, global loading tagline, posts glass/glow, app-preview copy/motion, navbar logo sizing, auth-alert glow tuning.
+**Follow-up pass (merged in #149):** login/forgot-password/signup form polish, global loading tagline, posts glass/glow, app-preview copy/motion, navbar logo sizing, auth-alert glow tuning.
+
+**Post-merge (branch `polish/auth-reset-password`):** reset-password page aligned with other auth forms; login shows success alert after `?reset=success`.
 
 Results:
 
