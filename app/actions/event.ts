@@ -29,6 +29,7 @@ import {
   type EventKind,
 } from "@/lib/events/event-kind"
 import { revalidatePublicEventDiscoveryPaths } from "@/lib/events/revalidate-public-discovery"
+import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import {
   DEFAULT_PAID_TIER_NAME,
   MIN_PAID_TICKET_CENTS,
@@ -722,11 +723,27 @@ export async function updateEventDetails(formData: FormData) {
 
 // ---------- Archive Event (Admin) ----------
 
+function adminEventMutationClient() {
+  try {
+    return createServiceRoleClient()
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Missing service role configuration."
+    throw new Error(msg)
+  }
+}
+
 export async function archiveEvent(eventId: string) {
-  const { supabase } = await requireAdmin()
+  await requireAdmin()
 
   if (!eventId) {
     return { error: "Missing event ID." }
+  }
+
+  let supabase
+  try {
+    supabase = adminEventMutationClient()
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Missing service role configuration." }
   }
 
   // Fetch event details for revalidation
@@ -745,13 +762,18 @@ export async function archiveEvent(eventId: string) {
   }
 
   const now = new Date().toISOString()
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("events")
     .update({ status: "archived", updated_at: now })
     .eq("id", eventId)
+    .select("id")
 
   if (updateError) {
     return { error: `Failed to archive event: ${updateError.message}` }
+  }
+
+  if (!updated || updated.length === 0) {
+    return { error: "Failed to archive event. Please refresh and try again." }
   }
 
   // Revalidate all relevant pages
@@ -771,10 +793,17 @@ export async function archiveEvent(eventId: string) {
 }
 
 export async function unarchiveEvent(eventId: string) {
-  const { supabase } = await requireAdmin()
+  await requireAdmin()
 
   if (!eventId) {
     return { error: "Missing event ID." }
+  }
+
+  let supabase
+  try {
+    supabase = adminEventMutationClient()
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Missing service role configuration." }
   }
 
   const { data: event, error: fetchError } = await supabase
@@ -792,7 +821,7 @@ export async function unarchiveEvent(eventId: string) {
   }
 
   const now = new Date().toISOString()
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("events")
     .update({
       status: "draft",
@@ -803,9 +832,14 @@ export async function unarchiveEvent(eventId: string) {
       updated_at: now,
     })
     .eq("id", eventId)
+    .select("id")
 
   if (updateError) {
     return { error: `Failed to unarchive event: ${updateError.message}` }
+  }
+
+  if (!updated || updated.length === 0) {
+    return { error: "Failed to unarchive event. Please refresh and try again." }
   }
 
   const { data: org } = await supabase
