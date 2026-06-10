@@ -9,7 +9,7 @@ import { FullLogoImage } from "@/components/brand/full-logo-image"
 import { AuthAlert } from "@/components/auth/auth-alert"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { createClient } from "@/lib/supabase/client"
-import { NeonLink } from "@/components/ui/neon-link"
+import { NeonButton } from "@/components/ui/neon-button"
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -21,34 +21,28 @@ export default function ResetPasswordPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    console.log("🔧 [DEBUG] Reset password form submitted")
     setIssue(null)
     setFieldHint(null)
 
     if (password.length < 6) {
-      console.log("❌ [DEBUG] Password too short")
       setFieldHint("Password must be at least 6 characters.")
       return
     }
 
     if (password !== confirmPassword) {
-      console.log("❌ [DEBUG] Passwords don't match")
       setFieldHint("Passwords do not match.")
       return
     }
 
-    console.log("✅ [DEBUG] Password validation passed")
     setLoading(true)
     try {
       const supabase = createClient()
-      console.log("🔧 [DEBUG] Updating password...")
-      
+
       const { error } = await supabase.auth.updateUser({
         password: password,
       })
 
       if (error) {
-        console.error("❌ [DEBUG] Password update error:", error)
         setIssue(
           mapAuthError(error, "reset", {
             onNetworkRetry: () => setIssue(null),
@@ -58,15 +52,9 @@ export default function ResetPasswordPage() {
         return
       }
 
-      console.log("✅ [DEBUG] Password updated successfully!")
-      
-      // Sign out to clear the recovery session
       await supabase.auth.signOut()
-      
-      // Redirect to login with success message
       router.push("/login?reset=success")
-    } catch (err) {
-      console.error("❌ [DEBUG] Unexpected error:", err)
+    } catch {
       setIssue({
         code: "unexpected_error",
         title: "Something went wrong",
@@ -101,9 +89,9 @@ export default function ResetPasswordPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <Link href="/" className="inline-block mb-12">
+          <Link href="/" className="mb-12 inline-block">
             <FullLogoImage width={240} height={240} className="h-14 w-auto max-w-[min(100%,220px)]" />
           </Link>
 
@@ -115,7 +103,7 @@ export default function ResetPasswordPage() {
 
           <form
             onSubmit={onSubmit}
-            className="mt-10 space-y-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
+            className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
           >
             {issue ? (
               <AuthAlert
@@ -171,13 +159,9 @@ export default function ResetPasswordPage() {
               {fieldHint ? <p className="mt-2 text-sm text-destructive">{fieldHint}</p> : null}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="vibe-cta-gradient vibe-focus-ring w-full rounded-lg px-8 py-4 text-xs font-bold uppercase tracking-widest disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? "Updating…" : "Update Password"}
-            </button>
+            <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
+              {loading ? "Updating…" : "Update password"}
+            </NeonButton>
           </form>
 
           <div className="mt-8 border-t border-[color:var(--neon-hairline)] pt-6">

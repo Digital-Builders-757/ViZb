@@ -22,6 +22,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = getSafeRedirectPath(searchParams.get("redirect"))
+  const passwordResetSuccess = searchParams.get("reset") === "success"
 
   // Generate bubbles for background animation
   const bubbles = useMemo(() => Array.from({ length: 12 }, (_, i) => ({
@@ -160,6 +161,13 @@ export default function LoginPage() {
             className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
           >
             <div className="space-y-4">
+              {passwordResetSuccess && !authIssue ? (
+                <AuthAlert
+                  variant="success"
+                  title="Password updated"
+                  message="Your password was reset. Sign in with your new password."
+                />
+              ) : null}
               {authIssue ? (
                 <>
                   <AuthAlert
