@@ -220,6 +220,7 @@ export async function POST(request: Request) {
           const { data: eventRow } = await admin.from("events").select("slug").eq("id", affectedEventId).maybeSingle()
           eventSlug = readString(eventRow?.slug)
         }
+        revalidateAfterTicketFulfillment(eventSlug)
         break
       }
 

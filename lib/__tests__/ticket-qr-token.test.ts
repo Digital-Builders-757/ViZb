@@ -1,10 +1,32 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   buildTicketQrToken,
+  getTicketQrSecret,
   TICKET_QR_MAX_EXP_SKEW_SECONDS,
   TICKET_QR_TTL_SECONDS,
   verifyTicketQrToken,
 } from "../ticket-qr-token"
+
+const baseEnv = { ...process.env }
+
+afterEach(() => {
+  process.env = { ...baseEnv }
+  vi.unstubAllEnvs()
+})
+
+describe("getTicketQrSecret", () => {
+  it("returns null when unset or too short", () => {
+    vi.stubEnv("TICKET_QR_SECRET", "")
+    expect(getTicketQrSecret()).toBeNull()
+    vi.stubEnv("TICKET_QR_SECRET", "short")
+    expect(getTicketQrSecret()).toBeNull()
+  })
+
+  it("returns trimmed secret when long enough", () => {
+    vi.stubEnv("TICKET_QR_SECRET", "  long-enough-secret-value  ")
+    expect(getTicketQrSecret()).toBe("long-enough-secret-value")
+  })
+})
 
 describe("ticket-qr-token", () => {
   const secret = "test-ticket-secret-32chars!"

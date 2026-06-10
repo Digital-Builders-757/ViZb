@@ -10,8 +10,23 @@ function maskBackupCode(token: string): string {
   return `${t.slice(0, 6)}…${t.slice(-4)}`
 }
 
-export function TicketQrReveal({ token, label }: { token: string; label: string }) {
-  const [open, setOpen] = useState(false)
+export function TicketQrReveal({
+  token,
+  label,
+  defaultOpen = false,
+  showFullBackupCode = false,
+  size = 200,
+}: {
+  token: string
+  label: string
+  /** Detail pages can show the door QR immediately. */
+  defaultOpen?: boolean
+  /** When true, display the full backup token (detail page); list view keeps a masked preview. */
+  showFullBackupCode?: boolean
+  /** QR pixel size — detail pages use a larger code for door scanning. */
+  size?: number
+}) {
+  const [open, setOpen] = useState(defaultOpen)
   const [copied, setCopied] = useState(false)
   const panelId = useId()
 
@@ -49,7 +64,7 @@ export function TicketQrReveal({ token, label }: { token: string; label: string 
         <div id={panelId} className="mt-4 flex flex-col items-center gap-4">
           <p className="sr-only">{label}</p>
           <div className="rounded-lg bg-white p-3 shadow-sm">
-            <QRCodeSVG value={token} size={200} level="M" includeMargin={false} />
+            <QRCodeSVG value={token} size={size} level="M" includeMargin={false} />
           </div>
           <p className="max-w-xs text-center text-[10px] font-mono leading-relaxed text-[color:var(--neon-text2)]">
             Staff can scan this QR, or you can read your <span className="text-[color:var(--neon-text1)]">backup code</span>{" "}
@@ -62,7 +77,7 @@ export function TicketQrReveal({ token, label }: { token: string; label: string 
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center">
               <code className="block min-h-[44px] flex-1 select-all rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/40 px-3 py-2.5 text-center font-mono text-[11px] text-[color:var(--neon-text0)] sm:text-left">
-                {maskBackupCode(token)}
+                {showFullBackupCode ? token.trim() : maskBackupCode(token)}
               </code>
               <button
                 type="button"

@@ -105,7 +105,7 @@ export async function TicketWalletDetailView({
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Ticket</span>
         <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">{event.title}</h1>
         <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Keep this code for your records. Door check-in still uses the live QR (same as on My tickets).
+          Show this QR at the door. Staff can scan it or enter your backup code if the camera cannot read the screen.
         </p>
       </header>
 
@@ -123,6 +123,9 @@ export async function TicketWalletDetailView({
         qrToken={qrToken}
         ticketSigningConfigured={Boolean(ticketSecret)}
         ticketQrEligible={eligible}
+        qrDefaultOpen={Boolean(qrToken)}
+        qrShowFullBackupCode={true}
+        qrSize={256}
       />
     </div>
   )

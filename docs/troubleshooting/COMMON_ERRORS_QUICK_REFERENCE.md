@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** June 9, 2026
+**Last updated:** June 10, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -30,7 +30,7 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | **`supabase db push`**: “inserted before the last migration” / out-of-order history | Remote has a newer migration version row than some local files | Run **`supabase db push --include-all`** (review pending list first) |
 | **`function gen_random_bytes(integer) does not exist`** when applying ticket migrations | `pgcrypto` in **`extensions`** schema; session **`search_path`** lacks **`extensions`** | Apply **`20260410120500_enable_pgcrypto.sql`**; ensure ticket mint SQL uses **`extensions.gen_random_bytes(...)`** (see repo migrations **028–030** mirrors) |
 | Stripe webhook returns **500** / retries | Fulfillment RPC failed or transient DB error — **intended** so Stripe redelivers (handler is idempotent on `stripe_checkout_session_id`) | Fix root cause (RLS, migration, metadata); replay event in Stripe Dashboard if needed |
-| **Buy ticket** disabled or “not configured” on event page | Missing **`STRIPE_SECRET_KEY`** or **`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`** | Copy from **`.env.example`**; restart Next.js |
+| **Buy ticket** disabled or “not configured” on event page | Missing **`STRIPE_SECRET_KEY`** or **`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`** | Copy from **`.env.example`**; restart Next.js; staff can also open **`/admin/diagnostics/stripe`** for a full pass/fail checklist (June 2026, #125) |
 | **Admin → All Users**: no **Delete** / error says service role missing | **`SUPABASE_SERVICE_ROLE_KEY`** not loaded on the server | Set in `.env.local` per **`.env.example`**; never expose to the client; restart `npm run dev` |
 | **Delete user** fails (500 / FK / cannot delete from `auth.users`) | Public tables still reference **`auth.users`** with default **`NO ACTION`** (e.g. `events.created_by`, `org_invites`) | Apply **`supabase/migrations/20260410200000_auth_user_delete_foreign_keys.sql`** (`supabase db push` or run SQL on the project) |
 | **`git push`** rejected: **GH013** / **Required status check "main"** | Ruleset references a **check name that does not exist** (e.g. branch name mistaken for a check) or blocks all pushes | Set required checks to the real workflow job from **`.github/workflows/pr-ci.yml`**; see **`docs/development/BRANCHING.md`** (“Repository rulesets”) |
