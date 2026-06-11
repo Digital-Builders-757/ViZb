@@ -208,7 +208,7 @@ Staff/org editors create drafts. Submit for review. Staff publishes or rejects. 
 | Resend | App → email API | Server-only key | `RESEND_*` (advertise leads; auth via Supabase SMTP) |
 | Vercel Analytics | Client beacon | Public | auto via `@vercel/analytics` |
 | Apple/Google Wallet | App → pass files | User session + wallet certs | `APPLE_WALLET_*`, `GOOGLE_WALLET_*` |
-| Sentry | — | **UNVERIFIED** — env in `.env.example`, no SDK in app | `SENTRY_*` |
+| Sentry | Client + server SDK | Production/main only | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`, build: `SENTRY_AUTH_TOKEN` |
 
 ### API routes (complete inventory)
 
@@ -267,7 +267,7 @@ See [DECISIONS.md](./DECISIONS.md) for ADR-style detail. Summary:
 | Placeholder prod migrations (`20260208*`) | Cannot replay true prod history on greenfield from CLI migrations alone |
 | `role_admin` vs `platform_role` doc/code drift | Standardize on `platform_role` in all new docs |
 | `subscribers` RLS uses `role_admin` | Staff with only `platform_role` may not read waitlist |
-| Sentry env without SDK | Do not assume monitoring is active |
+| Sentry env without SDK on Preview | Preview/develop intentionally omit DSNs — do not assume monitoring there |
 | `env.local` (no dot) ignored | Must use `.env.local` |
 | Missing `supabase/seed.sql` | `db reset` seed step fails if config references it |
 | `admin_list_users` RPC not versioned in repo SQL | Confirm remote DB or add a migration before relying on admin user list recovery |
