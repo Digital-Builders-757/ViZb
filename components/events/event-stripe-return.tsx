@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { syncPaidTicketCheckoutSession } from "@/app/actions/ticket-checkout"
 import { EventCheckoutBanner } from "@/components/events/event-checkout-banner"
 import { TicketAddedSuccessDialog } from "@/components/events/ticket-added-success-dialog"
+import { trackProductEvent, type ProductEventContext } from "@/lib/analytics/product-events"
 
 type PaidFulfillmentState = "syncing" | "confirmed" | "pending" | "error"
 
@@ -19,6 +20,7 @@ export function EventStripeReturn({
   venueName,
   city,
   eventPublicUrl,
+  analyticsContext,
 }: {
   eventPath: string
   eventTitle: string
@@ -26,6 +28,7 @@ export function EventStripeReturn({
   venueName: string
   city: string
   eventPublicUrl: string
+  analyticsContext?: ProductEventContext
 }) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -53,15 +56,30 @@ export function EventStripeReturn({
 
     if (sessionId) {
       handled.current = true
+      trackProductEvent("paid_checkout_returned", {
+        ...analyticsContext,
+        checkout_status: "pending",
+        source: analyticsContext?.source ?? "event_detail",
+      })
       void (async () => {
         const result = await syncPaidTicketCheckoutSession(sessionId)
         if ("error" in result && result.error) {
           setSyncError(result.error)
           setPaidState("error")
+          trackProductEvent("paid_checkout_returned", {
+            ...analyticsContext,
+            checkout_status: "error",
+            source: analyticsContext?.source ?? "event_detail",
+          })
           toast.error(result.error)
         } else if (result.ticketId) {
           setFulfilledTicketId(result.ticketId)
           setPaidState("confirmed")
+          trackProductEvent("paid_checkout_confirmed", {
+            ...analyticsContext,
+            checkout_status: "confirmed",
+            source: analyticsContext?.source ?? "event_detail",
+          })
         } else {
           setPaidState("pending")
         }
@@ -73,9 +91,14 @@ export function EventStripeReturn({
 
     if (checkout === "cancelled") {
       handled.current = true
+      trackProductEvent("paid_checkout_returned", {
+        ...analyticsContext,
+        checkout_status: "cancelled",
+        source: analyticsContext?.source ?? "event_detail",
+      })
       router.replace(eventPath)
     }
-  }, [eventPath, router, stripeReturnParams.session, stripeReturnParams.checkout])
+  }, [analyticsContext, eventPath, router, stripeReturnParams.session, stripeReturnParams.checkout])
 
   return (
     <>

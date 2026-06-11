@@ -18,7 +18,9 @@ import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 import { EventStripeReturn } from "@/components/events/event-stripe-return"
 import { PostLoginIntentResolver } from "@/components/events/post-login-intent-resolver"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { EventProductAnalyticsBeacon } from "@/components/events/event-product-analytics-beacon"
 import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
+import { formatCategoriesForAnalytics, type ProductEventContext } from "@/lib/analytics/product-events"
 import { EventShareRow } from "@/components/events/event-share-row"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
@@ -305,6 +307,17 @@ export default async function PublicEventDetailPage({
   const saveAuthHref = buildEventAuthHref(event.slug, "save_event")
   const rsvpAuthHref = buildEventAuthHref(event.slug, "rsvp_event")
 
+  const productAnalyticsContext: ProductEventContext = {
+    event_id: event.id,
+    event_slug: event.slug,
+    category: formatCategoriesForAnalytics(normalizeCategories(event.categories)),
+    city: event.city ?? undefined,
+    event_kind: listingCommunity ? ("community" as const) : ("official" as const),
+    staff_pick: staffPick,
+    signed_in: isSignedIn,
+    source: "event_detail" as const,
+  }
+
   const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
   const eventPublicUrl = siteBase ? `${siteBase}/events/${event.slug}` : `/events/${event.slug}`
 
@@ -329,6 +342,9 @@ export default async function PublicEventDetailPage({
     >
       <main className="min-h-screen">
         <EventPublicViewBeacon slug={slug} />
+        <Suspense fallback={null}>
+          <EventProductAnalyticsBeacon context={productAnalyticsContext} />
+        </Suspense>
         <Navbar />
 
         <Suspense fallback={null}>
@@ -535,8 +551,13 @@ export default async function PublicEventDetailPage({
                           initialSaved={initialVibesSaved}
                           authHref={saveAuthHref}
                           variant="detail"
+                          analyticsContext={productAnalyticsContext}
                         />
-                        <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
+                        <EventShareRow
+                          shareUrl={eventPublicUrl}
+                          title={event.title}
+                          analyticsContext={productAnalyticsContext}
+                        />
                         <EventCalendarActions
                           title={event.title}
                           startsAt={event.starts_at}
@@ -544,6 +565,7 @@ export default async function PublicEventDetailPage({
                           city={event.city}
                           eventUrl={eventPublicUrl}
                           className="mt-0"
+                          analyticsContext={productAnalyticsContext}
                         />
                         <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
                           Save this listing to My Vibes to find it faster later.
@@ -585,6 +607,7 @@ export default async function PublicEventDetailPage({
                           venueName={event.venue_name}
                           city={event.city}
                           eventPublicUrl={eventPublicUrl}
+                          analyticsContext={productAnalyticsContext}
                         />
                       </Suspense>
 
@@ -596,8 +619,13 @@ export default async function PublicEventDetailPage({
                           initialSaved={initialVibesSaved}
                           authHref={saveAuthHref}
                           variant="detail"
+                          analyticsContext={productAnalyticsContext}
                         />
-                        <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
+                        <EventShareRow
+                          shareUrl={eventPublicUrl}
+                          title={event.title}
+                          analyticsContext={productAnalyticsContext}
+                        />
                         <EventCalendarActions
                           title={event.title}
                           startsAt={event.starts_at}
@@ -605,6 +633,7 @@ export default async function PublicEventDetailPage({
                           city={event.city}
                           eventUrl={eventPublicUrl}
                           className="mt-0"
+                          analyticsContext={productAnalyticsContext}
                         />
                         <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
                           Saved events show up in your dashboard and calendar export.
@@ -655,6 +684,7 @@ export default async function PublicEventDetailPage({
                         venueName={event.venue_name}
                         city={event.city}
                         eventPublicUrl={eventPublicUrl}
+                        analyticsContext={productAnalyticsContext}
                       />
 
                       <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">

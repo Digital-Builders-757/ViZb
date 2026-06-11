@@ -133,6 +133,7 @@ export function EventTimelineCard({
               isSignedIn={isSignedIn}
               initialSaved={isSaved}
               authHref={buildEventAuthHref(event.slug, "save_event")}
+              analyticsContext={{ event_slug: event.slug, source: "timeline" }}
               variant="timeline"
               compact
             />

@@ -2,6 +2,7 @@
 
 import { CalendarPlus, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { trackProductEvent, type ProductEventContext } from "@/lib/analytics/product-events"
 
 /** Google Calendar `dates` param: UTC compact form `YYYYMMDDTHHmmssZ`. */
 function toGoogleCalendarUtc(d: Date) {
@@ -77,6 +78,7 @@ export function EventCalendarActions({
   city,
   eventUrl,
   className,
+  analyticsContext,
 }: {
   title: string
   startsAt: string
@@ -85,6 +87,7 @@ export function EventCalendarActions({
   eventUrl: string
   /** Use `mt-0` when the parent already stacks spacing (e.g. `space-y-*`). */
   className?: string
+  analyticsContext?: ProductEventContext
 }) {
   const start = new Date(startsAt)
   if (Number.isNaN(start.getTime())) {
@@ -104,6 +107,11 @@ export function EventCalendarActions({
   })
 
   const downloadIcs = () => {
+    trackProductEvent("calendar_export_clicked", {
+      ...analyticsContext,
+      channel: "ics",
+      source: analyticsContext?.source ?? "event_detail",
+    })
     const ics = buildIcsContent({
       title,
       start,
@@ -120,6 +128,13 @@ export function EventCalendarActions({
         href={googleHref}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() =>
+          trackProductEvent("calendar_export_clicked", {
+            ...analyticsContext,
+            channel: "google",
+            source: analyticsContext?.source ?? "event_detail",
+          })
+        }
         className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-4 py-2.5 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-a)] sm:w-auto"
       >
         <CalendarPlus className="h-4 w-4 shrink-0" aria-hidden />

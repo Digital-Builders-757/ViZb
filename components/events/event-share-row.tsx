@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Share2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { trackProductEvent, type ProductEventContext } from "@/lib/analytics/product-events"
 
 function absoluteShareUrl(url: string) {
   if (url.startsWith("http://") || url.startsWith("https://")) return url
@@ -16,10 +17,12 @@ export function EventShareRow({
   shareUrl,
   title,
   className,
+  analyticsContext,
 }: {
   shareUrl: string
   title: string
   className?: string
+  analyticsContext?: ProductEventContext
 }) {
   const [canNativeShare, setCanNativeShare] = useState(false)
 
@@ -30,6 +33,11 @@ export function EventShareRow({
   }, [])
 
   const copyLink = async () => {
+    trackProductEvent("event_share_clicked", {
+      ...analyticsContext,
+      channel: "copy",
+      source: analyticsContext?.source ?? "event_detail",
+    })
     const href = absoluteShareUrl(shareUrl)
     try {
       await navigator.clipboard.writeText(href)
@@ -50,6 +58,11 @@ export function EventShareRow({
         title,
         text: title,
         url: href,
+      })
+      trackProductEvent("event_share_clicked", {
+        ...analyticsContext,
+        channel: "native",
+        source: analyticsContext?.source ?? "event_detail",
       })
     } catch (e: unknown) {
       if ((e as { name?: string })?.name === "AbortError") return

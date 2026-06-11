@@ -158,7 +158,7 @@ Troubleshooting table: `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`.
 | **Supabase** | All reads/writes | 500s, empty data, RLS errors |
 | **Stripe** | Webhook POST `/api/stripe/webhook` | Tickets not minted after payment |
 | **Resend** | `advertise-contact` action | Partnership form fails |
-| **Vercel Analytics** | Client script in layout | Silent — no user impact |
+| **Vercel Analytics** | Client script in layout; product funnel events via `lib/analytics/product-events.ts` — see **`docs/analytics/PRODUCT_EVENTS.md`** | Silent — no user impact |
 | **Apple/Google Wallet** | GET pass routes | Buttons hidden or 503 |
 
 ### Stripe webhook setup
