@@ -49,7 +49,9 @@ export default async function ProfilePage() {
         </GlassCard>
 
         <ProfileForm initialDisplayName={profile?.display_name ?? ""} email={user.email ?? ""} />
-        <MemberPreferencesForm initial={memberPreferences} variant="profile" />
+        <div id="culture-preferences">
+          <MemberPreferencesForm initial={memberPreferences} variant="profile" />
+        </div>
       </div>
     </div>
   )

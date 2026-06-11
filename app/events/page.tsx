@@ -30,6 +30,8 @@ import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/eve
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { fetchMemberPreferences } from "@/lib/member/load-preferences"
+import { rankEventsForMember } from "@/lib/events/member-recommendations"
 import { CausticBackdrop } from "@/components/ui/caustic-backdrop"
 import { isPublicListingEventStatus } from "@/lib/events/public-listing"
 
@@ -326,6 +328,7 @@ export default async function EventsExplorePage({
   const { category: activeFilter, vibes: vibesParam } = sp
   const vibesFilter = vibesParam === "1" || vibesParam === "true"
   const discoveryPreset = parseDiscoveryParam(sp.discover)
+  const forYouMode = sp.discover === "for-you"
   const searchQRaw = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : ""
   const searchQ = searchQRaw ?? ""
   const sortMode = parseSortParam(sp.sort)
@@ -464,6 +467,28 @@ export default async function EventsExplorePage({
     .filter(isUpcomingOrOngoing)
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
 
+  if (forYouMode && eventsUser && supabase) {
+    const prefs = await fetchMemberPreferences(supabase, eventsUser.id)
+    const ranked = rankEventsForMember(
+      upcomingBase.map((e) => ({
+        ...e,
+        org_id: undefined,
+      })),
+      {
+        preferenceCategories: prefs.categories,
+        preferenceHomeCities: prefs.homeCities,
+        savedCategories: [],
+        rsvpCategories: [],
+      },
+      60,
+      now.getTime(),
+    )
+    const order = new Map(ranked.map((r, i) => [r.id, i]))
+    upcomingBase = [...upcomingBase].sort(
+      (a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999),
+    )
+  }
+
   let flatPastBase = allFlat
     .filter((e) => !isUpcomingOrOngoing(e))
     .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
@@ -486,7 +511,9 @@ export default async function EventsExplorePage({
   const showDiscoveryRails = trending.length > 0 || staffPicks.length > 0
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
-    if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
+    if (forYouMode) {
+      // Ranking handled above; only apply search here.
+    } else if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
     if (
       !eventMatchesSearch({
         title: e.title,

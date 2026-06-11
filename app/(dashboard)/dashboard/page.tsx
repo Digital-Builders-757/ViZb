@@ -23,6 +23,8 @@ import { MyVibesThisWeek } from "@/components/dashboard/my-vibes-week"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 import { fetchMemberPreferences } from "@/lib/member/load-preferences"
 import { needsMemberPreferenceOnboarding } from "@/lib/member/preferences"
+import { fetchForYouRecommendations } from "@/lib/events/for-you-queries"
+import { ForYouRail } from "@/components/dashboard/for-you-rail"
 import { MemberPreferencesForm } from "@/components/dashboard/member-preferences-form"
 
 const TRENDING_MOCK = [
@@ -60,6 +62,7 @@ export default async function DashboardPage({
   const myVibesSavedIds = await fetchMySavedEventIds(supabase, user.id)
   const memberPreferences = await fetchMemberPreferences(supabase, user.id)
   const needsPreferenceOnboarding = needsMemberPreferenceOnboarding(memberPreferences)
+  const forYou = await fetchForYouRecommendations(supabase, user.id, memberPreferences, 4)
   const trendingLive = await getDashboardUpcomingEventPreviews(3)
   const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
   const supabaseReady = isServerSupabaseConfigured()
@@ -113,6 +116,12 @@ export default async function DashboardPage({
           <MemberPreferencesForm initial={memberPreferences} variant="first-run" />
         </section>
       ) : null}
+
+      <ForYouRail
+        items={forYou.items}
+        hasSignals={forYou.hasSignals}
+        usedFallback={forYou.usedFallback}
+      />
 
       <section aria-labelledby="dash-stats">
         <h2 id="dash-stats" className="sr-only">
