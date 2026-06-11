@@ -9,12 +9,20 @@ type AttendeeInfo = {
   registrationId: string
   userId: string
   displayName: string | null
+  ticketFragment?: string
+}
+
+type EventMeta = {
+  title: string
+  startsAt: string
+  venueName: string
+  city: string
 }
 
 type ScanResult =
-  | { kind: "success"; title: string; message: string; attendee?: AttendeeInfo | null }
-  | { kind: "error"; title: string; message: string; attendee?: AttendeeInfo | null }
-  | { kind: "info"; title: string; message: string; attendee?: AttendeeInfo | null }
+  | { kind: "success"; title: string; message: string; attendee?: AttendeeInfo | null; checkedInAt?: string | null; event?: EventMeta | null }
+  | { kind: "error"; title: string; message: string; attendee?: AttendeeInfo | null; event?: EventMeta | null }
+  | { kind: "info"; title: string; message: string; attendee?: AttendeeInfo | null; checkedInAt?: string | null; event?: EventMeta | null }
 
 type RecentScan = {
   id: string
@@ -31,7 +39,32 @@ type ScanApiJson = {
   error?: string
   code?: string
   attendee?: AttendeeInfo
+  event?: EventMeta
   checkedInAt?: string | null
+}
+
+function formatCheckedInAt(iso: string | null | undefined): string | null {
+  if (!iso) return null
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    month: "short",
+    day: "numeric",
+  }).format(new Date(iso))
+}
+
+function formatEventWhen(startsAt: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(startsAt))
 }
 
 function pushRecent(prev: RecentScan[], entry: Omit<RecentScan, "id">): RecentScan[] {
@@ -41,8 +74,10 @@ function pushRecent(prev: RecentScan[], entry: Omit<RecentScan, "id">): RecentSc
 
 export function EventCheckInScanner({
   eventId,
+  eventMeta,
 }: {
   eventId: string
+  eventMeta?: EventMeta
 }) {
   const [cameraOn, setCameraOn] = useState(false)
   const [manualToken, setManualToken] = useState("")
@@ -50,9 +85,17 @@ export function EventCheckInScanner({
   const [last, setLast] = useState<ScanResult | null>(null)
   const [recent, setRecent] = useState<RecentScan[]>([])
   const dedupeRef = useRef<{ token: string; at: number } | null>(null)
+  const manualInputRef = useRef<HTMLInputElement>(null)
 
   const regionId = useMemo(() => `qr-reader-${eventId}`, [eventId])
   const qrcodeRef = useRef<Html5Qrcode | null>(null)
+
+  function resetForNextScan() {
+    setManualToken("")
+    setLast(null)
+    dedupeRef.current = null
+    manualInputRef.current?.focus()
+  }
 
   function submitToken(rawToken: string) {
     const trimmed = rawToken.trim()
@@ -86,12 +129,20 @@ export function EventCheckInScanner({
 
         const attendee = json.attendee
         const name = attendee?.displayName?.trim() || null
+        const eventInfo = json.event ?? eventMeta ?? null
 
         if (json.ok === true && json.status === "checked_in") {
           const title = "Checked in"
           const message = "Guest admitted."
           setManualToken("")
-          setLast({ kind: "success", title, message, attendee: attendee ?? null })
+          setLast({
+            kind: "success",
+            title,
+            message,
+            attendee: attendee ?? null,
+            checkedInAt: json.checkedInAt,
+            event: eventInfo,
+          })
           setRecent((r) => pushRecent(r, { at: Date.now(), kind: "success", title, message, name }))
           toast.success(name ? `${message} ${name}` : message)
           return
@@ -101,7 +152,14 @@ export function EventCheckInScanner({
           const title = "Already checked in"
           const message = "This ticket was already scanned."
           setManualToken("")
-          setLast({ kind: "info", title, message, attendee: attendee ?? null })
+          setLast({
+            kind: "info",
+            title,
+            message,
+            attendee: attendee ?? null,
+            checkedInAt: json.checkedInAt,
+            event: eventInfo,
+          })
           setRecent((r) => pushRecent(r, { at: Date.now(), kind: "info", title, message, name }))
           toast(name ? `${message} ${name}` : message)
           return
@@ -286,6 +344,7 @@ export function EventCheckInScanner({
           <label className="block text-xs text-[color:var(--neon-text2)]">Manual code</label>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
             <input
+              ref={manualInputRef}
               value={manualToken}
               onChange={(e) => setManualToken(e.target.value)}
               placeholder="Paste ticket code"
@@ -315,9 +374,35 @@ export function EventCheckInScanner({
           >
             <p className="text-xs font-mono uppercase tracking-widest opacity-90">{last.title}</p>
             <p className="mt-1 text-sm leading-snug">{last.message}</p>
+            {last.event ? (
+              <div className="mt-3 rounded-lg border border-white/10 bg-black/15 px-3 py-2 text-xs">
+                <p className="font-semibold text-[color:var(--neon-text0)]">{last.event.title}</p>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                  {formatEventWhen(last.event.startsAt)} · {last.event.city}
+                </p>
+                {last.event.venueName ? (
+                  <p className="mt-1 text-[color:var(--neon-text1)]">{last.event.venueName}</p>
+                ) : null}
+              </div>
+            ) : null}
             {last.attendee?.displayName ? (
               <p className="mt-2 text-xs opacity-90">Attendee: {last.attendee.displayName}</p>
             ) : null}
+            {last.attendee?.ticketFragment ? (
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-widest opacity-90">
+                Ticket · {last.attendee.ticketFragment}
+              </p>
+            ) : null}
+            {"checkedInAt" in last && last.checkedInAt ? (
+              <p className="mt-1 text-xs opacity-80">Checked in {formatCheckedInAt(last.checkedInAt)}</p>
+            ) : null}
+            <button
+              type="button"
+              className="mt-4 inline-flex min-h-[40px] items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30 px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] hover:border-[color:var(--neon-a)]/45"
+              onClick={resetForNextScan}
+            >
+              Scan next ticket
+            </button>
           </div>
         ) : null}
       </div>

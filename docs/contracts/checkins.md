@@ -22,6 +22,8 @@ Door check-in converts a confirmed registration into an admitted attendee state 
 
 | Surface | Purpose |
 |---------|---------|
+| `/admin/check-in` | Staff hub — pick an upcoming event and open its door scanner |
+| `/admin/events/[id]/check-in` | Staff door scanner for a specific platform event |
 | `/organizer/[slug]/events/[eventSlug]/check-in` | Door scanner and attendee workflow |
 | `POST /api/checkin/scan` | QR token verification + check-in mutation |
 | Organizer event detail | Manual check-in / undo controls |
