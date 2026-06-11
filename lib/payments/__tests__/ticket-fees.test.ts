@@ -71,4 +71,22 @@ describe("platform fee env parsing", () => {
     vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "1.5")
     expect(getPlatformFeeFixedCentsFromEnv().ok).toBe(false)
   })
+
+  it("falls back to default percent fee when env percent is invalid", () => {
+    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "bad")
+    expect(calculateTicketCheckoutAmounts(2_000)).toEqual({
+      subtotalCents: 2_000,
+      platformFeeCents: 100,
+      totalCents: 2_100,
+    })
+  })
+
+  it("falls back to zero fixed fee when env fixed cents is invalid", () => {
+    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "1.5")
+    expect(calculateTicketCheckoutAmounts(1_000)).toEqual({
+      subtotalCents: 1_000,
+      platformFeeCents: 50,
+      totalCents: 1_050,
+    })
+  })
 })

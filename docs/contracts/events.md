@@ -45,6 +45,7 @@ Current `event_status` values (see `scripts/003_create_enums.sql` + `scripts/008
 - **Community flyers:** **`community`** listings may set **`events.flyer_url`** (same storage/rendering as official events). Flyer is **optional for submission/review** but **recommended for discovery** on public surfaces that read **`flyer_url`**.
 - **Admin community create:** `/admin/events/new/community` lets staff attach an optional flyer during draft creation (two-step: `createEvent` then `uploadEventFlyer`); uses the same `event-flyers` bucket as the detail-page uploader. Upload failure after draft creation redirects to `/admin/events/[id]?flyer_upload=failed&reason=…` for recovery.
 - **Admin community detail:** `/admin/events/[id]` keeps **`FlyerUploadForm`** as the fallback/maintenance surface for upload, replace, and remove (including after create-time upload is skipped or fails).
+- **Staff flyer replace (published):** **`staff_admin`** may upload/replace flyers on **published** official or community events from **`/admin/events/[id]`** via **`uploadEventFlyer`** (organizer routes remain locked after publish). **Archived** events cannot change flyers.
 - **`createEvent`:** `event_kind=community` is accepted only for **staff_admin** creating under the **platform** org (see `lib/orgs/platform-org.ts`); otherwise the row stays `official`.
 - **Public:** `/events` and `/events/[slug]` label **`community`** rows **Local Event** (not ViZb-hosted); primary RSVP is the external link (`target="_blank"`, `rel="noopener noreferrer"`).
 

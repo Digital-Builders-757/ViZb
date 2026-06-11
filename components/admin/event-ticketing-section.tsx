@@ -245,10 +245,16 @@ export function EventTicketingSection({
 /** Embedded fields for admin event create form (no submit — parent form handles create). */
 export function EventTicketingCreateFields({
   paidTier = null,
+  ticketMode: ticketModeProp,
+  onTicketModeChange,
 }: {
   paidTier?: AdminPaidTierRow | null
+  ticketMode?: TicketMode
+  onTicketModeChange?: (mode: TicketMode) => void
 }) {
-  const [ticketMode, setTicketMode] = useState<TicketMode>("free_rsvp")
+  const [internalTicketMode, setInternalTicketMode] = useState<TicketMode>("free_rsvp")
+  const ticketMode = ticketModeProp ?? internalTicketMode
+  const setTicketMode = onTicketModeChange ?? setInternalTicketMode
 
   return (
     <section>
@@ -265,12 +271,12 @@ export function EventTicketingCreateFields({
         <div className="h-px flex-1 bg-gradient-to-r from-neon-a/40 via-neon-b/15 to-transparent" />
       </div>
       <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
-        Choose free RSVP only or add a paid ticket tier. You can change this after creation on the event
-        detail page.
+        Choose free RSVP only, or paid ticket mode (free RSVP plus one paid Stripe tier). You can change
+        this after creation on the event detail page.
       </p>
       <TicketingFields
         ticketMode={ticketMode}
-        onTicketModeChange={setTicketMode}
+        onTicketModeChange={onTicketModeChange ?? setTicketMode}
         paidTier={paidTier}
         idPrefix="create-"
       />

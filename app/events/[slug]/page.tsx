@@ -161,11 +161,15 @@ export default async function PublicEventDetailPage({
   let paidTicketTiers: PublicPaidTier[] = []
   if (!listingCommunity) {
     try {
-      const { data: ttRows } = await supabase
+      const { data: ttRows, error: ttError } = await supabase
         .from("ticket_types")
         .select("id, name, price_cents, sort_order, is_active, sales_starts_at, sales_ends_at, sales_start_at, sales_end_at")
         .eq("event_id", event.id)
         .order("sort_order", { ascending: true })
+
+      if (ttError) {
+        console.error("[events/[slug]] ticket_types query failed:", ttError.message)
+      }
 
       const now = new Date()
       for (const row of ttRows ?? []) {
