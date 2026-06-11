@@ -18,6 +18,18 @@ Benchmarks and optimization notes. Root snapshot: **`PERFORMANCE_REPORT.md`** (r
 
 Scoped server logs (`lib/log.ts`) add negligible overhead; use them for failure diagnosis without enabling verbose client logging.
 
+## Visual performance budgets (#170)
+
+| Surface | Budget | Check |
+|---------|--------|-------|
+| `/` LCP | < 2.5s mobile | Hero uses CSS caustic until WebGL loads; no blocking canvas |
+| `/events` first visit | No WebGL | `CausticBackdrop` editorial variant only |
+| `/events/[slug]` | CLS < 0.1 | `EventPremiumFlyer` reserves 4:5 aspect |
+| Dashboard | No extra WebGL | `control-room` caustic + existing aurora |
+| Immersive effects | Reduced motion | `prefers-reduced-motion` disables caustic drift + enter animations |
+
+**Regression capture:** `npm run redesign:screenshots` (Playwright) — home, events, dashboard, sample event detail at 1440×900 and 390×844.
+
 ## Follow-ups (not in this pass)
 
 - Enable Next.js image optimization when Supabase transform URLs are confirmed (`next.config.mjs` currently has `images.unoptimized: true`).
