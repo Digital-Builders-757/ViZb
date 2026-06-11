@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { isServiceRoleConfigured } from "@/lib/supabase/project-env"
 import { processMyVibesInAppReminders } from "@/lib/notifications/my-vibes-reminders"
+import { processEventEmailReminders } from "@/lib/notifications/email-reminders"
 import { logError } from "@/lib/log"
 
 export const runtime = "nodejs"

@@ -31,7 +31,9 @@ import { isCommunityEvent } from "@/lib/events/event-kind"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { OrganizerEventPowerToolsCard } from "@/components/organizer/organizer-event-power-tools-card"
+import { OrganizerEventInsightsPanel } from "@/components/organizer/organizer-event-insights-panel"
 import { OrganizerPartnershipUpsell } from "@/components/organizer/organizer-partnership-upsell"
+import { loadEventSaveCount } from "@/lib/organizer/load-event-save-count"
 
 export default async function EventDetailPage({
   params,
@@ -184,6 +186,7 @@ export default async function EventDetailPage({
     ? endsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
     : null
 
+  const saveCount = await loadEventSaveCount(supabase, event.id)
   const communityListing = isCommunityEvent((event as { event_kind?: string }).event_kind)
   const externalRsvp = (event as { external_rsvp_url?: string | null }).external_rsvp_url ?? null
 
@@ -282,6 +285,17 @@ export default async function EventDetailPage({
         checkedInCount={checkedIn}
         showDuplicate={canDuplicateEvent}
       />
+
+      {event.status === "published" ? (
+        <OrganizerEventInsightsPanel
+          metrics={{
+            viewCount,
+            saveCount,
+            rsvpCount: activeRsvpsRollup,
+            checkedInCount: checkedIn,
+          }}
+        />
+      ) : null}
 
       {event.status === "published" ? (
         <OrganizerPartnershipUpsell orgSlug={slug} eventSlug={eventSlug} variant="event" />

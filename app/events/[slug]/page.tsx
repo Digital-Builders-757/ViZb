@@ -36,6 +36,10 @@ import {
 } from "@/lib/events/event-kind"
 import { EventPublicViewBeacon } from "@/components/events/event-public-view-beacon"
 import { ReportEventListingDialog } from "@/components/events/report-event-listing-dialog"
+import { EventRecapBanner } from "@/components/events/event-recap-banner"
+import { FollowOrganizerButton } from "@/components/events/follow-organizer-button"
+import { loadEventRecapPost, isEventPast } from "@/lib/events/event-recap"
+import { isFollowingOrganizer } from "@/lib/follows/load-follows"
 
 interface PublicEvent {
   id: string
@@ -107,7 +111,8 @@ export default async function PublicEventDetailPage({
     .select(`
       id, title, slug, description, starts_at, ends_at,
       venue_name, address, city, categories, flyer_url, rsvp_capacity, event_kind, external_rsvp_url, is_staff_pick,
-      organizations!inner ( name, slug )
+      org_id, recap_post_id,
+      organizations!inner ( id, name, slug )
     `)
     .eq("slug", slug)
     .eq("status", "published")
@@ -118,7 +123,13 @@ export default async function PublicEventDetailPage({
   }
 
   // Supabase returns the !inner join as an object { name, slug }
-  const org = rawEvent.organizations as unknown as { name: string; slug: string }
+  const org = rawEvent.organizations as unknown as { id: string; name: string; slug: string }
+  const orgId = (rawEvent as { org_id?: string }).org_id ?? org.id
+  const recapPost = await loadEventRecapPost(
+    supabase,
+    (rawEvent as { recap_post_id?: string | null }).recap_post_id,
+  )
+  const eventIsPast = isEventPast(rawEvent.starts_at, rawEvent.ends_at)
 
   const listingCommunity = isCommunityEvent((rawEvent as { event_kind?: string | null }).event_kind)
   const staffPick = Boolean((rawEvent as { is_staff_pick?: boolean | null }).is_staff_pick)
@@ -305,6 +316,11 @@ export default async function PublicEventDetailPage({
     }
   }
 
+  let initialFollowingOrg = false
+  if (user) {
+    initialFollowingOrg = await isFollowingOrganizer(supabase, user.id, orgId)
+  }
+
   const saveAuthHref = buildEventAuthHref(event.slug, "save_event")
   const rsvpAuthHref = buildEventAuthHref(event.slug, "rsvp_event")
 
@@ -419,6 +435,14 @@ export default async function PublicEventDetailPage({
                 >
                   {event.org_name}
                 </Link>
+                <div className="mt-2">
+                  <FollowOrganizerButton
+                    orgId={orgId}
+                    orgName={event.org_name}
+                    initialFollowing={initialFollowingOrg}
+                    signedIn={isSignedIn}
+                  />
+                </div>
 
                 {/* Title */}
                 <h1 className="mt-3 text-balance font-serif text-3xl font-bold leading-tight text-[color:var(--neon-text0)] sm:text-4xl md:text-5xl">
@@ -492,6 +516,12 @@ export default async function PublicEventDetailPage({
                     </GlassCard>
                   </div>
                 )}
+
+                {eventIsPast && recapPost ? (
+                  <div className="mt-6">
+                    <EventRecapBanner recap={recapPost} />
+                  </div>
+                ) : null}
               </div>
 
               {/* CTA area */}

@@ -23,8 +23,11 @@ import { MyVibesThisWeek } from "@/components/dashboard/my-vibes-week"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 import { fetchMemberPreferences } from "@/lib/member/load-preferences"
 import { needsMemberPreferenceOnboarding } from "@/lib/member/preferences"
-import { fetchForYouRecommendations } from "@/lib/events/for-you-queries"
+import { fetchForYouRecommendations, fetchFollowedOrganizerEvents } from "@/lib/events/for-you-queries"
 import { ForYouRail } from "@/components/dashboard/for-you-rail"
+import { FollowedOrganizersRail } from "@/components/dashboard/followed-organizers-rail"
+import { PostEventRecapPromptsSection } from "@/components/dashboard/post-event-recap-prompts"
+import { fetchPostEventRecapPrompts } from "@/lib/events/post-event-recap-prompts"
 import { MemberPreferencesForm } from "@/components/dashboard/member-preferences-form"
 
 const TRENDING_MOCK = [
@@ -63,6 +66,8 @@ export default async function DashboardPage({
   const memberPreferences = await fetchMemberPreferences(supabase, user.id)
   const needsPreferenceOnboarding = needsMemberPreferenceOnboarding(memberPreferences)
   const forYou = await fetchForYouRecommendations(supabase, user.id, memberPreferences, 4)
+  const followedOrgEvents = await fetchFollowedOrganizerEvents(supabase, user.id, 4)
+  const recapPrompts = await fetchPostEventRecapPrompts(supabase, user.id, 3)
   const trendingLive = await getDashboardUpcomingEventPreviews(3)
   const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
   const supabaseReady = isServerSupabaseConfigured()
@@ -123,6 +128,8 @@ export default async function DashboardPage({
         usedFallback={forYou.usedFallback}
       />
 
+      <FollowedOrganizersRail items={followedOrgEvents} />
+
       <section aria-labelledby="dash-stats">
         <h2 id="dash-stats" className="sr-only">
           Your stats
@@ -155,6 +162,8 @@ export default async function DashboardPage({
       </section>
 
       <MyVibesThisWeek supabase={supabase} userId={user.id} />
+
+      <PostEventRecapPromptsSection prompts={recapPrompts} />
 
       <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
         <h2 id="dash-calendar-heading" className="sr-only">

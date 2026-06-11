@@ -15,7 +15,7 @@ Runtime assumptions, deploy flow, integrations, background work, and troubleshoo
 | Database | Hosted Supabase Postgres 17 — not bundled with the app |
 | Auth | Supabase Auth cookie session; refreshed on every matched request via `proxy.ts` |
 | Static assets | `public/` + Supabase Storage public URLs |
-| No background workers | No Vercel cron, no `pg_cron`, no queue workers in repo |
+| No background workers | Hourly Vercel cron **`/api/cron/event-reminders`** (requires **`CRON_SECRET`** + service role) |
 | Async payments | Stripe webhooks only — never trust client redirect |
 | Inventory | DB triggers recalculate `ticket_types.quantity_sold` |
 
@@ -191,8 +191,9 @@ Webhook uses **service role** — missing key returns 503.
 | Stripe webhook | Order fulfillment, ticket mint, path revalidation |
 | DB triggers | `quantity_sold` recalc, `updated_at`, review field guards |
 | View beacon | `POST /api/events/[slug]/view` → RPC increment (fire-and-forget) |
+| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role) |
 
-**No scheduled cron** in this repo.
+Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`.
 
 ---
 

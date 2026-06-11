@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { logError } from "@/lib/log"
 import { normalizeCategories } from "@/lib/events/categories"
+import { fetchMemberFollows } from "@/lib/follows/load-follows"
 import {
   hasPersonalizationSignals,
   rankEventsForMember,
@@ -113,12 +114,15 @@ export async function fetchForYouRecommendations(
     .filter((e) => isUpcomingOrOngoing(e.starts_at, e.ends_at, now))
 
   const behavior = await loadBehaviorCategories(supabase, userId)
+  const follows = await fetchMemberFollows(supabase, userId)
 
   const ctx: RecommendationContext = {
     preferenceCategories: prefs.categories,
     preferenceHomeCities: prefs.homeCities,
     savedCategories: behavior.saved,
     rsvpCategories: behavior.rsvp,
+    followedOrgIds: follows.followedOrgIds,
+    followedCategories: follows.followedCategories,
   }
 
   const hasSignals = hasPersonalizationSignals(ctx)
@@ -139,4 +143,49 @@ export async function fetchForYouRecommendations(
   }
 
   return { items: ranked, hasSignals, usedFallback }
+}
+
+/** Upcoming events from followed organizers only. */
+export async function fetchFollowedOrganizerEvents(
+  supabase: SupabaseClient,
+  userId: string,
+  limit = 4,
+): Promise<ScoredRecommendation[]> {
+  const follows = await fetchMemberFollows(supabase, userId)
+  if (follows.followedOrgIds.length === 0) return []
+
+  const now = new Date()
+  const pastCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+  const { data, error } = await supabase
+    .from("events")
+    .select(EVENT_SELECT)
+    .eq("status", "published")
+    .in("org_id", follows.followedOrgIds)
+    .gte("starts_at", pastCutoff.toISOString())
+    .order("starts_at", { ascending: true })
+    .limit(40)
+
+  if (error) {
+    logError("events.followed_orgs", error, { op: "list" })
+    return []
+  }
+
+  const events = (data ?? [])
+    .map((row) => mapEventRow(row as Record<string, unknown>))
+    .filter((e): e is RankableEvent => e != null)
+    .filter((e) => isUpcomingOrOngoing(e.starts_at, e.ends_at, now))
+
+  return rankEventsForMember(
+    events,
+    {
+      preferenceCategories: [],
+      preferenceHomeCities: [],
+      savedCategories: [],
+      rsvpCategories: [],
+      followedOrgIds: follows.followedOrgIds,
+    },
+    limit,
+    now.getTime(),
+  )
 }
