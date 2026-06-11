@@ -1,0 +1,3 @@
+-- Placeholder: accidental empty migration from `supabase migration new`.
+-- Archive RLS WITH CHECK fix lives in 20260610043000_fix_event_archive_rls_with_check.sql.
+-- No schema changes.

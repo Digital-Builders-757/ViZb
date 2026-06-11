@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** June 8, 2026
+**Last Updated:** June 10, 2026
 
 > **Start here instead:** [`docs/README.md`](./README.md) — June 2026 documentation front door with links to [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md), [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md), [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md), [REPO_MAP.md](./REPO_MAP.md), [OPERATIONS.md](./OPERATIONS.md), and [DECISIONS.md](./DECISIONS.md).
 
@@ -55,7 +55,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `BRAND_SYSTEM.md` | Canonical visual + voice tokens |
 | `CODING_STANDARDS.md` | Code style |
 | `MVP_STATUS_ROADMAP.md` | Deep MVP status, migrations, phases |
-| `PROJECT_PLAN_PHASE1.md` | Phase 1 file plan |
+| `plans/NEXT_ROADMAP.md` | **Current follow-ups** (post #113–#118 epic + Stripe ops batch) |
 | `DEVELOPER_ONBOARDING.md` | Human developer start |
 | `DOCS_OVERHAUL_PLAN_2026.md` | Hygiene, immutable paths, archive rules |
 | `VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md` | **April 2026 hygiene pass** — audit log, DOD, validation, deferred work |
@@ -66,9 +66,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `CURSOR_COMMANDS_REFERENCE.md` | Command → required reads |
 | `development/ENGINEERING_COMMANDS.md` | **Canonical Cursor command doctrine** |
 | `development/LLM_GUARDRAILS.md` | **How to contribute cleanly (LLMs + humans)** — preflight + footguns |
-| `development/PUSH_FORWARD_ROADMAP.md` | Priorities after env/Supabase hardening — what to do next |
-| `ROADMAP_RUNNER.md` | Cursor-ready ship order companion, mirrors the product roadmap |
-| `plans/VIZB_PRODUCT_ROADMAP.md` | Product roadmap for official/local events, discovery, attendance, trust, and growth |
+| `archive/PUSH_FORWARD_ROADMAP.md`, `archive/ROADMAP_RUNNER.md`, `archive/VIZB_PRODUCT_ROADMAP.md`, `archive/PROJECT_PLAN_PHASE1.md` | **Superseded roadmaps** (June 2026) — current follow-ups live in `plans/NEXT_ROADMAP.md` |
 | `work-orders/` | Short implementation orders tied to roadmap items, starting with `local-events-work-order.md` |
 | `development/BRANCHING.md` | **`develop` first** — feature PRs → `develop`, releases → `main`; GitHub + CI expectations |
 | `brand/` | Voice, content, social, event creative patterns |
@@ -99,6 +97,8 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
   - `/admin/posts` (list + filters)
   - `/admin/posts/new` (create)
   - `/admin/posts/[id]` (edit)
+  - `/admin/diagnostics/stripe` (Stripe readiness checks, June 2026)
+  - `/admin/revenue` (paid ticket revenue ledger, June 2026)
 - Journeys:
   - `docs/journeys/public_discovery_to_member.md`
   - `docs/journeys/admin_publishes_post.md`

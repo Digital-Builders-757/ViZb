@@ -1,3 +1,5 @@
+> **ARCHIVED — Historical as of June 10, 2026.** Phase 1 completed February 2026; kept for the security audit record. Current status: `docs/MVP_STATUS_ROADMAP.md`.
+
 # ViBE Phase 1: Auth + Dashboard -- Implementation Plan
 
 > **Status:** PHASE 1 COMPLETE -- Security audit passed

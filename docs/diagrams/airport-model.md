@@ -16,7 +16,7 @@ Canonical zone map for planning and triage (`/plan`, `/triage`, `/debug`, `/cont
 | **Terminal** | Interactive UI shells, dashboards, forms | `app/**`, `components/**` (presentation + client islands) |
 | **Manifest** | **Discovery surface** — marketing **`/`** and **event catalog + detail** (`/events`, `/events/[slug]`) are **public** (session not required for browse). **Dashboard / organizer / admin / tickets / profile** require a session (`proxy.ts` → `/login`). Reads still **governed by RLS + publish rules** | `app/page.tsx`, `app/events/**` (public); protected prefixes in `lib/supabase/middleware.ts` |
 | **Staff** | Business logic, mutations, orchestration | `app/actions/*.ts`, server-only `app/**/route.ts` |
-| **Ticketing** | Paid checkout, orders, webhooks *(roadmap)* | Future Stripe routes, `app/api/**` webhooks |
+| **Ticketing** | Paid checkout, orders, webhooks **(live since June 2026)** | `app/actions/ticket-checkout.ts`, `app/api/stripe/webhook/route.ts`, admin ops at `/admin/diagnostics/stripe` + `/admin/revenue` |
 | **Announcements** | Email, SMS, push *(roadmap)* | Future notification modules |
 | **Baggage** | Files: flyers, assets | Supabase Storage, upload actions, `scripts/*bucket*` |
 | **Locks** | **RLS** — who can read/write which rows; constraints, triggers, enums | `scripts/*.sql`, Supabase policies (see spec §6) |

@@ -6,14 +6,14 @@
 
 ---
 
-## Current Status: Phase 1 Complete -- Auth + Dashboard Shell
+## Current Status: MVP Shipped -- Paid Ticketing Live, Polish Ongoing
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | April 18, 2026 |
+| **Last Audited** | June 10, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
-| **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor) |
-| **Overall MVP Progress** | Phase 1 complete; Phase 2 largely shipped; Posts MVP shipped; Phase 3 (free RSVP + $0 tickets) largely shipped |
+| **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor, Stripe ticketing, posts MVP, archive RLS fix) |
+| **Overall MVP Progress** | Phases 1–6 MVP shipped: auth, events + discovery, free RSVP + paid Stripe ticketing, door QR check-in, admin posts + ops tooling. Roadmap epic #113 (issues #114–#118) and Stripe ops batch #124–#131 closed June 2026. Remaining work is polish + ops hardening, not phase delivery. |
 | **Security Audit** | 8/8 checks passed; see Security section + Known Issues |
 | **Open Redirect Protection** | PASS -- `auth/callback` validates redirect targets against allowlist |
 | **Subscribers Privacy** | PASS -- public SELECT disabled (migration 009); insert-only for waitlist |
@@ -120,7 +120,9 @@
 - Responsive navbar with mobile toggle
 - **Partnerships:** **`/advertise`** — “Advertise with ViZb” lead form; public **single-column** page uses the same **`AppShell` + neon backdrop** language as the dashboard (`GlassCard` form, **`WaterFrame`** hero, **`neon-gradient-text`** H1) without the signed-in sidebar. Submissions email **`admin@thevavibe.com`** by default via **Resend** (see **`.env.example`**: `RESEND_API_KEY`, `ADMIN_EMAIL`, `RESEND_FROM`)
 
-### Database (9 Migrations Executed)
+### Database (60+ Migrations Executed)
+
+> The repo ships **60+ migrations** under `supabase/migrations/` (timestamped) plus legacy numbered `scripts/0xx_*.sql` mirrors. Canonical apply order: **`docs/database/MIGRATIONS.md`**. The table below covers only the original Phase 1 foundation batch.
 
 | Script | Contents | Status |
 |--------|----------|--------|
@@ -262,7 +264,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | `CODING_STANDARDS.md` | Code style, patterns, conventions | DONE |
 | `DOCUMENTATION_INDEX.md` | 3-layer documentation spine | DONE |
 | `DEVELOPER_ONBOARDING.md` | Quick-start guide for developers/AI agents | DONE |
-| `PROJECT_PLAN_PHASE1.md` | Phase 1 implementation plan with security audit results | DONE |
+| `archive/PROJECT_PLAN_PHASE1.md` | Phase 1 implementation plan with security audit results | DONE (archived June 2026) |
 
 ---
 
@@ -281,19 +283,21 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 | Feature | Route / area | Phase |
 |---------|----------------|-------|
-| Stripe Checkout + webhook | `app/actions/ticket-checkout.ts`, `/api/stripe/webhook` | 4 — **partially shipped** |
+| Stripe Checkout + webhook | `app/actions/ticket-checkout.ts`, `/api/stripe/webhook` | 4 — **shipped** (June 2026; remaining: Stripe Tax, Connect payouts, refunds automation) |
 | Dedicated door / scanner screen | `/organizer/.../door` (planned path) | 5 |
 | Live Realtime check-in counters | organizer UI | 5 |
 | Admin org approval queue polish | `/admin/orgs` | 6 |
 | Platform metrics dashboard (enhanced) | `/admin` | 6 |
 | Mobile-first sidebar parity | `components/dashboard/sidebar.tsx` | 6 |
 
-### Integrations not yet configured
+### Integrations
 
-| Integration | Purpose | Phase |
-|-------------|---------|-------|
-| Stripe | Paid ticket purchases | 4 |
-| Supabase Realtime (optional) | Live check-in counters | 5 |
+| Integration | Purpose | Status |
+|-------------|---------|--------|
+| Stripe | Paid ticket purchases | **LIVE** — checkout, webhook fulfillment, return-path sync, `/admin/diagnostics/stripe` readiness checks, `/admin/revenue` ledger (June 2026) |
+| Resend | Advertise inquiry email | Configured via env (`RESEND_API_KEY`) |
+| Supabase Realtime (optional) | Live check-in counters | Not configured (Phase 5 backlog) |
+| Sentry | Error monitoring | Not wired — env placeholders only; logging is stdout via `lib/log.ts` (see `docs/OPERATIONS.md`) |
 
 ---
 
@@ -434,11 +438,11 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - All sales run through ViBE's own Stripe account for MVP (manual payouts to organizers)
 
 **Acceptance criteria:**
-- [ ] An attendee can select a paid ticket type and complete checkout via Stripe
-- [ ] After payment, the webhook mints tickets and updates order status
-- [ ] Tickets appear in the attendee's wallet after purchase
-- [ ] Failed/cancelled payments do not create tickets
-- [ ] Webhook signature verification is enforced
+- [x] An attendee can select a paid ticket type and complete checkout via Stripe
+- [x] After payment, the webhook mints tickets and updates order status (plus return-path sync `syncPaidTicketCheckoutSession` for Preview/webhook gaps, #129)
+- [x] Tickets appear in the attendee's wallet after purchase
+- [x] Failed/cancelled payments do not create tickets (regression tests, #128)
+- [x] Webhook signature verification is enforced
 
 ---
 
@@ -548,13 +552,17 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | `NEXT_PUBLIC_SUPABASE_URL` | Required | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Required | Supabase anonymous key |
 
-### Needed for Future Phases
+### Required for Paid Ticketing (Live since June 2026)
 
-| Variable | Phase | Purpose |
-|----------|-------|---------|
-| `STRIPE_SECRET_KEY` | Phase 4 | Stripe API key |
-| `STRIPE_WEBHOOK_SECRET` | Phase 4 | Webhook signature verification |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Phase 4 | Stripe client key |
+| Variable | Purpose |
+|----------|---------|
+| `STRIPE_SECRET_KEY` | Stripe API key |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signature verification |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe client key |
+| `TICKET_PLATFORM_FEE_PERCENT` (optional) | ViZb service fee percentage on paid tickets |
+| `TICKET_PLATFORM_FEE_FIXED_CENTS` (optional) | ViZb fixed service fee per paid ticket |
+
+> Verify configuration per environment via **`/admin/diagnostics/stripe`**. Full list: **`.env.example`**.
 
 ---
 
@@ -562,7 +570,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 **Schema / migrations:** Canonical apply order and drift checks live in **`docs/database/MIGRATIONS.md`**. Use timestamped files under **`supabase/migrations/`** for new database work (team rule).
 
-**Product priorities:** See **`docs/development/PUSH_FORWARD_ROADMAP.md`** for env hygiene, RLS discipline, and phase-aligned next steps. Refresh this roadmap’s **Phase Completion Summary** and audit stamp when phase gates or shipped scope change.
+**Product priorities:** See **`docs/plans/NEXT_ROADMAP.md`** for current follow-ups (older roadmaps live in `docs/archive/`). Refresh this roadmap’s **Phase Completion Summary** and audit stamp when phase gates or shipped scope change.
 
 ---
 
@@ -581,9 +589,9 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 
 ---
 
-*Last Updated: April 20, 2026 (v5)*
-*Current snapshot: Phases 1–3 largely shipped; Phase 4 (paid) partial; Phase 5–6 in progress — see Phase Completion Summary table above.*
-*Next Review: After a major migration batch or production release; see docs/development/PUSH_FORWARD_ROADMAP.md.*
+*Last Updated: June 10, 2026 (v6)*
+*Current snapshot: Phases 1–6 MVP shipped — paid Stripe ticketing live with admin ops tooling (diagnostics, revenue), door QR check-in, posts MVP, discovery polish. Remaining: ops hardening + polish — see Phase Completion Summary table above.*
+*Next Review: After a major migration batch or production release; see docs/plans/NEXT_ROADMAP.md.*
 
 **Revision History:**
 - **v1:** Initial draft with phase breakdown and feature matrix
@@ -591,3 +599,4 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 - **v3:** Added verification steps for all critical security fixes + post-migration regression checklist
 - **v4:** Added migration map, evidence column for verification steps, regression checklist environment/accounts/known-failures. Replaced "no issues found" with honest status language. No critical blockers beyond tracked technical debt.
 - **v5:** Aligned feature matrix + footer with shipped code; replaced obsolete “Phase 2 execution order” block with maintenance pointers (`MIGRATIONS.md`, `PUSH_FORWARD_ROADMAP.md`).
+- **v6 (June 10, 2026):** Truth pass — header/status reconciled with June 2026 ships (#113–#118 epic, Stripe ops #124–#131, archive RLS fix, launch visual polish); Stripe marked LIVE in integrations + env tables; Phase 4 acceptance criteria checked; migration count corrected; roadmap pointers moved to `docs/plans/NEXT_ROADMAP.md`.
