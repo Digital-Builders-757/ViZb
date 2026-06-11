@@ -4,14 +4,13 @@ import { requireAdmin } from "@/lib/auth-helpers"
 import { logError } from "@/lib/log"
 import { normalizeCategories } from "@/lib/events/categories"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
-import { isServiceRoleConfigured } from "@/lib/supabase/project-env"
 import { Shield, Users, Building2, FileText, Link2, CalendarCheck, Settings2, Newspaper } from "lucide-react"
 import { NotificationSeedCard } from "@/components/admin/notification-seed-card"
 import { CreateOrgForm } from "@/components/admin/create-org-form"
 import { ApplicationsQueue } from "@/components/admin/applications-queue"
 import { EventReviewQueue } from "@/components/admin/event-review-queue"
 import { AdminEventManager } from "@/components/admin/admin-event-manager"
-import { UsersTable } from "@/components/admin/users-table"
+import { UsersPreviewCard } from "@/components/admin/users-preview-card"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { AdminSection } from "@/components/admin/admin-section"
@@ -28,7 +27,7 @@ function normalizeOrganization(
 }
 
 export default async function AdminPage() {
-  const { user: adminUser } = await requireAdmin()
+  await requireAdmin()
 
   // If Supabase env isn't configured (e.g. some preview envs), still render the page shell.
   if (!isServerSupabaseConfigured()) {
@@ -321,7 +320,7 @@ export default async function AdminPage() {
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-5 md:mt-10 md:gap-4">
         {/* Make these actionable: jump to module */}
 
-        <Link href="#users" className="block">
+        <Link href="/admin/users" className="block">
           <GlassCard className="card-accent-blue p-4 transition-[box-shadow,border-color] hover:border-neon-b/40 hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-6">
             <div className="mb-4 flex items-center gap-3">
               <Users className="h-4 w-4 text-neon-b" />
@@ -460,19 +459,6 @@ export default async function AdminPage() {
       </div>
 
       <AdminSection
-        id="users"
-        kicker="Directory"
-        title="All Users"
-        description="Everyone who has signed up on the platform."
-      >
-        <UsersTable
-          users={allUsers}
-          currentUserId={adminUser.id}
-          userDeletionEnabled={isServiceRoleConfigured()}
-        />
-      </AdminSection>
-
-      <AdminSection
         id="host-applications"
         kicker="Review Queue"
         title="Host Applications"
@@ -497,6 +483,15 @@ export default async function AdminPage() {
         description="Search, filter, and manage all events on the platform. Archive events that violate guidelines or are no longer needed."
       >
         <AdminEventManager events={allEvents} />
+      </AdminSection>
+
+      <AdminSection
+        id="users"
+        kicker="Directory"
+        title="Users"
+        description="Recent sign-ups — open the full directory to search and manage accounts."
+      >
+        <UsersPreviewCard users={allUsers} totalCount={totalUsers} />
       </AdminSection>
 
       <AdminSection
