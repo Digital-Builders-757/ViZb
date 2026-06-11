@@ -1,3 +1,5 @@
+> **ARCHIVED — Superseded as of June 10, 2026.** All seven roadmap items shipped May 5, 2026 (see `docs/MVP_STATUS_ROADMAP.md` Phase Completion Summary). Current follow-ups: `docs/plans/NEXT_ROADMAP.md`.
+
 # ViZb Product Roadmap
 
 **Last updated:** May 5, 2026

@@ -1,6 +1,8 @@
 # ViZb documentation
 
-**Last updated:** June 8, 2026
+**Last updated:** June 10, 2026
+
+> **Current status:** MVP shipped — paid Stripe ticketing live (checkout, webhook, `/admin/diagnostics/stripe`, `/admin/revenue`), door QR check-in, admin posts, discovery polish. Deep status: [MVP_STATUS_ROADMAP.md](./MVP_STATUS_ROADMAP.md). Current follow-ups: [plans/NEXT_ROADMAP.md](./plans/NEXT_ROADMAP.md).
 
 Start here. This repo documents **ViZb** (VIZB in UI) — an events discovery and ticketing platform for the Virginia/DMV creative community, built as a **Next.js 16 + Supabase** monolith on Vercel.
 

@@ -1,6 +1,6 @@
 # Operations
 
-**Last updated:** June 8, 2026  
+**Last updated:** June 10, 2026  
 **Audience:** Operators, release engineers, on-call
 
 Runtime assumptions, deploy flow, integrations, background work, and troubleshooting entry points for ViZb.
@@ -90,6 +90,8 @@ Post-checks: [operations/SUPABASE_PRODUCTION_MIGRATIONS.md](./operations/SUPABAS
 | `20260505163945_add_event_kind_*` | Community listings |
 | `20260505184652_event_staff_pick_*` | Trust signals |
 | `20260410200000_auth_user_delete_*` | Admin user delete |
+| `20260607193500_posts_mvp_base` | Admin posts CMS (idempotent base) |
+| `20260610043000_fix_event_archive_rls_with_check` | Event archive — RLS `WITH CHECK` allows `status = archived`; re-archive events "archived" before this fix |
 
 ### Rollback mindset
 
@@ -115,6 +117,7 @@ Canonical template: `.env.example`. Set per environment in Vercel dashboard or `
 |---------|-----------|
 | Paid checkout | `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` |
 | Webhook fulfillment | `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Platform service fee (optional) | `TICKET_PLATFORM_FEE_PERCENT`, `TICKET_PLATFORM_FEE_FIXED_CENTS` |
 | Door scanner | `TICKET_QR_SECRET` |
 | Admin user delete | `SUPABASE_SERVICE_ROLE_KEY` |
 | Advertise form | `RESEND_API_KEY`, `RESEND_FROM`, `ADMIN_EMAIL` |
@@ -166,6 +169,18 @@ Troubleshooting table: `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`.
 4. Ensure `20260606000500` migration applied (RPC `fulfill_stripe_ticket_order`)
 
 Webhook uses **service role** — missing key returns 503.
+
+### Admin Stripe ops tooling (June 2026)
+
+| Tool | Route | Purpose |
+|------|-------|---------|
+| Stripe readiness diagnostics | `/admin/diagnostics/stripe` | Per-environment env pass/fail checks + expected webhook URL (#125) |
+| Ticket revenue ledger | `/admin/revenue` | Paid-order ledger: ticket subtotal vs ViZb service fee (#126) |
+| Return-path fulfillment sync | automatic on `?session_id=` return | `syncPaidTicketCheckoutSession` fulfills paid orders when webhooks are delayed/misconfigured (e.g. Vercel Preview) (#129) |
+
+### Event archive ops
+
+`archiveEvent` / `unarchiveEvent` (`app/actions/event.ts`) run with **service role** + row-count verification and revalidate public discovery paths. Requires migration `20260610043000` — events "archived" before that fix were silently blocked by RLS and must be re-archived.
 
 ---
 
@@ -223,6 +238,8 @@ Primary runbook: [troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md](./troublesho
 | Admin cannot access | `platform_role` not `staff_admin` | SQL update on `profiles` |
 | Webhook retries forever | 500 from missing service role or RPC | Logs + migration `20260606000500` |
 | Admin user list missing | `admin_list_users` RPC absent or remote-only | Confirm RPC exists on target Supabase project |
+| Archived event still public | RLS `WITH CHECK` blocked archive pre-fix | Apply `20260610043000`, then re-archive the event |
+| Stripe env doubt per environment | Misconfigured keys/webhook | `/admin/diagnostics/stripe` |
 
 ### Wallet passes
 

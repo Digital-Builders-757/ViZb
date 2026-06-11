@@ -99,12 +99,13 @@ For each major existing doc: **keep**, **merge**, **rewrite**, **archive**, or *
 
 | Path | Action | Notes |
 |------|--------|-------|
-| `MVP_STATUS_ROADMAP.md` | **KEEP** | Phase/check-in contradiction fixed Jun 8; still a deep historical status doc |
-| `plans/VIZB_PRODUCT_ROADMAP.md` | **KEEP** | Product intent |
-| `ROADMAP_RUNNER.md` | **ARCHIVE** | All items DONE — history |
-| `development/PUSH_FORWARD_ROADMAP.md` | **ARCHIVE** | Superseded |
+| `MVP_STATUS_ROADMAP.md` | **KEEP** | Truth pass Jun 10, 2026 (v6) — header/Stripe/migration count reconciled |
+| `plans/VIZB_PRODUCT_ROADMAP.md` | **ARCHIVED Jun 10, 2026** | All 7 items shipped → `docs/archive/VIZB_PRODUCT_ROADMAP.md` |
+| `ROADMAP_RUNNER.md` | **ARCHIVED Jun 10, 2026** | All items DONE → `docs/archive/ROADMAP_RUNNER.md` |
+| `development/PUSH_FORWARD_ROADMAP.md` | **ARCHIVED Jun 10, 2026** | Superseded → `docs/archive/PUSH_FORWARD_ROADMAP.md` |
 | `AGENT_PROGRESS.md` | **ARCHIVE** | Ephemeral session log |
-| `PROJECT_PLAN_PHASE1.md` | **ARCHIVE** | Historical |
+| `PROJECT_PLAN_PHASE1.md` | **ARCHIVED Jun 10, 2026** | Historical → `docs/archive/PROJECT_PLAN_PHASE1.md` |
+| `plans/NEXT_ROADMAP.md` | **KEEP** | Current follow-ups (created Jun 10, 2026) |
 | `work-orders/*.md` (8 files) | **ARCHIVE** | Shipped May/Jun 2026 → `docs/archive/work-orders-2026-05/` |
 | `VIZB_CODE_HYGIENE_AND_DOCUMENTATION_MASTER_PLAN.md` | **ARCHIVE** | April pass complete |
 

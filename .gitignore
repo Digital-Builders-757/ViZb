@@ -31,6 +31,7 @@ env.local
 
 # Ephemeral bodies from local /ship or agent runs (do not commit)
 .cursor-tmp*.txt
+.pr-body-*.md
 
 # vercel
 .vercel

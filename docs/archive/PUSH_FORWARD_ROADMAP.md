@@ -1,3 +1,5 @@
+> **ARCHIVED — Superseded as of June 10, 2026.** The items here (paid Stripe flow, env hygiene, etc.) shipped. Current status: `docs/MVP_STATUS_ROADMAP.md`. Current follow-ups: `docs/plans/NEXT_ROADMAP.md`.
+
 # ViBE / ViZb — Push-forward roadmap
 
 **Last updated:** April 2, 2026  
