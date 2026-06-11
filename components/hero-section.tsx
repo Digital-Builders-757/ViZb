@@ -1,3 +1,4 @@
+import { DepthLayer } from "@/components/ui/depth-layer"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { NeonLink } from "@/components/ui/neon-link"
 import { ThreeBackgroundWrapper } from "./three-background-wrapper"
@@ -5,6 +6,7 @@ import { ThreeBackgroundWrapper } from "./three-background-wrapper"
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-24 sm:pt-28">
+      <DepthLayer level="far" className="absolute inset-0 -z-[1]" />
       {/* Three.js Background */}
       <ThreeBackgroundWrapper />
 

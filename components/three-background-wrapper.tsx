@@ -2,15 +2,21 @@
 
 import dynamic from "next/dynamic"
 
-// Dynamic import Three.js to reduce initial bundle (~150KB savings)
+import { CausticBackdrop } from "@/components/ui/caustic-backdrop"
+
 const ThreeBackground = dynamic(
   () => import("./three-background").then((mod) => ({ default: mod.ThreeBackground })),
   {
     ssr: false,
-    loading: () => <div className="absolute inset-0 bg-background" />,
-  }
+    loading: () => <CausticBackdrop variant="hero" fixed={false} className="absolute inset-0" />,
+  },
 )
 
 export function ThreeBackgroundWrapper() {
-  return <ThreeBackground />
+  return (
+    <div className="absolute inset-0">
+      <CausticBackdrop variant="hero" fixed={false} className="absolute inset-0" />
+      <ThreeBackground />
+    </div>
+  )
 }
