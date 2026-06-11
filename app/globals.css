@@ -371,6 +371,34 @@
   .vizb-caustic-backdrop::before {
     animation: none;
   }
+
+  .vizb-motion-hover,
+  .vizb-motion-enter {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.vizb-motion-hover {
+  transition:
+    box-shadow var(--vizb-motion-base) var(--vizb-motion-ease),
+    border-color var(--vizb-motion-base) var(--vizb-motion-ease),
+    transform var(--vizb-motion-fast) var(--vizb-motion-ease);
+}
+
+.vizb-motion-enter {
+  animation: vizb-fade-rise var(--vizb-motion-slow) var(--vizb-motion-ease) both;
+}
+
+@keyframes vizb-fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Glass surface + form row (mockup-style; use with rounded-lg+) */

@@ -48,8 +48,8 @@ export function MyVibesButton({
             source: analyticsContext?.source ?? variant,
           })
         }
-        className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-full border font-mono uppercase tracking-widest transition-colors",
+      className={cn(
+        "inline-flex items-center justify-center gap-2 rounded-full border font-mono uppercase tracking-widest transition-colors vizb-motion-hover",
           variant === "timeline" &&
             cn(
               "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 text-[color:var(--neon-text1)] backdrop-blur hover:border-[color:var(--neon-a)]/45 hover:text-[color:var(--neon-text0)]",
