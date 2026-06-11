@@ -194,8 +194,6 @@ export async function HomeTimelineSection() {
 
   const dateKeys = Object.keys(grouped).sort()
   let runningIndex = 0
-  const vibeAuthHref = `/login?redirect=${encodeURIComponent("/")}`
-
   return (
     <section id="timeline" className="scroll-mt-24 px-4 pb-16 pt-4 sm:px-8 md:pb-20 md:pt-6">
       <div className="mx-auto max-w-[1200px]">
@@ -237,7 +235,6 @@ export async function HomeTimelineSection() {
                           index={runningIndex}
                           isSignedIn={isSignedIn}
                           isSaved={savedIdSet.has(event.id)}
-                          vibeAuthHref={vibeAuthHref}
                           interactive={false}
                         />
                       )

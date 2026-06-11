@@ -13,6 +13,7 @@ import { NeonButton } from "@/components/ui/neon-button"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { supportMailtoHref } from "@/lib/auth/support-contact"
 import { getSafeRedirectPath } from "@/lib/utils"
+import { parsePostLoginIntent, resolvePostLoginDestination } from "@/lib/auth/post-login-intent"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -22,6 +23,8 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = getSafeRedirectPath(searchParams.get("redirect"))
+  const postLoginIntent = parsePostLoginIntent(searchParams)
+  const destinationAfterLogin = resolvePostLoginDestination(redirectTo, postLoginIntent)
   const passwordResetSuccess = searchParams.get("reset") === "success"
 
   // Generate bubbles for background animation
@@ -54,7 +57,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push(redirectTo)
+    router.push(destinationAfterLogin)
     router.refresh()
   }
 

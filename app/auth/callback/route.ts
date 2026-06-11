@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { parsePostLoginIntent, resolvePostLoginDestination } from "@/lib/auth/post-login-intent"
 import { getSafeRedirectPath } from "@/lib/utils"
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
   const redirect = getSafeRedirectPath(searchParams.get("redirect"))
+  const intent = parsePostLoginIntent(searchParams)
+  const destination = resolvePostLoginDestination(redirect, intent)
   const type = searchParams.get("type")
 
   console.log("🔧 [CALLBACK] Params:", { code: code?.substring(0, 10), type, redirect })
@@ -20,8 +23,8 @@ export async function GET(request: Request) {
         console.log("✅ [CALLBACK] Recovery type detected, redirecting to reset-password")
         return NextResponse.redirect(`${origin}/auth/reset-password`)
       }
-      console.log("🔧 [CALLBACK] Regular auth, redirecting to:", redirect)
-      return NextResponse.redirect(`${origin}${redirect}`)
+      console.log("🔧 [CALLBACK] Regular auth, redirecting to:", destination)
+      return NextResponse.redirect(`${origin}${destination}`)
     }
     console.error("❌ [CALLBACK] Exchange error:", error)
   }

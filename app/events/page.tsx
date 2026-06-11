@@ -959,7 +959,6 @@ export default async function EventsExplorePage({
                                 index={runningIndex}
                                 isSignedIn={isSignedInForVibes}
                                 isSaved={savedIdSet.has(event.id)}
-                                vibeAuthHref={vibeAuthHref}
                                 interactive={false}
                               />
                             )
@@ -996,7 +995,6 @@ export default async function EventsExplorePage({
                             index={runningIndex}
                             isSignedIn={isSignedInForVibes}
                             isSaved={savedIdSet.has(event.id)}
-                            vibeAuthHref={vibeAuthHref}
                             tone="archive"
                             interactive={false}
                           />

@@ -16,7 +16,9 @@ import { WaterFrame } from "@/components/ui/water-frame"
 import { Suspense } from "react"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 import { EventStripeReturn } from "@/components/events/event-stripe-return"
+import { PostLoginIntentResolver } from "@/components/events/post-login-intent-resolver"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
 import { EventShareRow } from "@/components/events/event-share-row"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
@@ -300,7 +302,8 @@ export default async function PublicEventDetailPage({
     }
   }
 
-  const authHref = `/login?redirect=${encodeURIComponent(`/events/${event.slug}`)}`
+  const saveAuthHref = buildEventAuthHref(event.slug, "save_event")
+  const rsvpAuthHref = buildEventAuthHref(event.slug, "rsvp_event")
 
   const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
   const eventPublicUrl = siteBase ? `${siteBase}/events/${event.slug}` : `/events/${event.slug}`
@@ -327,6 +330,15 @@ export default async function PublicEventDetailPage({
       <main className="min-h-screen">
         <EventPublicViewBeacon slug={slug} />
         <Navbar />
+
+        <Suspense fallback={null}>
+          <PostLoginIntentResolver
+            eventId={event.id}
+            eventSlug={event.slug}
+            isSignedIn={isSignedIn}
+            initialSaved={initialVibesSaved}
+          />
+        </Suspense>
 
         <section className="px-4 pb-16 pt-24 sm:px-8 sm:pt-28 md:pb-24">
         <div className="max-w-[1200px] mx-auto">
@@ -521,7 +533,7 @@ export default async function PublicEventDetailPage({
                           eventSlug={event.slug}
                           isSignedIn={isSignedIn}
                           initialSaved={initialVibesSaved}
-                          authHref={authHref}
+                          authHref={saveAuthHref}
                           variant="detail"
                         />
                         <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
@@ -582,7 +594,7 @@ export default async function PublicEventDetailPage({
                           eventSlug={event.slug}
                           isSignedIn={isSignedIn}
                           initialSaved={initialVibesSaved}
-                          authHref={authHref}
+                          authHref={saveAuthHref}
                           variant="detail"
                         />
                         <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
@@ -624,12 +636,13 @@ export default async function PublicEventDetailPage({
                         </div>
                       ) : null}
 
+                      <div id="event-rsvp" className="scroll-mt-28">
                       <EventRsvpCta
                         key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
                         eventId={event.id}
                         isSignedIn={isSignedIn}
                         initialStatus={initialRsvpStatus}
-                        authHref={authHref}
+                        authHref={rsvpAuthHref}
                         rsvpCapacity={event.rsvp_capacity}
                         rsvpOccupied={rsvpOccupied}
                         freeTicketTiers={freeTicketTiers}
@@ -648,6 +661,7 @@ export default async function PublicEventDetailPage({
                         Free RSVP stays $0. Paid tiers use Stripe Checkout; canceling an RSVP does not refund card
                         charges.
                       </p>
+                      </div>
                     </>
                   )}
 
@@ -656,7 +670,7 @@ export default async function PublicEventDetailPage({
                       eventId={event.id}
                       eventSlug={event.slug}
                       isSignedIn={isSignedIn}
-                      loginHref={authHref}
+                      loginHref={saveAuthHref}
                     />
                   </div>
                 </GlassCard>

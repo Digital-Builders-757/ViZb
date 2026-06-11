@@ -5,6 +5,7 @@ import Link from "next/link"
 import { MapPin, Clock } from "lucide-react"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
+import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { GlassCard } from "@/components/ui/glass-card"
@@ -28,7 +29,6 @@ interface EventTimelineCardProps {
   index: number
   isSignedIn: boolean
   isSaved: boolean
-  vibeAuthHref: string
   /** `interactive` tilt/glare — off on long listing pages for faster hydration. */
   interactive?: boolean
   /** `archive` = past events: quieter emphasis, smaller type rhythm. */
@@ -40,7 +40,6 @@ export function EventTimelineCard({
   index,
   isSignedIn,
   isSaved,
-  vibeAuthHref,
   tone = "default",
   interactive = true,
 }: EventTimelineCardProps) {
@@ -133,7 +132,7 @@ export function EventTimelineCard({
               eventSlug={event.slug}
               isSignedIn={isSignedIn}
               initialSaved={isSaved}
-              authHref={vibeAuthHref}
+              authHref={buildEventAuthHref(event.slug, "save_event")}
               variant="timeline"
               compact
             />
