@@ -2,6 +2,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { requireOrgMember } from "@/lib/auth-helpers"
+import { revalidatePublicEventDiscoveryPaths } from "@/lib/events/revalidate-public-discovery"
 import { revalidatePath } from "next/cache"
 import { parseUsdStringToCents } from "@/lib/money/usd"
 import {
@@ -51,7 +52,7 @@ function parseIsActive(formData: FormData): boolean {
 
 function revalidateTicketPaths(orgSlug: string, eventSlug: string, eventId: string) {
   revalidatePath(`/organizer/${orgSlug}/events/${eventSlug}`)
-  revalidatePath(`/events/${eventSlug}`)
+  revalidatePublicEventDiscoveryPaths(eventSlug)
   revalidatePath(`/admin/events/${eventId}`)
 }
 
