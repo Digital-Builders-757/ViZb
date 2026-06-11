@@ -21,6 +21,14 @@ import { StatCard } from "@/components/ui/stat-card"
 import { loadMemberHomeRsvpSummary } from "@/lib/dashboard/member-home-data"
 import { MyVibesThisWeek } from "@/components/dashboard/my-vibes-week"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { fetchMemberPreferences } from "@/lib/member/load-preferences"
+import { needsMemberPreferenceOnboarding } from "@/lib/member/preferences"
+import { fetchForYouRecommendations, fetchFollowedOrganizerEvents } from "@/lib/events/for-you-queries"
+import { ForYouRail } from "@/components/dashboard/for-you-rail"
+import { FollowedOrganizersRail } from "@/components/dashboard/followed-organizers-rail"
+import { PostEventRecapPromptsSection } from "@/components/dashboard/post-event-recap-prompts"
+import { fetchPostEventRecapPrompts } from "@/lib/events/post-event-recap-prompts"
+import { MemberPreferencesForm } from "@/components/dashboard/member-preferences-form"
 
 const TRENDING_MOCK = [
   {
@@ -55,17 +63,22 @@ export default async function DashboardPage({
   const { profile, user, supabase, memberships } = await getUserOrganizations()
   const rsvp = await loadMemberHomeRsvpSummary(supabase, user.id)
   const myVibesSavedIds = await fetchMySavedEventIds(supabase, user.id)
+  const memberPreferences = await fetchMemberPreferences(supabase, user.id)
+  const needsPreferenceOnboarding = needsMemberPreferenceOnboarding(memberPreferences)
+  const forYou = await fetchForYouRecommendations(supabase, user.id, memberPreferences, 4)
+  const followedOrgEvents = await fetchFollowedOrganizerEvents(supabase, user.id, 4)
+  const recapPrompts = await fetchPostEventRecapPrompts(supabase, user.id, 3)
   const trendingLive = await getDashboardUpcomingEventPreviews(3)
   const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
   const supabaseReady = isServerSupabaseConfigured()
   const showTrendingMocks = !supabaseReady
 
   const displayName = profile?.display_name || "there"
-  const isFirstRun = !profile?.display_name
+  const isFirstRun = !profile?.display_name || needsPreferenceOnboarding
 
   return (
     <div className="max-w-full space-y-10 overflow-x-hidden md:space-y-12">
-      <header>
+      <header className="vizb-control-room-header rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 py-5 backdrop-blur md:px-6 vizb-motion-enter">
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
           Overview
         </span>
@@ -74,14 +87,16 @@ export default async function DashboardPage({
         </h1>
         {isFirstRun ? (
           <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            {"You're in. Set up your profile to get the most out of VIZB."}
+            {!profile?.display_name
+              ? "You're in. Set up your profile to get the most out of VIZB."
+              : "Almost there — tell us your cities and categories so we can personalize your feed."}
           </p>
         ) : null}
       </header>
 
       <MemberHomeQuickActions />
 
-      {isFirstRun ? (
+      {isFirstRun && !profile?.display_name ? (
         <Link href="/profile" className="group block">
           <GlassCard className="flex w-full items-center gap-4 p-4 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99] sm:w-auto sm:p-5">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center bg-gradient-to-br from-[color:var(--neon-a)] to-[color:var(--neon-b)] font-bold text-[color:var(--neon-text0)]">
@@ -97,6 +112,23 @@ export default async function DashboardPage({
           </GlassCard>
         </Link>
       ) : null}
+
+      {needsPreferenceOnboarding ? (
+        <section aria-labelledby="first-run-preferences" className="max-w-2xl">
+          <h2 id="first-run-preferences" className="sr-only">
+            Set your culture preferences
+          </h2>
+          <MemberPreferencesForm initial={memberPreferences} variant="first-run" />
+        </section>
+      ) : null}
+
+      <ForYouRail
+        items={forYou.items}
+        hasSignals={forYou.hasSignals}
+        usedFallback={forYou.usedFallback}
+      />
+
+      <FollowedOrganizersRail items={followedOrgEvents} />
 
       <section aria-labelledby="dash-stats">
         <h2 id="dash-stats" className="sr-only">
@@ -130,6 +162,8 @@ export default async function DashboardPage({
       </section>
 
       <MyVibesThisWeek supabase={supabase} userId={user.id} />
+
+      <PostEventRecapPromptsSection prompts={recapPrompts} />
 
       <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
         <h2 id="dash-calendar-heading" className="sr-only">

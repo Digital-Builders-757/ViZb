@@ -4,8 +4,10 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
+import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
+import { EmptyStateCard } from "@/components/ui/empty-state-card"
+import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
-import { Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
@@ -28,6 +30,9 @@ import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/eve
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { fetchMemberPreferences } from "@/lib/member/load-preferences"
+import { rankEventsForMember } from "@/lib/events/member-recommendations"
+import { CausticBackdrop } from "@/components/ui/caustic-backdrop"
 import { isPublicListingEventStatus } from "@/lib/events/public-listing"
 
 export const dynamic = "force-dynamic"
@@ -126,7 +131,7 @@ function EventHeroCard({ e }: { e: FlatEvent }) {
   return (
     <Link
       href={`/events/${e.slug}`}
-      className="events-neon-card events-neon-card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/18 backdrop-blur hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26"
+      className="events-neon-card events-neon-card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 backdrop-blur hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -135,17 +140,29 @@ function EventHeroCard({ e }: { e: FlatEvent }) {
       />
 
       {/* Flyer banner */}
-      <div className="relative h-44 w-full shrink-0 overflow-hidden bg-black/40">
+      <div className="relative h-48 w-full shrink-0 overflow-hidden bg-black/40 md:h-56">
         {e.flyer_url ? (
           <Image
             src={e.flyer_url}
             alt={e.title}
             fill
             sizes="(max-width: 768px) 88vw, 560px"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            className="object-cover object-[center_15%] transition-transform duration-500 group-hover:scale-[1.02]"
           />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        ) : (
+          <EventFlyerFallback
+            dayNumber={new Intl.DateTimeFormat("en-US", {
+              timeZone: "America/New_York",
+              day: "numeric",
+            }).format(new Date(e.starts_at))}
+            monthShort={new Intl.DateTimeFormat("en-US", {
+              timeZone: "America/New_York",
+              month: "short",
+            }).format(new Date(e.starts_at))}
+            variant="banner"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/75 via-[color:var(--neon-bg0)]/15 to-transparent" />
         {e.is_staff_pick ? (
           <span
             className={`absolute left-3 top-3 inline-flex ${STAFF_PICK_BADGE_CLASS} px-2 py-0.5 font-mono text-[9px]`}
@@ -211,7 +228,7 @@ function EventsCompactGlanceCard({
   return (
     <Link
       href={`/events/${e.slug}`}
-      className={`events-neon-card events-neon-card-hover group relative overflow-hidden rounded-xl border bg-[color:var(--neon-surface)]/18 backdrop-blur ${
+      className={`events-neon-card events-neon-card-hover group relative overflow-hidden rounded-2xl border bg-[color:var(--neon-surface)]/20 backdrop-blur ${
         isCompact ? "p-2.5" : "p-3.5 sm:p-4"
       } ${
         isStaffRail ? "border-amber-500/35" : "border-[color:var(--neon-hairline)]/90"
@@ -239,10 +256,22 @@ function EventsCompactGlanceCard({
               alt={e.title}
               fill
               sizes={isCompact ? "48px" : "64px"}
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+              className="object-cover object-[center_15%] transition-transform duration-500 group-hover:scale-[1.02]"
             />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          ) : (
+            <EventFlyerFallback
+              dayNumber={new Intl.DateTimeFormat("en-US", {
+                timeZone: "America/New_York",
+                day: "numeric",
+              }).format(new Date(e.starts_at))}
+              monthShort={new Intl.DateTimeFormat("en-US", {
+                timeZone: "America/New_York",
+                month: "short",
+              }).format(new Date(e.starts_at))}
+              variant="thumb"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/50 via-transparent to-transparent" />
         </div>
 
         <div className={`min-w-0 flex-1 ${isCompact ? "min-h-[3.25rem]" : "min-h-[4.25rem]"}`}>
@@ -299,6 +328,7 @@ export default async function EventsExplorePage({
   const { category: activeFilter, vibes: vibesParam } = sp
   const vibesFilter = vibesParam === "1" || vibesParam === "true"
   const discoveryPreset = parseDiscoveryParam(sp.discover)
+  const forYouMode = sp.discover === "for-you"
   const searchQRaw = typeof sp.q === "string" ? sp.q : Array.isArray(sp.q) ? sp.q[0] : ""
   const searchQ = searchQRaw ?? ""
   const sortMode = parseSortParam(sp.sort)
@@ -437,6 +467,28 @@ export default async function EventsExplorePage({
     .filter(isUpcomingOrOngoing)
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
 
+  if (forYouMode && eventsUser && supabase) {
+    const prefs = await fetchMemberPreferences(supabase, eventsUser.id)
+    const ranked = rankEventsForMember(
+      upcomingBase.map((e) => ({
+        ...e,
+        org_id: undefined,
+      })),
+      {
+        preferenceCategories: prefs.categories,
+        preferenceHomeCities: prefs.homeCities,
+        savedCategories: [],
+        rsvpCategories: [],
+      },
+      60,
+      now.getTime(),
+    )
+    const order = new Map(ranked.map((r, i) => [r.id, i]))
+    upcomingBase = [...upcomingBase].sort(
+      (a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999),
+    )
+  }
+
   let flatPastBase = allFlat
     .filter((e) => !isUpcomingOrOngoing(e))
     .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
@@ -459,7 +511,9 @@ export default async function EventsExplorePage({
   const showDiscoveryRails = trending.length > 0 || staffPicks.length > 0
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
-    if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
+    if (forYouMode) {
+      // Ranking handled above; only apply search here.
+    } else if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
     if (
       !eventMatchesSearch({
         title: e.title,
@@ -538,23 +592,8 @@ export default async function EventsExplorePage({
   let runningIndex = 0
 
   return (
-    <main className="relative min-h-screen bg-[color:var(--neon-bg0)] overflow-hidden">
-      {/* Static backdrop — skips Three.js on /events for faster first paint */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,209,255,0.12),transparent_55%),radial-gradient(ellipse_60%_50%_at_90%_80%,rgba(157,77,255,0.10),transparent_50%)]" />
-
-      {/* Dark overlay for text readability */}
-      <div className="fixed inset-0 bg-[color:var(--neon-bg0)]/45 z-[1]" />
-
-      {/* Floating neon orbs */}
-      <div className="fixed top-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl animate-pulse z-[1]" />
-      <div
-        className="fixed bottom-32 left-10 z-[1] h-32 w-32 rounded-full bg-[color:var(--neon-a)]/15 blur-3xl animate-pulse"
-        style={{ animationDelay: "1s" }}
-      />
-      <div
-        className="fixed top-1/2 right-1/4 z-[1] h-24 w-24 rounded-full bg-[color:var(--neon-b)]/10 blur-3xl animate-pulse"
-        style={{ animationDelay: "2s" }}
-      />
+    <main className="relative min-h-screen overflow-hidden bg-[color:var(--neon-bg0)]">
+      <CausticBackdrop variant="editorial" />
 
       {/* All page content above the background */}
       <div className="relative z-10">
@@ -573,12 +612,12 @@ export default async function EventsExplorePage({
             </span>
             <span className="headline-xl neon-gradient-text block uppercase">Happening</span>
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-            Scroll the timeline. Find your next experience. From underground parties to creative workshops,             {"it's"} all here.
+          <p className="mt-6 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+            Scroll the timeline. Underground parties, creative workshops, and everything in between.
           </p>
-          <p className="mt-4 max-w-xl text-xs leading-relaxed text-[color:var(--neon-text2)] sm:text-sm">
+          <p className="mt-4 max-w-prose text-xs leading-relaxed text-[color:var(--neon-text2)] sm:text-sm">
             <span className="font-mono uppercase tracking-widest text-[color:var(--neon-a)]/90">DMV &amp; beyond</span>
-            {" · "}Norfolk, Virginia Beach, Richmond, Charlottesville, and the 757 — anchored in Eastern time.
+            {" · "}Norfolk, Virginia Beach, Richmond, Charlottesville, and the 757. All times Eastern.
           </p>
 
           {eventsLoadError ? (
@@ -597,7 +636,7 @@ export default async function EventsExplorePage({
           <form
             method="get"
             action="/events"
-            className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-3"
+            className="mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:items-center sm:gap-3"
             role="search"
           >
             {activeFilter && activeFilter !== "all" ? (
@@ -723,8 +762,8 @@ export default async function EventsExplorePage({
                     <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
                       Starting soon
                     </p>
-                    <p className="mt-1 text-xs text-[color:var(--neon-text1)]/90">
-                      ViZb official picks first — then tap through for tickets &amp; RSVP.
+                    <p className="mt-1 max-w-prose text-xs text-[color:var(--neon-text1)]/90">
+                      ViZb official picks first. Tap through for tickets and RSVP.
                     </p>
                   </div>
                   <Link
@@ -770,8 +809,8 @@ export default async function EventsExplorePage({
                     <p className="font-mono text-[10px] uppercase tracking-widest text-amber-200/90">
                       ViZb picks
                     </p>
-                    <p className="mt-1 max-w-lg text-xs text-[color:var(--neon-text1)]/90">
-                      Editorial highlights our team thinks you&apos;ll love — mixed official and community listings.
+                    <p className="mt-1 max-w-prose text-xs text-[color:var(--neon-text1)]/90">
+                      Highlights from our team. Official and community listings mixed together.
                     </p>
                   </div>
                   <Link
@@ -933,7 +972,6 @@ export default async function EventsExplorePage({
                                 index={runningIndex}
                                 isSignedIn={isSignedInForVibes}
                                 isSaved={savedIdSet.has(event.id)}
-                                vibeAuthHref={vibeAuthHref}
                                 interactive={false}
                               />
                             )
@@ -970,7 +1008,6 @@ export default async function EventsExplorePage({
                             index={runningIndex}
                             isSignedIn={isSignedInForVibes}
                             isSaved={savedIdSet.has(event.id)}
-                            vibeAuthHref={vibeAuthHref}
                             tone="archive"
                             interactive={false}
                           />
@@ -984,75 +1021,65 @@ export default async function EventsExplorePage({
               )}
             </>
           ) : vibesSignedOutGate ? null : eventsLoadError ? null : (
-            <div className="flex flex-col items-center py-16 text-center md:py-28">
-              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/15 md:h-24 md:w-24">
-                <Calendar className="h-8 w-8 text-[color:var(--neon-text2)] md:h-10 md:w-10" />
-              </div>
-              <span className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
-                {vibesFilter && isSignedInForVibes
-                  ? "My Vibes"
-                  : activeFilter && activeFilter !== "all"
-                    ? "No results"
-                    : "No events yet"}
-              </span>
-              <h2 className="mt-4 max-w-lg text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] sm:text-3xl md:text-4xl">
-                {vibesFilter && isSignedInForVibes
-                  ? "No saved events match this view"
-                  : activeFilter && activeFilter !== "all"
-                    ? `No ${activeFilter} events found`
-                    : "No events are published yet"}
-              </h2>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-[color:var(--neon-text1)] sm:text-base">
-                {vibesFilter && isSignedInForVibes
-                  ? "Save events from the timeline with the My Vibes control, or widen your filters."
-                  : activeFilter && activeFilter !== "all"
-                    ? "Try a different category or check back later."
-                    : "Organizers are still loading the calendar. Check back soon or use a different filter."}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 mt-10">
-                {vibesFilter && isSignedInForVibes ? (
-                  <>
-                    <Link
-                      href={`/events${ql({
-                        vibes: false,
-                        category:
-                          activeFilter && activeFilter !== "all" ? activeFilter : undefined,
-                      })}`}
-                      className="text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all text-center"
-                    >
-                      Clear My Vibes filter
-                    </Link>
-                    <Link
-                      href="/events"
-                      className="text-xs uppercase tracking-widest border border-border text-foreground px-8 py-4 hover:border-primary hover:text-primary transition-colors text-center"
-                    >
-                      Explore events
-                    </Link>
-                  </>
-                ) : activeFilter && activeFilter !== "all" ? (
-                  <Link
-                    href="/events"
-                    className="text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all text-center"
-                  >
-                    View All Events
-                  </Link>
-                ) : (
-                  <>
-                    <Link
-                      href="/signup"
-                      className="text-xs uppercase tracking-widest bg-primary text-background px-8 py-4 hover:shadow-[0_0_30px_rgba(13,64,255,0.5)] transition-all text-center"
-                    >
-                      Join VIZB
-                    </Link>
-                    <Link
-                      href="/host/apply"
-                      className="text-xs uppercase tracking-widest border border-border text-foreground px-8 py-4 hover:border-primary hover:text-primary transition-colors text-center"
-                    >
-                      Host an Event
-                    </Link>
-                  </>
-                )}
-              </div>
+            <div className="mx-auto max-w-xl py-16 md:py-28">
+              <EmptyStateCard
+                className="text-center"
+                kicker={
+                  vibesFilter && isSignedInForVibes
+                    ? "My Vibes"
+                    : activeFilter && activeFilter !== "all"
+                      ? "No results"
+                      : "No events yet"
+                }
+                title={
+                  vibesFilter && isSignedInForVibes
+                    ? "No saved events match this view"
+                    : activeFilter && activeFilter !== "all"
+                      ? `No ${activeFilter} events found`
+                      : "No events are published yet"
+                }
+                description={
+                  vibesFilter && isSignedInForVibes
+                    ? "Save events from the timeline with the My Vibes control, or widen your filters."
+                    : activeFilter && activeFilter !== "all"
+                      ? "Try a different category or check back later."
+                      : "Organizers are still loading the calendar. Check back soon or use a different filter."
+                }
+              >
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+                  {vibesFilter && isSignedInForVibes ? (
+                    <>
+                      <NeonLink
+                        href={`/events${ql({
+                          vibes: false,
+                          category:
+                            activeFilter && activeFilter !== "all" ? activeFilter : undefined,
+                        })}`}
+                        shape="pill"
+                        size="default"
+                      >
+                        Clear My Vibes filter
+                      </NeonLink>
+                      <NeonLink href="/events" variant="secondary" shape="pill" size="default">
+                        Explore events
+                      </NeonLink>
+                    </>
+                  ) : activeFilter && activeFilter !== "all" ? (
+                    <NeonLink href="/events" shape="pill" size="default">
+                      View all events
+                    </NeonLink>
+                  ) : (
+                    <>
+                      <NeonLink href="/signup" shape="pill" size="default">
+                        Join VIZB
+                      </NeonLink>
+                      <NeonLink href="/host/apply" variant="secondary" shape="pill" size="default">
+                        Host an event
+                      </NeonLink>
+                    </>
+                  )}
+                </div>
+              </EmptyStateCard>
             </div>
           )}
         </div>

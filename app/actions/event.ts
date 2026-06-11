@@ -317,7 +317,20 @@ export async function uploadEventFlyer(formData: FormData) {
       return { error: "Event not found." }
     }
 
-    if (!["draft", "pending_review", "rejected"].includes(event.status)) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("platform_role")
+      .eq("id", user.id)
+      .maybeSingle()
+
+    const isStaffAdmin = profile?.platform_role === "staff_admin"
+    const flyerEditableStatuses = ["draft", "pending_review", "rejected"]
+    const staffCanReplacePublished = isStaffAdmin && event.status === "published"
+
+    if (!flyerEditableStatuses.includes(event.status) && !staffCanReplacePublished) {
+      if (event.status === "archived") {
+        return { error: "Flyers cannot be changed on archived events." }
+      }
       return { error: "Flyers can only be changed on draft, pending, or rejected events." }
     }
 

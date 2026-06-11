@@ -449,7 +449,7 @@ export default function RootLoading() {
           style={{ transitionDelay: "900ms", transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
         >
           <AnimatedText delay={1800} waveIntensity="subtle">
-            Driving culture forward
+            Virginia Isn&apos;t Boring
           </AnimatedText>
         </p>
       </div>

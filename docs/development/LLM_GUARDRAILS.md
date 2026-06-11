@@ -6,7 +6,7 @@
 
 1) **Schema is truth**
 - If code and DB disagree, fix drift.
-- New tables/columns ship with **RLS** and a numbered `scripts/*.sql` migration.
+- New tables/columns ship with **RLS** and a timestamped migration under `supabase/migrations/` (created via `supabase migration new <short_description>`). The numbered `scripts/0xx_*.sql` track is the historical bootstrap — do not add new migrations there.
 
 2) **Server components by default**
 - Only add `"use client"` when required.
@@ -37,7 +37,8 @@ Run these locally:
 - `npm run build`
 
 If migrations changed:
-- ensure a new numbered `scripts/0xx_*.sql` exists
+- ensure a new timestamped `supabase/migrations/YYYYMMDDHHMMSS_*.sql` exists (`supabase migration new`)
+- never edit an already-applied migration in place
 - ensure docs link the migration and expected rollout steps
 
 ---

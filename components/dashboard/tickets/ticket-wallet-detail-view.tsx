@@ -6,6 +6,8 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { TicketWalletCard } from "@/components/dashboard/tickets/ticket-wallet-card"
 import { buildTicketQrToken, getTicketQrSecret, TICKET_QR_TTL_SECONDS } from "@/lib/ticket-qr-token"
 import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib/wallet/env"
+import { EventRecapPrompt } from "@/components/events/event-recap-banner"
+import { loadEventRecapPost, isEventPast } from "@/lib/events/event-recap"
 import {
   coalesceRelation,
   firstWalletEvent,
@@ -45,7 +47,7 @@ export async function TicketWalletDetailView({
   const { data, error } = await supabase
     .from("tickets")
     .select(
-      `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url ) )`,
+      `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url, recap_post_id ) )`,
     )
     .eq("id", ticketId)
     .eq("user_id", user.id)
@@ -63,6 +65,16 @@ export async function TicketWalletDetailView({
   const walletGoogleEnabled = isGoogleWalletPassConfigured()
   const clock = new Date()
   const nowMs = clock.getTime()
+
+  const eventEmbed = coalesceRelation(row.event_registrations.event) as {
+    recap_post_id?: string | null
+    ends_at?: string | null
+  } | null
+  const recapPost =
+    eventEmbed && isEventPast(event.starts_at, eventEmbed.ends_at ?? null, nowMs)
+      ? await loadEventRecapPost(supabase, eventEmbed.recap_post_id ?? null)
+      : null
+
   const qrIssuedAtUnixSeconds = Math.floor(nowMs / 1000)
   const ticketSecret = getTicketQrSecret()
 
@@ -108,6 +120,8 @@ export async function TicketWalletDetailView({
           Show this QR at the door. Staff can scan it or enter your backup code if the camera cannot read the screen.
         </p>
       </header>
+
+      {recapPost ? <EventRecapPrompt recap={recapPost} /> : null}
 
       <TicketWalletCard
         ticketId={row.id}

@@ -35,6 +35,8 @@
 | Staff cannot access `/admin` | `platform_role` not `staff_admin` |
 | User can update role fields | Column privileges/RLS regression |
 
-## Open issue
+## Member preferences
 
-Some older SQL and docs still reference `role_admin`. A future schema pass should either fully migrate those policies to `platform_role` or document a deliberate sync rule.
+Culture preferences live in **`member_preferences`** (see **`20260611201910_member_preferences.sql`**): home cities, categories, reminder channel toggles, onboarding timestamp. Edited on **`/profile`** and first-run **`/dashboard`**.
+
+Contract: **`docs/contracts/member_profiles.md`** (profile identity) + preference fields in **`lib/member/preferences.ts`**.

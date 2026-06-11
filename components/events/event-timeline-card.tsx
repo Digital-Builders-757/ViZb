@@ -5,7 +5,9 @@ import Link from "next/link"
 import { MapPin, Clock } from "lucide-react"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
+import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { GlassCard } from "@/components/ui/glass-card"
 
 interface EventTimelineCardProps {
@@ -27,7 +29,6 @@ interface EventTimelineCardProps {
   index: number
   isSignedIn: boolean
   isSaved: boolean
-  vibeAuthHref: string
   /** `interactive` tilt/glare — off on long listing pages for faster hydration. */
   interactive?: boolean
   /** `archive` = past events: quieter emphasis, smaller type rhythm. */
@@ -39,7 +40,6 @@ export function EventTimelineCard({
   index,
   isSignedIn,
   isSaved,
-  vibeAuthHref,
   tone = "default",
   interactive = true,
 }: EventTimelineCardProps) {
@@ -87,12 +87,12 @@ export function EventTimelineCard({
       } gap-0 ${isArchive ? "md:gap-6 events-neon-card-archive" : "md:gap-8 events-neon-card"} rounded-2xl p-0 ${
         isArchive
           ? "bg-[color:var(--neon-surface)]/10"
-          : "bg-[color:var(--neon-surface)]/18"
+          : "bg-[color:var(--neon-surface)]/20"
       }`}
     >
       {/* Flyer column: fixed-height image area (categories live in details column) */}
       <div
-        className={`relative flex w-full flex-col overflow-hidden md:w-1/2 ${
+        className={`relative flex w-full flex-col overflow-hidden ring-1 ring-[color:var(--neon-hairline)]/40 md:w-1/2 ${
           isEven ? "md:rounded-l-2xl md:rounded-r-none" : "md:rounded-r-2xl md:rounded-l-none"
         } rounded-t-2xl md:rounded-t-none`}
       >
@@ -108,7 +108,7 @@ export function EventTimelineCard({
             }`}
           >
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/88 via-[color:var(--neon-bg0)]/28 to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/75 via-[color:var(--neon-bg0)]/20 to-transparent"
               aria-hidden
             />
             {event.flyer_url ? (
@@ -117,19 +117,10 @@ export function EventTimelineCard({
                 alt={`Flyer for ${event.title}`}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 group-hover/flyer:scale-105"
+                className="object-cover object-[center_15%] transition-transform duration-700 group-hover/flyer:scale-[1.02]"
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-secondary">
-                <div className="text-center">
-                  <span className="font-mono text-6xl font-bold text-primary/20 md:text-8xl">
-                    {dayNumber}
-                  </span>
-                  <p className="mt-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-                    {monthShort}
-                  </p>
-                </div>
-              </div>
+              <EventFlyerFallback dayNumber={dayNumber} monthShort={monthShort} variant="timeline" />
             )}
 
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover/flyer:opacity-100" />
@@ -141,7 +132,8 @@ export function EventTimelineCard({
               eventSlug={event.slug}
               isSignedIn={isSignedIn}
               initialSaved={isSaved}
-              authHref={vibeAuthHref}
+              authHref={buildEventAuthHref(event.slug, "save_event")}
+              analyticsContext={{ event_slug: event.slug, source: "timeline" }}
               variant="timeline"
               compact
             />
@@ -169,7 +161,7 @@ export function EventTimelineCard({
         >
           {/* Top: Org + Time */}
           <div>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span
                 className={`text-[10px] sm:text-xs font-mono uppercase tracking-widest ${
                   isArchive ? "text-[color:var(--neon-text2)]" : "text-[color:var(--neon-a)]"
@@ -216,7 +208,7 @@ export function EventTimelineCard({
                 {visibleCategories.map((c, i) => (
                   <span
                     key={`${c}-${i}`}
-                    className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur"
+                    className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur sm:text-xs"
                   >
                     {formatCategoryLabel(c)}
                   </span>

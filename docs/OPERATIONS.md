@@ -1,6 +1,6 @@
 # Operations
 
-**Last updated:** June 8, 2026  
+**Last updated:** June 10, 2026  
 **Audience:** Operators, release engineers, on-call
 
 Runtime assumptions, deploy flow, integrations, background work, and troubleshooting entry points for ViZb.
@@ -15,7 +15,7 @@ Runtime assumptions, deploy flow, integrations, background work, and troubleshoo
 | Database | Hosted Supabase Postgres 17 — not bundled with the app |
 | Auth | Supabase Auth cookie session; refreshed on every matched request via `proxy.ts` |
 | Static assets | `public/` + Supabase Storage public URLs |
-| No background workers | No Vercel cron, no `pg_cron`, no queue workers in repo |
+| No background workers | Hourly Vercel cron **`/api/cron/event-reminders`** (requires **`CRON_SECRET`** + service role) |
 | Async payments | Stripe webhooks only — never trust client redirect |
 | Inventory | DB triggers recalculate `ticket_types.quantity_sold` |
 
@@ -90,6 +90,8 @@ Post-checks: [operations/SUPABASE_PRODUCTION_MIGRATIONS.md](./operations/SUPABAS
 | `20260505163945_add_event_kind_*` | Community listings |
 | `20260505184652_event_staff_pick_*` | Trust signals |
 | `20260410200000_auth_user_delete_*` | Admin user delete |
+| `20260607193500_posts_mvp_base` | Admin posts CMS (idempotent base) |
+| `20260610043000_fix_event_archive_rls_with_check` | Event archive — RLS `WITH CHECK` allows `status = archived`; re-archive events "archived" before this fix |
 
 ### Rollback mindset
 
@@ -115,6 +117,7 @@ Canonical template: `.env.example`. Set per environment in Vercel dashboard or `
 |---------|-----------|
 | Paid checkout | `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` |
 | Webhook fulfillment | `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Platform service fee (optional) | `TICKET_PLATFORM_FEE_PERCENT`, `TICKET_PLATFORM_FEE_FIXED_CENTS` |
 | Door scanner | `TICKET_QR_SECRET` |
 | Admin user delete | `SUPABASE_SERVICE_ROLE_KEY` |
 | Advertise form | `RESEND_API_KEY`, `RESEND_FROM`, `ADMIN_EMAIL` |
@@ -155,7 +158,7 @@ Troubleshooting table: `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`.
 | **Supabase** | All reads/writes | 500s, empty data, RLS errors |
 | **Stripe** | Webhook POST `/api/stripe/webhook` | Tickets not minted after payment |
 | **Resend** | `advertise-contact` action | Partnership form fails |
-| **Vercel Analytics** | Client script in layout | Silent — no user impact |
+| **Vercel Analytics** | Client script in layout; product funnel events via `lib/analytics/product-events.ts` — see **`docs/analytics/PRODUCT_EVENTS.md`** | Silent — no user impact |
 | **Apple/Google Wallet** | GET pass routes | Buttons hidden or 503 |
 
 ### Stripe webhook setup
@@ -167,6 +170,18 @@ Troubleshooting table: `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`.
 
 Webhook uses **service role** — missing key returns 503.
 
+### Admin Stripe ops tooling (June 2026)
+
+| Tool | Route | Purpose |
+|------|-------|---------|
+| Stripe readiness diagnostics | `/admin/diagnostics/stripe` | Per-environment env pass/fail checks + expected webhook URL (#125) |
+| Ticket revenue ledger | `/admin/revenue` | Paid-order ledger: ticket subtotal vs ViZb service fee (#126) |
+| Return-path fulfillment sync | automatic on `?session_id=` return | `syncPaidTicketCheckoutSession` fulfills paid orders when webhooks are delayed/misconfigured (e.g. Vercel Preview) (#129) |
+
+### Event archive ops
+
+`archiveEvent` / `unarchiveEvent` (`app/actions/event.ts`) run with **service role** + row-count verification and revalidate public discovery paths. Requires migration `20260610043000` — events "archived" before that fix were silently blocked by RLS and must be re-archived.
+
 ---
 
 ## Background jobs and async work
@@ -176,8 +191,9 @@ Webhook uses **service role** — missing key returns 503.
 | Stripe webhook | Order fulfillment, ticket mint, path revalidation |
 | DB triggers | `quantity_sold` recalc, `updated_at`, review field guards |
 | View beacon | `POST /api/events/[slug]/view` → RPC increment (fire-and-forget) |
+| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role) |
 
-**No scheduled cron** in this repo.
+Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`.
 
 ---
 
@@ -223,6 +239,8 @@ Primary runbook: [troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md](./troublesho
 | Admin cannot access | `platform_role` not `staff_admin` | SQL update on `profiles` |
 | Webhook retries forever | 500 from missing service role or RPC | Logs + migration `20260606000500` |
 | Admin user list missing | `admin_list_users` RPC absent or remote-only | Confirm RPC exists on target Supabase project |
+| Archived event still public | RLS `WITH CHECK` blocked archive pre-fix | Apply `20260610043000`, then re-archive the event |
+| Stripe env doubt per environment | Misconfigured keys/webhook | `/admin/diagnostics/stripe` |
 
 ### Wallet passes
 

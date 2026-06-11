@@ -209,7 +209,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             type="button"
-            className="vibe-focus-ring rounded-md p-1 text-[color:var(--neon-text0)] md:hidden"
+            className="vibe-focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2.5 text-[color:var(--neon-text0)] md:hidden"
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
             aria-label="Toggle menu"
@@ -221,8 +221,8 @@ export function Navbar() {
 
       {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/92 backdrop-blur-xl">
-          <div className="px-4 py-6 space-y-4">
+        <div className="border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg0)]/92 backdrop-blur-xl md:hidden">
+          <div className="space-y-5 px-4 py-8">
             <Link href="/" className={navText(onHome, true)} onClick={() => setIsOpen(false)}>
               Home
             </Link>

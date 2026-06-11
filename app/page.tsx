@@ -8,6 +8,7 @@ export default function HomePage() {
   return (
     <AppShell
       withNeonBackdrop
+      causticVariant="hero"
       className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
     >
       <main className="min-h-screen">

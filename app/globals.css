@@ -67,8 +67,8 @@
   --vibe-glass-border: var(--neon-hairline);
   --vibe-text-secondary: var(--neon-text1);
   --vibe-text-muted: var(--neon-text2);
-  --vibe-neon-glow: 0 0 24px rgb(0 209 255 / 0.35), 0 0 56px rgb(157 77 255 / 0.22);
-  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.22);
+  --vibe-neon-glow: 0 0 20px rgb(0 209 255 / 0.30), 0 0 48px rgb(157 77 255 / 0.18);
+  --vibe-neon-glow-subtle: 0 0 14px rgb(0 209 255 / 0.18);
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
@@ -144,8 +144,8 @@
   --vibe-glass-border: var(--neon-hairline);
   --vibe-text-secondary: var(--neon-text1);
   --vibe-text-muted: var(--neon-text2);
-  --vibe-neon-glow: 0 0 24px rgb(0 209 255 / 0.35), 0 0 56px rgb(157 77 255 / 0.22);
-  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.22);
+  --vibe-neon-glow: 0 0 20px rgb(0 209 255 / 0.30), 0 0 48px rgb(157 77 255 / 0.18);
+  --vibe-neon-glow-subtle: 0 0 14px rgb(0 209 255 / 0.18);
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
@@ -277,6 +277,140 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* CausticBackdrop variants (#165) — CSS-only atmosphere layers */
+@keyframes vizb-caustic-drift {
+  0% {
+    transform: translate3d(-2%, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(2%, 1%, 0) scale(1.03);
+  }
+}
+
+.vizb-caustic-backdrop {
+  background-color: var(--neon-bg0);
+}
+
+.vizb-caustic-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -8%, var(--ocean-divider-caustic-a), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 92% 78%, var(--ocean-divider-caustic-b), transparent 52%),
+    radial-gradient(ellipse 50% 40% at 8% 70%, var(--ocean-divider-caustic-c), transparent 50%);
+  animation: vizb-caustic-drift 36s ease-in-out infinite alternate;
+}
+
+.vizb-caustic-subtle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(5 5 10 / 0.35) 0%, transparent 40%, rgb(5 5 10 / 0.25) 100%);
+}
+
+.vizb-caustic-hero::before {
+  filter: saturate(1.15);
+}
+
+.vizb-caustic-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgb(0 209 255 / 0.08), transparent 60%),
+    linear-gradient(180deg, transparent 0%, rgb(5 5 10 / 0.5) 100%);
+}
+
+.vizb-caustic-control-room {
+  background-color: var(--neon-bg1);
+}
+
+.vizb-caustic-control-room::before {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgb(0 209 255 / 0.12), transparent 55%),
+    radial-gradient(ellipse 90% 60% at 100% 30%, rgb(157 77 255 / 0.09), transparent 50%);
+  animation-duration: 48s;
+}
+
+.vizb-caustic-editorial::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgb(0 209 255 / 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, rgb(157 77 255 / 0.1), transparent 50%);
+  animation: none;
+}
+
+.vizb-caustic-editorial::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(5 5 10 / 0.45);
+}
+
+.vizb-depth-layer {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.vizb-depth-layer-far {
+  opacity: 0.35;
+  transform: translateY(4%);
+}
+
+.vizb-depth-layer-mid {
+  opacity: 0.55;
+}
+
+.vizb-depth-layer-near {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vizb-caustic-backdrop::before {
+    animation: none;
+  }
+
+  .vizb-motion-hover,
+  .vizb-motion-enter {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.vizb-motion-hover {
+  transition:
+    box-shadow var(--vizb-motion-base) var(--vizb-motion-ease),
+    border-color var(--vizb-motion-base) var(--vizb-motion-ease),
+    transform var(--vizb-motion-fast) var(--vizb-motion-ease);
+}
+
+.vizb-motion-enter {
+  animation: vizb-fade-rise var(--vizb-motion-slow) var(--vizb-motion-ease) both;
+}
+
+@keyframes vizb-fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.event-premium-flyer {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--neon-a) 12%, transparent),
+    0 12px 40px rgb(0 0 0 / 0.35);
+}
+
+.vizb-control-room-header {
+  box-shadow: 0 0 24px rgb(0 209 255 / 0.06);
+}
+
 /* Glass surface + form row (mockup-style; use with rounded-lg+) */
 .vibe-glass-panel {
   background: var(--vibe-glass-bg);
@@ -341,9 +475,9 @@
 /* Events listing — resting dual-tone border glow (CSS-only, no animation) */
 .events-neon-card {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--neon-a) 14%, transparent),
-    0 0 20px rgb(0 209 255 / 0.08),
-    0 0 32px rgb(157 77 255 / 0.05);
+    0 0 0 1px color-mix(in srgb, var(--neon-a) 12%, transparent),
+    0 0 16px rgb(0 209 255 / 0.06),
+    0 0 28px rgb(157 77 255 / 0.04);
 }
 
 .events-neon-card-archive {
@@ -359,9 +493,9 @@
 .group:hover .events-neon-card-hover,
 .events-neon-card-hover:hover {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--neon-a) 28%, transparent),
-    0 0 28px rgb(0 209 255 / 0.14),
-    0 0 48px rgb(157 77 255 / 0.08);
+    0 0 0 1px color-mix(in srgb, var(--neon-a) 24%, transparent),
+    0 0 22px rgb(0 209 255 / 0.11),
+    0 0 40px rgb(157 77 255 / 0.06);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -472,6 +606,11 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-neon-border-flow {
     animation: none;
+  }
+
+  .neon-gradient-text {
+    animation: none;
+    background-position: 0% center;
   }
 
   .auth-bubble-field > * {

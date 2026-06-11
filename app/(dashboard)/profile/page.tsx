@@ -1,10 +1,15 @@
 import { getProfile } from "@/lib/auth-helpers"
+import { MemberPreferencesForm } from "@/components/dashboard/member-preferences-form"
 import { ProfileForm } from "@/components/dashboard/profile-form"
+import { fetchMemberPreferences } from "@/lib/member/load-preferences"
+import { createClient } from "@/lib/supabase/server"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Mail } from "lucide-react"
 
 export default async function ProfilePage() {
   const { user, profile } = await getProfile()
+  const supabase = await createClient()
+  const memberPreferences = await fetchMemberPreferences(supabase, user.id)
 
   const initial = (profile?.display_name || user.email || "U")[0].toUpperCase()
 
@@ -44,6 +49,9 @@ export default async function ProfilePage() {
         </GlassCard>
 
         <ProfileForm initialDisplayName={profile?.display_name ?? ""} email={user.email ?? ""} />
+        <div id="culture-preferences">
+          <MemberPreferencesForm initial={memberPreferences} variant="profile" />
+        </div>
       </div>
     </div>
   )

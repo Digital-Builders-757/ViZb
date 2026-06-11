@@ -2,6 +2,8 @@ import Link from "next/link"
 
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
+import { EmptyStateCard } from "@/components/ui/empty-state-card"
+import { NeonLink } from "@/components/ui/neon-link"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
@@ -192,8 +194,6 @@ export async function HomeTimelineSection() {
 
   const dateKeys = Object.keys(grouped).sort()
   let runningIndex = 0
-  const vibeAuthHref = `/login?redirect=${encodeURIComponent("/")}`
-
   return (
     <section id="timeline" className="scroll-mt-24 px-4 pb-16 pt-4 sm:px-8 md:pb-20 md:pt-6">
       <div className="mx-auto max-w-[1200px]">
@@ -208,7 +208,7 @@ export async function HomeTimelineSection() {
           </div>
           <Link
             href="/events#timeline"
-            className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)] sm:text-[11px]"
+            className="vibe-focus-ring shrink-0 rounded-sm font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)] sm:text-[11px]"
           >
             View full timeline →
           </Link>
@@ -235,7 +235,6 @@ export async function HomeTimelineSection() {
                           index={runningIndex}
                           isSignedIn={isSignedIn}
                           isSaved={savedIdSet.has(event.id)}
-                          vibeAuthHref={vibeAuthHref}
                           interactive={false}
                         />
                       )
@@ -248,13 +247,16 @@ export async function HomeTimelineSection() {
             })}
           </div>
         ) : (
-          <p className="mt-10 text-sm leading-relaxed text-[color:var(--neon-text2)]">
-            No upcoming events yet. Check back soon or{" "}
-            <Link href="/host/apply" className="text-[color:var(--neon-a)] underline-offset-4 hover:underline">
-              host with VIZB
-            </Link>
-            .
-          </p>
+          <EmptyStateCard
+            className="mt-10"
+            kicker="Timeline"
+            title="Nothing on the calendar yet"
+            description="Check back soon for new listings across Virginia."
+          >
+            <NeonLink href="/host/apply" variant="secondary" shape="pill" size="sm">
+              Host with VIZB
+            </NeonLink>
+          </EmptyStateCard>
         )}
       </div>
     </section>

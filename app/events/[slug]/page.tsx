@@ -2,7 +2,6 @@ import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2, ExternalLink } from "lucide-react"
 import type { Metadata } from "next"
@@ -12,11 +11,17 @@ import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
+import { EventPremiumFlyer } from "@/components/events/event-premium-flyer"
+import { DepthLayer } from "@/components/ui/depth-layer"
 import { WaterFrame } from "@/components/ui/water-frame"
 import { Suspense } from "react"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
 import { EventStripeReturn } from "@/components/events/event-stripe-return"
+import { PostLoginIntentResolver } from "@/components/events/post-login-intent-resolver"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { EventProductAnalyticsBeacon } from "@/components/events/event-product-analytics-beacon"
+import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
+import { formatCategoriesForAnalytics, type ProductEventContext } from "@/lib/analytics/product-events"
 import { EventShareRow } from "@/components/events/event-share-row"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
@@ -31,6 +36,10 @@ import {
 } from "@/lib/events/event-kind"
 import { EventPublicViewBeacon } from "@/components/events/event-public-view-beacon"
 import { ReportEventListingDialog } from "@/components/events/report-event-listing-dialog"
+import { EventRecapBanner } from "@/components/events/event-recap-banner"
+import { FollowOrganizerButton } from "@/components/events/follow-organizer-button"
+import { loadEventRecapPost, isEventPast } from "@/lib/events/event-recap"
+import { isFollowingOrganizer } from "@/lib/follows/load-follows"
 
 interface PublicEvent {
   id: string
@@ -102,7 +111,8 @@ export default async function PublicEventDetailPage({
     .select(`
       id, title, slug, description, starts_at, ends_at,
       venue_name, address, city, categories, flyer_url, rsvp_capacity, event_kind, external_rsvp_url, is_staff_pick,
-      organizations!inner ( name, slug )
+      org_id, recap_post_id,
+      organizations!inner ( id, name, slug )
     `)
     .eq("slug", slug)
     .eq("status", "published")
@@ -113,7 +123,13 @@ export default async function PublicEventDetailPage({
   }
 
   // Supabase returns the !inner join as an object { name, slug }
-  const org = rawEvent.organizations as unknown as { name: string; slug: string }
+  const org = rawEvent.organizations as unknown as { id: string; name: string; slug: string }
+  const orgId = (rawEvent as { org_id?: string }).org_id ?? org.id
+  const recapPost = await loadEventRecapPost(
+    supabase,
+    (rawEvent as { recap_post_id?: string | null }).recap_post_id,
+  )
+  const eventIsPast = isEventPast(rawEvent.starts_at, rawEvent.ends_at)
 
   const listingCommunity = isCommunityEvent((rawEvent as { event_kind?: string | null }).event_kind)
   const staffPick = Boolean((rawEvent as { is_staff_pick?: boolean | null }).is_staff_pick)
@@ -161,11 +177,15 @@ export default async function PublicEventDetailPage({
   let paidTicketTiers: PublicPaidTier[] = []
   if (!listingCommunity) {
     try {
-      const { data: ttRows } = await supabase
+      const { data: ttRows, error: ttError } = await supabase
         .from("ticket_types")
         .select("id, name, price_cents, sort_order, is_active, sales_starts_at, sales_ends_at, sales_start_at, sales_end_at")
         .eq("event_id", event.id)
         .order("sort_order", { ascending: true })
+
+      if (ttError) {
+        console.error("[events/[slug]] ticket_types query failed:", ttError.message)
+      }
 
       const now = new Date()
       for (const row of ttRows ?? []) {
@@ -296,7 +316,24 @@ export default async function PublicEventDetailPage({
     }
   }
 
-  const authHref = `/login?redirect=${encodeURIComponent(`/events/${event.slug}`)}`
+  let initialFollowingOrg = false
+  if (user) {
+    initialFollowingOrg = await isFollowingOrganizer(supabase, user.id, orgId)
+  }
+
+  const saveAuthHref = buildEventAuthHref(event.slug, "save_event")
+  const rsvpAuthHref = buildEventAuthHref(event.slug, "rsvp_event")
+
+  const productAnalyticsContext: ProductEventContext = {
+    event_id: event.id,
+    event_slug: event.slug,
+    category: formatCategoriesForAnalytics(normalizeCategories(event.categories)),
+    city: event.city ?? undefined,
+    event_kind: listingCommunity ? ("community" as const) : ("official" as const),
+    staff_pick: staffPick,
+    signed_in: isSignedIn,
+    source: "event_detail" as const,
+  }
 
   const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
   const eventPublicUrl = siteBase ? `${siteBase}/events/${event.slug}` : `/events/${event.slug}`
@@ -318,13 +355,27 @@ export default async function PublicEventDetailPage({
   return (
     <AppShell
       withNeonBackdrop
+      causticVariant="subtle"
       className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
     >
       <main className="min-h-screen">
         <EventPublicViewBeacon slug={slug} />
+        <Suspense fallback={null}>
+          <EventProductAnalyticsBeacon context={productAnalyticsContext} />
+        </Suspense>
         <Navbar />
 
-        <section className="px-4 pb-16 pt-24 sm:px-8 sm:pt-28 md:pb-24">
+        <Suspense fallback={null}>
+          <PostLoginIntentResolver
+            eventId={event.id}
+            eventSlug={event.slug}
+            isSignedIn={isSignedIn}
+            initialSaved={initialVibesSaved}
+          />
+        </Suspense>
+
+        <section className="vizb-motion-enter px-4 pb-16 pt-24 sm:px-8 sm:pt-28 md:pb-24">
+        <DepthLayer level="far" className="pointer-events-none fixed inset-0 -z-[1] opacity-30" />
         <div className="max-w-[1200px] mx-auto">
           {/* Back */}
           <Link
@@ -338,29 +389,16 @@ export default async function PublicEventDetailPage({
           {/* Layout: flyer + details */}
           <div className="mt-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Flyer */}
-            <div className="w-full lg:w-1/2">
-              <WaterFrame className="relative aspect-[4/5] overflow-hidden rounded-xl">
-                {event.flyer_url ? (
-                  <Image
-                    src={event.flyer_url}
-                    alt={`Flyer for ${event.title}`}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[color:var(--neon-bg1)]">
-                    <span className="font-mono text-7xl font-bold text-[color:var(--neon-a)]/20 md:text-9xl">
-                      {startsAt.getDate()}
-                    </span>
-                    <p className="mt-2 font-mono text-sm uppercase tracking-widest text-[color:var(--neon-text2)]">
-                      {startsAt.toLocaleDateString("en-US", { month: "long" })}
-                    </p>
-                  </div>
-                )}
-                {/* Category badges */}
-                <div className="absolute left-4 top-4 z-10 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
+            <div className="relative w-full lg:w-1/2">
+              <EventPremiumFlyer
+                title={event.title}
+                flyerUrl={event.flyer_url}
+                startsAt={event.starts_at}
+                variant="detail"
+                priority
+              />
+              {/* Category badges */}
+              <div className="pointer-events-none absolute left-4 top-4 z-10 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
                   <span
                     className={`rounded-full border px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur ${
                       listingCommunity
@@ -385,13 +423,6 @@ export default async function PublicEventDetailPage({
                     </span>
                   )}
                 </div>
-
-                {/* readability overlay */}
-                <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/82 via-[color:var(--neon-bg0)]/22 to-transparent"
-                  aria-hidden
-                />
-              </WaterFrame>
             </div>
 
             {/* Details */}
@@ -404,6 +435,14 @@ export default async function PublicEventDetailPage({
                 >
                   {event.org_name}
                 </Link>
+                <div className="mt-2">
+                  <FollowOrganizerButton
+                    orgId={orgId}
+                    orgName={event.org_name}
+                    initialFollowing={initialFollowingOrg}
+                    signedIn={isSignedIn}
+                  />
+                </div>
 
                 {/* Title */}
                 <h1 className="mt-3 text-balance font-serif text-3xl font-bold leading-tight text-[color:var(--neon-text0)] sm:text-4xl md:text-5xl">
@@ -477,6 +516,12 @@ export default async function PublicEventDetailPage({
                     </GlassCard>
                   </div>
                 )}
+
+                {eventIsPast && recapPost ? (
+                  <div className="mt-6">
+                    <EventRecapBanner recap={recapPost} />
+                  </div>
+                ) : null}
               </div>
 
               {/* CTA area */}
@@ -517,10 +562,15 @@ export default async function PublicEventDetailPage({
                           eventSlug={event.slug}
                           isSignedIn={isSignedIn}
                           initialSaved={initialVibesSaved}
-                          authHref={authHref}
+                          authHref={saveAuthHref}
                           variant="detail"
+                          analyticsContext={productAnalyticsContext}
                         />
-                        <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
+                        <EventShareRow
+                          shareUrl={eventPublicUrl}
+                          title={event.title}
+                          analyticsContext={productAnalyticsContext}
+                        />
                         <EventCalendarActions
                           title={event.title}
                           startsAt={event.starts_at}
@@ -528,6 +578,7 @@ export default async function PublicEventDetailPage({
                           city={event.city}
                           eventUrl={eventPublicUrl}
                           className="mt-0"
+                          analyticsContext={productAnalyticsContext}
                         />
                         <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
                           Save this listing to My Vibes to find it faster later.
@@ -569,6 +620,7 @@ export default async function PublicEventDetailPage({
                           venueName={event.venue_name}
                           city={event.city}
                           eventPublicUrl={eventPublicUrl}
+                          analyticsContext={productAnalyticsContext}
                         />
                       </Suspense>
 
@@ -578,10 +630,15 @@ export default async function PublicEventDetailPage({
                           eventSlug={event.slug}
                           isSignedIn={isSignedIn}
                           initialSaved={initialVibesSaved}
-                          authHref={authHref}
+                          authHref={saveAuthHref}
                           variant="detail"
+                          analyticsContext={productAnalyticsContext}
                         />
-                        <EventShareRow shareUrl={eventPublicUrl} title={event.title} />
+                        <EventShareRow
+                          shareUrl={eventPublicUrl}
+                          title={event.title}
+                          analyticsContext={productAnalyticsContext}
+                        />
                         <EventCalendarActions
                           title={event.title}
                           startsAt={event.starts_at}
@@ -589,6 +646,7 @@ export default async function PublicEventDetailPage({
                           city={event.city}
                           eventUrl={eventPublicUrl}
                           className="mt-0"
+                          analyticsContext={productAnalyticsContext}
                         />
                         <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
                           Saved events show up in your dashboard and calendar export.
@@ -620,12 +678,13 @@ export default async function PublicEventDetailPage({
                         </div>
                       ) : null}
 
+                      <div id="event-rsvp" className="scroll-mt-28">
                       <EventRsvpCta
                         key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
                         eventId={event.id}
                         isSignedIn={isSignedIn}
                         initialStatus={initialRsvpStatus}
-                        authHref={authHref}
+                        authHref={rsvpAuthHref}
                         rsvpCapacity={event.rsvp_capacity}
                         rsvpOccupied={rsvpOccupied}
                         freeTicketTiers={freeTicketTiers}
@@ -638,35 +697,24 @@ export default async function PublicEventDetailPage({
                         venueName={event.venue_name}
                         city={event.city}
                         eventPublicUrl={eventPublicUrl}
+                        analyticsContext={productAnalyticsContext}
                       />
 
                       <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
                         Free RSVP stays $0. Paid tiers use Stripe Checkout; canceling an RSVP does not refund card
                         charges.
                       </p>
+                      </div>
                     </>
                   )}
 
-                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--neon-hairline)]/50 pt-4">
+                  <div className="mt-5 border-t border-[color:var(--neon-hairline)]/50 pt-4">
                     <ReportEventListingDialog
                       eventId={event.id}
                       eventSlug={event.slug}
                       isSignedIn={isSignedIn}
-                      loginHref={authHref}
+                      loginHref={saveAuthHref}
                     />
-                    <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
-                      Saved events show up in your dashboard and calendar export.
-                    </p>
-                    {isSignedIn ? (
-                      <NeonLink
-                        href="/dashboard#my-vibes-week-heading"
-                        variant="secondary"
-                        size="sm"
-                        className="w-full sm:w-auto"
-                      >
-                        Open My Vibes
-                      </NeonLink>
-                    ) : null}
                   </div>
                 </GlassCard>
               </div>
@@ -675,7 +723,7 @@ export default async function PublicEventDetailPage({
         </div>
         </section>
 
-        <OceanDivider variant="soft" density="normal" withLine={false} />
+        <OceanDivider variant="hero" density="normal" withLine className="mt-4" />
 
         <Footer />
       </main>

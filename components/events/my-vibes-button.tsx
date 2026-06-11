@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { removeEventFromMyVibes, saveEventToMyVibes } from "@/app/actions/vibes"
+import { trackProductEvent, type ProductEventContext } from "@/lib/analytics/product-events"
 
 type MyVibesButtonVariant = "timeline" | "detail" | "dashboard"
 
@@ -18,6 +19,7 @@ export function MyVibesButton({
   variant = "detail",
   compact = false,
   onSavedChange,
+  analyticsContext,
 }: {
   eventId: string
   eventSlug: string
@@ -29,6 +31,7 @@ export function MyVibesButton({
   compact?: boolean
   /** When parent tracks optimistic overrides (e.g. dashboard calendar shell). */
   onSavedChange?: (nextSaved: boolean) => void
+  analyticsContext?: ProductEventContext
 }) {
   const [isPending, startTransition] = useTransition()
   const [saved, setSaved] = useState(initialSaved)
@@ -37,8 +40,16 @@ export function MyVibesButton({
     return (
       <Link
         href={authHref}
-        className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-full border font-mono uppercase tracking-widest transition-colors",
+        onClick={() =>
+          trackProductEvent("signup_login_redirect", {
+            ...analyticsContext,
+            event_slug: analyticsContext?.event_slug ?? eventSlug,
+            signed_in: false,
+            source: analyticsContext?.source ?? variant,
+          })
+        }
+      className={cn(
+        "inline-flex items-center justify-center gap-2 rounded-full border font-mono uppercase tracking-widest transition-colors vizb-motion-hover",
           variant === "timeline" &&
             cn(
               "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 text-[color:var(--neon-text1)] backdrop-blur hover:border-[color:var(--neon-a)]/45 hover:text-[color:var(--neon-text0)]",
@@ -94,6 +105,13 @@ export function MyVibesButton({
             return
           }
 
+          trackProductEvent("event_save_clicked", {
+            ...analyticsContext,
+            event_slug: eventSlug,
+            signed_in: true,
+            source: analyticsContext?.source ?? variant,
+          })
+
           const res = await saveEventToMyVibes(eventId, eventSlug)
           if ("error" in res && res.error) {
             toast.error(res.error)
@@ -101,6 +119,12 @@ export function MyVibesButton({
           }
           setSaved(true)
           onSavedChange?.(true)
+          trackProductEvent("event_save_completed", {
+            ...analyticsContext,
+            event_slug: eventSlug,
+            signed_in: true,
+            source: analyticsContext?.source ?? variant,
+          })
           toast.success("Saved to My Vibes.")
         })
       }}

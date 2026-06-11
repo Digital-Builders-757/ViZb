@@ -16,7 +16,7 @@ export function EditorialGrid() {
               alt="Real people connecting in a garden setting"
               fill
               sizes="(max-width: 768px) 100vw, 58vw"
-              className="object-cover transition-transform duration-700 hover:scale-[1.03]"
+              className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-reduce:transition-none hover:scale-[1.02]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/25 to-transparent" />
             <div
@@ -37,7 +37,7 @@ export function EditorialGrid() {
                 Real connections.
               </h3>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-[color:var(--neon-text1)]">
-                A timeline that makes it easy to pull up — and a community that makes it worth it.
+                A timeline that makes it easy to pull up. A community that makes it worth it.
               </p>
             </div>
           </WaterFrame>
@@ -54,7 +54,7 @@ export function EditorialGrid() {
                 alt="Host an event with VIZB"
                 fill
                 sizes="(max-width: 768px) 100vw, 42vw"
-                className="object-cover object-[center_35%] transition-transform duration-700 group-hover:scale-[1.03]"
+                className="object-cover object-[center_35%] motion-safe:transition-transform motion-safe:duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/25 to-transparent" />
               <div
@@ -73,7 +73,7 @@ export function EditorialGrid() {
                   Host with VIZB
                 </h3>
                 <p className="mt-2 max-w-sm text-sm leading-relaxed text-[color:var(--neon-text1)]">
-                  Bring your event to the VIZB timeline — we&apos;ll help you pack the room.
+                  Bring your event to the VIZB timeline. We&apos;ll help you pack the room.
                 </p>
                 <span className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-a)] transition-all group-hover:gap-3">
                   Submit an event
@@ -90,7 +90,7 @@ export function EditorialGrid() {
                 alt="Curated events crowd"
                 fill
                 sizes="(max-width: 768px) 100vw, 42vw"
-                className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-[1.03]"
+                className="object-cover object-[center_25%] motion-safe:transition-transform motion-safe:duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">

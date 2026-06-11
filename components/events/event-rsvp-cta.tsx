@@ -10,6 +10,7 @@ import { createTicketCheckoutSession } from "@/app/actions/ticket-checkout"
 import { formatUsdFromCents } from "@/lib/money/usd"
 import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
 import { TicketAddedSuccessDialog } from "@/components/events/ticket-added-success-dialog"
+import { trackProductEvent, type ProductEventContext } from "@/lib/analytics/product-events"
 
 export type PublicPaidTier = { id: string; name: string; price_cents: number }
 
@@ -30,6 +31,7 @@ export function EventRsvpCta({
   venueName,
   city,
   eventPublicUrl,
+  analyticsContext,
 }: {
   eventId: string
   isSignedIn: boolean
@@ -55,6 +57,7 @@ export function EventRsvpCta({
   city: string
   /** Public URL for this event page (absolute when NEXT_PUBLIC_SITE_URL is set). */
   eventPublicUrl: string
+  analyticsContext?: ProductEventContext
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -237,11 +240,22 @@ export function EventRsvpCta({
             disabled={!canBuyPaid || isPending}
             onClick={() => {
               if (!isSignedIn) {
+                trackProductEvent("signup_login_redirect", {
+                  ...analyticsContext,
+                  signed_in: false,
+                  source: analyticsContext?.source ?? "event_detail",
+                })
                 window.location.href = authHref
                 return
               }
               const tier = selectedPaidTier
               if (!tier) return
+
+              trackProductEvent("paid_checkout_started", {
+                ...analyticsContext,
+                signed_in: true,
+                source: analyticsContext?.source ?? "event_detail",
+              })
 
               startTransition(async () => {
                 const result = await createTicketCheckoutSession({
@@ -290,6 +304,11 @@ export function EventRsvpCta({
                       return
                     }
                     toast.success("RSVP cancelled.")
+                    trackProductEvent("event_rsvp_cancelled", {
+                      ...analyticsContext,
+                      signed_in: true,
+                      source: analyticsContext?.source ?? "event_detail",
+                    })
                     setStatus("cancelled")
                     setSuccessTicketId(null)
                     setOccupied((n) => Math.max(0, n - 1))
@@ -309,9 +328,20 @@ export function EventRsvpCta({
             disabled={isPending || isFull || hasActiveTicket}
             onClick={() => {
               if (!isSignedIn) {
+                trackProductEvent("signup_login_redirect", {
+                  ...analyticsContext,
+                  signed_in: false,
+                  source: analyticsContext?.source ?? "event_detail",
+                })
                 window.location.href = authHref
                 return
               }
+
+              trackProductEvent("event_rsvp_started", {
+                ...analyticsContext,
+                signed_in: true,
+                source: analyticsContext?.source ?? "event_detail",
+              })
 
               startTransition(async () => {
                 const result = await rsvpToEvent(eventId, tierArgForRsvp())
@@ -319,6 +349,11 @@ export function EventRsvpCta({
                   toast.error(result.error)
                   return
                 }
+                trackProductEvent("event_rsvp_completed", {
+                  ...analyticsContext,
+                  signed_in: true,
+                  source: analyticsContext?.source ?? "event_detail",
+                })
                 if (result && "success" in result && result.success) {
                   setSuccessTicketId(result.ticketId)
                   setSuccessOpen(true)

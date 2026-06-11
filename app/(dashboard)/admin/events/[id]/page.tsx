@@ -4,7 +4,7 @@ import Image from "next/image"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { NeonLink } from "@/components/ui/neon-link"
-import { ArrowLeft, FileText, ImageIcon, Users } from "lucide-react"
+import { ArrowLeft, FileText, ImageIcon, QrCode, Users } from "lucide-react"
 import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { GlassCard } from "@/components/ui/glass-card"
 import { AdminEventRegistrationsTable } from "@/components/admin/event-registrations-table"
@@ -19,6 +19,7 @@ import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 import { eventKindBadgeLong, isCommunityEvent } from "@/lib/events/event-kind"
 import { OrganizerEventPowerToolsCard } from "@/components/organizer/organizer-event-power-tools-card"
 import { AdminEventStaffPickSwitch } from "@/components/admin/admin-event-staff-pick-switch"
+import { AdminEventRecapLinkForm } from "@/components/admin/admin-event-recap-link-form"
 import {
   EventTicketingSection,
   type AdminPaidTierRow,
@@ -60,7 +61,7 @@ export default async function AdminEventDetailPage({
   const { data: event, error: eventError } = await supabase
     .from("events")
     .select(
-      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, flyer_url, event_kind, external_rsvp_url, public_detail_view_count, is_staff_pick, organizations(name, slug)",
+      "id, org_id, title, description, slug, status, starts_at, ends_at, venue_name, address, city, categories, rsvp_capacity, updated_at, flyer_url, event_kind, external_rsvp_url, public_detail_view_count, is_staff_pick, recap_post_id, organizations(name, slug)",
     )
     .eq("id", id)
     .single()
@@ -117,6 +118,20 @@ export default async function AdminEventDetailPage({
   const evtKindRaw = (event as { event_kind?: string }).event_kind
   const externalRsvp = (event as { external_rsvp_url?: string | null }).external_rsvp_url ?? null
   const communityListing = isCommunityEvent(evtKindRaw)
+
+  const { data: publishedPosts } = await supabase
+    .from("posts")
+    .select("id, title, slug")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(50)
+
+  const recapPostOptions = (publishedPosts ?? []).map((p) => ({
+    id: p.id as string,
+    title: p.title as string,
+    slug: p.slug as string,
+  }))
+  const currentRecapPostId = (event as { recap_post_id?: string | null }).recap_post_id ?? null
 
   let lineupEntries: OpenMicLineupEntryRow[] = []
   if (eventHasOpenMicCategory(editFormCategories)) {
@@ -270,6 +285,16 @@ export default async function AdminEventDetailPage({
           </p>
         </div>
         <div className="flex w-full md:w-auto flex-col gap-2 sm:flex-row">
+          {(event.status as string) === "published" && (
+            <NeonLink
+              href={`/admin/events/${event.id}/check-in`}
+              variant="secondary"
+              className="inline-flex items-center justify-center gap-2"
+            >
+              <QrCode className="h-4 w-4" />
+              Open door scanner
+            </NeonLink>
+          )}
           {(event.status as string) === "draft" && (
             <SubmitReviewButton eventId={event.id} />
           )}
@@ -339,13 +364,17 @@ export default async function AdminEventDetailPage({
           </div>
 
           <div className="flex-1">
-            {["draft", "pending_review", "rejected"].includes(event.status as string) ? (
-              <FlyerUploadForm eventId={event.id} currentFlyerUrl={flyerUrl} />
+            {(event.status as string) !== "archived" ? (
+              <>
+                <FlyerUploadForm eventId={event.id} currentFlyerUrl={flyerUrl} />
+                <p className="mt-3 text-xs text-muted-foreground font-mono leading-relaxed max-w-xl">
+                  Recommended: portrait 4:5, JPEG/PNG/WebP/GIF, max 5MB. Replacing updates Explore and public
+                  event pages after save.
+                </p>
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">
-                {flyerUrl
-                  ? "Flyer is set. Published events cannot have their flyer changed."
-                  : "No flyer uploaded."}
+                Archived events cannot have their flyer changed.
               </p>
             )}
             {!flyerUrl &&
@@ -422,6 +451,18 @@ export default async function AdminEventDetailPage({
           eventIsPublished={event.status === "published"}
         />
       ) : null}
+
+      <GlassCard className="mt-8 p-6 md:p-8">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-4 flex items-center gap-2">
+          <FileText className="w-4 h-4" />
+          Post-event recap
+        </h2>
+        <AdminEventRecapLinkForm
+          eventId={id}
+          currentPostId={currentRecapPostId}
+          posts={recapPostOptions}
+        />
+      </GlassCard>
 
       <GlassCard emphasis className="card-accent-cyan mt-8 p-6 md:p-8">
         <h2 className="text-xs font-mono uppercase tracking-widest text-neon-a mb-2 flex items-center gap-2">

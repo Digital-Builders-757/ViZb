@@ -1,3 +1,5 @@
+> **ARCHIVED — Superseded as of June 10, 2026.** This execution queue mirrored `VIZB_PRODUCT_ROADMAP.md` (also archived); all items shipped. Current follow-ups: `docs/plans/NEXT_ROADMAP.md`.
+
 # ROADMAP_RUNNER — ViZb ship order
 
 Purpose: this is the Cursor-ready execution queue that mirrors `docs/plans/VIZB_PRODUCT_ROADMAP.md`.

@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** June 10, 2026
+**Last updated:** June 11, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -45,6 +45,7 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | **Open mic:** performers in dashboard but **`/lineup/[slug]`** empty or 404 | Row is **pending** / **Public off** / wrong status; event **not published**; or slug mismatch | Dashboard panel shows per-row public eligibility; public page only lists **`is_public`** + **confirmed** or **performed**; **`/lineup/...`** requires **published** open-mic event — see **`docs/OPEN_MIC_LINEUP.md`** |
 | Admin **Create Draft** on **`/admin/events/new/community`** lands on **404** at **`/admin/events/[id]`** (draft may exist in Admin → All events) | Production DB missing **`is_staff_pick`** / **`public_detail_view_count`** (migrations **`20260505184652`**, **`20260505195500`**) while **`event_kind`** was already applied — detail **`SELECT`** fails and page called **`notFound()`** | Run **`supabase migration list`** (Remote must match Local); **`supabase db push`** on the production-linked project; confirm columns with SQL in **`docs/operations/SUPABASE_PRODUCTION_MIGRATIONS.md`** |
 | Local/community events missing from **`/events?category=party`** (etc.) or only under **Other**; admin edit had **no category** controls | Community create/edit hid the category picker; server defaulted empty tags to **`{other}`** | Deploy category fix; staff retag via **Admin → event (pencil) → Event details** → select categories → **Save event details**; new community creates require at least one category |
+| **Paid ticket** configured in admin but **missing on public** `/events/[slug]` | Create form did not send **`ticket_mode=paid`**, tier **`is_active=false`**, sales window not open, or event not **published** | Re-save ticketing on **`/admin/events/[id]`**; confirm **`ticket_types`** has **`price_cents > 0`** and **`is_active`**; publish event; check server logs for **`[events/[slug]] ticket_types query failed`** |
 | **ViZb logo** shows a **black square** on loading / dark UI | **`public/vizb-logo.png`** was **RGB** (no alpha) — black is part of the bitmap, not “transparency” | Re-export from design as **PNG with transparency**, or replace with **RGBA**; confirm with `python -c "from PIL import Image; print(Image.open('public/vizb-logo.png').mode)"` → **`RGBA`**; see **`lib/brand-assets.ts`** |
 
 _Add rows as recurring issues appear._ `/ship` should append here when a fix addresses a repeatable failure mode.

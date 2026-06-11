@@ -8,6 +8,8 @@ import { FullLogoImage } from "@/components/brand/full-logo-image"
 import { AuthAlert } from "@/components/auth/auth-alert"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { createClient } from "@/lib/supabase/client"
+import { EmptyStateCard } from "@/components/ui/empty-state-card"
+import { NeonButton } from "@/components/ui/neon-button"
 import { NeonLink } from "@/components/ui/neon-link"
 
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
@@ -21,40 +23,25 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    console.log("🔧 [DEBUG] Form submitted")
     setIssue(null)
     setFieldHint(null)
-    
-    console.log("🔧 [DEBUG] Email entered:", email)
+
     if (!emailOk(email)) {
-      console.log("❌ [DEBUG] Email validation failed")
       setFieldHint("Enter a valid email address.")
       return
     }
-    console.log("✅ [DEBUG] Email validation passed")
-    
+
     setLoading(true)
     try {
       const supabase = createClient()
-      console.log("🔧 [DEBUG] Supabase client created")
-      
-      // Dynamic redirect URL for both development and production
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || window.location.origin
       const redirectTo = `${baseUrl}/auth/callback/recovery`
-      console.log("🔧 [DEBUG] Redirect URL:", redirectTo)
-      console.log("🔧 [DEBUG] Calling resetPasswordForEmail for:", email.trim())
-      
+
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo,
       })
-      
+
       if (error) {
-        console.error("❌ [DEBUG] Supabase error:", error)
-        console.error("❌ [DEBUG] Error details:", {
-          message: error.message,
-          status: error.status,
-          name: error.name
-        })
         setIssue(
           mapAuthError(error, "reset", {
             onNetworkRetry: () => setIssue(null),
@@ -63,14 +50,10 @@ export default function ForgotPasswordPage() {
         )
         return
       }
-      
-      console.log("✅ [DEBUG] Password reset email sent successfully!")
+
       setDone(true)
-    } catch (err) {
-      console.error("❌ [DEBUG] Unexpected error:", err)
     } finally {
       setLoading(false)
-      console.log("🔧 [DEBUG] Loading state set to false")
     }
   }
 
@@ -97,9 +80,9 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="relative flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <Link href="/" className="inline-block mb-12">
+          <Link href="/" className="mb-12 inline-block">
             <FullLogoImage width={240} height={240} className="h-14 w-auto max-w-[min(100%,220px)]" />
           </Link>
 
@@ -113,20 +96,20 @@ export default function ForgotPasswordPage() {
           </p>
 
           {done ? (
-            <div className="mt-10 space-y-6">
-              <AuthAlert
-                variant="success"
-                title="Check your email"
-                message="If an account exists for that address, we sent a reset link. Open it from the same device when you can."
-              />
-              <NeonLink href="/login" fullWidth shape="xl">
-                Back to Sign In
+            <EmptyStateCard
+              className="mt-10"
+              kicker="Email sent"
+              title="Check your inbox"
+              description="If an account exists for that address, we sent a reset link. Open it from the same device when you can."
+            >
+              <NeonLink href="/login" shape="pill" size="default">
+                Back to sign in
               </NeonLink>
-            </div>
+            </EmptyStateCard>
           ) : (
             <form
               onSubmit={onSubmit}
-              className="mt-10 space-y-6 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
+              className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
             >
               {issue ? (
                 <AuthAlert
@@ -162,13 +145,9 @@ export default function ForgotPasswordPage() {
                 {fieldHint ? <p className="mt-2 text-sm text-destructive">{fieldHint}</p> : null}
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="vibe-cta-gradient vibe-focus-ring w-full rounded-lg px-8 py-4 text-xs font-bold uppercase tracking-widest disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
                 {loading ? "Sending…" : "Send reset link"}
-              </button>
+              </NeonButton>
             </form>
           )}
 

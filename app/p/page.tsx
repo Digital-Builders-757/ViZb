@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { AppShell } from "@/components/ui/app-shell"
-import { GlassCard } from "@/components/ui/glass-card"
+import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { SectionTitle } from "@/components/ui/section-title"
 import { getLatestPublishedPosts } from "@/lib/posts/posts"
@@ -29,20 +29,18 @@ export default async function PostsIndexPage() {
           <div className="mx-auto max-w-[1200px]">
             <header className="max-w-2xl">
               <SectionTitle kicker="Updates" title="From VIZB" gradient />
-              <p className="mt-3 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-                Culture drops, recaps, and what’s next — editorial drops from the team.
+              <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
+                Culture drops, recaps, and what&apos;s next from the team.
               </p>
             </header>
 
             {posts.length === 0 ? (
-              <GlassCard className="mt-10 p-8 md:p-10" emphasis>
-                <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
-                  Fresh ink incoming
-                </p>
-                <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-                  No published posts yet. Check back soon for recaps, scene notes, and what&apos;s next across Virginia.
-                </p>
-              </GlassCard>
+              <EmptyStateCard
+                className="mt-10"
+                kicker="Fresh ink incoming"
+                title="No posts yet"
+                description="Check back soon for recaps, scene notes, and what's next across Virginia."
+              />
             ) : (
               <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
                 {posts.map((p) => (

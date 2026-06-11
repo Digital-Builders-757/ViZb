@@ -37,6 +37,7 @@ export default async function DashboardLayout({
   return (
     <AppShell
       withNeonBackdrop
+      causticVariant="control-room"
       className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
     >
       <MobileHeader profile={profile} organizations={organizations} notifications={notifications} />

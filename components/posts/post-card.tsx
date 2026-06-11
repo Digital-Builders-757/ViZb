@@ -10,16 +10,16 @@ export function PostCard({ post }: { post: Pick<PostRow, "slug" | "title" | "exc
   return (
     <Link
       href={href}
-      className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
+      className="events-neon-card events-neon-card-hover group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
     >
-      <GlassCard className="overflow-hidden p-0" emphasis interactive>
+      <GlassCard className="overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/20 p-0" emphasis interactive>
         <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
           {post.cover_image_url ? (
             <Image
               src={post.cover_image_url}
               alt={post.title}
               fill
-              className="object-cover"
+              className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-reduce:transition-none group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, 500px"
             />
           ) : (
@@ -30,7 +30,7 @@ export function PostCard({ post }: { post: Pick<PostRow, "slug" | "title" | "exc
           )}
 
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/92 via-[color:var(--neon-bg0)]/30 to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/75 via-[color:var(--neon-bg0)]/20 to-transparent"
             aria-hidden
           />
 
