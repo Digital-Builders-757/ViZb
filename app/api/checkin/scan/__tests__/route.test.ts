@@ -45,6 +45,26 @@ function buildToken(expOffsetSeconds = 3600) {
   )
 }
 
+function eventsTableChain() {
+  return {
+    select: vi.fn().mockImplementation((fields: string) => ({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: fields.includes("org_id")
+            ? { id: EVENT_ID, org_id: "44444444-4444-4444-8444-444444444444" }
+            : {
+                title: "Launch Night",
+                starts_at: "2026-06-15T23:00:00.000Z",
+                venue_name: "The Venue",
+                city: "Norfolk",
+              },
+          error: null,
+        }),
+      }),
+    })),
+  }
+}
+
 function registrationChain(reg: {
   id: string
   user_id: string
@@ -117,6 +137,58 @@ describe("POST /api/checkin/scan", () => {
     expect(body.ok).toBe(false)
   })
 
+  it("rejects expired tokens", async () => {
+    const { POST } = await import("../route")
+    const res = await POST(
+      new NextRequest("http://localhost/api/checkin/scan", {
+        method: "POST",
+        body: JSON.stringify({ token: buildToken(-3600), eventId: EVENT_ID }),
+      }),
+    )
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.ok).toBe(false)
+    expect(body.code).toBe("token_expired")
+  })
+
+  it("rejects cancelled registrations", async () => {
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "profiles") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({
+                data: { platform_role: "staff_admin", display_name: "Staff" },
+                error: null,
+              }),
+            }),
+          }),
+        }
+      }
+      if (table === "events") return eventsTableChain()
+      if (table === "event_registrations") {
+        return registrationChain({
+          id: REG_ID,
+          user_id: USER_ID,
+          status: "cancelled",
+        })
+      }
+      return registrationChain({ id: REG_ID, user_id: USER_ID, status: "cancelled" })
+    })
+
+    const { POST } = await import("../route")
+    const res = await POST(
+      new NextRequest("http://localhost/api/checkin/scan", {
+        method: "POST",
+        body: JSON.stringify({ token: buildToken(), eventId: EVENT_ID }),
+      }),
+    )
+    expect(res.status).toBe(409)
+    const body = await res.json()
+    expect(body.ok).toBe(false)
+    expect(body.code).toBe("registration_cancelled")
+  })
+
   it("rejects non-staff users", async () => {
     mockAssertCheckInScanAllowed.mockResolvedValue({ ok: false, reason: "not_authorized" })
     mockFrom.mockImplementation((table: string) => {
@@ -169,6 +241,7 @@ describe("POST /api/checkin/scan", () => {
         }
       }
       if (table === "event_registrations") return regChain
+      if (table === "events") return eventsTableChain()
       return registrationChain({ id: REG_ID, user_id: USER_ID, status: "confirmed" })
     })
 
@@ -207,6 +280,7 @@ describe("POST /api/checkin/scan", () => {
           checked_in_at: "2026-06-01T12:00:00.000Z",
         })
       }
+      if (table === "events") return eventsTableChain()
       return registrationChain({ id: REG_ID, user_id: USER_ID, status: "checked_in" })
     })
 
