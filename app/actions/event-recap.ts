@@ -28,9 +28,10 @@ export async function linkEventRecapPost(eventId: string, postId: string | null)
     .from("events")
     .select("slug")
     .eq("id", id)
-    .single()
+    .maybeSingle()
 
   if (eventErr) return { error: eventErr.message }
+  if (!event) return { error: "Event not found." }
 
   const { error } = await supabase.from("events").update({ recap_post_id: recapPostId }).eq("id", id)
 
