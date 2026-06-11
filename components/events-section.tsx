@@ -6,12 +6,14 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 
 type LandingEvent = {
   title: string
   slug: string
   starts_at: string
+  ends_at: string | null
   city: string
   venue_name: string
   categories: string[]
@@ -33,16 +35,22 @@ export async function EventsSection() {
 
   if (isServerSupabaseConfigured()) {
     const supabase = await createClient()
+    const now = new Date()
+    const pastCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
     const { data } = await supabase
       .from("events")
-      .select("title, slug, starts_at, city, venue_name, categories, flyer_url, event_kind, is_staff_pick")
+      .select(
+        "title, slug, starts_at, ends_at, city, venue_name, categories, flyer_url, event_kind, is_staff_pick",
+      )
       .eq("status", "published")
-      .gte("starts_at", new Date().toISOString())
+      .gte("starts_at", pastCutoff.toISOString())
       .order("starts_at", { ascending: true })
-      .limit(6)
+      .limit(24)
 
-    events = (data as LandingEvent[] | null) ?? []
+    events = ((data as LandingEvent[] | null) ?? [])
+      .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
+      .slice(0, 6)
   } else if (process.env.NODE_ENV === "production") {
     // ensure client is created so prod config errors surface clearly
     await createClient()
@@ -55,6 +63,7 @@ export async function EventsSection() {
         title: "The Matrix Party",
         slug: "the-matrix-party",
         starts_at: "2026-04-12T01:00:00.000Z",
+        ends_at: null,
         city: "Norfolk",
         venue_name: "Downtown",
         categories: ["party"],
@@ -64,6 +73,7 @@ export async function EventsSection() {
         title: "BeatNight 757",
         slug: "beatnight-757",
         starts_at: "2026-04-14T02:00:00.000Z",
+        ends_at: null,
         city: "Virginia Beach",
         venue_name: "Waterside",
         categories: ["concert"],
@@ -73,6 +83,7 @@ export async function EventsSection() {
         title: "Creators Mixer",
         slug: "creators-mixer",
         starts_at: "2026-04-17T23:00:00.000Z",
+        ends_at: null,
         city: "Richmond",
         venue_name: "Arts District",
         categories: ["networking"],

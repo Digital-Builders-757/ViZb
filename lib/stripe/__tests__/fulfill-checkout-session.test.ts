@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import type Stripe from "stripe"
 import {
   fulfillPaidCheckoutSession,
+  lookupTicketIdForOrder,
   readCheckoutSessionEventId,
   readCheckoutSessionOrderId,
   readCheckoutSessionUserId,
@@ -60,7 +61,8 @@ describe("fulfillPaidCheckoutSession", () => {
   })
 
   it("calls fulfillment RPC for paid sessions", async () => {
-    const rpc = vi.fn().mockResolvedValue({ data: "ticket-1", error: null })
+    const ticketId = "55555555-5555-4555-8555-555555555555"
+    const rpc = vi.fn().mockResolvedValue({ data: ticketId, error: null })
     const from = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -85,7 +87,7 @@ describe("fulfillPaidCheckoutSession", () => {
     )
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.ticketId).toBe("ticket-1")
+      expect(result.ticketId).toBe(ticketId)
       expect(result.eventSlug).toBe("event-slug")
     }
     expect(rpc).toHaveBeenCalledWith("fulfill_stripe_ticket_order", expect.objectContaining({
@@ -94,7 +96,8 @@ describe("fulfillPaidCheckoutSession", () => {
   })
 
   it("can be invoked repeatedly for the same paid session (RPC idempotency)", async () => {
-    const rpc = vi.fn().mockResolvedValue({ data: "ticket-1", error: null })
+    const ticketId = "55555555-5555-4555-8555-555555555555"
+    const rpc = vi.fn().mockResolvedValue({ data: ticketId, error: null })
     const from = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -120,5 +123,63 @@ describe("fulfillPaidCheckoutSession", () => {
     expect(first.ok).toBe(true)
     expect(second.ok).toBe(true)
     expect(rpc).toHaveBeenCalledTimes(2)
+  })
+
+  it("falls back to tickets lookup when RPC succeeds without a ticket id", async () => {
+    const orderId = "11111111-1111-4111-8111-111111111111"
+    const rpc = vi.fn().mockResolvedValue({ data: null, error: null })
+    const ticketLookup = vi.fn().mockResolvedValue({ data: { id: "33333333-3333-4333-8333-333333333333" }, error: null })
+    const from = vi.fn((table: string) => {
+      if (table === "tickets") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: ticketLookup,
+            }),
+          }),
+        }
+      }
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({ data: { slug: "event-slug" }, error: null }),
+          }),
+        }),
+      }
+    })
+    const admin = { rpc, from }
+    const result = await fulfillPaidCheckoutSession(
+      admin as never,
+      session({
+        payment_status: "paid",
+        id: "cs_test_12345678",
+        metadata: { order_id: orderId, event_id: "22222222-2222-2222-2222-222222222222" },
+        amount_total: 2100,
+        currency: "usd",
+      }),
+    )
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.ticketId).toBe("33333333-3333-4333-8333-333333333333")
+    }
+    expect(ticketLookup).toHaveBeenCalled()
+  })
+})
+
+describe("lookupTicketIdForOrder", () => {
+  it("returns ticket id from order lookup", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "44444444-4444-4444-8444-444444444444" },
+      error: null,
+    })
+    const admin = {
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({ maybeSingle }),
+        }),
+      }),
+    }
+    const id = await lookupTicketIdForOrder(admin as never, "11111111-1111-4111-8111-111111111111")
+    expect(id).toBe("44444444-4444-4444-8444-444444444444")
   })
 })

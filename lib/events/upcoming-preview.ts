@@ -1,5 +1,6 @@
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
+import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 
 export { formatCategoryLabel, formatCategoryLabels, formatDashboardEventWhen } from "./event-display-format"
 
@@ -31,11 +32,6 @@ export interface DashboardEventPreview {
 const SELECT =
   "id, title, slug, starts_at, ends_at, venue_name, city, categories, flyer_url"
 
-function isUpcomingOrOngoing(e: Pick<PublicEventRow, "starts_at" | "ends_at">, now: Date): boolean {
-  if (e.ends_at) return new Date(e.ends_at).getTime() >= now.getTime()
-  return new Date(e.starts_at).getTime() >= now.getTime()
-}
-
 /**
  * Next N published events that are upcoming or in progress (same rules as `/events` timeline).
  */
@@ -63,7 +59,7 @@ export async function getDashboardUpcomingEventPreviews(limit: number): Promise<
   const rows = data as PublicEventRow[]
 
   return rows
-    .filter((e) => isUpcomingOrOngoing(e, now))
+    .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
     .slice(0, limit)
     .map((e) => ({

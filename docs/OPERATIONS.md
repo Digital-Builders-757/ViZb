@@ -1,6 +1,6 @@
 # Operations
 
-**Last updated:** June 10, 2026  
+**Last updated:** June 11, 2026  
 **Audience:** Operators, release engineers, on-call
 
 Runtime assumptions, deploy flow, integrations, background work, and troubleshooting entry points for ViZb.
@@ -122,6 +122,7 @@ Canonical template: `.env.example`. Set per environment in Vercel dashboard or `
 | Admin user delete | `SUPABASE_SERVICE_ROLE_KEY` |
 | Advertise form | `RESEND_API_KEY`, `RESEND_FROM`, `ADMIN_EMAIL` |
 | Wallet passes | `APPLE_WALLET_*`, `GOOGLE_WALLET_*`, `TICKET_BARCODE_HMAC_SECRET` |
+| Sentry (Production only) | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_ENVIRONMENT` |
 
 ### Auth email
 
@@ -129,7 +130,44 @@ Sign-up and password emails are sent by **Supabase Auth**, not the app. Configur
 
 ### Sentry
 
-`.env.example` lists `SENTRY_*` variables. **No `@sentry` SDK is wired in app code** — monitoring is not active until integrated. Treat as planned/optional.
+**Active on Production/main only.** Preview (`develop`) and local development are intentionally **not** monitored.
+
+| Variable | Scope | Notes |
+|----------|-------|-------|
+| `NEXT_PUBLIC_SENTRY_DSN` | Production | Client-side error capture (public DSN only) |
+| `SENTRY_DSN` | Production | Server, RSC, and edge runtime capture |
+| `SENTRY_AUTH_TOKEN` | Production (build) | Source map upload — never expose client-side |
+| `SENTRY_ORG`, `SENTRY_PROJECT` | Production (build) | Required for source map upload via `withSentryConfig` |
+| `SENTRY_ENVIRONMENT` | Production | Defaults to `"production"` when unset |
+
+**Gating:** SDK initializes only when `NODE_ENV === "production"` **and** the relevant DSN is set. Do **not** add Sentry DSNs to Vercel Preview or Development — absence of DSNs keeps develop/preview silent even though Preview runs with `NODE_ENV=production`.
+
+**Verification (after deploy to `main`):**
+
+1. Sign in as staff admin (`platform_role = staff_admin`).
+2. Open **`/admin/diagnostics/sentry`** — readiness checks show DSN presence (never secret values).
+3. Click **Trigger client test error** and **Trigger server test error**.
+4. Confirm both events appear in the Sentry project with readable stack traces (requires `SENTRY_AUTH_TOKEN` on production build).
+5. Resolve or ignore the test issues in Sentry.
+
+**Stdout logging** via `lib/log.ts` remains active on all environments alongside Sentry on Production.
+
+### Door check-in QR (`TICKET_QR_SECRET`)
+
+Signed member QR codes on **`/tickets/[id]`** and **`/dashboard/tickets`** require a server-only HMAC secret. Without it, tickets still show backup codes but QR is hidden with a setup hint; staff scanner returns **`scanner_not_configured`**.
+
+| Variable | Scope | Notes |
+|----------|-------|-------|
+| `TICKET_QR_SECRET` | Preview, Production, local `.env.local` | Long random string (≥16 chars). Generate once (e.g. `openssl rand -base64 32`). **Never** commit the real value or expose client-side. |
+
+**Setup checklist:**
+
+1. Add `TICKET_QR_SECRET` to Vercel **Preview** and **Production** (and `.env.local` for local QR testing).
+2. Redeploy after adding the variable (Next.js reads it at runtime on the server).
+3. Open **`/admin/diagnostics/stripe`** — ticketing readiness includes a **`TICKET_QR_SECRET`** pass/warn row (value never shown).
+4. Confirm an upcoming ticket on **`/dashboard/tickets`** shows **Show this at the door** with a scannable QR; detail page **`/tickets/[id]`** opens QR by default.
+
+**Verification:** Staff scan flow uses **`POST /api/checkin/scan`** with the signed payload from **`lib/ticket-qr-token.ts`**. See **`docs/contracts/rsvps.md`** (Door QR).
 
 ### Application logging (active)
 
@@ -159,6 +197,7 @@ Troubleshooting table: `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`.
 | **Stripe** | Webhook POST `/api/stripe/webhook` | Tickets not minted after payment |
 | **Resend** | `advertise-contact` action | Partnership form fails |
 | **Vercel Analytics** | Client script in layout; product funnel events via `lib/analytics/product-events.ts` — see **`docs/analytics/PRODUCT_EVENTS.md`** | Silent — no user impact |
+| **Sentry** | Client + server SDK (`@sentry/nextjs`); Production/main only | Silent on Preview/develop — no DSN configured |
 | **Apple/Google Wallet** | GET pass routes | Buttons hidden or 503 |
 
 ### Stripe webhook setup
@@ -175,6 +214,7 @@ Webhook uses **service role** — missing key returns 503.
 | Tool | Route | Purpose |
 |------|-------|---------|
 | Stripe readiness diagnostics | `/admin/diagnostics/stripe` | Per-environment env pass/fail checks + expected webhook URL (#125) |
+| Sentry readiness diagnostics | `/admin/diagnostics/sentry` | Production-only monitoring checks + protected test triggers (#162) |
 | Ticket revenue ledger | `/admin/revenue` | Paid-order ledger: ticket subtotal vs ViZb service fee (#126) |
 | Return-path fulfillment sync | automatic on `?session_id=` return | `syncPaidTicketCheckoutSession` fulfills paid orders when webhooks are delayed/misconfigured (e.g. Vercel Preview) (#129) |
 
@@ -241,6 +281,7 @@ Primary runbook: [troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md](./troublesho
 | Admin user list missing | `admin_list_users` RPC absent or remote-only | Confirm RPC exists on target Supabase project |
 | Archived event still public | RLS `WITH CHECK` blocked archive pre-fix | Apply `20260610043000`, then re-archive the event |
 | Stripe env doubt per environment | Misconfigured keys/webhook | `/admin/diagnostics/stripe` |
+| Sentry not capturing on Production | DSN or auth token missing on Vercel Production | `/admin/diagnostics/sentry` |
 
 ### Wallet passes
 

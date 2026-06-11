@@ -3,6 +3,7 @@
 import { z } from "zod"
 
 import { requireAuth } from "@/lib/auth-helpers"
+import { assertEventAcceptsPublicRegistration } from "@/lib/events/event-schedule"
 import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
 import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { getStripe } from "@/lib/stripe/server"
@@ -82,12 +83,20 @@ export async function createTicketCheckoutSession(params: {
 
   const { data: eventRow, error: evErr } = await supabase
     .from("events")
-    .select("id, status, slug, title, rsvp_capacity")
+    .select("id, status, slug, title, rsvp_capacity, starts_at, ends_at")
     .eq("id", eventId)
     .maybeSingle()
 
   if (evErr || !eventRow || eventRow.status !== "published") {
     return { error: "This event is not available for purchase." }
+  }
+
+  const endedCheck = assertEventAcceptsPublicRegistration(
+    String(eventRow.starts_at),
+    eventRow.ends_at != null ? String(eventRow.ends_at) : null,
+  )
+  if (!endedCheck.ok) {
+    return { error: endedCheck.error }
   }
 
   if (eventRow.rsvp_capacity != null) {

@@ -3,7 +3,7 @@
 **Last updated:** June 11, 2026
 **Status source:** `docs/MVP_STATUS_ROADMAP.md` (deep detail) · `MVP_STATUS.md` (at a glance)
 
-All prior roadmaps are complete and archived (`docs/archive/`). **Retention + personalization batch (#154–#161, except #162 Sentry)** closed June 11, 2026 on `develop`. **#162 (Sentry SDK)** remains open for manual wiring.
+All prior roadmaps are complete and archived (`docs/archive/`). **Retention + personalization batch (#154–#161)** closed June 11, 2026 on `develop`. **#162 (Sentry SDK)** wired June 11, 2026 — Production/main only.
 
 This file is the single forward-looking list. Add new items here (or open GitHub issues and link them) instead of resurrecting archived roadmaps.
 
@@ -14,7 +14,9 @@ This file is the single forward-looking list. Add new items here (or open GitHub
 ### Ops hardening
 
 - [ ] **Production paid-checkout smoke test** — run a real (test-mode) checkout on production after each Stripe-touching release; watch webhook deliveries in the Stripe dashboard. Readiness check: `/admin/diagnostics/stripe`. (Carried from `MVP_STATUS_ROADMAP.md` "P0 next".)
-- [ ] **Sentry SDK wiring (#162)** — `.env.example` lists `SENTRY_*` placeholders but no `@sentry` SDK is installed; logging is stdout-only via `lib/log.ts`. Wire Sentry or remove placeholders (skipped in June 11 batch — manual follow-up).
+- [x] **Sentry SDK wiring (#162)** — `@sentry/nextjs` wired for Production/main only; `/admin/diagnostics/sentry` for protected verification. Preview/develop intentionally unmonitored.
+- [x] **Hide ended events from discovery (#181)** — `lib/events/event-schedule.ts`; public upcoming uses `coalesce(ends_at, starts_at) > now()`; RSVP/checkout gated when past.
+- [x] **Fix duplicate timeline CTA (#182)** — removed redundant **Full timeline →** links on `/events` rails.
 - [ ] **Re-archive pre-fix "archived" events** — events archived before migration `20260610043000` were silently blocked by RLS and may still be public. One-time data check + re-archive (see `docs/OPERATIONS.md` → Event archive ops).
 - [ ] **CI coverage gaps** — CI does not verify Supabase migration parity and does not exercise Stripe webhook fulfillment end-to-end (noted in `docs/OPERATIONS.md`).
 

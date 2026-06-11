@@ -37,6 +37,27 @@ export function ticketQrEligibleFromRegistration(args: {
   return args.nowMs - t <= TICKET_QR_EVENT_WINDOW_AFTER_START_MS
 }
 
+export function partitionWalletRowsByEffectiveEnd<T extends { eventEffectiveEndMs: number | null }>(
+  rows: T[],
+  nowMs: number,
+) {
+  const upcoming: T[] = []
+  const past: T[] = []
+  const undated: T[] = []
+
+  for (const r of rows) {
+    if (r.eventEffectiveEndMs == null) {
+      undated.push(r)
+      continue
+    }
+    if (r.eventEffectiveEndMs > nowMs) upcoming.push(r)
+    else past.push(r)
+  }
+
+  return { upcoming, past, undated }
+}
+
+/** @deprecated Use partitionWalletRowsByEffectiveEnd for upcoming/past split. */
 export function partitionWalletRowsByStart<T extends { eventStartMs: number | null }>(rows: T[], nowMs: number) {
   const upcoming: T[] = []
   const past: T[] = []

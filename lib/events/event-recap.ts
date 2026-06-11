@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { logError } from "@/lib/log"
 
+export { getEventEffectiveEndMs, isEventPast, isEventUpcomingOrOngoing, EVENT_ENDED_MESSAGE, assertEventAcceptsPublicRegistration } from "@/lib/events/event-schedule"
+
 export type EventRecapPost = {
   id: string
   title: string
@@ -43,7 +45,3 @@ export async function loadEventRecapPost(
   }
 }
 
-export function isEventPast(startsAt: string, endsAt: string | null, nowMs = Date.now()): boolean {
-  const endMs = endsAt ? new Date(endsAt).getTime() : new Date(startsAt).getTime()
-  return endMs < nowMs
-}

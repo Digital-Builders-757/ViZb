@@ -1,6 +1,7 @@
 "use server"
 
 import { requireAuth } from "@/lib/auth-helpers"
+import { assertEventAcceptsPublicRegistration } from "@/lib/events/event-schedule"
 import { mintFreeRsvpTicketForRegistration } from "@/lib/tickets/mint-free-rsvp-ticket"
 import { revalidatePath } from "next/cache"
 
@@ -58,12 +59,20 @@ export async function rsvpToEvent(eventId: string, ticketTypeId?: string | null)
 
   const { data: eventMeta, error: metaErr } = await supabase
     .from("events")
-    .select("status, rsvp_capacity, slug")
+    .select("status, rsvp_capacity, slug, starts_at, ends_at")
     .eq("id", eventId)
     .maybeSingle()
 
   if (metaErr || !eventMeta) {
     return { error: metaErr ? `Failed to RSVP: ${metaErr.message}` : "Event not found." }
+  }
+
+  const endedCheck = assertEventAcceptsPublicRegistration(
+    String(eventMeta.starts_at),
+    eventMeta.ends_at != null ? String(eventMeta.ends_at) : null,
+  )
+  if (!endedCheck.ok) {
+    return { error: endedCheck.error }
   }
 
   if (eventMeta.status !== "published") {

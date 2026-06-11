@@ -30,6 +30,7 @@ import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/eve
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 import { fetchMemberPreferences } from "@/lib/member/load-preferences"
 import { rankEventsForMember } from "@/lib/events/member-recommendations"
 import { CausticBackdrop } from "@/components/ui/caustic-backdrop"
@@ -457,14 +458,9 @@ export default async function EventsExplorePage({
 
   const allFlat = flattenEvents(allEvents as PublicEventRow[] | null)
 
-  // Split: upcoming/ongoing vs past
-  function isUpcomingOrOngoing(e: FlatEvent): boolean {
-    if (e.ends_at) return new Date(e.ends_at).getTime() >= now.getTime()
-    return new Date(e.starts_at).getTime() >= now.getTime()
-  }
-
+  // Split: upcoming/ongoing vs past (coalesce(ends_at, starts_at) > now)
   let upcomingBase = allFlat
-    .filter(isUpcomingOrOngoing)
+    .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
 
   if (forYouMode && eventsUser && supabase) {
@@ -490,7 +486,7 @@ export default async function EventsExplorePage({
   }
 
   let flatPastBase = allFlat
-    .filter((e) => !isUpcomingOrOngoing(e))
+    .filter((e) => !isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
     .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
     .slice(0, 12)
 
@@ -587,8 +583,6 @@ export default async function EventsExplorePage({
   const dateKeys = Object.keys(grouped).sort()
   const hasUpcoming = dateKeys.length > 0
   const hasPast = flatPast.length > 0
-  const hasTimelineContent = hasUpcoming || hasPast
-
   let runningIndex = 0
 
   return (
@@ -766,12 +760,6 @@ export default async function EventsExplorePage({
                       ViZb official picks first. Tap through for tickets and RSVP.
                     </p>
                   </div>
-                  <Link
-                    href="/events#timeline"
-                    className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)]"
-                  >
-                    Full timeline →
-                  </Link>
                 </div>
 
                 {/* Mobile: snap scroll carousel */}
@@ -813,12 +801,6 @@ export default async function EventsExplorePage({
                       Highlights from our team. Official and community listings mixed together.
                     </p>
                   </div>
-                  <Link
-                    href="/events#timeline"
-                    className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:text-[color:var(--neon-text0)]"
-                  >
-                    Full timeline →
-                  </Link>
                 </div>
 
                 {/* Mobile: snap scroll carousel */}
