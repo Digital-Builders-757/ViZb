@@ -30,6 +30,7 @@ import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/eve
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { CausticBackdrop } from "@/components/ui/caustic-backdrop"
 import { isPublicListingEventStatus } from "@/lib/events/public-listing"
 
 export const dynamic = "force-dynamic"
@@ -564,23 +565,8 @@ export default async function EventsExplorePage({
   let runningIndex = 0
 
   return (
-    <main className="relative min-h-screen bg-[color:var(--neon-bg0)] overflow-hidden">
-      {/* Static backdrop — skips Three.js on /events for faster first paint */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,209,255,0.12),transparent_55%),radial-gradient(ellipse_60%_50%_at_90%_80%,rgba(157,77,255,0.10),transparent_50%)]" />
-
-      {/* Dark overlay for text readability */}
-      <div className="fixed inset-0 bg-[color:var(--neon-bg0)]/45 z-[1]" />
-
-      {/* Floating neon orbs */}
-      <div className="fixed top-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl animate-pulse z-[1]" />
-      <div
-        className="fixed bottom-32 left-10 z-[1] h-32 w-32 rounded-full bg-[color:var(--neon-a)]/15 blur-3xl animate-pulse"
-        style={{ animationDelay: "1s" }}
-      />
-      <div
-        className="fixed top-1/2 right-1/4 z-[1] h-24 w-24 rounded-full bg-[color:var(--neon-b)]/10 blur-3xl animate-pulse"
-        style={{ animationDelay: "2s" }}
-      />
+    <main className="relative min-h-screen overflow-hidden bg-[color:var(--neon-bg0)]">
+      <CausticBackdrop variant="editorial" />
 
       {/* All page content above the background */}
       <div className="relative z-10">

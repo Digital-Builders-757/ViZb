@@ -338,6 +338,7 @@ export default async function PublicEventDetailPage({
   return (
     <AppShell
       withNeonBackdrop
+      causticVariant="subtle"
       className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
     >
       <main className="min-h-screen">
