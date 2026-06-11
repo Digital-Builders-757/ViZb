@@ -2,7 +2,6 @@ import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2, ExternalLink } from "lucide-react"
 import type { Metadata } from "next"
@@ -12,6 +11,8 @@ import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
+import { EventPremiumFlyer } from "@/components/events/event-premium-flyer"
+import { DepthLayer } from "@/components/ui/depth-layer"
 import { WaterFrame } from "@/components/ui/water-frame"
 import { Suspense } from "react"
 import { EventRsvpCta } from "@/components/events/event-rsvp-cta"
@@ -357,7 +358,8 @@ export default async function PublicEventDetailPage({
           />
         </Suspense>
 
-        <section className="px-4 pb-16 pt-24 sm:px-8 sm:pt-28 md:pb-24">
+        <section className="vizb-motion-enter px-4 pb-16 pt-24 sm:px-8 sm:pt-28 md:pb-24">
+        <DepthLayer level="far" className="pointer-events-none fixed inset-0 -z-[1] opacity-30" />
         <div className="max-w-[1200px] mx-auto">
           {/* Back */}
           <Link
@@ -371,29 +373,16 @@ export default async function PublicEventDetailPage({
           {/* Layout: flyer + details */}
           <div className="mt-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Flyer */}
-            <div className="w-full lg:w-1/2">
-              <WaterFrame className="relative aspect-[4/5] overflow-hidden rounded-xl">
-                {event.flyer_url ? (
-                  <Image
-                    src={event.flyer_url}
-                    alt={`Flyer for ${event.title}`}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[color:var(--neon-bg1)]">
-                    <span className="font-mono text-7xl font-bold text-[color:var(--neon-a)]/20 md:text-9xl">
-                      {startsAt.getDate()}
-                    </span>
-                    <p className="mt-2 font-mono text-sm uppercase tracking-widest text-[color:var(--neon-text2)]">
-                      {startsAt.toLocaleDateString("en-US", { month: "long" })}
-                    </p>
-                  </div>
-                )}
-                {/* Category badges */}
-                <div className="absolute left-4 top-4 z-10 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
+            <div className="relative w-full lg:w-1/2">
+              <EventPremiumFlyer
+                title={event.title}
+                flyerUrl={event.flyer_url}
+                startsAt={event.starts_at}
+                variant="detail"
+                priority
+              />
+              {/* Category badges */}
+              <div className="pointer-events-none absolute left-4 top-4 z-10 flex max-w-[min(100%,calc(100%-2rem))] flex-wrap gap-1.5">
                   <span
                     className={`rounded-full border px-3 py-1.5 text-[10px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur ${
                       listingCommunity
@@ -418,13 +407,6 @@ export default async function PublicEventDetailPage({
                     </span>
                   )}
                 </div>
-
-                {/* readability overlay */}
-                <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/82 via-[color:var(--neon-bg0)]/22 to-transparent"
-                  aria-hidden
-                />
-              </WaterFrame>
             </div>
 
             {/* Details */}
@@ -711,7 +693,7 @@ export default async function PublicEventDetailPage({
         </div>
         </section>
 
-        <OceanDivider variant="soft" density="normal" withLine={false} />
+        <OceanDivider variant="hero" density="normal" withLine className="mt-4" />
 
         <Footer />
       </main>

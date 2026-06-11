@@ -401,6 +401,16 @@
   }
 }
 
+.event-premium-flyer {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--neon-a) 12%, transparent),
+    0 12px 40px rgb(0 0 0 / 0.35);
+}
+
+.vizb-control-room-header {
+  box-shadow: 0 0 24px rgb(0 209 255 / 0.06);
+}
+
 /* Glass surface + form row (mockup-style; use with rounded-lg+) */
 .vibe-glass-panel {
   background: var(--vibe-glass-bg);
