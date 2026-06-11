@@ -15,7 +15,7 @@ function authorizeCron(request: Request): boolean {
   return auth === `Bearer ${secret}`
 }
 
-/** Hourly cron: in-app My Vibes reminders for saved upcoming events (#156). */
+/** Hourly cron: in-app My Vibes + email reminders (#156, #157). */
 export async function GET(request: Request) {
   if (!authorizeCron(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -28,7 +28,8 @@ export async function GET(request: Request) {
   try {
     const admin = createServiceRoleClient()
     const inApp = await processMyVibesInAppReminders(admin)
-    return NextResponse.json({ ok: true, inApp })
+    const email = await processEventEmailReminders(admin)
+    return NextResponse.json({ ok: true, inApp, email })
   } catch (err) {
     logError("cron.event_reminders", err)
     return NextResponse.json({ error: "Processing failed" }, { status: 500 })
