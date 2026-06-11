@@ -41,6 +41,9 @@ import { EventRecapBanner } from "@/components/events/event-recap-banner"
 import { FollowOrganizerButton } from "@/components/events/follow-organizer-button"
 import { loadEventRecapPost, isEventPast } from "@/lib/events/event-recap"
 import { isFollowingOrganizer } from "@/lib/follows/load-follows"
+import { loadPublicTicketTiersForEvent } from "@/lib/tickets/load-public-ticket-tiers"
+
+export const dynamic = "force-dynamic"
 
 interface PublicEvent {
   id: string
@@ -172,51 +175,12 @@ export default async function PublicEventDetailPage({
     rsvpOccupied = 0
   }
 
-  type PublicFreeTier = { id: string; name: string }
-  type PublicPaidTier = { id: string; name: string; price_cents: number }
-  let freeTicketTiers: PublicFreeTier[] = []
-  let paidTicketTiers: PublicPaidTier[] = []
+  let freeTicketTiers: { id: string; name: string }[] = []
+  let paidTicketTiers: { id: string; name: string; price_cents: number }[] = []
   if (!listingCommunity) {
-    try {
-      const { data: ttRows, error: ttError } = await supabase
-        .from("ticket_types")
-        .select("id, name, price_cents, sort_order, is_active, sales_starts_at, sales_ends_at, sales_start_at, sales_end_at")
-        .eq("event_id", event.id)
-        .order("sort_order", { ascending: true })
-
-      if (ttError) {
-        console.error("[events/[slug]] ticket_types query failed:", ttError.message)
-      }
-
-      const now = new Date()
-      for (const row of ttRows ?? []) {
-        const pr = row as {
-          id: string
-          name: string
-          price_cents: number | null
-          is_active?: boolean | null
-          sales_starts_at: string | null
-          sales_ends_at: string | null
-          sales_start_at?: string | null
-          sales_end_at?: string | null
-        }
-        if (pr.is_active === false) continue
-        const saleStartsAt = pr.sales_start_at ?? pr.sales_starts_at
-        const saleEndsAt = pr.sales_end_at ?? pr.sales_ends_at
-        if (saleStartsAt && new Date(saleStartsAt) > now) continue
-        if (saleEndsAt && new Date(saleEndsAt) < now) continue
-        const pc = typeof pr.price_cents === "number" ? pr.price_cents : Number(pr.price_cents)
-        if (!Number.isFinite(pc)) continue
-        if (pc === 0) {
-          freeTicketTiers.push({ id: pr.id, name: pr.name })
-        } else if (pc > 0) {
-          paidTicketTiers.push({ id: pr.id, name: pr.name, price_cents: pc })
-        }
-      }
-    } catch {
-      freeTicketTiers = []
-      paidTicketTiers = []
-    }
+    const tiers = await loadPublicTicketTiersForEvent(supabase, event.id)
+    freeTicketTiers = tiers.freeTicketTiers
+    paidTicketTiers = tiers.paidTicketTiers
   }
   const stripeCheckoutEnabled =
     Boolean(process.env.STRIPE_SECRET_KEY?.trim()) &&

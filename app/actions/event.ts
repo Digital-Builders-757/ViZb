@@ -279,7 +279,7 @@ export async function createEvent(formData: FormData) {
   revalidatePath("/dashboard")
   revalidatePath("/admin")
   revalidatePath(`/admin/events/${event.id}`)
-  revalidatePath(`/events/${event.slug}`)
+  revalidatePublicEventDiscoveryPaths(event.slug)
 
   return { success: true, event, orgSlug }
 }
