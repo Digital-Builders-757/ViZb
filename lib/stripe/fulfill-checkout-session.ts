@@ -2,6 +2,8 @@ import { revalidatePath } from "next/cache"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type Stripe from "stripe"
 
+import { coerceUuid } from "@/lib/coerce-uuid"
+
 function readString(value: unknown): string | null {
   if (typeof value === "string") {
     const trimmed = value.trim()
@@ -61,6 +63,11 @@ export async function fulfillPaidCheckoutSession(
     return { ok: false, error: fulfillError.message }
   }
 
+  let resolvedTicketId = coerceUuid(ticketId)
+  if (!resolvedTicketId) {
+    resolvedTicketId = await lookupTicketIdForOrder(admin, orderId)
+  }
+
   let eventSlug: string | null = null
   if (eventId) {
     const { data: eventRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle()
@@ -69,10 +76,18 @@ export async function fulfillPaidCheckoutSession(
 
   return {
     ok: true,
-    ticketId: typeof ticketId === "string" ? ticketId : null,
+    ticketId: resolvedTicketId,
     eventId,
     eventSlug,
   }
+}
+
+export async function lookupTicketIdForOrder(
+  admin: SupabaseClient,
+  orderId: string,
+): Promise<string | null> {
+  const { data: row } = await admin.from("tickets").select("id").eq("order_id", orderId).maybeSingle()
+  return coerceUuid(row?.id)
 }
 
 export function revalidateAfterTicketFulfillment(eventSlug: string | null) {

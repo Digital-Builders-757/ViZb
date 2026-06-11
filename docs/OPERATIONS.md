@@ -152,6 +152,23 @@ Sign-up and password emails are sent by **Supabase Auth**, not the app. Configur
 
 **Stdout logging** via `lib/log.ts` remains active on all environments alongside Sentry on Production.
 
+### Door check-in QR (`TICKET_QR_SECRET`)
+
+Signed member QR codes on **`/tickets/[id]`** and **`/dashboard/tickets`** require a server-only HMAC secret. Without it, tickets still show backup codes but QR is hidden with a setup hint; staff scanner returns **`scanner_not_configured`**.
+
+| Variable | Scope | Notes |
+|----------|-------|-------|
+| `TICKET_QR_SECRET` | Preview, Production, local `.env.local` | Long random string (≥16 chars). Generate once (e.g. `openssl rand -base64 32`). **Never** commit the real value or expose client-side. |
+
+**Setup checklist:**
+
+1. Add `TICKET_QR_SECRET` to Vercel **Preview** and **Production** (and `.env.local` for local QR testing).
+2. Redeploy after adding the variable (Next.js reads it at runtime on the server).
+3. Open **`/admin/diagnostics/stripe`** — ticketing readiness includes a **`TICKET_QR_SECRET`** pass/warn row (value never shown).
+4. Confirm an upcoming ticket on **`/dashboard/tickets`** shows **Show this at the door** with a scannable QR; detail page **`/tickets/[id]`** opens QR by default.
+
+**Verification:** Staff scan flow uses **`POST /api/checkin/scan`** with the signed payload from **`lib/ticket-qr-token.ts`**. See **`docs/contracts/rsvps.md`** (Door QR).
+
 ### Application logging (active)
 
 Server-side failures log to **Vercel/host stdout** via `lib/log.ts`:

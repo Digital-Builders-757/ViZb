@@ -72,16 +72,16 @@ export function EventStripeReturn({
             source: analyticsContext?.source ?? "event_detail",
           })
           toast.error(result.error)
-        } else if (result.ticketId) {
-          setFulfilledTicketId(result.ticketId)
+        } else {
+          if (result.ticketId) {
+            setFulfilledTicketId(result.ticketId)
+          }
           setPaidState("confirmed")
           trackProductEvent("paid_checkout_confirmed", {
             ...analyticsContext,
             checkout_status: "confirmed",
             source: analyticsContext?.source ?? "event_detail",
           })
-        } else {
-          setPaidState("pending")
         }
         router.replace(eventPath)
         router.refresh()

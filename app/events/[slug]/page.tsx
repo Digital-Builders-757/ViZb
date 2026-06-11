@@ -26,6 +26,7 @@ import { EventShareRow } from "@/components/events/event-share-row"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
 import { registrationStatusFromJoin } from "@/lib/tickets/registration-status-from-row"
 import { mintFreeRsvpTicketForRegistration } from "@/lib/tickets/mint-free-rsvp-ticket"
+import { healPaidTicketForEvent } from "@/lib/tickets/heal-paid-ticket-for-event"
 import { eventHasOpenMicCategory } from "@/lib/lineup/open-mic"
 import {
   eventKindBadgeLong,
@@ -299,6 +300,14 @@ export default async function PublicEventDetailPage({
             hasActiveTicket = false
             initialTicketId = null
           }
+        }
+      }
+
+      if (!hasActiveTicket) {
+        const healed = await healPaidTicketForEvent(supabase, user.id, event.id)
+        if (healed && !("error" in healed) && healed.ticketId) {
+          hasActiveTicket = true
+          initialTicketId = healed.ticketId
         }
       }
     }

@@ -64,6 +64,8 @@ function TicketSection({
   ticketSecret,
   qrIssuedAtUnixSeconds,
   nowMs,
+  qrDefaultOpen = false,
+  qrSize = 200,
 }: {
   title: string
   subtitle?: string
@@ -74,6 +76,8 @@ function TicketSection({
   ticketSecret: string | null
   qrIssuedAtUnixSeconds: number
   nowMs: number
+  qrDefaultOpen?: boolean
+  qrSize?: number
 }) {
   if (rows.length === 0) return null
 
@@ -124,6 +128,8 @@ function TicketSection({
               qrToken={qrToken}
               ticketSigningConfigured={Boolean(ticketSecret)}
               ticketQrEligible={eligible}
+              qrDefaultOpen={qrDefaultOpen}
+              qrSize={qrSize}
             />
           )
         })}
@@ -177,9 +183,9 @@ export default async function TicketsPage() {
         </span>
         <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">My Tickets</h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Every confirmed RSVP and completed purchase lands here. You get a ticket code for your records; door
-          check-in may offer a separate QR when the venue turns it on. Add events to your calendar from each
-          ticket if you want a reminder—optional.
+          Every confirmed RSVP and completed purchase lands here. Expand{" "}
+          <span className="text-[color:var(--neon-text0)]">Show this at the door</span> for your scannable check-in QR
+          and backup code. Add events to your calendar from each ticket if you want a reminder—optional.
         </p>
       </header>
 
@@ -227,6 +233,8 @@ export default async function TicketsPage() {
             ticketSecret={ticketSecret}
             qrIssuedAtUnixSeconds={qrIssuedAtUnixSeconds}
             nowMs={nowMs}
+            qrDefaultOpen
+            qrSize={256}
           />
 
           <TicketSection
