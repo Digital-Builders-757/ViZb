@@ -134,7 +134,15 @@ describe("createTicketCheckoutSession", () => {
       error: null,
     })
     const evChain = chainable({
-      data: { id: EVENT_ID, status: "draft", slug: "draft-event", title: "Draft", rsvp_capacity: null },
+      data: {
+        id: EVENT_ID,
+        status: "draft",
+        slug: "draft-event",
+        title: "Draft",
+        rsvp_capacity: null,
+        starts_at: "2026-12-01T19:00:00.000Z",
+        ends_at: null,
+      },
       error: null,
     })
     mockFrom.mockImplementation((table: string) => {
@@ -146,6 +154,42 @@ describe("createTicketCheckoutSession", () => {
     const { createTicketCheckoutSession } = await import("@/app/actions/ticket-checkout")
     const result = await createTicketCheckoutSession({ eventId: EVENT_ID, ticketTypeId: TIER_ID })
     expect(result.error).toMatch(/not available/i)
+  })
+
+  it("rejects ended events", async () => {
+    const ttChain = chainable({
+      data: {
+        id: TIER_ID,
+        event_id: EVENT_ID,
+        name: "GA",
+        price_cents: 2500,
+        currency: "usd",
+        is_active: true,
+      },
+      error: null,
+    })
+    const evChain = chainable({
+      data: {
+        id: EVENT_ID,
+        status: "published",
+        slug: "past-event",
+        title: "Past",
+        rsvp_capacity: null,
+        starts_at: "2020-01-01T19:00:00.000Z",
+        ends_at: "2020-01-01T22:00:00.000Z",
+      },
+      error: null,
+    })
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "ticket_types") return ttChain
+      if (table === "events") return evChain
+      return chainable({ data: null, error: null })
+    })
+
+    const { createTicketCheckoutSession } = await import("@/app/actions/ticket-checkout")
+    const result = await createTicketCheckoutSession({ eventId: EVENT_ID, ticketTypeId: TIER_ID })
+    expect(result.error).toMatch(/already ended/i)
+    expect(mockStripeCreate).not.toHaveBeenCalled()
   })
 
   it("creates checkout with ticket + fee line items when fee > 0", async () => {
@@ -162,7 +206,15 @@ describe("createTicketCheckoutSession", () => {
       error: null,
     })
     const evChain = chainable({
-      data: { id: EVENT_ID, status: "published", slug: "live-event", title: "Live", rsvp_capacity: null },
+      data: {
+        id: EVENT_ID,
+        status: "published",
+        slug: "live-event",
+        title: "Live",
+        rsvp_capacity: null,
+        starts_at: "2026-12-01T19:00:00.000Z",
+        ends_at: "2026-12-01T22:00:00.000Z",
+      },
       error: null,
     })
     const regChain = chainable({ data: null, error: null })
@@ -229,7 +281,15 @@ describe("createTicketCheckoutSession", () => {
       error: null,
     })
     const evChain = chainable({
-      data: { id: EVENT_ID, status: "published", slug: "live-event", title: "Live", rsvp_capacity: null },
+      data: {
+        id: EVENT_ID,
+        status: "published",
+        slug: "live-event",
+        title: "Live",
+        rsvp_capacity: null,
+        starts_at: "2026-12-01T19:00:00.000Z",
+        ends_at: "2026-12-01T22:00:00.000Z",
+      },
       error: null,
     })
     const regChain = chainable({ data: null, error: null })
@@ -276,7 +336,15 @@ describe("createTicketCheckoutSession", () => {
       error: null,
     })
     const evChain = chainable({
-      data: { id: EVENT_ID, status: "published", slug: "live-event", title: "Live", rsvp_capacity: null },
+      data: {
+        id: EVENT_ID,
+        status: "published",
+        slug: "live-event",
+        title: "Live",
+        rsvp_capacity: null,
+        starts_at: "2026-12-01T19:00:00.000Z",
+        ends_at: "2026-12-01T22:00:00.000Z",
+      },
       error: null,
     })
     const regChain = chainable({ data: null, error: null })

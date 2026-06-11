@@ -7,6 +7,7 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { normalizeCategories } from "@/lib/events/categories"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 import {
   isPublicListingEventStatus,
   PUBLIC_EVENT_LISTING_STATUS,
@@ -112,11 +113,6 @@ function flattenEventRow(e: PublicEventRow): HomeTimelineEvent {
   }
 }
 
-function isUpcomingOrOngoing(e: HomeTimelineEvent, now: Date): boolean {
-  if (e.ends_at) return new Date(e.ends_at).getTime() >= now.getTime()
-  return new Date(e.starts_at).getTime() >= now.getTime()
-}
-
 const etDateFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "America/New_York",
   year: "numeric",
@@ -164,7 +160,7 @@ export async function HomeTimelineSection() {
     )
     events = rows
       .map(flattenEventRow)
-      .filter((e) => isUpcomingOrOngoing(e, now))
+      .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
       .slice(0, HOME_TIMELINE_LIMIT)
 
     const {

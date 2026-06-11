@@ -529,31 +529,52 @@ export default async function PublicEventDetailPage({
                 <GlassCard className="p-4 md:p-5">
                   {listingCommunity ? (
                     <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <ExternalLink className="w-5 h-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
-                        <div className="min-w-0">
-                          <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
-                            RSVP elsewhere
-                          </p>
-                          <p className="mt-2 text-[14px] leading-relaxed text-[color:var(--neon-text1)]">
-                            RSVP for this listing happens on the host&apos;s site. We&apos;ll open it in a new tab.
-                          </p>
-                        </div>
-                      </div>
-                      {externalRsvpHref ? (
-                        <a
-                          href={externalRsvpHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="vibe-cta-gradient vibe-focus-ring inline-flex w-full min-h-11 items-center justify-center gap-2 px-8 py-3 text-xs font-mono font-bold uppercase tracking-widest sm:inline-flex sm:w-auto"
+                      {eventIsPast ? (
+                        <div
+                          role="status"
+                          className="rounded-xl border border-[color:var(--neon-hairline)]/80 bg-[color:var(--neon-surface)]/20 px-4 py-4"
                         >
-                          Open RSVP link
-                          <ExternalLink className="h-4 w-4" aria-hidden />
-                        </a>
+                          <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                            Event ended
+                          </p>
+                          <p className="mt-2 text-sm leading-relaxed text-[color:var(--neon-text1)]">
+                            This event is over. RSVP and ticket purchase are no longer available.
+                          </p>
+                          {hasActiveTicket && initialTicketId ? (
+                            <NeonLink href={`/tickets/${initialTicketId}`} className="mt-4 inline-flex" size="sm">
+                              View your ticket
+                            </NeonLink>
+                          ) : null}
+                        </div>
                       ) : (
-                        <p className="text-sm text-[color:var(--neon-text2)]">
-                          RSVP link is not available right now — check back later.
-                        </p>
+                        <>
+                          <div className="flex items-start gap-3">
+                            <ExternalLink className="w-5 h-5 shrink-0 text-[color:var(--neon-a)]" aria-hidden />
+                            <div className="min-w-0">
+                              <p className="text-sm font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                                RSVP elsewhere
+                              </p>
+                              <p className="mt-2 text-[14px] leading-relaxed text-[color:var(--neon-text1)]">
+                                RSVP for this listing happens on the host&apos;s site. We&apos;ll open it in a new tab.
+                              </p>
+                            </div>
+                          </div>
+                          {externalRsvpHref ? (
+                            <a
+                              href={externalRsvpHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="vibe-cta-gradient vibe-focus-ring inline-flex w-full min-h-11 items-center justify-center gap-2 px-8 py-3 text-xs font-mono font-bold uppercase tracking-widest sm:inline-flex sm:w-auto"
+                            >
+                              Open RSVP link
+                              <ExternalLink className="h-4 w-4" aria-hidden />
+                            </a>
+                          ) : (
+                            <p className="text-sm text-[color:var(--neon-text2)]">
+                              RSVP link is not available right now — check back later.
+                            </p>
+                          )}
+                        </>
                       )}
 
                       <div className="mt-4 space-y-3 border-t border-[color:var(--neon-hairline)] pt-4">
@@ -679,6 +700,24 @@ export default async function PublicEventDetailPage({
                       ) : null}
 
                       <div id="event-rsvp" className="scroll-mt-28">
+                      {eventIsPast ? (
+                        <div
+                          role="status"
+                          className="rounded-xl border border-[color:var(--neon-hairline)]/80 bg-[color:var(--neon-surface)]/20 px-4 py-4"
+                        >
+                          <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                            Event ended
+                          </p>
+                          <p className="mt-2 text-sm leading-relaxed text-[color:var(--neon-text1)]">
+                            This event is over. RSVP and ticket purchase are no longer available.
+                          </p>
+                          {hasActiveTicket && initialTicketId ? (
+                            <NeonLink href={`/tickets/${initialTicketId}`} className="mt-4 inline-flex" size="sm">
+                              View your ticket
+                            </NeonLink>
+                          ) : null}
+                        </div>
+                      ) : (
                       <EventRsvpCta
                         key={[...freeTicketTiers.map((t) => t.id), ...paidTicketTiers.map((t) => t.id)].join("-")}
                         eventId={event.id}
@@ -699,11 +738,14 @@ export default async function PublicEventDetailPage({
                         eventPublicUrl={eventPublicUrl}
                         analyticsContext={productAnalyticsContext}
                       />
+                      )}
 
+                      {!eventIsPast ? (
                       <p className="mt-3 text-[11px] text-[color:var(--neon-text2)]">
                         Free RSVP stays $0. Paid tiers use Stripe Checkout; canceling an RSVP does not refund card
                         charges.
                       </p>
+                      ) : null}
                       </div>
                     </>
                   )}

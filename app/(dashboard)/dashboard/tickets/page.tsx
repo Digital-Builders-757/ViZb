@@ -11,16 +11,18 @@ import {
   coalesceRelation,
   firstWalletEvent,
   normalizeTicketWalletRow,
-  partitionWalletRowsByStart,
+  partitionWalletRowsByEffectiveEnd,
   ticketQrEligibleFromRegistration,
   type TicketWalletRow,
   type TicketWalletRowRaw,
   type WalletEvent,
 } from "@/lib/dashboard/ticket-wallet-shared"
+import { getEventEffectiveEndMs } from "@/lib/events/event-schedule"
 
 type TicketRowParsed = TicketWalletRow & {
   event: WalletEvent
   eventStartMs: number | null
+  eventEffectiveEndMs: number | null
 }
 
 async function siteOrigin(): Promise<string> {
@@ -41,10 +43,12 @@ function parseTicketRows(raw: TicketWalletRow[] | null): TicketRowParsed[] {
     const e = firstWalletEvent(coalesceRelation(row.event_registrations.event))
     if (!e) continue
     const t = new Date(e.starts_at).getTime()
+    const effectiveEndMs = getEventEffectiveEndMs(e.starts_at, e.ends_at ?? null)
     out.push({
       ...row,
       event: e,
       eventStartMs: Number.isNaN(t) ? null : t,
+      eventEffectiveEndMs: Number.isNaN(effectiveEndMs) ? null : effectiveEndMs,
     })
   }
   return out
@@ -142,7 +146,7 @@ export default async function TicketsPage() {
     const { data, error } = await supabase
       .from("tickets")
       .select(
-        `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, city, venue_name, flyer_url ) )`,
+        `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url ) )`,
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -163,7 +167,7 @@ export default async function TicketsPage() {
   const qrIssuedAtUnixSeconds = Math.floor(nowMs / 1000)
   const ticketSecret = getTicketQrSecret()
 
-  const { upcoming, past, undated } = partitionWalletRowsByStart(parsed, nowMs)
+  const { upcoming, past, undated } = partitionWalletRowsByEffectiveEnd(parsed, nowMs)
 
   return (
     <div className="min-w-0 space-y-8 md:space-y-10">

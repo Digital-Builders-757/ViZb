@@ -4,11 +4,7 @@ import {
   firstWalletEvent,
   type WalletEvent,
 } from "@/lib/dashboard/ticket-wallet-shared"
-
-function isUpcomingOrOngoing(startsAt: string, endsAt: string | null, now: Date): boolean {
-  if (endsAt) return new Date(endsAt).getTime() >= now.getTime()
-  return new Date(startsAt).getTime() >= now.getTime()
-}
+import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 
 export interface MemberHomeTicketPreview {
   ticketId: string
@@ -88,7 +84,7 @@ export async function loadMemberHomeRsvpSummary(
     const upcomingRows = active.filter((r) => {
       const e = firstWalletEvent(coalesceRelation(r.event_registrations.event))
       if (!e) return false
-      return isUpcomingOrOngoing(e.starts_at, e.ends_at ?? null, now)
+      return isEventUpcomingOrOngoing(e.starts_at, e.ends_at ?? null, now.getTime())
     })
 
     upcomingRows.sort((a, b) => {

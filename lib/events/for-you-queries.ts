@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { logError } from "@/lib/log"
 import { normalizeCategories } from "@/lib/events/categories"
+import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 import { fetchMemberFollows } from "@/lib/follows/load-follows"
 import {
   hasPersonalizationSignals,
@@ -16,11 +17,6 @@ const EVENT_SELECT = `
   is_staff_pick, event_kind, org_id,
   organizations ( name )
 `
-
-function isUpcomingOrOngoing(startsAt: string, endsAt: string | null, now: Date): boolean {
-  if (endsAt) return new Date(endsAt).getTime() >= now.getTime()
-  return new Date(startsAt).getTime() >= now.getTime()
-}
 
 async function loadBehaviorCategories(
   supabase: SupabaseClient,
@@ -111,7 +107,7 @@ export async function fetchForYouRecommendations(
   const events = (data ?? [])
     .map((row) => mapEventRow(row as Record<string, unknown>))
     .filter((e): e is RankableEvent => e != null)
-    .filter((e) => isUpcomingOrOngoing(e.starts_at, e.ends_at, now))
+    .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
 
   const behavior = await loadBehaviorCategories(supabase, userId)
   const follows = await fetchMemberFollows(supabase, userId)
@@ -174,7 +170,7 @@ export async function fetchFollowedOrganizerEvents(
   const events = (data ?? [])
     .map((row) => mapEventRow(row as Record<string, unknown>))
     .filter((e): e is RankableEvent => e != null)
-    .filter((e) => isUpcomingOrOngoing(e.starts_at, e.ends_at, now))
+    .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
 
   return rankEventsForMember(
     events,
