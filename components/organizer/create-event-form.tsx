@@ -81,6 +81,7 @@ export function CreateEventForm({
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [rsvpMode, setRsvpMode] = useState<"unlimited" | "capped">("unlimited")
   const [rsvpCapInput, setRsvpCapInput] = useState("")
+  const [ticketMode, setTicketMode] = useState<"free_rsvp" | "paid">("free_rsvp")
 
   useEffect(() => {
     return () => {
@@ -185,11 +186,8 @@ export function CreateEventForm({
         formData.set("ends_at", endDateTime)
       }
 
-      const ticketMode = String(formData.get("ticket_mode") ?? "free_rsvp")
+      formData.set("ticket_mode", ticketMode)
       if (ticketMode === "paid") {
-        if (!formData.get("is_active")) {
-          formData.set("is_active", "false")
-        }
         const priceRaw = String(formData.get("price_usd") ?? "").trim()
         if (!priceRaw) {
           setError("Enter a price for the paid ticket tier.")
@@ -677,7 +675,7 @@ export function CreateEventForm({
             {showAdminTicketing ? (
               <>
                 <div className="section-divider my-8" />
-                <EventTicketingCreateFields />
+                <EventTicketingCreateFields ticketMode={ticketMode} onTicketModeChange={setTicketMode} />
               </>
             ) : null}
           </div>

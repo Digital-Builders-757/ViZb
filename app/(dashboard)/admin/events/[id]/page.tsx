@@ -4,7 +4,7 @@ import Image from "next/image"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { NeonLink } from "@/components/ui/neon-link"
-import { ArrowLeft, FileText, ImageIcon, Users } from "lucide-react"
+import { ArrowLeft, FileText, ImageIcon, QrCode, Users } from "lucide-react"
 import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { GlassCard } from "@/components/ui/glass-card"
 import { AdminEventRegistrationsTable } from "@/components/admin/event-registrations-table"
@@ -270,6 +270,16 @@ export default async function AdminEventDetailPage({
           </p>
         </div>
         <div className="flex w-full md:w-auto flex-col gap-2 sm:flex-row">
+          {(event.status as string) === "published" && (
+            <NeonLink
+              href={`/admin/events/${event.id}/check-in`}
+              variant="secondary"
+              className="inline-flex items-center justify-center gap-2"
+            >
+              <QrCode className="h-4 w-4" />
+              Open door scanner
+            </NeonLink>
+          )}
           {(event.status as string) === "draft" && (
             <SubmitReviewButton eventId={event.id} />
           )}
@@ -339,13 +349,17 @@ export default async function AdminEventDetailPage({
           </div>
 
           <div className="flex-1">
-            {["draft", "pending_review", "rejected"].includes(event.status as string) ? (
-              <FlyerUploadForm eventId={event.id} currentFlyerUrl={flyerUrl} />
+            {(event.status as string) !== "archived" ? (
+              <>
+                <FlyerUploadForm eventId={event.id} currentFlyerUrl={flyerUrl} />
+                <p className="mt-3 text-xs text-muted-foreground font-mono leading-relaxed max-w-xl">
+                  Recommended: portrait 4:5, JPEG/PNG/WebP/GIF, max 5MB. Replacing updates Explore and public
+                  event pages after save.
+                </p>
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">
-                {flyerUrl
-                  ? "Flyer is set. Published events cannot have their flyer changed."
-                  : "No flyer uploaded."}
+                Archived events cannot have their flyer changed.
               </p>
             )}
             {!flyerUrl &&
