@@ -46,24 +46,31 @@ export function TicketQrReveal({
   }, [token])
 
   return (
-    <div className="mt-4 border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30 p-4 sm:p-5">
+    <div className="border-t border-[color:var(--neon-hairline)]/50 bg-[color:var(--neon-surface)]/20 px-4 py-4 sm:px-5 sm:py-5">
       <button
         type="button"
         onClick={toggle}
         aria-expanded={open}
         aria-controls={panelId}
-        className="flex w-full items-center justify-between gap-3 text-left text-sm font-medium text-[color:var(--neon-text0)]"
+        className="flex w-full items-center justify-between gap-3 text-left"
       >
-        <span>{open ? "Hide ticket code" : "Show this at the door"}</span>
-        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+        <span>
+          <span className="block font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">
+            Door check-in
+          </span>
+          <span className="mt-0.5 block text-sm font-semibold text-[color:var(--neon-text0)]">
+            {open ? "Hide QR code" : "Show QR at the door"}
+          </span>
+        </span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 font-mono text-lg text-[color:var(--neon-text0)]">
           {open ? "−" : "+"}
         </span>
       </button>
 
       {open ? (
-        <div id={panelId} className="mt-4 flex flex-col items-center gap-4">
+        <div id={panelId} className="mt-5 flex flex-col items-center gap-4">
           <p className="sr-only">{label}</p>
-          <div className="rounded-lg bg-white p-3 shadow-sm">
+          <div className="rounded-xl border-2 border-[color:var(--neon-a)]/30 bg-white p-4 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
             <QRCodeSVG value={token} size={size} level="M" includeMargin={false} />
           </div>
           <p className="max-w-xs text-center text-[10px] font-mono leading-relaxed text-[color:var(--neon-text2)]">

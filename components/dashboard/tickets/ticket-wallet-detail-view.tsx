@@ -148,7 +148,8 @@ export async function TicketWalletDetailView({
         ticketQrEligible={eligible}
         qrDefaultOpen={Boolean(qrToken)}
         qrShowFullBackupCode={true}
-        qrSize={256}
+        qrSize={280}
+        compactDetailsLink
       />
     </div>
   )

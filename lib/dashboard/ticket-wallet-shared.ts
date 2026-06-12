@@ -39,6 +39,61 @@ export function ticketQrEligibleFromRegistration(args: {
 
 export type TicketEventPhase = "upcoming" | "past"
 
+export type TicketDisplayState = {
+  statusLabel: string
+  statusBadgeClassName: string
+  cardAccentClassName: string
+  showDoorHint: boolean
+}
+
+/** Maps registration status + event phase to wallet card presentation. */
+export function getTicketDisplayState(status: string, eventPhase: TicketEventPhase): TicketDisplayState {
+  const isPast = eventPhase === "past"
+
+  if (status === "cancelled") {
+    return {
+      statusLabel: "Cancelled",
+      statusBadgeClassName:
+        "border-red-400/35 bg-red-400/10 text-red-100/90",
+      cardAccentClassName: "border-red-400/20",
+      showDoorHint: false,
+    }
+  }
+
+  if (status === "checked_in") {
+    return {
+      statusLabel: "Checked in",
+      statusBadgeClassName:
+        "border-emerald-400/45 bg-emerald-400/12 text-emerald-100",
+      cardAccentClassName: isPast
+        ? "border-emerald-400/20 opacity-90"
+        : "border-emerald-400/35 shadow-[0_0_24px_rgba(52,211,153,0.12)]",
+      showDoorHint: !isPast,
+    }
+  }
+
+  if (status === "confirmed") {
+    return {
+      statusLabel: isPast ? "Attended" : "Confirmed for entry",
+      statusBadgeClassName: isPast
+        ? "border-[color:var(--neon-hairline)]/80 bg-[color:var(--neon-surface)]/30 text-[color:var(--neon-text2)]"
+        : "border-[color:var(--neon-a)]/45 bg-[color:color-mix(in_srgb,var(--neon-a)_12%,var(--neon-surface))] text-[color:var(--neon-text0)]",
+      cardAccentClassName: isPast
+        ? "border-[color:var(--neon-hairline)]/60 opacity-90"
+        : "border-[color:var(--neon-a)]/30 shadow-[0_0_28px_rgba(0,209,255,0.1)]",
+      showDoorHint: !isPast,
+    }
+  }
+
+  return {
+    statusLabel: status.replace(/_/g, " "),
+    statusBadgeClassName:
+      "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 text-[color:var(--neon-text0)]",
+    cardAccentClassName: isPast ? "border-[color:var(--neon-hairline)]/60 opacity-90" : "",
+    showDoorHint: false,
+  }
+}
+
 /** Whether a wallet row belongs in active tickets or ticket history. */
 export function getTicketEventPhase(
   eventEffectiveEndMs: number | null,
