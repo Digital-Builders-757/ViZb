@@ -33,6 +33,10 @@ interface EventTimelineCardProps {
   interactive?: boolean
   /** `archive` = past events: quieter emphasis, smaller type rhythm. */
   tone?: "default" | "archive"
+  /** Stagger index for timeline entrance motion. */
+  timelineIndex?: number
+  /** Stronger glow for staff picks in the main timeline. */
+  featured?: boolean
 }
 
 export function EventTimelineCard({
@@ -42,6 +46,8 @@ export function EventTimelineCard({
   isSaved,
   tone = "default",
   interactive = true,
+  timelineIndex = 0,
+  featured = false,
 }: EventTimelineCardProps) {
   const start = new Date(event.starts_at)
   const detailHref = `/events/${event.slug}`
@@ -82,9 +88,12 @@ export function EventTimelineCard({
     <GlassCard
       interactive={interactive}
       role="article"
-      className={`group vibe-glass-panel events-neon-card-hover relative flex flex-col ${
+      style={{ ["--timeline-index" as string]: timelineIndex }}
+      className={`group vibe-glass-panel events-timeline-card-enter events-neon-card-hover relative flex flex-col ${
         isEven ? "md:flex-row" : "md:flex-row-reverse"
       } gap-0 ${isArchive ? "md:gap-6 events-neon-card-archive" : "md:gap-8 events-neon-card"} rounded-2xl p-0 ${
+        featured && !isArchive ? "events-neon-card-featured" : ""
+      } ${
         isArchive
           ? "bg-[color:var(--neon-surface)]/10"
           : "bg-[color:var(--neon-surface)]/20"

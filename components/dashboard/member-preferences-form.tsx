@@ -6,7 +6,8 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { MEMBER_HOME_CITY_OPTIONS, type MemberHomeCityValue } from "@/lib/member/home-cities"
 import type { MemberPreferencesSnapshot } from "@/lib/member/preferences"
 import { MapPin, Sparkles } from "lucide-react"
-import { useActionState, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useActionState, useEffect, useState } from "react"
 
 const initialState: MemberPreferencesState = { error: null, success: false }
 
@@ -20,8 +21,28 @@ export interface MemberPreferencesFormProps {
   variant?: "first-run" | "profile"
 }
 
+function buildPreferencesFormData(input: {
+  homeCities: Set<MemberHomeCityValue>
+  categories: Set<string>
+  reminderOptIn: boolean
+  emailReminders: boolean
+  inAppReminders: boolean
+}): FormData {
+  const fd = new FormData()
+  for (const city of input.homeCities) fd.append("homeCities", city)
+  for (const category of input.categories) fd.append("categories", category)
+  if (input.reminderOptIn) {
+    fd.set("reminderOptIn", "on")
+    if (input.inAppReminders) fd.set("inAppReminders", "on")
+    if (input.emailReminders) fd.set("emailReminders", "on")
+  }
+  return fd
+}
+
 export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPreferencesFormProps) {
+  const router = useRouter()
   const [state, formAction, isPending] = useActionState(saveMemberPreferences, initialState)
+  const [clientError, setClientError] = useState<string | null>(null)
   const [homeCities, setHomeCities] = useState(() => new Set(initial.homeCities))
   const [categories, setCategories] = useState(() => new Set(initial.categories))
   const [reminderOptIn, setReminderOptIn] = useState(initial.reminderOptIn)
@@ -29,6 +50,7 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
   const [inAppReminders, setInAppReminders] = useState(initial.inAppReminders)
 
   const toggleCity = (value: MemberHomeCityValue) => {
+    setClientError(null)
     setHomeCities((prev) => {
       const next = new Set(prev)
       if (next.has(value)) next.delete(value)
@@ -38,6 +60,7 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
   }
 
   const toggleCategory = (value: string) => {
+    setClientError(null)
     setCategories((prev) => {
       const next = new Set(prev)
       if (next.has(value)) next.delete(value)
@@ -46,10 +69,39 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
     })
   }
 
+  useEffect(() => {
+    if (state.success) router.refresh()
+  }, [state.success, router])
+
   const isFirstRun = variant === "first-run"
+  const displayError = clientError ?? state.error
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setClientError(null)
+
+    if (homeCities.size === 0) {
+      setClientError("Pick at least one home city or region.")
+      return
+    }
+    if (categories.size === 0) {
+      setClientError("Pick at least one event category you care about.")
+      return
+    }
+
+    formAction(
+      buildPreferencesFormData({
+        homeCities,
+        categories,
+        reminderOptIn,
+        emailReminders,
+        inAppReminders,
+      }),
+    )
+  }
 
   return (
-    <form action={formAction}>
+    <form onSubmit={handleSubmit} noValidate>
       <GlassCard className="overflow-hidden shadow-[var(--vibe-neon-glow-subtle)]">
         <div className="flex items-center gap-3 px-5 pb-4 pt-5 md:px-6 md:pt-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--neon-b)_14%,transparent)]">
@@ -76,14 +128,14 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
             </p>
           </div>
         ) : null}
-        {state.error ? (
+        {displayError ? (
           <div className="mx-5 mt-5 border border-destructive/50 bg-destructive/10 px-4 py-3 md:mx-6">
-            <p className="text-sm text-destructive">{state.error}</p>
+            <p className="text-sm text-destructive">{displayError}</p>
           </div>
         ) : null}
 
         <div className="flex flex-col gap-8 px-5 py-5 md:px-6 md:py-6">
-          <fieldset className="flex flex-col gap-3" disabled={isPending}>
+          <fieldset className="flex flex-col gap-3">
             <legend className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
               <MapPin className="h-3.5 w-3.5 text-[color:var(--neon-a)]" aria-hidden />
               Home cities <span className="text-[color:var(--neon-a)]">*</span>
@@ -109,9 +161,6 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
                 )
               })}
             </div>
-            {[...homeCities].map((c) => (
-              <input key={c} type="hidden" name="homeCities" value={c} />
-            ))}
           </fieldset>
 
           <EventCategoryPicker
@@ -125,20 +174,17 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
             chipOnClassName={chipOn}
             chipOffClassName={chipOff}
           />
-          {[...categories].map((c) => (
-            <input key={c} type="hidden" name="categories" value={c} />
-          ))}
 
-          <fieldset className="flex flex-col gap-3" disabled={isPending}>
+          <fieldset className="flex flex-col gap-3">
             <legend className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
               Reminders
             </legend>
             <label className="flex cursor-pointer items-start gap-3 text-sm text-[color:var(--neon-text1)]">
               <input
                 type="checkbox"
-                name="reminderOptIn"
                 checked={reminderOptIn}
                 onChange={(e) => setReminderOptIn(e.target.checked)}
+                disabled={isPending}
                 className="mt-0.5"
               />
               <span>Remind me about saved events and tickets I hold</span>
@@ -148,9 +194,9 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
                 <label className="flex cursor-pointer items-start gap-3 text-sm text-[color:var(--neon-text1)]">
                   <input
                     type="checkbox"
-                    name="inAppReminders"
                     checked={inAppReminders}
                     onChange={(e) => setInAppReminders(e.target.checked)}
+                    disabled={isPending}
                     className="mt-0.5"
                   />
                   <span>In-app notifications (dashboard bell)</span>
@@ -158,9 +204,9 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
                 <label className="flex cursor-pointer items-start gap-3 text-sm text-[color:var(--neon-text1)]">
                   <input
                     type="checkbox"
-                    name="emailReminders"
                     checked={emailReminders}
                     onChange={(e) => setEmailReminders(e.target.checked)}
+                    disabled={isPending}
                     className="mt-0.5"
                   />
                   <span>Email reminders (when configured)</span>

@@ -448,6 +448,14 @@ export default async function AdminPage() {
             </li>
             <li>
               <Link
+                href="/admin/check-in"
+                className="font-medium text-foreground underline-offset-4 hover:text-neon-a hover:underline"
+              >
+                Door check-in scanner
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="#events"
                 className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >

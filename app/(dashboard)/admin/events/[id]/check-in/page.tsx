@@ -30,7 +30,7 @@ export default async function AdminEventCheckInPage({
 
   const { data: event } = await supabase
     .from("events")
-    .select("id, title, slug, status")
+    .select("id, title, slug, status, starts_at, venue_name, city")
     .eq("id", id)
     .maybeSingle()
 
@@ -76,7 +76,15 @@ export default async function AdminEventCheckInPage({
         </div>
       </header>
 
-      <EventCheckInScanner eventId={event.id} />
+      <EventCheckInScanner
+        eventId={event.id}
+        eventMeta={{
+          title: event.title,
+          startsAt: event.starts_at,
+          venueName: event.venue_name,
+          city: event.city,
+        }}
+      />
 
       <GlassCard className="p-4">
         <p className="text-xs text-[color:var(--neon-text2)]">

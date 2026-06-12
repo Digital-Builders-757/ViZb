@@ -17,6 +17,8 @@ This file is the single forward-looking list. Add new items here (or open GitHub
 - [x] **Sentry SDK wiring (#162)** — `@sentry/nextjs` wired for Production/main only; `/admin/diagnostics/sentry` for protected verification. Preview/develop intentionally unmonitored.
 - [x] **Hide ended events from discovery (#181)** — `lib/events/event-schedule.ts`; public upcoming uses `coalesce(ends_at, starts_at) > now()`; RSVP/checkout gated when past.
 - [x] **Fix duplicate timeline CTA (#182)** — removed redundant **Full timeline →** links on `/events` rails.
+- [x] **Staff door scanner (#185)** — `/admin/check-in` hub + richer scan result UX + expired/cancelled regression tests.
+- [x] **Cinematic events timeline (#186)** — `/events#timeline` journey bridge, chapter date headers, card motion, staff-pick glow.
 - [ ] **Re-archive pre-fix "archived" events** — events archived before migration `20260610043000` were silently blocked by RLS and may still be public. One-time data check + re-archive (see `docs/OPERATIONS.md` → Event archive ops).
 - [ ] **CI coverage gaps** — CI does not verify Supabase migration parity and does not exercise Stripe webhook fulfillment end-to-end (noted in `docs/OPERATIONS.md`).
 

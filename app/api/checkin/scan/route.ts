@@ -1,3 +1,4 @@
+import { formatRegistrationTicketFragment } from "@/lib/checkin/ticket-fragment"
 import { verifyErrorToCode } from "@/lib/checkin/scan-token-errors"
 import { assertCheckInScanAllowed } from "@/lib/checkin-scan-permissions"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
@@ -14,12 +15,21 @@ export type CheckInScanAttendee = {
   registrationId: string
   userId: string
   displayName: string | null
+  ticketFragment: string
+}
+
+export type CheckInScanEventSummary = {
+  title: string
+  startsAt: string
+  venueName: string
+  city: string
 }
 
 type CheckInScanOk = {
   ok: true
   status: "checked_in" | "already_checked_in"
   attendee?: CheckInScanAttendee
+  event?: CheckInScanEventSummary
   checkedInAt?: string | null
 }
 
@@ -142,7 +152,23 @@ export async function POST(req: NextRequest) {
     registrationId: reg.id,
     userId: reg.user_id,
     displayName: attendeeProfile?.display_name ?? null,
+    ticketFragment: formatRegistrationTicketFragment(reg.id),
   }
+
+  const { data: eventRow } = await supabase
+    .from("events")
+    .select("title, starts_at, venue_name, city")
+    .eq("id", parsed.data.eventId)
+    .maybeSingle()
+
+  const eventSummary: CheckInScanEventSummary | undefined = eventRow
+    ? {
+        title: eventRow.title,
+        startsAt: eventRow.starts_at,
+        venueName: eventRow.venue_name,
+        city: eventRow.city,
+      }
+    : undefined
 
   if (reg.status === "cancelled") {
     return scanResponse(
@@ -161,6 +187,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       status: "already_checked_in",
       attendee,
+      event: eventSummary,
       checkedInAt: reg.checked_in_at,
     })
   }
@@ -203,6 +230,7 @@ export async function POST(req: NextRequest) {
         ok: true,
         status: "already_checked_in",
         attendee,
+        event: eventSummary,
         checkedInAt: again.checked_in_at,
       })
     }
@@ -221,6 +249,7 @@ export async function POST(req: NextRequest) {
     ok: true,
     status: "checked_in",
     attendee,
+    event: eventSummary,
     checkedInAt: updated.checked_in_at,
   })
 }

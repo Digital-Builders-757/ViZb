@@ -4,6 +4,8 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
+import { TimelineJourneyBridge } from "@/components/events/timeline-journey-bridge"
+import { TimelineSectionIntro } from "@/components/events/timeline-section-intro"
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
@@ -827,9 +829,11 @@ export default async function EventsExplorePage({
       {/* Ocean wave divider before timeline */}
       {showDiscoveryRails ? <OceanDivider variant="soft" density="sparse" /> : null}
 
+      <TimelineJourneyBridge showDiscoveryRails={showDiscoveryRails} upcomingCount={flatUpcoming.length} />
+
       {/* Timeline Section */}
-      <section id="timeline" className="scroll-mt-24 px-4 py-14 sm:px-8 md:py-20">
-        <div className="mx-auto max-w-[1200px]">
+      <section id="timeline" className="events-timeline-section scroll-mt-24 px-4 py-14 sm:px-8 md:py-20">
+        <div className="events-timeline-shell mx-auto max-w-[1200px]">
           {vibesSignedOutGate ? (
             <div
               role="status"
@@ -851,24 +855,14 @@ export default async function EventsExplorePage({
           ) : null}
 
           {hasPoolEvents && !vibesSignedOutGate ? (
-            <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                  Full timeline
-                </p>
-                {activeDiscoveryLabel || searchQ.trim() ? (
-                  <p className="mt-2 text-xs text-[color:var(--neon-text1)]">
-                    {activeDiscoveryLabel ? <>Vibe: {activeDiscoveryLabel}</> : null}
-                    {activeDiscoveryLabel && searchQ.trim() ? <> · </> : null}
-                    {searchQ.trim() ? <>Search: “{searchQ.trim()}”</> : null}
-                  </p>
-                ) : (
-                  <p className="mt-2 text-xs text-[color:var(--neon-text1)]">
-                    Sorted {sortMode === "city" ? "by city, then time" : "by start time"} (Eastern).
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
+            <>
+              <TimelineSectionIntro
+                activeDiscoveryLabel={activeDiscoveryLabel}
+                searchQ={searchQ}
+                sortMode={sortMode}
+                showFilters
+              />
+              <div className="mb-10 flex flex-wrap justify-end gap-2 md:-mt-6">
                 <Link
                   href={ql({ sort: undefined })}
                   className={`rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors ${
@@ -890,7 +884,7 @@ export default async function EventsExplorePage({
                   By city
                 </Link>
               </div>
-            </div>
+            </>
           ) : null}
 
           {filteredTimelineEmptyButPoolHasEvents ? (
@@ -934,7 +928,7 @@ export default async function EventsExplorePage({
               {hasUpcoming && (
                 <div className="relative">
                   {/* Vertical timeline line -- desktop only */}
-                  <div className="hidden md:block absolute left-[5px] top-0 bottom-0 w-px bg-[color:var(--neon-a)]/25 shadow-[0_0_18px_rgb(0_209_255/0.28)]" />
+                  <div className="events-timeline-line hidden md:block absolute left-[5px] top-0 bottom-0 w-px" />
 
                   {dateKeys.map((dateKey, di) => {
                     // dateKey is YYYY-MM-DD in ET; parse as noon ET for display
@@ -943,7 +937,11 @@ export default async function EventsExplorePage({
 
                     return (
                       <div key={dateKey}>
-                        <TimelineDateHeader date={dateObj} isFirst={di === 0} />
+                        <TimelineDateHeader
+                          date={dateObj}
+                          isFirst={di === 0}
+                          chapterLabel={di === 0 ? "This week's signal" : null}
+                        />
 
                         <div className="mt-6 flex flex-col gap-7 md:ml-10 md:mt-8 md:gap-9">
                           {eventsForDate.map((event) => {
@@ -952,6 +950,8 @@ export default async function EventsExplorePage({
                                 key={event.id}
                                 event={event}
                                 index={runningIndex}
+                                timelineIndex={runningIndex}
+                                featured={event.is_staff_pick}
                                 isSignedIn={isSignedInForVibes}
                                 isSaved={savedIdSet.has(event.id)}
                                 interactive={false}
@@ -977,17 +977,22 @@ export default async function EventsExplorePage({
                     </span>
                     <div className="flex-1 border-t border-[color:var(--neon-hairline)]/60" />
                   </div>
+                  <p className="-mt-5 mb-8 max-w-prose text-xs text-[color:var(--neon-text2)]">
+                    What just happened — still worth a look for vibes, recaps, and follow-ups.
+                  </p>
 
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-7 lg:grid-cols-3">
                     {flatPast.map((event) => {
                       const card = (
                         <div
                           key={event.id}
-                          className="transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.93]"
+                          className="events-timeline-card-enter transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.93]"
+                          style={{ ["--timeline-index" as string]: runningIndex }}
                         >
                           <EventTimelineCard
                             event={event}
                             index={runningIndex}
+                            timelineIndex={runningIndex}
                             isSignedIn={isSignedInForVibes}
                             isSaved={savedIdSet.has(event.id)}
                             tone="archive"
