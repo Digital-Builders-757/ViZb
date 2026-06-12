@@ -13,6 +13,7 @@ export type DiscoveryPreset =
   | "tonight"
   | "weekend"
   | "free"
+  | "paid"
   | "family"
   | "after_hours"
   | "open_mic"
@@ -21,6 +22,7 @@ export const DISCOVERY_PRESET_OPTIONS: { value: DiscoveryPreset; label: string }
   { value: "tonight", label: "Tonight" },
   { value: "weekend", label: "This weekend" },
   { value: "free", label: "Free" },
+  { value: "paid", label: "Paid" },
   { value: "family", label: "Family-friendly" },
   { value: "after_hours", label: "After hours" },
   { value: "open_mic", label: "Open mic" },
@@ -123,6 +125,25 @@ export function matchesFree(opts: {
   return true
 }
 
+/** On-sale paid tier exists (excludes community listings). */
+export function matchesPaid(opts: {
+  isCommunity: boolean
+  ticketTypes: TicketStub[] | null | undefined
+  now: Date
+}): boolean {
+  if (opts.isCommunity) return false
+  const rows = opts.ticketTypes ?? []
+  for (const row of rows) {
+    const pc = row.price_cents
+    const price = typeof pc === "number" ? pc : Number(pc)
+    if (!Number.isFinite(price) || price <= 0) continue
+    if (row.sales_starts_at && new Date(row.sales_starts_at) > opts.now) continue
+    if (row.sales_ends_at && new Date(row.sales_ends_at) < opts.now) continue
+    return true
+  }
+  return false
+}
+
 export function parseDiscoveryParam(raw: string | string[] | undefined): DiscoveryPreset | null {
   const v = Array.isArray(raw) ? raw[0] : raw
   if (!v) return null
@@ -131,6 +152,7 @@ export function parseDiscoveryParam(raw: string | string[] | undefined): Discove
     "tonight",
     "weekend",
     "free",
+    "paid",
     "family",
     "after_hours",
     "open_mic",
@@ -192,6 +214,12 @@ export function applyDiscoveryPreset(
       return matchesOpenMic(row.categories)
     case "free":
       return matchesFree({
+        isCommunity: row.event_kind === "community",
+        ticketTypes: row.ticket_types ?? [],
+        now,
+      })
+    case "paid":
+      return matchesPaid({
         isCommunity: row.event_kind === "community",
         ticketTypes: row.ticket_types ?? [],
         now,
