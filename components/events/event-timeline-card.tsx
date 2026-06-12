@@ -2,13 +2,19 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Clock } from "lucide-react"
+import { MapPin, Clock, Eye } from "lucide-react"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
+import { EventCardCalendarButton } from "@/components/events/event-card-calendar-button"
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { GlassCard } from "@/components/ui/glass-card"
+import type { TicketStub } from "@/lib/events/discovery-filters"
+import {
+  getListingEventPriceLabel,
+  getListingTicketStatus,
+} from "@/lib/events/listing-event"
 
 interface EventTimelineCardProps {
   event: {
@@ -37,6 +43,12 @@ interface EventTimelineCardProps {
   timelineIndex?: number
   /** Stronger glow for staff picks in the main timeline. */
   featured?: boolean
+  /** Paid/free tier stubs for price + ticket status chips. */
+  ticketTypes?: TicketStub[]
+  eventKind?: "official" | "community"
+  siteOrigin?: string
+  /** Opens quick preview panel (listing page). */
+  onPreview?: () => void
 }
 
 export function EventTimelineCard({
@@ -48,6 +60,10 @@ export function EventTimelineCard({
   interactive = true,
   timelineIndex = 0,
   featured = false,
+  ticketTypes = [],
+  eventKind: eventKindProp,
+  siteOrigin = "",
+  onPreview,
 }: EventTimelineCardProps) {
   const start = new Date(event.starts_at)
   const detailHref = `/events/${event.slug}`
@@ -81,8 +97,12 @@ export function EventTimelineCard({
   )
 
   const isArchive = tone === "archive"
-  const kind = event.event_kind ?? "official"
+  const kind = eventKindProp ?? event.event_kind ?? "official"
   const staffPick = event.is_staff_pick === true
+  const priceLabel = getListingEventPriceLabel(ticketTypes, { isCommunity: kind === "community" })
+  const ticketStatus = getListingTicketStatus(ticketTypes, { isCommunity: kind === "community" })
+  const eventUrl = siteOrigin ? `${siteOrigin}/events/${event.slug}` : `/events/${event.slug}`
+  const analyticsContext = { event_slug: event.slug, source: "timeline" as const }
 
   return (
     <GlassCard
@@ -234,12 +254,24 @@ export function EventTimelineCard({
             ) : null}
           </div>
 
-          {/* Bottom: Venue + City */}
+          {/* Bottom: Venue + City + actions */}
           <div
             className={`mt-6 border-t border-[color:var(--neon-hairline)] pt-4 md:mt-8 ${
               isArchive ? "opacity-90" : ""
             }`}
           >
+            <div className="flex flex-wrap items-center gap-2 pb-3">
+              {priceLabel ? (
+                <span className="rounded-full border border-[color:var(--neon-a)]/35 bg-[color:var(--neon-a)]/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-a)] sm:text-[10px]">
+                  {priceLabel}
+                </span>
+              ) : null}
+              {ticketStatus === "paid" && !isArchive ? (
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-[10px]">
+                  Tickets available
+                </span>
+              ) : null}
+            </div>
             <div
               className={`flex items-center gap-2 text-sm ${
                 isArchive ? "text-[color:var(--neon-text1)]" : "text-[color:var(--neon-text0)]"
@@ -260,6 +292,39 @@ export function EventTimelineCard({
             <span className="text-primary text-xl">&rarr;</span>
           </div>
         </Link>
+
+        {!isArchive ? (
+          <div className="relative z-[2] mt-4 flex flex-wrap items-center gap-2 border-t border-[color:var(--neon-hairline)]/60 pt-4">
+            {onPreview ? (
+              <button
+                type="button"
+                onClick={onPreview}
+                className="vibe-focus-ring inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text1)] transition-colors hover:border-[color:var(--neon-a)]/45 hover:text-[color:var(--neon-a)] sm:text-[10px]"
+              >
+                <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                Preview
+              </button>
+            ) : null}
+            <Link
+              href={detailHref}
+              className="vibe-focus-ring inline-flex min-h-9 items-center rounded-full border border-[color:var(--neon-a)]/40 bg-[color:var(--neon-a)]/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-a)] transition-colors hover:bg-[color:var(--neon-a)]/18 sm:text-[10px]"
+            >
+              {ticketStatus === "paid" ? "Tickets" : "Details"}
+            </Link>
+            <EventCardCalendarButton
+              title={event.title}
+              startsAt={event.starts_at}
+              venueName={event.venue_name}
+              city={event.city}
+              eventUrl={
+                siteOrigin
+                  ? `${siteOrigin}/events/${event.slug}`
+                  : `/events/${event.slug}`
+              }
+              analyticsContext={analyticsContext}
+            />
+          </div>
+        ) : null}
       </div>
     </GlassCard>
   )
