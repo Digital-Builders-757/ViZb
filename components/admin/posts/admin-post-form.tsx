@@ -51,8 +51,13 @@ export function AdminPostForm({
   return (
     <form action={action} className="space-y-6">
       <GlassCard className="p-5 md:p-6">
-        <label className="block">
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Title</span>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">Content</p>
+        <p className="mt-1 text-sm text-[color:var(--neon-text2)]">Title and caption appear on cards and the post page.</p>
+
+        <label className="mt-4 block">
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Title <span className="text-[color:var(--neon-a)]">*</span>
+          </span>
           <input
             name="title"
             className="vibe-input-glass mt-2"
@@ -84,7 +89,10 @@ export function AdminPostForm({
         ) : null}
 
         <div className="mt-4">
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">Media</p>
+          <p className="mt-1 text-sm text-[color:var(--neon-text2)]">Cover image and optional video link for the card.</p>
+
+          <span className="mt-4 block font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
             Cover image
           </span>
           <div className="mt-2">
@@ -122,8 +130,9 @@ export function AdminPostForm({
         </label>
 
         {mode === "edit" ? (
-          <div className="mt-4 md:max-w-xl">
-            <label className="block">
+          <div className="mt-6 border-t border-[color:var(--neon-hairline)] pt-6 md:max-w-xl">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">Publishing</p>
+            <label className="mt-3 block">
               <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
                 Archive or change status
               </span>
@@ -148,8 +157,13 @@ export function AdminPostForm({
       </GlassCard>
 
       <GlassCard className="p-5 md:p-6">
-        <label className="block">
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">Post content</span>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">Body</p>
+        <p className="mt-1 text-sm text-[color:var(--neon-text2)]">Write the full post. Markdown-style paragraphs and links are supported.</p>
+
+        <label className="mt-4 block">
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Post content <span className="text-[color:var(--neon-a)]">*</span>
+          </span>
           <textarea
             name="content_md"
             className="vibe-input-glass mt-2 min-h-[320px] font-mono text-sm"

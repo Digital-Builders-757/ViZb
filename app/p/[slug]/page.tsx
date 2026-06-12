@@ -9,7 +9,8 @@ import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { WaterFrame } from "@/components/ui/water-frame"
-import { getPublishedPostBySlug } from "@/lib/posts/posts"
+import { getPublishedPostBySlug, loadLinkedEventForPost, loadPostAuthorDisplayName } from "@/lib/posts/posts"
+import { formatPostPublishedDate, getPostCardKicker, postCardKickerLabel } from "@/lib/posts/display"
 import { MarkdownContent } from "@/components/posts/markdown"
 
 export async function generateMetadata({
@@ -39,6 +40,13 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
   if (!post) notFound()
 
+  const [author, linkedEvent] = await Promise.all([
+    loadPostAuthorDisplayName(post.author_user_id),
+    loadLinkedEventForPost(post.id),
+  ])
+  const publishedLabel = formatPostPublishedDate(post.published_at)
+  const kicker = postCardKickerLabel(getPostCardKicker(Boolean(linkedEvent)))
+
   return (
     <AppShell
       withNeonBackdrop
@@ -62,16 +70,34 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] backdrop-blur">
+                {kicker}
+              </span>
               {post.video_url ? (
                 <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
                   Video
                 </span>
               ) : null}
-              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] backdrop-blur">
-                {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
-              </span>
+              {publishedLabel ? (
+                <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] backdrop-blur">
+                  {publishedLabel}
+                </span>
+              ) : null}
             </div>
           </div>
+          {author.displayName ? (
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+              By <span className="text-[color:var(--neon-text0)]">{author.displayName}</span>
+            </p>
+          ) : null}
+          {linkedEvent ? (
+            <p className="mt-2 text-sm text-[color:var(--neon-text1)]">
+              Related event:{" "}
+              <Link href={`/events/${linkedEvent.slug}`} className="text-[color:var(--neon-a)] underline-offset-4 hover:underline">
+                {linkedEvent.title}
+              </Link>
+            </p>
+          ) : null}
           {post.excerpt ? (
             <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
               {post.excerpt}
@@ -138,7 +164,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-              Published {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
+              {publishedLabel ? `Published ${publishedLabel}` : "Published"}
             </p>
             <Link
               href="/p"
