@@ -2,8 +2,9 @@ import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { logError } from "@/lib/log"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { EventTimelineCard } from "@/components/events/event-timeline-card"
-import { TimelineDateHeader } from "@/components/events/timeline-date-header"
+import { EventsDiscoveryHero } from "@/components/events/events-discovery-hero"
+import { EventsTideFilters } from "@/components/events/events-tide-filters"
+import { EventsTimelineInteractive } from "@/components/events/events-timeline-interactive"
 import { TimelineJourneyBridge } from "@/components/events/timeline-journey-bridge"
 import { TimelineSectionIntro } from "@/components/events/timeline-section-intro"
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
@@ -14,7 +15,6 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import {
-  EVENT_CATEGORY_OPTIONS,
   isValidEventCategory,
   normalizeCategories,
 } from "@/lib/events/categories"
@@ -31,6 +31,15 @@ import {
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
+import { planFeaturedMoments } from "@/lib/events/discovery-featured-moments"
+import type { ListingEvent } from "@/lib/events/listing-event"
+import {
+  buildCityFilterOptions,
+  eventsListingQuery,
+  parseCityParam,
+  type ListingQueryOpts,
+} from "@/lib/events/listing-query"
+import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
 import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 import { fetchMemberPreferences } from "@/lib/member/load-preferences"
@@ -67,52 +76,7 @@ interface PublicEventRow {
   organizations: { name: string; slug: string } | null
 }
 
-interface FlatEvent {
-  id: string
-  title: string
-  slug: string
-  description: string | null
-  starts_at: string
-  ends_at: string | null
-  venue_name: string
-  city: string
-  categories: string[]
-  flyer_url: string | null
-  org_name: string
-  org_slug: string | null
-  event_kind: "official" | "community"
-  is_staff_pick: boolean
-  ticket_types: TicketStub[]
-}
-
-/** Public listing chips: `slug` is the `?category=` query value (must match `events.categories` text). */
-const EVENT_LISTING_FILTERS = [
-  { slug: "all" as const, label: "All" },
-  ...EVENT_CATEGORY_OPTIONS.map((o) => ({ slug: o.value, label: o.label })),
-] as const
-
-type ListingQueryOpts = {
-  category?: string | null
-  vibes?: boolean
-  discover?: DiscoveryPreset | null
-  q?: string | null
-  sort?: "soonest" | "city"
-}
-
-/** Serialize `/events` query string; preserves filters, vibes, discovery, search, sort. */
-function eventsListingQuery(opts: ListingQueryOpts): string {
-  const sp = new URLSearchParams()
-  if (opts.category && opts.category !== "all") {
-    sp.set("category", opts.category.toLowerCase())
-  }
-  if (opts.vibes) sp.set("vibes", "1")
-  if (opts.discover) sp.set("discover", opts.discover)
-  const trimmed = typeof opts.q === "string" ? opts.q.trim() : ""
-  if (trimmed) sp.set("q", trimmed)
-  if (opts.sort === "city") sp.set("sort", "city")
-  const q = sp.toString()
-  return q ? `?${q}` : ""
-}
+interface FlatEvent extends ListingEvent {}
 
 /** Featured hero card — large flyer banner + full event details. Used as the first card in "Starting soon". */
 function EventHeroCard({ e }: { e: FlatEvent }) {
@@ -325,10 +289,18 @@ function EventsCompactGlanceCard({
 export default async function EventsExplorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; vibes?: string; discover?: string; q?: string; sort?: string }>
+  searchParams: Promise<{
+    category?: string
+    city?: string
+    vibes?: string
+    discover?: string
+    q?: string
+    sort?: string
+  }>
 }) {
   const sp = await searchParams
   const { category: activeFilter, vibes: vibesParam } = sp
+  const activeCity = parseCityParam(sp.city)
   const vibesFilter = vibesParam === "1" || vibesParam === "true"
   const discoveryPreset = parseDiscoveryParam(sp.discover)
   const forYouMode = sp.discover === "for-you"
@@ -412,6 +384,7 @@ export default async function EventsExplorePage({
 
   const listingOptsBase: ListingQueryOpts = {
     category: activeFilter ?? undefined,
+    city: activeCity ?? undefined,
     vibes: vibesFilter,
     discover: discoveryPreset ?? undefined,
     q: searchQ || undefined,
@@ -509,6 +482,7 @@ export default async function EventsExplorePage({
   const showDiscoveryRails = trending.length > 0 || staffPicks.length > 0
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
+    if (activeCity && e.city.trim().toLowerCase() !== activeCity.trim().toLowerCase()) return false
     if (forYouMode) {
       // Ranking handled above; only apply search here.
     } else if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
@@ -550,6 +524,7 @@ export default async function EventsExplorePage({
   function listingClearDiscovery(): ListingQueryOpts {
     return {
       category: activeFilter ?? undefined,
+      city: activeCity ?? undefined,
       vibes: vibesFilter,
       sort: sortMode === "city" ? "city" : undefined,
     }
@@ -585,7 +560,15 @@ export default async function EventsExplorePage({
   const dateKeys = Object.keys(grouped).sort()
   const hasUpcoming = dateKeys.length > 0
   const hasPast = flatPast.length > 0
-  let runningIndex = 0
+  const cityFilterOptions = buildCityFilterOptions(upcomingBase)
+  const featuredMoments = planFeaturedMoments(dateKeys, grouped, upcomingBase, now)
+  const featuredByDateIndex = Object.fromEntries(featuredMoments.entries())
+  const siteOrigin = getPublicSiteOrigin()
+
+  const heroTonightHref = `/events${eventsListingQuery({ ...listingOptsBase, discover: "tonight", q: undefined })}`
+  const heroWeekendHref = `/events${eventsListingQuery({ ...listingOptsBase, discover: "weekend", q: undefined })}`
+  const heroVibesHref = `/events${eventsListingQuery({ ...listingOptsBase, vibes: true, discover: undefined })}`
+  const heroFeaturedHref = "#timeline"
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[color:var(--neon-bg0)]">
@@ -595,31 +578,21 @@ export default async function EventsExplorePage({
       <div className="relative z-10">
       <Navbar />
 
-      {/* Hero Header */}
-      <section className="px-4 pb-14 pt-24 sm:px-8 sm:pb-16 md:pb-20 md:pt-32">
-        <div className="mx-auto max-w-[1200px]">
-          <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[color:var(--neon-a)]" />
-            Virginia Events
-          </span>
-          <h1 className="mt-5 md:mt-6">
-            <span className="headline-xl block uppercase text-[color:var(--neon-text0)]">
-              {"What's"}
-            </span>
-            <span className="headline-xl neon-gradient-text block uppercase">Happening</span>
-          </h1>
-          <p className="mt-6 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-            Scroll the timeline. Underground parties, creative workshops, and everything in between.
-          </p>
-          <p className="mt-4 max-w-prose text-xs leading-relaxed text-[color:var(--neon-text2)] sm:text-sm">
-            <span className="font-mono uppercase tracking-widest text-[color:var(--neon-a)]/90">DMV &amp; beyond</span>
-            {" · "}Norfolk, Virginia Beach, Richmond, Charlottesville, and the 757. All times Eastern.
-          </p>
+      {/* Hero + search + tide filters */}
+      <EventsDiscoveryHero
+        upcomingCount={upcomingBase.length}
+        tonightHref={heroTonightHref}
+        weekendHref={heroWeekendHref}
+        vibesHref={heroVibesHref}
+        featuredHref={heroFeaturedHref}
+      />
 
+      <section className="px-4 pb-6 sm:px-8">
+        <div className="mx-auto max-w-[1200px]">
           {eventsLoadError ? (
             <div
               role="alert"
-              className="mt-6 max-w-lg rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 backdrop-blur"
+              className="mb-6 max-w-lg rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 backdrop-blur"
             >
               <p className="font-mono text-[10px] uppercase tracking-widest text-amber-200">Events couldn&apos;t load</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
@@ -628,16 +601,16 @@ export default async function EventsExplorePage({
             </div>
           ) : null}
 
-          {/* Search */}
           <form
             method="get"
             action="/events"
-            className="mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:items-center sm:gap-3"
+            className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-3"
             role="search"
           >
             {activeFilter && activeFilter !== "all" ? (
               <input type="hidden" name="category" value={activeFilter} />
             ) : null}
+            {activeCity ? <input type="hidden" name="city" value={activeCity} /> : null}
             {vibesFilter ? <input type="hidden" name="vibes" value="1" /> : null}
             {discoveryPreset ? <input type="hidden" name="discover" value={discoveryPreset} /> : null}
             {sortMode === "city" ? <input type="hidden" name="sort" value="city" /> : null}
@@ -646,8 +619,8 @@ export default async function EventsExplorePage({
             </label>
             <input
               id="events-q"
-              type="search"
               name="q"
+              type="search"
               defaultValue={searchQ}
               placeholder="Search title, venue, city…"
               className="vibe-focus-ring min-h-11 w-full max-w-md rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-5 py-3 font-mono text-xs text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] backdrop-blur md:min-h-12"
@@ -669,79 +642,15 @@ export default async function EventsExplorePage({
             ) : null}
           </form>
 
-          {/* Filters — category + time presets in labeled rows */}
-          <div className="mt-10 flex flex-col gap-3 border-t border-[color:var(--neon-hairline)]/35 pt-8 md:mt-12">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                Browse
-              </p>
-              {discoveryPreset || searchQ.trim() || (activeFilter && activeFilter !== "all") || vibesFilter ? (
-                <Link
-                  href={`/events${eventsListingQuery(listingBare())}`}
-                  className="inline-flex min-h-[36px] shrink-0 items-center rounded-full border border-dashed border-[color:var(--neon-hairline)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-text0)]"
-                >
-                  Reset all
-                </Link>
-              ) : null}
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
-            {EVENT_LISTING_FILTERS.map((cat) => {
-              const isActive =
-                cat.slug === "all"
-                  ? !activeFilter || activeFilter === "all"
-                  : activeFilter === cat.slug
-              const categoryParam = cat.slug === "all" ? undefined : cat.slug
-              const href =
-                cat.slug === "all"
-                  ? `/events${ql({ category: undefined })}`
-                  : `/events${ql({ category: categoryParam })}`
-
-              return (
-                <Link
-                  key={cat.slug}
-                  href={href}
-                  className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
-                    isActive
-                      ? "border-[color:var(--neon-a)]/55 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(0,209,255,0.16)]"
-                      : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)] hover:shadow-[0_0_18px_rgba(0,209,255,0.10)]"
-                  }`}
-                >
-                  {cat.label}
-                </Link>
-              )
-            })}
-            <Link
-              href={vibesFilter ? ql({ vibes: false }) : ql({ vibes: true })}
-              className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
-                vibesFilter
-                  ? "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-surface)]/70 text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(157,77,255,0.14)]"
-                  : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-[color:var(--neon-b)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
-              }`}
-            >
-              My Vibes
-            </Link>
-            </div>
-
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
-              {DISCOVERY_PRESET_OPTIONS.map((d) => {
-                const active = discoveryPreset === d.value
-                const href = active ? `/events${ql({ discover: undefined })}` : `/events${ql({ discover: d.value })}`
-                return (
-                  <Link
-                    key={d.value}
-                    href={href}
-                    className={`vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs ${
-                      active
-                        ? "border-violet-500/55 bg-violet-500/10 text-[color:var(--neon-text0)] shadow-[0_0_18px_rgba(139,92,246,0.2)]"
-                        : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-violet-500/35 hover:bg-[color:var(--neon-surface)]/26"
-                    }`}
-                  >
-                    {d.label}
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
+          <EventsTideFilters
+            listingBase={listingOptsBase}
+            activeFilter={activeFilter}
+            activeCity={activeCity}
+            vibesFilter={vibesFilter}
+            discoveryPreset={discoveryPreset}
+            cityOptions={cityFilterOptions}
+            searchQ={searchQ}
+          />
         </div>
       </section>
 
@@ -923,90 +832,17 @@ export default async function EventsExplorePage({
           ) : null}
 
           {hasPoolEvents ? (
-            <>
-              {/* Upcoming Events */}
-              {hasUpcoming && (
-                <div className="relative">
-                  {/* Vertical timeline line -- desktop only */}
-                  <div className="events-timeline-line hidden md:block absolute left-[5px] top-0 bottom-0 w-px" />
-
-                  {dateKeys.map((dateKey, di) => {
-                    // dateKey is YYYY-MM-DD in ET; parse as noon ET for display
-                    const dateObj = new Date(dateKey + "T12:00:00-05:00")
-                    const eventsForDate = grouped[dateKey]
-
-                    return (
-                      <div key={dateKey}>
-                        <TimelineDateHeader
-                          date={dateObj}
-                          isFirst={di === 0}
-                          chapterLabel={di === 0 ? "This week's signal" : null}
-                        />
-
-                        <div className="mt-6 flex flex-col gap-7 md:ml-10 md:mt-8 md:gap-9">
-                          {eventsForDate.map((event) => {
-                            const card = (
-                              <EventTimelineCard
-                                key={event.id}
-                                event={event}
-                                index={runningIndex}
-                                timelineIndex={runningIndex}
-                                featured={event.is_staff_pick}
-                                isSignedIn={isSignedInForVibes}
-                                isSaved={savedIdSet.has(event.id)}
-                                interactive={false}
-                              />
-                            )
-                            runningIndex++
-                            return card
-                          })}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Past Events */}
-              {hasPast && (
-                <div className={hasUpcoming ? "mt-20 md:mt-28" : ""}>
-                  <div className="mb-9 flex items-center gap-3">
-                    <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--neon-text2)]/45" />
-                    <span className="text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
-                      Recent past
-                    </span>
-                    <div className="flex-1 border-t border-[color:var(--neon-hairline)]/60" />
-                  </div>
-                  <p className="-mt-5 mb-8 max-w-prose text-xs text-[color:var(--neon-text2)]">
-                    What just happened — still worth a look for vibes, recaps, and follow-ups.
-                  </p>
-
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-7 lg:grid-cols-3">
-                    {flatPast.map((event) => {
-                      const card = (
-                        <div
-                          key={event.id}
-                          className="events-timeline-card-enter transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.93]"
-                          style={{ ["--timeline-index" as string]: runningIndex }}
-                        >
-                          <EventTimelineCard
-                            event={event}
-                            index={runningIndex}
-                            timelineIndex={runningIndex}
-                            isSignedIn={isSignedInForVibes}
-                            isSaved={savedIdSet.has(event.id)}
-                            tone="archive"
-                            interactive={false}
-                          />
-                        </div>
-                      )
-                      runningIndex++
-                      return card
-                    })}
-                  </div>
-                </div>
-              )}
-            </>
+            <EventsTimelineInteractive
+              dateKeys={dateKeys}
+              grouped={grouped}
+              pastEvents={flatPast}
+              featuredByDateIndex={featuredByDateIndex}
+              isSignedIn={isSignedInForVibes}
+              savedEventIds={savedEventIds}
+              siteOrigin={siteOrigin}
+              hasUpcoming={hasUpcoming}
+              hasPast={hasPast}
+            />
           ) : vibesSignedOutGate ? null : eventsLoadError ? null : (
             <div className="mx-auto max-w-xl py-16 md:py-28">
               <EmptyStateCard
