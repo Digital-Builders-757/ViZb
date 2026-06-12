@@ -2,10 +2,19 @@ import Image from "next/image"
 import Link from "next/link"
 
 import type { PostRow } from "@/lib/posts/posts"
+import { formatPostPublishedDate, getPostCardKicker, postCardKickerLabel } from "@/lib/posts/display"
 import { GlassCard } from "@/components/ui/glass-card"
 
-export function PostCard({ post }: { post: Pick<PostRow, "slug" | "title" | "excerpt" | "cover_image_url" | "video_url"> }) {
+export function PostCard({
+  post,
+  isRecap = false,
+}: {
+  post: Pick<PostRow, "slug" | "title" | "excerpt" | "cover_image_url" | "video_url" | "published_at">
+  isRecap?: boolean
+}) {
   const href = `/p/${post.slug}`
+  const publishedLabel = formatPostPublishedDate(post.published_at)
+  const kicker = postCardKickerLabel(getPostCardKicker(isRecap))
 
   return (
     <Link
@@ -34,14 +43,24 @@ export function PostCard({ post }: { post: Pick<PostRow, "slug" | "title" | "exc
             aria-hidden
           />
 
-          {post.video_url ? (
-            <span className="absolute top-4 right-4 rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
-              Video
+          <div className="absolute inset-x-0 top-0 flex flex-wrap gap-2 p-4">
+            <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] backdrop-blur">
+              {kicker}
             </span>
-          ) : null}
+            {post.video_url ? (
+              <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur">
+                Video
+              </span>
+            ) : null}
+          </div>
 
           <div className="absolute inset-x-0 bottom-0 p-4">
-            <h3 className="text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
+            {publishedLabel ? (
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+                {publishedLabel}
+              </p>
+            ) : null}
+            <h3 className="mt-1 text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
               {post.title}
             </h3>
             {post.excerpt ? (

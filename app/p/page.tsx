@@ -6,7 +6,7 @@ import { AppShell } from "@/components/ui/app-shell"
 import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { SectionTitle } from "@/components/ui/section-title"
-import { getLatestPublishedPosts } from "@/lib/posts/posts"
+import { getLatestPublishedPosts, getRecapPostIdSet } from "@/lib/posts/posts"
 import { PostCard } from "@/components/posts/post-card"
 
 export const metadata: Metadata = {
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 
 export default async function PostsIndexPage() {
   const posts = await getLatestPublishedPosts(24)
+  const recapIds = await getRecapPostIdSet(posts.map((p) => p.id))
 
   return (
     <AppShell
@@ -44,7 +45,7 @@ export default async function PostsIndexPage() {
             ) : (
               <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
                 {posts.map((p) => (
-                  <PostCard key={p.id} post={p} />
+                  <PostCard key={p.id} post={p} isRecap={recapIds.has(p.id)} />
                 ))}
               </div>
             )}

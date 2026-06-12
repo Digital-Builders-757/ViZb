@@ -4,7 +4,7 @@ import {
   firstWalletEvent,
   type WalletEvent,
 } from "@/lib/dashboard/ticket-wallet-shared"
-import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
+import { getEventEffectiveEndMs, isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 
 export interface MemberHomeTicketPreview {
   ticketId: string
@@ -22,6 +22,7 @@ export interface MemberHomeRsvpSummary {
   loadError: string | null
   upcomingPreviews: MemberHomeTicketPreview[]
   upcomingCount: number
+  pastCount: number
   attendedCount: number
 }
 
@@ -29,6 +30,7 @@ const emptySummary = (): MemberHomeRsvpSummary => ({
   loadError: null,
   upcomingPreviews: [],
   upcomingCount: 0,
+  pastCount: 0,
   attendedCount: 0,
 })
 
@@ -53,6 +55,7 @@ export async function loadMemberHomeRsvpSummary(
     }
 
     const now = new Date()
+    const nowMs = now.getTime()
     const rows = data ?? []
 
     type RegRow = {
@@ -84,7 +87,15 @@ export async function loadMemberHomeRsvpSummary(
     const upcomingRows = active.filter((r) => {
       const e = firstWalletEvent(coalesceRelation(r.event_registrations.event))
       if (!e) return false
-      return isEventUpcomingOrOngoing(e.starts_at, e.ends_at ?? null, now.getTime())
+      return isEventUpcomingOrOngoing(e.starts_at, e.ends_at ?? null, nowMs)
+    })
+
+    const pastRows = active.filter((r) => {
+      const e = firstWalletEvent(coalesceRelation(r.event_registrations.event))
+      if (!e) return false
+      const effectiveEndMs = getEventEffectiveEndMs(e.starts_at, e.ends_at ?? null)
+      if (Number.isNaN(effectiveEndMs)) return false
+      return effectiveEndMs <= nowMs
     })
 
     upcomingRows.sort((a, b) => {
@@ -112,6 +123,7 @@ export async function loadMemberHomeRsvpSummary(
       loadError: null,
       upcomingPreviews,
       upcomingCount: upcomingRows.length,
+      pastCount: pastRows.length,
       attendedCount,
     }
   } catch {

@@ -1,18 +1,10 @@
 import Link from "next/link"
-import {
-  DISCOVERY_PRESET_OPTIONS,
-  type DiscoveryPreset,
-} from "@/lib/events/discovery-filters"
+import type { DiscoveryPreset } from "@/lib/events/discovery-filters"
+import { DISCOVERY_PRESET_OPTIONS } from "@/lib/events/discovery-filters"
 import { EVENT_CATEGORY_OPTIONS } from "@/lib/events/categories"
 import type { ListingQueryOpts } from "@/lib/events/listing-query"
 import { eventsListingQuery } from "@/lib/events/listing-query"
-
-const EVENT_LISTING_FILTERS = [
-  { slug: "all" as const, label: "All" },
-  ...EVENT_CATEGORY_OPTIONS.map((o) => ({ slug: o.value, label: o.label })),
-] as const
-
-const QUICK_PRESETS: DiscoveryPreset[] = ["tonight", "weekend", "free", "paid"]
+import { EventsFilterSheet } from "@/components/events/events-filter-sheet"
 
 const chipBase =
   "vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs"
@@ -20,6 +12,23 @@ const chipActive =
   "border-[color:var(--neon-a)]/60 bg-[color:color-mix(in_srgb,var(--neon-a)_14%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(0,209,255,0.18)]"
 const chipIdle =
   "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
+
+type QuickFilter =
+  | { kind: "all" }
+  | { kind: "discover"; value: DiscoveryPreset }
+  | { kind: "category"; value: string; label: string }
+  | { kind: "vibes" }
+
+const QUICK_FILTERS: QuickFilter[] = [
+  { kind: "all" },
+  { kind: "discover", value: "tonight" },
+  { kind: "discover", value: "weekend" },
+  { kind: "discover", value: "free" },
+  { kind: "category", value: "workshop", label: "Workshops" },
+  { kind: "category", value: "concert", label: "Music & culture" },
+  { kind: "category", value: "networking", label: "Networking" },
+  { kind: "vibes" },
+]
 
 export interface EventsTideFiltersProps {
   listingBase: ListingQueryOpts
@@ -31,15 +40,42 @@ export interface EventsTideFiltersProps {
   searchQ: string
 }
 
-export function EventsTideFilters({
-  listingBase,
-  activeFilter,
-  activeCity,
-  vibesFilter,
-  discoveryPreset,
-  cityOptions,
-  searchQ,
-}: EventsTideFiltersProps) {
+function quickFilterLabel(filter: QuickFilter): string {
+  if (filter.kind === "all") return "All events"
+  if (filter.kind === "vibes") return "My Vibes"
+  if (filter.kind === "category") return filter.label
+  return DISCOVERY_PRESET_OPTIONS.find((d) => d.value === filter.value)?.label ?? filter.value
+}
+
+function isQuickFilterActive(filter: QuickFilter, props: EventsTideFiltersProps): boolean {
+  if (filter.kind === "all") {
+    return (
+      !props.discoveryPreset &&
+      !props.searchQ.trim() &&
+      (!props.activeFilter || props.activeFilter === "all") &&
+      !props.activeCity &&
+      !props.vibesFilter
+    )
+  }
+  if (filter.kind === "vibes") return props.vibesFilter
+  if (filter.kind === "discover") return props.discoveryPreset === filter.value && !props.activeCity
+  if (filter.kind === "category") {
+    return props.activeFilter === filter.value && !props.discoveryPreset
+  }
+  return false
+}
+
+export function EventsTideFilters(props: EventsTideFiltersProps) {
+  const {
+    listingBase,
+    activeFilter,
+    activeCity,
+    vibesFilter,
+    discoveryPreset,
+    cityOptions,
+    searchQ,
+  } = props
+
   function ql(overrides: Partial<ListingQueryOpts> = {}): string {
     return eventsListingQuery({ ...listingBase, ...overrides })
   }
@@ -51,122 +87,98 @@ export function EventsTideFilters({
     activeCity ||
     vibesFilter
 
-  const quickOptions = DISCOVERY_PRESET_OPTIONS.filter((d) => QUICK_PRESETS.includes(d.value))
+  const activeChips: { label: string; href: string }[] = []
+
+  if (discoveryPreset) {
+    const label = DISCOVERY_PRESET_OPTIONS.find((d) => d.value === discoveryPreset)?.label ?? discoveryPreset
+    activeChips.push({ label, href: `/events${ql({ discover: undefined })}` })
+  }
+  if (activeFilter && activeFilter !== "all") {
+    const label = EVENT_CATEGORY_OPTIONS.find((c) => c.value === activeFilter)?.label ?? activeFilter
+    activeChips.push({ label, href: `/events${ql({ category: undefined })}` })
+  }
+  if (activeCity) {
+    activeChips.push({ label: activeCity, href: `/events${ql({ city: undefined })}` })
+  }
+  if (vibesFilter) {
+    activeChips.push({ label: "My Vibes", href: `/events${ql({ vibes: false })}` })
+  }
+  if (searchQ.trim()) {
+    activeChips.push({ label: `Search: ${searchQ.trim()}`, href: `/events${ql({ q: undefined })}` })
+  }
 
   return (
-    <div className="mt-10 flex flex-col gap-4 border-t border-[color:var(--neon-hairline)]/35 pt-8 md:mt-12">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)]">Tide filters</p>
-          <p className="mt-1 text-xs text-[color:var(--neon-text2)]">Category, city, and quick discovery presets</p>
-        </div>
-        {hasActiveFilters ? (
-          <Link
-            href={`/events${eventsListingQuery({ vibes: vibesFilter || undefined })}`}
-            className="inline-flex min-h-[36px] shrink-0 items-center rounded-full border border-dashed border-[color:var(--neon-hairline)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-text0)]"
-          >
-            Reset all
-          </Link>
-        ) : null}
-      </div>
+    <div className="mt-6 flex flex-col gap-3 border-t border-[color:var(--neon-hairline)]/35 pt-6 md:mt-8">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div role="group" aria-label="Quick filters" className="flex flex-1 flex-wrap gap-2 sm:gap-3">
+          {QUICK_FILTERS.map((filter) => {
+            const active = isQuickFilterActive(filter, props)
+            let href = "/events"
 
-      <div role="group" aria-label="Quick filters" className="flex flex-wrap gap-2 sm:gap-3">
-        {quickOptions.map((d) => {
-          const active = discoveryPreset === d.value
-          const href = active ? `/events${ql({ discover: undefined })}` : `/events${ql({ discover: d.value })}`
-          return (
-            <Link key={d.value} href={href} className={`${chipBase} ${active ? chipActive : chipIdle}`} aria-pressed={active}>
-              {d.label}
-            </Link>
-          )
-        })}
-        <Link
-          href={vibesFilter ? ql({ vibes: false }) : ql({ vibes: true })}
-          className={`${chipBase} ${
-            vibesFilter
-              ? "border-[color:var(--neon-b)]/50 bg-[color:color-mix(in_srgb,var(--neon-b)_12%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[0_0_20px_rgba(157,77,255,0.14)]"
-              : chipIdle
-          }`}
-          aria-pressed={vibesFilter}
-        >
-          My Vibes
-        </Link>
-      </div>
-
-      {cityOptions.length > 0 ? (
-        <div role="group" aria-label="City filters" className="flex flex-col gap-2">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">Cities</p>
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
-            {activeCity ? (
-              <Link
-                href={`/events${ql({ city: undefined })}`}
-                className={`${chipBase} ${chipActive}`}
-                aria-pressed
-              >
-                {activeCity} ×
-              </Link>
-            ) : null}
-            {cityOptions
-              .filter((c) => c !== activeCity)
-              .map((city) => (
-                <Link
-                  key={city}
-                  href={`/events${ql({ city })}`}
-                  className={`${chipBase} ${chipIdle}`}
-                >
-                  {city}
-                </Link>
-              ))}
-          </div>
-        </div>
-      ) : null}
-
-      <div role="group" aria-label="Category filters" className="flex flex-col gap-2">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">Categories</p>
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
-          {EVENT_LISTING_FILTERS.map((cat) => {
-            const isActive =
-              cat.slug === "all" ? !activeFilter || activeFilter === "all" : activeFilter === cat.slug
-            const categoryParam = cat.slug === "all" ? undefined : cat.slug
-            const href =
-              cat.slug === "all"
+            if (filter.kind === "all") {
+              href = `/events${eventsListingQuery({})}`
+            } else if (filter.kind === "vibes") {
+              href = vibesFilter
+                ? `/events${ql({ vibes: false })}`
+                : `/events${ql({ vibes: true, discover: undefined, category: undefined, city: undefined, q: undefined })}`
+            } else if (filter.kind === "discover") {
+              href = active
+                ? `/events${ql({ discover: undefined })}`
+                : `/events${ql({ discover: filter.value, category: undefined, city: undefined })}`
+            } else if (filter.kind === "category") {
+              href = active
                 ? `/events${ql({ category: undefined })}`
-                : `/events${ql({ category: categoryParam })}`
+                : `/events${ql({ category: filter.value, discover: undefined })}`
+            }
+
+            const className =
+              filter.kind === "vibes" && vibesFilter
+                ? `${chipBase} border-[color:var(--neon-b)]/50 bg-[color:color-mix(in_srgb,var(--neon-b)_12%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[0_0_20px_rgba(157,77,255,0.14)]`
+                : `${chipBase} ${active ? chipActive : chipIdle}`
 
             return (
-              <Link
-                key={cat.slug}
-                href={href}
-                className={`${chipBase} ${isActive ? chipActive : chipIdle}`}
-                aria-pressed={isActive}
-              >
-                {cat.label}
+              <Link key={quickFilterLabel(filter)} href={href} className={className} aria-pressed={active}>
+                {quickFilterLabel(filter)}
               </Link>
             )
           })}
         </div>
+
+        <EventsFilterSheet
+          listingBase={listingBase}
+          activeFilter={activeFilter}
+          activeCity={activeCity}
+          vibesFilter={vibesFilter}
+          discoveryPreset={discoveryPreset}
+          cityOptions={cityOptions}
+        />
       </div>
 
-      <div role="group" aria-label="More discovery presets" className="flex items-center gap-2 overflow-x-auto scrollbar-none sm:gap-3">
-        {DISCOVERY_PRESET_OPTIONS.filter((d) => !QUICK_PRESETS.includes(d.value)).map((d) => {
-          const active = discoveryPreset === d.value
-          const href = active ? `/events${ql({ discover: undefined })}` : `/events${ql({ discover: d.value })}`
-          return (
+      {activeChips.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+            Active
+          </span>
+          {activeChips.map((chip) => (
             <Link
-              key={d.value}
-              href={href}
-              className={`${chipBase} ${
-                active
-                  ? "border-violet-500/55 bg-violet-500/10 text-[color:var(--neon-text0)] shadow-[0_0_18px_rgba(139,92,246,0.2)]"
-                  : chipIdle
-              }`}
-              aria-pressed={active}
+              key={chip.label}
+              href={chip.href}
+              className={`${chipBase} ${chipActive}`}
+              aria-label={`Remove filter ${chip.label}`}
             >
-              {d.label}
+              {chip.label} ×
             </Link>
-          )
-        })}
-      </div>
+          ))}
+          {hasActiveFilters ? (
+            <Link
+              href={`/events${eventsListingQuery({})}`}
+              className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] underline-offset-4 hover:text-[color:var(--neon-a)] hover:underline"
+            >
+              Reset all
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -33,16 +33,29 @@ export function parseCityParam(raw: string | string[] | undefined): string | nul
   return v.trim()
 }
 
+/** Normalize city labels for filter chips (trim, title-case, dedupe by lowercase key). */
+export function normalizeCityLabel(city: string): string {
+  const trimmed = city.trim().replace(/\s+/g, " ")
+  if (!trimmed) return ""
+  return trimmed
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ")
+}
+
 /** Top cities by event count for tide filter chips. */
 export function buildCityFilterOptions(events: { city: string }[], limit = 8): string[] {
-  const counts = new Map<string, number>()
+  const counts = new Map<string, { label: string; count: number }>()
   for (const e of events) {
-    const city = e.city.trim()
-    if (!city) continue
-    counts.set(city, (counts.get(city) ?? 0) + 1)
+    const label = normalizeCityLabel(e.city)
+    if (!label) continue
+    const key = label.toLowerCase()
+    const existing = counts.get(key)
+    if (existing) existing.count += 1
+    else counts.set(key, { label, count: 1 })
   }
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  return [...counts.values()]
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
     .slice(0, limit)
-    .map(([city]) => city)
+    .map((v) => v.label)
 }

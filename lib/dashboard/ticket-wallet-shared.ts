@@ -37,6 +37,72 @@ export function ticketQrEligibleFromRegistration(args: {
   return args.nowMs - t <= TICKET_QR_EVENT_WINDOW_AFTER_START_MS
 }
 
+export type TicketEventPhase = "upcoming" | "past"
+
+export type TicketDisplayState = {
+  statusLabel: string
+  statusBadgeClassName: string
+  cardAccentClassName: string
+  showDoorHint: boolean
+}
+
+/** Maps registration status + event phase to wallet card presentation. */
+export function getTicketDisplayState(status: string, eventPhase: TicketEventPhase): TicketDisplayState {
+  const isPast = eventPhase === "past"
+
+  if (status === "cancelled") {
+    return {
+      statusLabel: "Cancelled",
+      statusBadgeClassName:
+        "border-red-400/35 bg-red-400/10 text-red-100/90",
+      cardAccentClassName: "border-red-400/20",
+      showDoorHint: false,
+    }
+  }
+
+  if (status === "checked_in") {
+    return {
+      statusLabel: "Checked in",
+      statusBadgeClassName:
+        "border-emerald-400/45 bg-emerald-400/12 text-emerald-100",
+      cardAccentClassName: isPast
+        ? "border-emerald-400/20 opacity-90"
+        : "border-emerald-400/35 shadow-[0_0_24px_rgba(52,211,153,0.12)]",
+      showDoorHint: !isPast,
+    }
+  }
+
+  if (status === "confirmed") {
+    return {
+      statusLabel: isPast ? "Attended" : "Confirmed for entry",
+      statusBadgeClassName: isPast
+        ? "border-[color:var(--neon-hairline)]/80 bg-[color:var(--neon-surface)]/30 text-[color:var(--neon-text2)]"
+        : "border-[color:var(--neon-a)]/45 bg-[color:color-mix(in_srgb,var(--neon-a)_12%,var(--neon-surface))] text-[color:var(--neon-text0)]",
+      cardAccentClassName: isPast
+        ? "border-[color:var(--neon-hairline)]/60 opacity-90"
+        : "border-[color:var(--neon-a)]/30 shadow-[0_0_28px_rgba(0,209,255,0.1)]",
+      showDoorHint: !isPast,
+    }
+  }
+
+  return {
+    statusLabel: status.replace(/_/g, " "),
+    statusBadgeClassName:
+      "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 text-[color:var(--neon-text0)]",
+    cardAccentClassName: isPast ? "border-[color:var(--neon-hairline)]/60 opacity-90" : "",
+    showDoorHint: false,
+  }
+}
+
+/** Whether a wallet row belongs in active tickets or ticket history. */
+export function getTicketEventPhase(
+  eventEffectiveEndMs: number | null,
+  nowMs: number,
+): TicketEventPhase {
+  if (eventEffectiveEndMs == null) return "upcoming"
+  return eventEffectiveEndMs > nowMs ? "upcoming" : "past"
+}
+
 export function partitionWalletRowsByEffectiveEnd<T extends { eventEffectiveEndMs: number | null }>(
   rows: T[],
   nowMs: number,
@@ -83,20 +149,36 @@ export type RegistrationNested = {
   event: WalletEvent | WalletEvent[] | null
 }
 
+export type TicketTypeNested = { name: string } | { name: string }[] | null
+
 export type TicketWalletRow = {
   id: string
   ticket_code: string
   event_id: string
   event_registration_id: string
+  ticket_type_name: string | null
   event_registrations: RegistrationNested
 }
 
-export type TicketWalletRowRaw = Omit<TicketWalletRow, "event_registrations"> & {
+export function firstTicketTypeName(raw: TicketTypeNested | undefined): string | null {
+  if (!raw) return null
+  if (Array.isArray(raw)) return raw[0]?.name ?? null
+  if (typeof raw === "object" && "name" in raw) return raw.name
+  return null
+}
+
+export type TicketWalletRowRaw = Omit<TicketWalletRow, "event_registrations" | "ticket_type_name"> & {
   event_registrations: RegistrationNested | RegistrationNested[]
+  ticket_types?: TicketTypeNested
 }
 
 export function normalizeTicketWalletRow(row: TicketWalletRowRaw): TicketWalletRow | null {
   const er = coalesceRelation(row.event_registrations)
   if (!er) return null
-  return { ...row, event_registrations: er }
+  const { ticket_types, ...rest } = row
+  return {
+    ...rest,
+    ticket_type_name: firstTicketTypeName(ticket_types),
+    event_registrations: er,
+  }
 }

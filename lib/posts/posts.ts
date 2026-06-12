@@ -67,3 +67,70 @@ export async function getPublishedPostBySlug(slug: string): Promise<PostRow | nu
   }
   return data as PostRow
 }
+
+/** Post IDs linked as event recaps via events.recap_post_id. */
+export async function getRecapPostIdSet(postIds: string[]): Promise<Set<string>> {
+  const ids = [...new Set(postIds.filter(Boolean))]
+  if (ids.length === 0 || !isServerSupabaseConfigured()) return new Set()
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.from("events").select("recap_post_id").in("recap_post_id", ids)
+
+  if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[posts] getRecapPostIdSet:", error.message)
+    }
+    return new Set()
+  }
+
+  return new Set(
+    (data ?? [])
+      .map((row) => (row as { recap_post_id: string | null }).recap_post_id)
+      .filter((id): id is string => Boolean(id)),
+  )
+}
+
+export async function loadPostAuthorDisplayName(
+  authorUserId: string | null,
+): Promise<{ displayName: string | null }> {
+  if (!authorUserId || !isServerSupabaseConfigured()) return { displayName: null }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", authorUserId)
+    .maybeSingle()
+
+  if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[posts] loadPostAuthorDisplayName:", error.message)
+    }
+    return { displayName: null }
+  }
+
+  return { displayName: (data as { display_name: string | null } | null)?.display_name ?? null }
+}
+
+export async function loadLinkedEventForPost(
+  postId: string,
+): Promise<{ id: string; title: string; slug: string } | null> {
+  if (!postId || !isServerSupabaseConfigured()) return null
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("events")
+    .select("id, title, slug")
+    .eq("recap_post_id", postId)
+    .maybeSingle()
+
+  if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[posts] loadLinkedEventForPost:", error.message)
+    }
+    return null
+  }
+
+  if (!data) return null
+  return data as { id: string; title: string; slug: string }
+}

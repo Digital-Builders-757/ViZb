@@ -403,6 +403,7 @@ export default async function DashboardPage({
         loadError={rsvp.loadError}
         upcomingPreviews={rsvp.upcomingPreviews}
         upcomingCount={rsvp.upcomingCount}
+        pastCount={rsvp.pastCount}
       />
     </div>
   )

@@ -1,12 +1,14 @@
 import Link from "next/link"
 
-import { getLatestPublishedPosts } from "@/lib/posts/posts"
+import { getLatestPublishedPosts, getRecapPostIdSet } from "@/lib/posts/posts"
 import { PostCard } from "@/components/posts/post-card"
 
 export async function LatestPostsSection() {
   const posts = await getLatestPublishedPosts(3)
 
   if (posts.length === 0) return null
+
+  const recapIds = await getRecapPostIdSet(posts.map((p) => p.id))
 
   return (
     <section aria-labelledby="latest-posts">
@@ -19,7 +21,7 @@ export async function LatestPostsSection() {
             From VIZB
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            Updates, recaps, culture drops, and what’s next.
+            Updates, recaps, culture drops, and what's next.
           </p>
         </div>
 
@@ -33,7 +35,7 @@ export async function LatestPostsSection() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {posts.map((p) => (
-          <PostCard key={p.id} post={p} />
+          <PostCard key={p.id} post={p} isRecap={recapIds.has(p.id)} />
         ))}
       </div>
     </section>

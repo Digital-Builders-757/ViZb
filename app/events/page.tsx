@@ -36,6 +36,7 @@ import type { ListingEvent } from "@/lib/events/listing-event"
 import {
   buildCityFilterOptions,
   eventsListingQuery,
+  normalizeCityLabel,
   parseCityParam,
   type ListingQueryOpts,
 } from "@/lib/events/listing-query"
@@ -300,7 +301,8 @@ export default async function EventsExplorePage({
 }) {
   const sp = await searchParams
   const { category: activeFilter, vibes: vibesParam } = sp
-  const activeCity = parseCityParam(sp.city)
+  const rawCity = parseCityParam(sp.city)
+  const activeCity = rawCity ? normalizeCityLabel(rawCity) : null
   const vibesFilter = vibesParam === "1" || vibesParam === "true"
   const discoveryPreset = parseDiscoveryParam(sp.discover)
   const forYouMode = sp.discover === "for-you"
@@ -478,11 +480,10 @@ export default async function EventsExplorePage({
   const hasUnfilteredUpcoming = upcomingBase.length > 0
   const hasUnfilteredPast = flatPastBase.length > 0
 
-  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
-  const showDiscoveryRails = trending.length > 0 || staffPicks.length > 0
+  const hasTimelineFilters = Boolean(activeCity || discoveryPreset || searchQ.trim())
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
-    if (activeCity && e.city.trim().toLowerCase() !== activeCity.trim().toLowerCase()) return false
+    if (activeCity && normalizeCityLabel(e.city).toLowerCase() !== activeCity.toLowerCase()) return false
     if (forYouMode) {
       // Ranking handled above; only apply search here.
     } else if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false
@@ -500,6 +501,10 @@ export default async function EventsExplorePage({
       return false
     return true
   }
+
+  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
+  const showDiscoveryRails =
+    !hasTimelineFilters && !vibesFilter && (trending.length > 0 || staffPicks.length > 0)
 
   let flatUpcoming = upcomingBase.filter(passesDiscoveryAndSearch)
   let flatPast = flatPastBase.filter(passesDiscoveryAndSearch)
@@ -565,11 +570,6 @@ export default async function EventsExplorePage({
   const featuredByDateIndex = Object.fromEntries(featuredMoments.entries())
   const siteOrigin = getPublicSiteOrigin()
 
-  const heroTonightHref = `/events${eventsListingQuery({ ...listingOptsBase, discover: "tonight", q: undefined })}`
-  const heroWeekendHref = `/events${eventsListingQuery({ ...listingOptsBase, discover: "weekend", q: undefined })}`
-  const heroVibesHref = `/events${eventsListingQuery({ ...listingOptsBase, vibes: true, discover: undefined })}`
-  const heroFeaturedHref = "#timeline"
-
   return (
     <main className="relative min-h-screen overflow-hidden bg-[color:var(--neon-bg0)]">
       <CausticBackdrop variant="editorial" />
@@ -579,13 +579,7 @@ export default async function EventsExplorePage({
       <Navbar />
 
       {/* Hero + search + tide filters */}
-      <EventsDiscoveryHero
-        upcomingCount={upcomingBase.length}
-        tonightHref={heroTonightHref}
-        weekendHref={heroWeekendHref}
-        vibesHref={heroVibesHref}
-        featuredHref={heroFeaturedHref}
-      />
+      <EventsDiscoveryHero upcomingCount={upcomingBase.length} />
 
       <section className="px-4 pb-6 sm:px-8">
         <div className="mx-auto max-w-[1200px]">

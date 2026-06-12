@@ -261,25 +261,6 @@ export default async function AdminPage() {
         <GlassCard className="mt-4 p-4 md:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-semibold text-[color:var(--neon-text0)]">Stripe ticketing</p>
-              <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Readiness diagnostics and paid order revenue before you run a live checkout test.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <NeonLink href="/admin/diagnostics/stripe" shape="xl" className="sm:w-auto">
-                Stripe diagnostics
-              </NeonLink>
-              <NeonLink href="/admin/revenue" variant="secondary" shape="xl" className="sm:w-auto">
-                Ticket revenue
-              </NeonLink>
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="mt-4 p-4 md:p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
               <p className="font-semibold text-[color:var(--neon-text0)]">Listing reports</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
                 Signed-in attendees can flag inaccurate or spammy listings — review here (no noisy dashboard required).
@@ -310,6 +291,25 @@ export default async function AdminPage() {
               </NeonLink>
               <NeonLink href="#events" variant="secondary" shape="xl" className="sm:w-auto">
                 All events
+              </NeonLink>
+            </div>
+          </div>
+        </GlassCard>
+
+        <GlassCard className="mt-4 p-4 md:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-[color:var(--neon-text0)]">Stripe ticketing</p>
+              <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
+                Readiness diagnostics and paid order revenue before you run a live checkout test.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <NeonLink href="/admin/diagnostics/stripe" shape="xl" className="sm:w-auto">
+                Stripe diagnostics
+              </NeonLink>
+              <NeonLink href="/admin/revenue" variant="secondary" shape="xl" className="sm:w-auto">
+                Ticket revenue
               </NeonLink>
             </div>
           </div>
