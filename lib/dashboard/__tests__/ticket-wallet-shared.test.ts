@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { getEventEffectiveEndMs } from "@/lib/events/event-schedule"
 import {
+  getTicketDisplayState,
   getTicketEventPhase,
   partitionWalletRowsByEffectiveEnd,
 } from "@/lib/dashboard/ticket-wallet-shared"
@@ -47,6 +48,33 @@ describe("partitionWalletRowsByEffectiveEnd", () => {
     expect(upcoming).toHaveLength(0)
     expect(undated).toHaveLength(0)
     expect(past).toHaveLength(2)
+  })
+})
+
+describe("getTicketDisplayState", () => {
+  it("returns cancelled styling without door hint", () => {
+    const state = getTicketDisplayState("cancelled", "upcoming")
+    expect(state.statusLabel).toBe("Cancelled")
+    expect(state.showDoorHint).toBe(false)
+    expect(state.cardAccentClassName).toContain("red")
+  })
+
+  it("shows door hint for active confirmed tickets", () => {
+    const state = getTicketDisplayState("confirmed", "upcoming")
+    expect(state.statusLabel).toBe("Confirmed for entry")
+    expect(state.showDoorHint).toBe(true)
+  })
+
+  it("marks past confirmed tickets as attended without door hint", () => {
+    const state = getTicketDisplayState("confirmed", "past")
+    expect(state.statusLabel).toBe("Attended")
+    expect(state.showDoorHint).toBe(false)
+  })
+
+  it("keeps checked-in glow for active events", () => {
+    const state = getTicketDisplayState("checked_in", "upcoming")
+    expect(state.statusLabel).toBe("Checked in")
+    expect(state.cardAccentClassName).toContain("emerald")
   })
 })
 
