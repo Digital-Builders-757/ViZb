@@ -1048,6 +1048,189 @@
     transform: none !important;
     filter: drop-shadow(0 0 24px rgb(0 209 255 / 0.2)) drop-shadow(0 0 48px rgb(157 77 255 / 0.12)) !important;
   }
+
+  .water-current-frame::before,
+  .water-current-frame::after {
+    animation: none;
+  }
+
+  .water-current-frame::before {
+    background-position: 35% 0%;
+  }
+
+  .water-current-frame::after {
+    transform: none;
+  }
+
+  .water-current-text {
+    animation: none;
+    background-position: 0% center, 50% center;
+  }
+
+  .water-current-primary {
+    animation: none;
+    text-shadow:
+      0 0 24px rgb(0 209 255 / 0.22),
+      0 0 48px rgb(13 64 255 / 0.1);
+  }
+
+  .water-current-kicker::after {
+    animation: none;
+    background-position: 40% 50%;
+    opacity: 0.55;
+  }
+}
+
+/* ─── Water current text (Events hero headlines) ─── */
+
+@keyframes water-current-flow {
+  0%,
+  100% {
+    background-position:
+      -80% center,
+      0% center;
+  }
+
+  50% {
+    background-position:
+      180% center,
+      100% center;
+  }
+}
+
+@keyframes water-current-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 18px rgb(0 209 255 / 0.12),
+      0 0 36px rgb(13 64 255 / 0.08);
+  }
+
+  50% {
+    text-shadow:
+      0 0 28px rgb(0 229 255 / 0.32),
+      0 0 52px rgb(0 189 255 / 0.18),
+      0 0 72px rgb(13 64 255 / 0.1);
+  }
+}
+
+.water-current-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 1rem 0.75rem;
+  box-shadow:
+    0 0 40px rgb(0 209 255 / 0.08),
+    inset 0 0 60px rgb(0 189 255 / 0.04);
+}
+
+@media (min-width: 640px) {
+  .water-current-frame {
+    padding: 1rem 1.25rem;
+  }
+}
+
+.water-current-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  box-sizing: border-box;
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--water-b) 30%, transparent),
+    color-mix(in srgb, var(--water-a) 80%, transparent),
+    color-mix(in srgb, var(--water-b) 50%, transparent),
+    color-mix(in srgb, var(--water-a) 40%, transparent),
+    color-mix(in srgb, var(--water-b) 35%, transparent)
+  );
+  background-size: 220% 100%;
+  animation: water-edge-flow 5.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.water-current-frame::after {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 40%, var(--ocean-divider-caustic-a), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 85% 65%, var(--ocean-divider-caustic-b), transparent 52%);
+  opacity: 0.35;
+  animation: vizb-caustic-drift 36s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.water-current-text {
+  position: relative;
+  background-image:
+    linear-gradient(
+      118deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.16) 48%,
+      transparent 100%
+    ),
+    linear-gradient(
+      105deg,
+      var(--color-brand-blue) 0%,
+      var(--color-brand-blue-mid) 22%,
+      var(--color-brand-cyan) 48%,
+      var(--color-brand-cyan-bright) 72%,
+      var(--color-brand-blue) 100%
+    );
+  background-size:
+    180% 100%,
+    300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: water-current-flow 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px rgb(0 189 255 / 0.45)) drop-shadow(0 0 48px rgb(13 64 255 / 0.25));
+  will-change: background-position;
+}
+
+.water-current-primary {
+  color: var(--neon-text0);
+  animation: water-current-glow 6s ease-in-out infinite;
+  will-change: text-shadow;
+}
+
+.water-current-kicker {
+  position: relative;
+}
+
+.water-current-kicker::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--water-b) 25%, transparent) 35%,
+    color-mix(in srgb, var(--water-a) 70%, transparent) 50%,
+    color-mix(in srgb, var(--water-b) 30%, transparent) 65%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: water-sheen 3.6s ease-in-out infinite;
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 /* Events timeline — cinematic scroll rhythm */
