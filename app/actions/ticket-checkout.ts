@@ -275,6 +275,7 @@ export async function createTicketCheckoutSession(params: {
     return { url: session.url }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not start checkout session."
+    console.error("[ticket-checkout] Stripe error:", message, error)
     await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
     return { error: message }
   }

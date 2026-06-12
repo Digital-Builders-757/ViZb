@@ -61,9 +61,10 @@ export async function POST(
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("[stripe checkout API] Error:", error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error("[stripe checkout API] Error:", errorMessage, error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: `Internal server error: ${errorMessage}` },
       { status: 500 }
     )
   }
