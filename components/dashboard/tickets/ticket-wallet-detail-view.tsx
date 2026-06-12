@@ -11,10 +11,12 @@ import { loadEventRecapPost, isEventPast } from "@/lib/events/event-recap"
 import {
   coalesceRelation,
   firstWalletEvent,
+  getTicketEventPhase,
   normalizeTicketWalletRow,
   ticketQrEligibleFromRegistration,
   type TicketWalletRowRaw,
 } from "@/lib/dashboard/ticket-wallet-shared"
+import { getEventEffectiveEndMs } from "@/lib/events/event-schedule"
 
 function isUuid(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s)
@@ -47,7 +49,7 @@ export async function TicketWalletDetailView({
   const { data, error } = await supabase
     .from("tickets")
     .select(
-      `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url, recap_post_id ) )`,
+      `id, ticket_code, event_id, event_registration_id, ticket_types ( name ), event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url, recap_post_id ) )`,
     )
     .eq("id", ticketId)
     .eq("user_id", user.id)
@@ -99,6 +101,11 @@ export async function TicketWalletDetailView({
         )
       : null
 
+  const eventPhase = getTicketEventPhase(
+    getEventEffectiveEndMs(event.starts_at, event.ends_at ?? null),
+    nowMs,
+  )
+
   return (
     <div className="min-w-0 space-y-6 md:space-y-8">
       <div className="flex flex-wrap items-center gap-3">
@@ -126,6 +133,7 @@ export async function TicketWalletDetailView({
       <TicketWalletCard
         ticketId={row.id}
         ticketCode={row.ticket_code}
+        ticketTypeName={row.ticket_type_name}
         registrationId={row.event_registrations.id}
         walletAppleEnabled={walletAppleEnabled}
         walletGoogleEnabled={walletGoogleEnabled}
@@ -133,6 +141,7 @@ export async function TicketWalletDetailView({
         createdAt={row.event_registrations.created_at}
         checkedInAt={row.event_registrations.checked_in_at}
         event={event}
+        eventPhase={eventPhase}
         eventAbsoluteUrl={eventAbsoluteUrl}
         qrToken={qrToken}
         ticketSigningConfigured={Boolean(ticketSecret)}

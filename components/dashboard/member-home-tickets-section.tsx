@@ -9,6 +9,7 @@ interface MemberHomeTicketsSectionProps {
   loadError: string | null
   upcomingPreviews: MemberHomeTicketPreview[]
   upcomingCount: number
+  pastCount: number
 }
 
 function formatTicketWhen(iso: string) {
@@ -25,7 +26,10 @@ export function MemberHomeTicketsSection({
   loadError,
   upcomingPreviews,
   upcomingCount,
+  pastCount,
 }: MemberHomeTicketsSectionProps) {
+  const hasPastOnly = !loadError && upcomingCount === 0 && pastCount > 0
+
   return (
     <section aria-labelledby="tickets-heading">
       <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
@@ -35,10 +39,14 @@ export function MemberHomeTicketsSection({
         id="tickets-heading"
         className="mt-2 font-serif text-xl font-bold text-[color:var(--neon-text0)]"
       >
-        Upcoming
+        Active tickets
       </h2>
       <p className="mt-1 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
-        RSVPs, purchases, and check-ins for events that have not ended yet—the same list you see on My Tickets.
+        RSVPs and purchases for events that have not ended yet. Past tickets stay in your{" "}
+        <Link href="/tickets#history" className="text-[color:var(--neon-a)] underline-offset-4 hover:underline">
+          ticket history
+        </Link>
+        .
       </p>
 
       {loadError ? (
@@ -53,16 +61,34 @@ export function MemberHomeTicketsSection({
         </GlassCard>
       ) : null}
 
-      {!loadError && upcomingCount === 0 ? (
+      {!loadError && upcomingCount === 0 && pastCount === 0 ? (
         <EmptyStateCard
           className="mt-6"
-          kicker="No upcoming tickets"
+          kicker="No tickets yet"
           title="RSVP or buy on an event page"
           description="Pick a published event, RSVP free or finish paid checkout, and it will show here and on My Tickets."
         >
           <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
             Browse events
           </NeonLink>
+        </EmptyStateCard>
+      ) : null}
+
+      {hasPastOnly ? (
+        <EmptyStateCard
+          className="mt-6"
+          kicker="No active tickets"
+          title="Your past tickets are saved"
+          description={`You have ${pastCount} ticket${pastCount === 1 ? "" : "s"} in history from events you've already attended.`}
+        >
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+            <NeonLink href="/tickets#history" fullWidth className="sm:w-auto" shape="xl">
+              View ticket history
+            </NeonLink>
+            <NeonLink href="/events" variant="secondary" fullWidth className="sm:w-auto" shape="xl">
+              Browse events
+            </NeonLink>
+          </div>
         </EmptyStateCard>
       ) : null}
 
@@ -98,10 +124,18 @@ export function MemberHomeTicketsSection({
               </NeonLink>
             </div>
           ) : (
-            <div className="pt-1">
+            <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
               <NeonLink href="/tickets" variant="secondary" shape="xl" className="w-full sm:w-auto">
                 Open My Tickets
               </NeonLink>
+              {pastCount > 0 ? (
+                <Link
+                  href="/tickets#history"
+                  className="text-center text-sm text-[color:var(--neon-text2)] underline-offset-4 hover:text-[color:var(--neon-a)] hover:underline sm:text-left"
+                >
+                  {pastCount} in history
+                </Link>
+              ) : null}
             </div>
           )}
         </div>

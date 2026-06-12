@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import Link from "next/link"
 import { headers } from "next/headers"
 import { requireAuth } from "@/lib/auth-helpers"
@@ -10,6 +11,7 @@ import { isAppleWalletPassConfigured, isGoogleWalletPassConfigured } from "@/lib
 import {
   coalesceRelation,
   firstWalletEvent,
+  getTicketEventPhase,
   normalizeTicketWalletRow,
   partitionWalletRowsByEffectiveEnd,
   ticketQrEligibleFromRegistration,
@@ -55,9 +57,11 @@ function parseTicketRows(raw: TicketWalletRow[] | null): TicketRowParsed[] {
 }
 
 function TicketSection({
+  sectionId,
   title,
   subtitle,
   rows,
+  emptyState,
   origin,
   walletAppleEnabled,
   walletGoogleEnabled,
@@ -67,9 +71,11 @@ function TicketSection({
   qrDefaultOpen = false,
   qrSize = 200,
 }: {
+  sectionId?: string
   title: string
   subtitle?: string
   rows: TicketRowParsed[]
+  emptyState?: ReactNode
   origin: string
   walletAppleEnabled: boolean
   walletGoogleEnabled: boolean
@@ -79,61 +85,67 @@ function TicketSection({
   qrDefaultOpen?: boolean
   qrSize?: number
 }) {
-  if (rows.length === 0) return null
+  if (rows.length === 0 && !emptyState) return null
 
   return (
-    <section className="min-w-0 space-y-3">
+    <section id={sectionId} className="min-w-0 scroll-mt-24 space-y-3">
       <div>
         <h2 className="font-serif text-lg font-bold text-[color:var(--neon-text0)] md:text-xl">{title}</h2>
         {subtitle ? <p className="mt-1 text-sm text-[color:var(--neon-text2)]">{subtitle}</p> : null}
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:gap-4">
-        {rows.map((r) => {
-          const e = r.event
-          const base = origin || ""
-          const eventAbsoluteUrl = base ? `${base}/events/${e.slug}` : `/events/${e.slug}`
+      {rows.length === 0 && emptyState ? emptyState : null}
+      {rows.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 sm:gap-4">
+          {rows.map((r) => {
+            const e = r.event
+            const base = origin || ""
+            const eventAbsoluteUrl = base ? `${base}/events/${e.slug}` : `/events/${e.slug}`
+            const eventPhase = getTicketEventPhase(r.eventEffectiveEndMs, nowMs)
 
-          const signingOk = Boolean(ticketSecret && r.event_id)
-          const eligible = ticketQrEligibleFromRegistration({
-            registrationStatus: r.event_registrations.status,
-            eventStartsAtIso: e.starts_at,
-            nowMs,
-          })
-          const qrToken =
-            signingOk && eligible
-              ? buildTicketQrToken(
-                  {
-                    v: 1,
-                    rid: r.event_registrations.id,
-                    eid: r.event_id,
-                    exp: qrIssuedAtUnixSeconds + TICKET_QR_TTL_SECONDS,
-                  },
-                  ticketSecret!,
-                )
-              : null
+            const signingOk = Boolean(ticketSecret && r.event_id)
+            const eligible = ticketQrEligibleFromRegistration({
+              registrationStatus: r.event_registrations.status,
+              eventStartsAtIso: e.starts_at,
+              nowMs,
+            })
+            const qrToken =
+              signingOk && eligible
+                ? buildTicketQrToken(
+                    {
+                      v: 1,
+                      rid: r.event_registrations.id,
+                      eid: r.event_id,
+                      exp: qrIssuedAtUnixSeconds + TICKET_QR_TTL_SECONDS,
+                    },
+                    ticketSecret!,
+                  )
+                : null
 
-          return (
-            <TicketWalletCard
-              key={r.id}
-              ticketId={r.id}
-              ticketCode={r.ticket_code}
-              registrationId={r.event_registrations.id}
-              walletAppleEnabled={walletAppleEnabled}
-              walletGoogleEnabled={walletGoogleEnabled}
-              status={r.event_registrations.status}
-              createdAt={r.event_registrations.created_at}
-              checkedInAt={r.event_registrations.checked_in_at}
-              event={e}
-              eventAbsoluteUrl={eventAbsoluteUrl}
-              qrToken={qrToken}
-              ticketSigningConfigured={Boolean(ticketSecret)}
-              ticketQrEligible={eligible}
-              qrDefaultOpen={qrDefaultOpen}
-              qrSize={qrSize}
-            />
-          )
-        })}
-      </div>
+            return (
+              <TicketWalletCard
+                key={r.id}
+                ticketId={r.id}
+                ticketCode={r.ticket_code}
+                ticketTypeName={r.ticket_type_name}
+                registrationId={r.event_registrations.id}
+                walletAppleEnabled={walletAppleEnabled}
+                walletGoogleEnabled={walletGoogleEnabled}
+                status={r.event_registrations.status}
+                createdAt={r.event_registrations.created_at}
+                checkedInAt={r.event_registrations.checked_in_at}
+                event={e}
+                eventPhase={eventPhase}
+                eventAbsoluteUrl={eventAbsoluteUrl}
+                qrToken={qrToken}
+                ticketSigningConfigured={Boolean(ticketSecret)}
+                ticketQrEligible={eligible}
+                qrDefaultOpen={qrDefaultOpen}
+                qrSize={qrSize}
+              />
+            )
+          })}
+        </div>
+      ) : null}
     </section>
   )
 }
@@ -152,7 +164,7 @@ export default async function TicketsPage() {
     const { data, error } = await supabase
       .from("tickets")
       .select(
-        `id, ticket_code, event_id, event_registration_id, event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url ) )`,
+        `id, ticket_code, event_id, event_registration_id, ticket_types ( name ), event_registrations!inner ( id, status, created_at, checked_in_at, event:events ( title, slug, starts_at, ends_at, city, venue_name, flyer_url ) )`,
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -174,6 +186,7 @@ export default async function TicketsPage() {
   const ticketSecret = getTicketQrSecret()
 
   const { upcoming, past, undated } = partitionWalletRowsByEffectiveEnd(parsed, nowMs)
+  const activeRows = [...upcoming, ...undated]
 
   return (
     <div className="min-w-0 space-y-8 md:space-y-10">
@@ -183,9 +196,9 @@ export default async function TicketsPage() {
         </span>
         <h1 className="mt-2 font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">My Tickets</h1>
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-          Every confirmed RSVP and completed purchase lands here. Expand{" "}
-          <span className="text-[color:var(--neon-text0)]">Show this at the door</span> for your scannable check-in QR
-          and backup code. Add events to your calendar from each ticket if you want a reminder—optional.
+          Active tickets stay up top for quick door access. Past events move to{" "}
+          <span className="text-[color:var(--neon-text0)]">Ticket history</span> so you always have receipts and
+          memories—nothing disappears after the show.
         </p>
       </header>
 
@@ -224,9 +237,22 @@ export default async function TicketsPage() {
       {parsed.length > 0 ? (
         <div className="min-w-0 space-y-10">
           <TicketSection
-            title="Upcoming"
-            subtitle="Events you’re going to that haven’t started yet (including any without a firm start time)."
-            rows={[...upcoming, ...undated]}
+            title="Active tickets"
+            subtitle="Upcoming and ongoing events—including any without a firm end time."
+            rows={activeRows}
+            emptyState={
+              past.length > 0 ? (
+                <EmptyStateCard
+                  kicker="No active tickets"
+                  title="You're caught up for now"
+                  description="Nothing upcoming on your calendar. Your past tickets are saved in Ticket history below."
+                >
+                  <NeonLink href="#history" variant="secondary" shape="xl" className="sm:w-auto">
+                    View ticket history
+                  </NeonLink>
+                </EmptyStateCard>
+              ) : undefined
+            }
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}
             walletGoogleEnabled={walletGoogleEnabled}
@@ -238,9 +264,19 @@ export default async function TicketsPage() {
           />
 
           <TicketSection
-            title="Past"
-            subtitle="Archive of tickets from events that already happened."
+            sectionId="history"
+            title="Ticket history"
+            subtitle="Past events stay here for receipts, proof of purchase, and memories."
             rows={past}
+            emptyState={
+              activeRows.length > 0 ? (
+                <GlassCard className="p-4">
+                  <p className="text-sm text-[color:var(--neon-text1)]">
+                    No past tickets yet. After an event ends, it moves here automatically.
+                  </p>
+                </GlassCard>
+              ) : undefined
+            }
             origin={origin}
             walletAppleEnabled={walletAppleEnabled}
             walletGoogleEnabled={walletGoogleEnabled}
