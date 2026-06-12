@@ -37,6 +37,17 @@ export function ticketQrEligibleFromRegistration(args: {
   return args.nowMs - t <= TICKET_QR_EVENT_WINDOW_AFTER_START_MS
 }
 
+export type TicketEventPhase = "upcoming" | "past"
+
+/** Whether a wallet row belongs in active tickets or ticket history. */
+export function getTicketEventPhase(
+  eventEffectiveEndMs: number | null,
+  nowMs: number,
+): TicketEventPhase {
+  if (eventEffectiveEndMs == null) return "upcoming"
+  return eventEffectiveEndMs > nowMs ? "upcoming" : "past"
+}
+
 export function partitionWalletRowsByEffectiveEnd<T extends { eventEffectiveEndMs: number | null }>(
   rows: T[],
   nowMs: number,
@@ -83,20 +94,36 @@ export type RegistrationNested = {
   event: WalletEvent | WalletEvent[] | null
 }
 
+export type TicketTypeNested = { name: string } | { name: string }[] | null
+
 export type TicketWalletRow = {
   id: string
   ticket_code: string
   event_id: string
   event_registration_id: string
+  ticket_type_name: string | null
   event_registrations: RegistrationNested
 }
 
-export type TicketWalletRowRaw = Omit<TicketWalletRow, "event_registrations"> & {
+export function firstTicketTypeName(raw: TicketTypeNested | undefined): string | null {
+  if (!raw) return null
+  if (Array.isArray(raw)) return raw[0]?.name ?? null
+  if (typeof raw === "object" && "name" in raw) return raw.name
+  return null
+}
+
+export type TicketWalletRowRaw = Omit<TicketWalletRow, "event_registrations" | "ticket_type_name"> & {
   event_registrations: RegistrationNested | RegistrationNested[]
+  ticket_types?: TicketTypeNested
 }
 
 export function normalizeTicketWalletRow(row: TicketWalletRowRaw): TicketWalletRow | null {
   const er = coalesceRelation(row.event_registrations)
   if (!er) return null
-  return { ...row, event_registrations: er }
+  const { ticket_types, ...rest } = row
+  return {
+    ...rest,
+    ticket_type_name: firstTicketTypeName(ticket_types),
+    event_registrations: er,
+  }
 }

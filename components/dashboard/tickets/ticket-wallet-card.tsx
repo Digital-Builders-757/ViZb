@@ -2,6 +2,7 @@ import Link from "next/link"
 import { EventCalendarActions } from "@/components/dashboard/tickets/event-calendar-actions"
 import { TicketWalletPassActions } from "@/components/dashboard/tickets/ticket-wallet-actions"
 import { TicketQrReveal } from "@/components/dashboard/tickets/ticket-qr-reveal"
+import type { TicketEventPhase } from "@/lib/dashboard/ticket-wallet-shared"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 
@@ -17,6 +18,7 @@ export type TicketWalletEvent = {
 export function TicketWalletCard({
   ticketId,
   ticketCode,
+  ticketTypeName,
   registrationId,
   walletAppleEnabled,
   walletGoogleEnabled,
@@ -24,6 +26,7 @@ export function TicketWalletCard({
   createdAt,
   checkedInAt,
   event: e,
+  eventPhase = "upcoming",
   eventAbsoluteUrl,
   qrToken,
   ticketSigningConfigured,
@@ -35,6 +38,7 @@ export function TicketWalletCard({
   ticketId: string
   /** Public-facing ticket reference (16-char hex); not used for door QR. */
   ticketCode: string
+  ticketTypeName?: string | null
   registrationId: string
   walletAppleEnabled: boolean
   walletGoogleEnabled: boolean
@@ -42,6 +46,7 @@ export function TicketWalletCard({
   createdAt: string
   checkedInAt: string | null
   event: TicketWalletEvent
+  eventPhase?: TicketEventPhase
   /** Full URL for calendar description (server-derived). */
   eventAbsoluteUrl: string
   /** Signed payload for door check-in; omitted when signing is not configured or outside the door window. */
@@ -66,8 +71,12 @@ export function TicketWalletCard({
       })
     : "Date to be announced"
 
+  const isPast = eventPhase === "past"
+
   return (
-    <GlassCard className="min-w-0 overflow-hidden p-4 sm:p-5">
+    <GlassCard
+      className={`min-w-0 overflow-hidden p-4 sm:p-5 ${isPast ? "border-[color:var(--neon-hairline)]/60 opacity-90" : ""}`}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="min-w-0 flex-1">
           <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">{dateLine}</p>
@@ -92,7 +101,9 @@ export function TicketWalletCard({
               className={
                 status === "checked_in"
                   ? "inline-flex items-center rounded-full border border-emerald-400/45 bg-emerald-400/12 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-emerald-100"
-                  : "inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]"
+                  : status === "cancelled"
+                    ? "inline-flex items-center rounded-full border border-red-400/35 bg-red-400/10 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-red-100/90"
+                    : "inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]"
               }
             >
               {status === "checked_in"
@@ -103,6 +114,11 @@ export function TicketWalletCard({
                     ? "Cancelled"
                     : status.replace(/_/g, " ")}
             </span>
+            {isPast && status !== "cancelled" ? (
+              <span className="inline-flex items-center rounded-full border border-[color:var(--neon-hairline)]/80 bg-[color:var(--neon-surface)]/30 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+                Event ended
+              </span>
+            ) : null}
             {status === "checked_in" && checkedInAt ? (
               <span className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
                 In at{" "}
@@ -116,7 +132,7 @@ export function TicketWalletCard({
             ) : null}
           </div>
 
-          {status !== "cancelled" && (status === "confirmed" || status === "checked_in") ? (
+          {status !== "cancelled" && !isPast && (status === "confirmed" || status === "checked_in") ? (
             <div className="mt-3 rounded-xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/22 px-3 py-2.5">
               <p className="text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-a)]">
                 At the door
@@ -127,6 +143,12 @@ export function TicketWalletCard({
                   : "Use Show this at the door below so staff can scan your QR or type your backup code."}
               </p>
             </div>
+          ) : null}
+
+          {ticketTypeName ? (
+            <p className="mt-2 text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
+              Tier <span className="text-[color:var(--neon-text0)]">{ticketTypeName}</span>
+            </p>
           ) : null}
 
           <p className="mt-2 text-[10px] font-mono text-[color:var(--neon-text2)]">
