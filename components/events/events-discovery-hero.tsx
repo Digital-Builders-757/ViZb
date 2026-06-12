@@ -40,7 +40,7 @@ export function EventsDiscoveryHero({ upcomingCount }: EventsDiscoveryHeroProps)
         </div>
 
         <p className="mt-6 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-          Underground parties, creative workshops, and nights worth pulling up to — use quick filters below or open
+          Underground parties, creative workshops, and nights worth pulling up to. Use quick filters below or open
           Filters for city, category, and vibe.
         </p>
         <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-text2)]">
