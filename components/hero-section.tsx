@@ -15,8 +15,10 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-[1200px] px-4 py-12 sm:px-8 sm:py-14 lg:py-16">
-        <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--neon-a)] sm:text-xs sm:tracking-widest">
-          757 &amp; DMV
+        <span className="inline-flex items-baseline gap-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[color:var(--neon-a)] sm:text-xs sm:tracking-[0.16em]">
+          <span>757</span>
+          <span className="tracking-normal">&amp;</span>
+          <span>DMV</span>
         </span>
 
         {/* Main headline with neon gradient */}
