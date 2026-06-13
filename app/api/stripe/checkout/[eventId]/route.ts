@@ -60,16 +60,28 @@ export async function POST(
       )
     }
 
+    // DEBUG logging
+    console.log('[stripe checkout] API Request Debug:')
+    console.log('  User ID:', user.id)
+    console.log('  User Email:', user.email)
+    console.log('  Event ID:', id)
+    console.log('  Ticket Type ID:', ticketTypeId)
+    console.log('  Request Body:', JSON.stringify(body))
+
     // Call the server action with the event ID and ticket type ID
+    console.log('[stripe checkout] Calling createTicketCheckoutSession...')
     const result = await createTicketCheckoutSession({
       eventId: id,
       ticketTypeId,
     })
+    
+    console.log('[stripe checkout] Server action returned:', result)
 
     return NextResponse.json(result)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error("[stripe checkout API] Error:", errorMessage, error)
+    console.error("[stripe checkout API] Error:", errorMessage)
+    console.error("[stripe checkout API] Full error:", error)
     return NextResponse.json(
       { error: `Internal server error: ${errorMessage}` },
       { status: 500 }

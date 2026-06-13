@@ -60,6 +60,7 @@ export async function requireAuthApiFromHeader(authHeader: string | null) {
   }
 
   try {
+    // Create a client with the token in the Authorization header
     const supabase = createServerClient(url, anonKey, {
       cookies: {
         getAll: async () => [],
@@ -67,18 +68,19 @@ export async function requireAuthApiFromHeader(authHeader: string | null) {
       },
     })
 
-    // Verify the token
+    // Set the auth header with the token to verify it
     const {
       data: { user },
+      error,
     } = await supabase.auth.getUser(token)
 
-    if (!user) {
-      return { user: null, error: "Invalid token" }
+    if (error || !user) {
+      return { user: null, error: `Invalid token: ${error?.message || "token verification failed"}` }
     }
 
     return { supabase, user, error: null }
   } catch (error) {
-    return { user: null, error: `Token verification failed: ${error}` }
+    return { user: null, error: `Token verification error: ${error instanceof Error ? error.message : String(error)}` }
   }
 }
 
