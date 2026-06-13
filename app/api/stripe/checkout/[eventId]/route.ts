@@ -1,19 +1,27 @@
 import { createTicketCheckoutSession } from "@/app/actions/ticket-checkout"
-import { requireAuth } from "@/lib/auth-helpers"
+import { requireAuthApiFromHeader } from "@/lib/auth-helpers"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
  * POST /api/stripe/checkout/[eventId]
- * * Wrapper around the createTicketCheckoutSession server action.
+ * 
+ * Wrapper around the createTicketCheckoutSession server action.
  * Used by mobile clients (Flutter) to initiate Stripe Checkout for ticket purchases.
- * * Request body:
+ * 
+ * Request body:
  * {
- * "ticket_type_id": "uuid"
+ *   "ticket_type_id": "uuid"
  * }
- * * Response:
+ * 
+ * Request headers:
  * {
- * "url": "https://checkout.stripe.com/...",
- * "error": "error message"
+ *   "Authorization": "Bearer <supabase_access_token>"
+ * }
+ * 
+ * Response:
+ * {
+ *   "url": "https://checkout.stripe.com/...",
+ *   "error": "error message"
  * }
  */
 export async function POST(
@@ -21,11 +29,13 @@ export async function POST(
   { params }: { params: Promise<{ eventId: string }> }
 ) {
   try {
-    // Verify authentication
-    const { user } = await requireAuth()
+    // Verify authentication from Authorization header
+    const authHeader = request.headers.get("Authorization")
+    const { user, error: authError } = await requireAuthApiFromHeader(authHeader)
+    
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: authError || "Unauthorized" },
         { status: 401 }
       )
     }
@@ -58,14 +68,10 @@ export async function POST(
 
     return NextResponse.json(result)
   } catch (error) {
-    // RESOLVED CONFLICT: 
-    // Detailed logging from 'develop' for your server console
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error("[stripe checkout API] Error:", errorMessage, error)
-    
-    // Secure generic response from 'main' for the client
     return NextResponse.json(
-      { error: "Internal server error" }, 
+      { error: `Internal server error: ${errorMessage}` },
       { status: 500 }
     )
   }
