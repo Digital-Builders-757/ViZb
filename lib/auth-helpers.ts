@@ -82,7 +82,6 @@ export async function requireAuthApiFromHeader(authHeader: string | null) {
   } catch (error) {
     return { user: null, error: `Token verification error: ${error instanceof Error ? error.message : String(error)}` }
   }
-  }
 }
 
 /**
