@@ -70,10 +70,13 @@ export async function POST(
 
     // Call the server action with the event ID and ticket type ID
     console.log('[stripe checkout] Calling createTicketCheckoutSession...')
-    const result = await createTicketCheckoutSession({
-      eventId: id,
-      ticketTypeId,
-    })
+    const result = await createTicketCheckoutSession(
+      {
+        eventId: id,
+        ticketTypeId,
+      },
+      { id: user.id, email: user.email }
+    )
     
     console.log('[stripe checkout] Server action returned:', result)
 
