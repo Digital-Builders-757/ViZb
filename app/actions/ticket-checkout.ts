@@ -32,10 +32,13 @@ function coercePositiveInteger(value: unknown): number | null {
   return null
 }
 
-export async function createTicketCheckoutSession(params: {
-  eventId: string
-  ticketTypeId: string
-}): Promise<{ url?: string; error?: string }> {
+export async function createTicketCheckoutSession(
+  params: {
+    eventId: string
+    ticketTypeId: string
+  },
+  authenticatedUser?: { id: string; email?: string }
+): Promise<{ url?: string; error?: string }> {
   if (!isStripeCheckoutConfigured()) {
     return { error: "Online checkout is not configured yet." }
   }
@@ -46,7 +49,24 @@ export async function createTicketCheckoutSession(params: {
   }
 
   const { eventId, ticketTypeId } = parsed.data
-  const { user, supabase } = await requireAuth()
+  
+  // Use provided user or authenticate
+  let user = authenticatedUser
+  let supabase
+  
+  if (user) {
+    // User was provided by API route, use service role client
+    try {
+      supabase = createServiceRoleClient()
+    } catch (err) {
+      return { error: "Checkout service is not configured on the server yet." }
+    }
+  } else {
+    // Browser request, require full auth
+    const authResult = await requireAuth()
+    user = authResult.user
+    supabase = authResult.supabase
+  }
 
   const { data: tt, error: ttErr } = await supabase
     .from("ticket_types")
@@ -275,6 +295,7 @@ export async function createTicketCheckoutSession(params: {
     return { url: session.url }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not start checkout session."
+    console.error("[ticket-checkout] Stripe error:", message, error)
     await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
     return { error: message }
   }

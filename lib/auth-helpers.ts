@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@supabase/ssr"
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
+import { getSupabaseProjectUrl, getSupabaseProjectAnonKey } from "./supabase/project-env"
 
 /**
  * Get the current authenticated user or redirect to login.
@@ -16,6 +19,69 @@ export async function requireAuth() {
   }
 
   return { supabase, user }
+}
+
+/**
+ * Get the current authenticated user for API routes (returns null instead of redirecting).
+ * Use in API routes (route handlers).
+ * Supports both cookies and Authorization header (Bearer token).
+ */
+export async function requireAuthApi() {
+  // First try to get user from cookies (standard Next.js SSR)
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (user) {
+    return { supabase, user }
+  }
+
+  // If no user from cookies, return null (caller should return 401)
+  return { supabase: null, user: null }
+}
+
+/**
+ * Get authenticated user from Authorization header (Bearer token).
+ * This is used for API routes that receive tokens from mobile clients.
+ */
+export async function requireAuthApiFromHeader(authHeader: string | null) {
+  if (!authHeader?.startsWith("Bearer ")) {
+    return { user: null, error: "Missing or invalid Authorization header" }
+  }
+
+  const token = authHeader.substring(7)
+
+  const url = getSupabaseProjectUrl()
+  const anonKey = getSupabaseProjectAnonKey()
+
+  if (!url || !anonKey) {
+    return { user: null, error: "Supabase not configured" }
+  }
+
+  try {
+    // Create a client with the token in the Authorization header
+    const supabase = createServerClient(url, anonKey, {
+      cookies: {
+        getAll: async () => [],
+        setAll: async () => {},
+      },
+    })
+
+    // Set the auth header with the token to verify it
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token)
+
+    if (error || !user) {
+      return { user: null, error: `Invalid token: ${error?.message || "token verification failed"}` }
+    }
+
+    return { supabase, user, error: null }
+  } catch (error) {
+    return { user: null, error: `Token verification error: ${error instanceof Error ? error.message : String(error)}` }
+  }
 }
 
 /**
