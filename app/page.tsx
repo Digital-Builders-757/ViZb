@@ -1,10 +1,16 @@
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
+import { HomepageEventsPreview } from "@/components/homepage-events-preview"
 import { HomeTimelineSection } from "@/components/home-timeline-section"
 import { Footer } from "@/components/footer"
 import { AppShell } from "@/components/ui/app-shell"
+import { getHomepageEventsPreview } from "@/lib/events/homepage-events"
 
-export default function HomePage() {
+export const dynamic = "force-dynamic"
+
+export default async function HomePage() {
+  const homepageEventsPreview = await getHomepageEventsPreview()
+
   return (
     <AppShell
       withNeonBackdrop
@@ -14,6 +20,7 @@ export default function HomePage() {
       <main className="min-h-screen">
         <Navbar />
         <HeroSection />
+        <HomepageEventsPreview data={homepageEventsPreview} />
         <HomeTimelineSection />
         <Footer />
       </main>

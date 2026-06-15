@@ -7,11 +7,13 @@ import { EventsTideFilters } from "@/components/events/events-tide-filters"
 import { EventsTimelineInteractive } from "@/components/events/events-timeline-interactive"
 import { TimelineJourneyBridge } from "@/components/events/timeline-journey-bridge"
 import { TimelineSectionIntro } from "@/components/events/timeline-section-intro"
-import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
+import {
+  EventDiscoveryCompactCard,
+  EventDiscoveryHeroCard,
+} from "@/components/events/events-discovery-cards"
 import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
-import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import {
@@ -28,8 +30,6 @@ import {
   type DiscoveryPreset,
   type TicketStub,
 } from "@/lib/events/discovery-filters"
-import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
-import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
 import { planFeaturedMoments } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
@@ -78,214 +78,6 @@ interface PublicEventRow {
 }
 
 interface FlatEvent extends ListingEvent {}
-
-/** Featured hero card — large flyer banner + full event details. Used as the first card in "Starting soon". */
-function EventHeroCard({ e }: { e: FlatEvent }) {
-  const { visible: cats } = sliceCategoriesForDisplay(e.categories, 2)
-  const dateLabel = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(e.starts_at))
-
-  const lowestPrice =
-    e.ticket_types.length > 0
-      ? Math.min(...e.ticket_types.map((t) => t.price_cents ?? 0))
-      : null
-  const priceLabel =
-    lowestPrice === null ? null : lowestPrice === 0 ? "Free" : `From $${(lowestPrice / 100).toFixed(0)}`
-
-  return (
-    <Link
-      href={`/events/${e.slug}`}
-      className="events-neon-card events-neon-card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 backdrop-blur hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26"
-    >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: "radial-gradient(800px circle at 20% 0%, rgba(0,209,255,0.13), transparent 55%)" }}
-        aria-hidden
-      />
-
-      {/* Flyer banner */}
-      <div className="relative h-48 w-full shrink-0 overflow-hidden bg-black/40 md:h-56">
-        {e.flyer_url ? (
-          <Image
-            src={e.flyer_url}
-            alt={e.title}
-            fill
-            sizes="(max-width: 768px) 88vw, 560px"
-            className="object-cover object-[center_15%] transition-transform duration-500 group-hover:scale-[1.02]"
-          />
-        ) : (
-          <EventFlyerFallback
-            dayNumber={new Intl.DateTimeFormat("en-US", {
-              timeZone: "America/New_York",
-              day: "numeric",
-            }).format(new Date(e.starts_at))}
-            monthShort={new Intl.DateTimeFormat("en-US", {
-              timeZone: "America/New_York",
-              month: "short",
-            }).format(new Date(e.starts_at))}
-            variant="banner"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/75 via-[color:var(--neon-bg0)]/15 to-transparent" />
-        {e.is_staff_pick ? (
-          <span
-            className={`absolute left-3 top-3 inline-flex ${STAFF_PICK_BADGE_CLASS} px-2 py-0.5 font-mono text-[9px]`}
-          >
-            {STAFF_PICK_BADGE_LABEL}
-          </span>
-        ) : null}
-      </div>
-
-      {/* Details */}
-      <div className="relative z-[1] flex flex-1 flex-col gap-2 p-4">
-        <p className="line-clamp-2 text-lg font-bold leading-snug text-[color:var(--neon-text0)]">{e.title}</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-          {dateLabel} <span className="text-[color:var(--neon-text2)]/70">·</span> {e.city}
-        </p>
-        {e.venue_name ? (
-          <p className="truncate text-xs text-[color:var(--neon-text1)]/80">{e.venue_name}</p>
-        ) : null}
-        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-          <div className="flex min-w-0 flex-wrap gap-1.5">
-            {cats.map((c) => (
-              <span
-                key={c}
-                className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)]"
-              >
-                {formatCategoryLabel(c)}
-              </span>
-            ))}
-          </div>
-          <div className="flex shrink-0 flex-col items-end gap-0.5">
-            {priceLabel ? (
-              <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                {priceLabel}
-              </span>
-            ) : null}
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] group-hover:underline">
-              {priceLabel ? "Get tickets →" : "View event →"}
-            </span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  )
-}
-
-/** Shared compact glance card for rails (starting soon / ViZb picks). */
-function EventsCompactGlanceCard({
-  e,
-  variant,
-  size = "default",
-}: {
-  e: FlatEvent
-  variant: "default" | "staffPick"
-  size?: "default" | "compact"
-}) {
-  const { visible: trendCats, extraCount: trendCatExtra } = sliceCategoriesForDisplay(e.categories, 1)
-  const isStaffRail = variant === "staffPick"
-  const isCompact = size === "compact"
-  const borderHover = isStaffRail
-    ? "hover:border-amber-500/45 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_28px_rgba(245,158,11,0.12)]"
-    : "hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_rgba(0,209,255,0.12)]"
-
-  return (
-    <Link
-      href={`/events/${e.slug}`}
-      className={`events-neon-card events-neon-card-hover group relative overflow-hidden rounded-2xl border bg-[color:var(--neon-surface)]/20 backdrop-blur ${
-        isCompact ? "p-2.5" : "p-3.5 sm:p-4"
-      } ${
-        isStaffRail ? "border-amber-500/35" : "border-[color:var(--neon-hairline)]/90"
-      } ${borderHover}`}
-    >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: isStaffRail
-            ? "radial-gradient(800px circle at 15% 0%, rgba(245,158,11,0.14), transparent 50%)"
-            : "radial-gradient(800px circle at 15% 0%, rgba(0,209,255,0.14), transparent 50%)",
-        }}
-        aria-hidden
-      />
-
-      <div className={`relative z-[1] flex items-start ${isCompact ? "gap-2.5" : "gap-3.5"}`}>
-        <div
-          className={`relative shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/35 shadow-inner ${
-            isCompact ? "h-12 w-12" : "h-16 w-16"
-          }`}
-        >
-          {e.flyer_url ? (
-            <Image
-              src={e.flyer_url}
-              alt={e.title}
-              fill
-              sizes={isCompact ? "48px" : "64px"}
-              className="object-cover object-[center_15%] transition-transform duration-500 group-hover:scale-[1.02]"
-            />
-          ) : (
-            <EventFlyerFallback
-              dayNumber={new Intl.DateTimeFormat("en-US", {
-                timeZone: "America/New_York",
-                day: "numeric",
-              }).format(new Date(e.starts_at))}
-              monthShort={new Intl.DateTimeFormat("en-US", {
-                timeZone: "America/New_York",
-                month: "short",
-              }).format(new Date(e.starts_at))}
-              variant="thumb"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--neon-bg0)]/50 via-transparent to-transparent" />
-        </div>
-
-        <div className={`min-w-0 flex-1 ${isCompact ? "min-h-[3.25rem]" : "min-h-[4.25rem]"}`}>
-          {isStaffRail || e.is_staff_pick ? (
-            <p className="mb-1">
-              <span className={`inline-flex ${STAFF_PICK_BADGE_CLASS} px-2 py-0.5 font-mono text-[9px]`}>
-                {STAFF_PICK_BADGE_LABEL}
-              </span>
-            </p>
-          ) : null}
-          <p
-            className={`line-clamp-2 font-semibold leading-snug text-[color:var(--neon-text0)] ${
-              isCompact ? "text-[13px]" : "text-sm"
-            }`}
-          >
-            {e.title}
-          </p>
-          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-            {new Intl.DateTimeFormat("en-US", {
-              timeZone: "America/New_York",
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            }).format(new Date(e.starts_at))}{" "}
-            <span className="text-[color:var(--neon-text2)]/70">·</span> {e.city}
-          </p>
-          {trendCats.length > 0 ? (
-            <p className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
-              <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-black/25 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-[10px]">
-                {formatCategoryLabel(trendCats[0])}
-              </span>
-              {trendCatExtra > 0 ? (
-                <span
-                  className="font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)]/80 sm:text-[10px]"
-                  aria-label={`${trendCatExtra} more categories`}
-                >
-                  +{trendCatExtra} more
-                </span>
-              ) : null}
-            </p>
-          ) : null}
-        </div>
-      </div>
-    </Link>
-  )
-}
 
 export default async function EventsExplorePage({
   searchParams,
@@ -671,7 +463,7 @@ export default async function EventsExplorePage({
                 <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
                   {trending.map((e) => (
                     <div key={e.id} className="snap-start w-[88vw] shrink-0">
-                      <EventsCompactGlanceCard e={e} variant="default" />
+                      <EventDiscoveryCompactCard e={e} variant="default" />
                     </div>
                   ))}
                 </div>
@@ -679,13 +471,13 @@ export default async function EventsExplorePage({
                 {/* Desktop: hero + sidebar layout */}
                 <div className="mt-5 hidden md:grid md:grid-cols-[3fr_2fr] md:gap-4 lg:grid-cols-[5fr_3fr]">
                   {/* Featured hero card — first event */}
-                  <EventHeroCard e={trending[0]} />
+                  <EventDiscoveryHeroCard e={trending[0]} />
 
                   {/* Sidebar — remaining events stacked */}
                   {trending.length > 1 ? (
                     <div className="flex flex-col gap-4">
                       {trending.slice(1).map((e) => (
-                        <EventsCompactGlanceCard key={e.id} e={e} variant="default" />
+                        <EventDiscoveryCompactCard key={e.id} e={e} variant="default" />
                       ))}
                     </div>
                   ) : null}
@@ -712,7 +504,7 @@ export default async function EventsExplorePage({
                 <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
                   {staffPicks.map((e) => (
                     <div key={`pick-mob-${e.id}`} className="snap-start w-[88vw] shrink-0">
-                      <EventsCompactGlanceCard e={e} variant="staffPick" />
+                      <EventDiscoveryCompactCard e={e} variant="staffPick" />
                     </div>
                   ))}
                 </div>
@@ -720,7 +512,7 @@ export default async function EventsExplorePage({
                 {/* Desktop: 3-column grid */}
                 <div className="mt-5 hidden md:grid md:grid-cols-3 md:gap-4">
                   {staffPicks.map((e) => (
-                    <EventsCompactGlanceCard key={`pick-${e.id}`} e={e} variant="staffPick" />
+                    <EventDiscoveryCompactCard key={`pick-${e.id}`} e={e} variant="staffPick" />
                   ))}
                 </div>
               </div>
