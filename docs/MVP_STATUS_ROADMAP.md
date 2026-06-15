@@ -10,7 +10,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Last Audited** | June 12, 2026 |
+| **Last Audited** | June 15, 2026 |
 | **Audited Environment** | production + develop branch (GitHub) |
 | **Migrations Applied** | Verify per environment — canonical apply order: `docs/database/MIGRATIONS.md` (includes registrations, RSVP cap, tickets core, ticket-type editor, Stripe ticketing, posts MVP, archive RLS fix) |
 | **Overall MVP Progress** | Phases 1–6 MVP shipped: auth, events + discovery, free RSVP + paid Stripe ticketing, door QR check-in, admin posts + ops tooling. Roadmap epic #113 (issues #114–#118) and Stripe ops batch #124–#131 closed June 2026. Remaining work is polish + ops hardening, not phase delivery. |
@@ -128,6 +128,7 @@
 - **June 11, 2026 — Homepage hero eyebrow polish (#191):** Tighter **`757 & DMV`** kicker spacing on **`components/hero-section.tsx`** (reduced tracking, normal ampersand). Verified: **`npm run typecheck`**, **`npm run lint`**, **`npm run build`**.
 - **June 12, 2026 — Events discovery experience epic (#195–#201):** Ocean-themed **`EventsDiscoveryHero`**, **`EventsTideFilters`** (city + Paid preset), immersive **`EventTimelineCard`** actions (preview, calendar, price/ticket status), scroll **`EventsFeaturedMoment`** inserts, **`EventQuickPreviewPanel`** with scroll restore. Verified: **`npm run typecheck`**, **`npm run test`** (243), **`npm run lint`**, **`npm run build`**.
 - **June 12, 2026 — Events hero water-current text (#217):** **`CurrentText`** + **`.water-current-*`** CSS (liquid frame border, caustic wash, shimmer accent on **What's on**, refractive glow on **Dive into**, sheen kicker on **Ride the current**); **`prefers-reduced-motion`** static fallbacks. Filters/timeline unchanged. Verified: **`npm run typecheck`**, **`npm run test`** (257), **`npm run lint`**, **`npm run build`**.
+- **June 15, 2026 — Homepage events discovery preview:** Public **`/`** adds **`HomepageEventsPreview`** between hero and timeline — server **`getHomepageEventsPreview()`** (**`lib/events/homepage-events.ts`**), featured official event + **Starting soon** rail, dynamic top categories, empty/error states; shared **`EventDiscoveryHeroCard`** / **`EventDiscoveryCompactCard`** extracted for **`/events`** rails; hero + preview host CTA renamed **Create event**; featured hero card uses taller flyer + bottom title overlay (no stretch gap). Verified: **`npm run typecheck`**, **`npm run test`** (257), **`npm run lint`**, **`npm run build`**.
 - **June 12, 2026 — Ticket history trust (#205):** **`/dashboard/tickets`** splits **Active tickets** vs **Ticket history**; past events show **Event ended** badge + muted styling; dashboard home CTA when only past tickets; tier name on wallet cards. Verified: **`npm run ci`** (255 tests).
 - **June 12, 2026 — Ticket wallet pass UI (#206):** Pass-style **`TicketWalletCard`** (flyer header, perforated divider, high-contrast QR panel); **`getTicketDisplayState()`** helper + tests. Verified: **`npm run ci`**.
 - **June 12, 2026 — Admin Stripe card reorder (#208):** Stripe ticketing diagnostics card moved to bottom of admin Content section (before Stats). Verified: **`npm run ci`**.

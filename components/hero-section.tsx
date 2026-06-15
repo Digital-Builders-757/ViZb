@@ -44,7 +44,7 @@ export function HeroSection() {
             Join the community
           </NeonLink>
           <NeonLink href="/host/apply" variant="ghost" size="default" shape="pill">
-            Host with VIZB
+            Create event
           </NeonLink>
         </div>
       </div>
