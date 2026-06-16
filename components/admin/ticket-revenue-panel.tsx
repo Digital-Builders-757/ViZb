@@ -224,7 +224,7 @@ export function TicketRevenuePanel({
       </GlassCard>
 
       <p className="text-xs text-[color:var(--neon-text2)]">
-        Not a payout ledger — totals reflect completed orders in ViZb. Stripe processing fees are not included unless
+        Not a payout ledger, totals reflect completed orders in ViZb. Stripe processing fees are not included unless
         stored separately.
       </p>
     </div>

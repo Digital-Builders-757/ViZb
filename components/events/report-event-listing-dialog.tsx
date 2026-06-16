@@ -106,7 +106,7 @@ export function ReportEventListingDialog({
                 if (r.ok) {
                   setFormError(null)
                   setText("")
-                  setSuccessMsg(r.message ?? "Thanks — we received your report.")
+                  setSuccessMsg(r.message ?? "Thanks, we received your report.")
                 } else {
                   setFormError(r.error)
                 }

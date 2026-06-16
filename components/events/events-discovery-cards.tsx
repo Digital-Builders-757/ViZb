@@ -4,7 +4,7 @@ import Link from "next/link"
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
-import { getListingEventPriceLabel, type ListingEvent } from "@/lib/events/listing-event"
+import { getListingEventPriceLabel, listingOffersVizbTickets, type ListingEvent } from "@/lib/events/listing-event"
 
 const ET = "America/New_York"
 
@@ -32,9 +32,9 @@ function flyerDateParts(startsAt: string): { dayNumber: string; monthShort: stri
 export function EventDiscoveryHeroCard({ e }: { e: ListingEvent }) {
   const { visible: cats } = sliceCategoriesForDisplay(e.categories, 2)
   const dateLabel = formatEventDateLabel(e.starts_at)
-  const priceLabel = getListingEventPriceLabel(e.ticket_types, {
-    isCommunity: e.event_kind === "community",
-  })
+  const listingOpts = { isCommunity: e.event_kind === "community" } as const
+  const priceLabel = getListingEventPriceLabel(e.ticket_types, listingOpts)
+  const offersVizbTickets = listingOffersVizbTickets(e.ticket_types, listingOpts)
   const { dayNumber, monthShort } = flyerDateParts(e.starts_at)
 
   return (
@@ -98,7 +98,7 @@ export function EventDiscoveryHeroCard({ e }: { e: ListingEvent }) {
             </span>
           ) : null}
           <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] group-hover:underline">
-            {priceLabel ? "Get tickets →" : "View event →"}
+            {offersVizbTickets ? "Get tickets →" : "View event →"}
           </span>
         </div>
       </div>

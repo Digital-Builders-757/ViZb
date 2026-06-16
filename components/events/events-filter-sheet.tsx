@@ -99,7 +99,7 @@ export function EventsFilterSheet({
         <SheetHeader>
           <SheetTitle className="font-serif text-lg text-[color:var(--neon-text0)]">Find your vibe</SheetTitle>
           <SheetDescription className="text-[color:var(--neon-text2)]">
-            When, where, what, price, and intent — without scrolling past the events.
+            When, where, what, price, and intent, without scrolling past the events.
           </SheetDescription>
         </SheetHeader>
 

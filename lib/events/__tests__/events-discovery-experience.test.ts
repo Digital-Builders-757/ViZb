@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { planFeaturedMoments } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
-import { getListingEventPriceLabel, getListingTicketStatus } from "@/lib/events/listing-event"
+import { getListingEventPriceLabel, getListingTicketStatus, listingOffersVizbTickets } from "@/lib/events/listing-event"
 import { matchesPaid } from "@/lib/events/discovery-filters"
 
 function mockEvent(overrides: Partial<ListingEvent> = {}): ListingEvent {
@@ -32,6 +32,19 @@ describe("listing event display", () => {
     )
     expect(getListingTicketStatus([{ price_cents: 0, sales_starts_at: null, sales_ends_at: null }])).toBe("free")
     expect(getListingTicketStatus([{ price_cents: 500, sales_starts_at: null, sales_ends_at: null }])).toBe("paid")
+  })
+
+  it("does not treat community Free listing as ViZb ticketing", () => {
+    const communityOpts = { isCommunity: true as const }
+    expect(getListingEventPriceLabel([], communityOpts)).toBe("Free listing")
+    expect(listingOffersVizbTickets([], communityOpts)).toBe(false)
+    expect(
+      listingOffersVizbTickets(
+        [{ price_cents: 2000, sales_starts_at: null, sales_ends_at: null }],
+        communityOpts,
+      ),
+    ).toBe(false)
+    expect(listingOffersVizbTickets([], { isCommunity: false })).toBe(true)
   })
 
   it("matches paid discovery preset", () => {

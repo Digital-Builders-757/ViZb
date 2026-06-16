@@ -43,11 +43,11 @@ export function OrganizerPartnershipUpsell({
               Partnership · paid placement inquires only
             </span>
             <h3 className="mt-2 font-serif text-base font-bold text-foreground md:text-lg text-balance">
-              {isEvent ? "Grow turnout — optional ViZb placement" : "Reach more attendees (optional partnerships)"}
+              {isEvent ? "Grow turnout, optional ViZb placement" : "Reach more attendees (optional partnerships)"}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-xl">
               {isEvent
-                ? "Explore co-marketing, labeled discovery slots, and newsletter mentions. Editorial Staff picks stay separate—we never blur paid versus curated."
+                ? "Explore co-marketing, labeled discovery slots, and newsletter mentions. Editorial Staff picks stay separate, we never blur paid versus curated."
                 : "Ask about sponsorship, labeled placements, or co-marketing. Paid inventory stays clearly marked so attendees know what is editorial."}
             </p>
           </div>
@@ -66,7 +66,7 @@ export function OrganizerPartnershipUpsell({
       </div>
       <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground border-t border-[color:var(--neon-hairline)]/55 pt-4">
         <span className="font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">Labeling</span>{" "}
-        — Sponsored placements are disclosed on-site wherever they run (separate from Staff pick highlights).
+        , sponsored placements are disclosed on-site wherever they run (separate from Staff pick highlights).
       </p>
     </GlassCard>
   )

@@ -82,17 +82,17 @@ export function TicketAddedSuccessDialog({
       : paidFulfillmentState === "syncing"
         ? "Confirming payment"
         : paidFulfillmentState === "error"
-          ? "Payment received — check My Tickets"
+          ? "Payment received, check My Tickets"
           : "Payment received"
 
   const bodyCopy =
     variant === "paid"
       ? paidFulfillmentState === "confirmed"
-        ? "Ticket confirmed — open My Tickets to view your door QR and backup code."
+        ? "Ticket confirmed, open My Tickets to view your door QR and backup code."
         : paidFulfillmentState === "syncing"
           ? "Payment received. We're confirming your ticket now. This usually takes a few seconds."
           : paidFulfillmentState === "error"
-            ? "Payment may have succeeded but we couldn't confirm the ticket yet. Open My Tickets and refresh — your ticket should appear shortly."
+            ? "Payment may have succeeded but we couldn't confirm the ticket yet. Open My Tickets and refresh, your ticket should appear shortly."
             : "Payment received. We're confirming your ticket now. Check My Tickets in a moment."
       : "You’re on the list. Your RSVP is saved and your ticket is now in My Tickets."
 

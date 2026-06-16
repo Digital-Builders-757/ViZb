@@ -108,15 +108,15 @@ export function EventDetailsEditForm({
         <p className="text-[11px] text-muted-foreground leading-relaxed max-w-2xl border border-border/50 bg-muted/5 px-3 py-2.5 rounded-sm">
           {community ? (
             <>
-              <span className="font-mono uppercase tracking-wider text-muted-foreground/90">Local listing</span> —
+              <span className="font-mono uppercase tracking-wider text-muted-foreground/90">Local listing</span>,
               title, schedule, venue, description, categories, and external RSVP link save below. Categories control which
               filters on <span className="font-mono text-foreground/85">/events</span> include this listing. RSVP on ViZb is
-              not used — users go to your link in a new tab.
+              not used, users go to your link in a new tab.
             </>
           ) : (
             <>
-              <span className="font-mono uppercase tracking-wider text-muted-foreground/90">This section</span> —
-              title, schedule, venue, description, categories, and whole-event RSVP cap — saves with{" "}
+              <span className="font-mono uppercase tracking-wider text-muted-foreground/90">This section</span>,
+              title, schedule, venue, description, categories, and whole-event RSVP cap, saves with{" "}
               <span className="text-foreground/90">Save event details</span> below. Ticket tier names, prices, and
               per-tier capacity are separate: use <span className="text-foreground/90">Save tier</span> in RSVP and ticket
               tiers.
@@ -218,7 +218,7 @@ export function EventDetailsEditForm({
               Whole-event RSVP cap
             </span>
             <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed max-w-xl">
-              Saved with <span className="text-foreground/85">Save event details</span> — not with Save tier. This is
+              Saved with <span className="text-foreground/85">Save event details</span>, not with Save tier. This is
               the event-wide limit on active free RSVPs (confirmed or checked in). Use Unlimited unless you need a hard
               cap.
             </p>
@@ -317,8 +317,8 @@ export function EventDetailsEditForm({
         required
         helpText={
           community
-            ? "Pick all that apply — drives category filters on the public events page."
-            : "Pick all that apply — used for discovery on /events."
+            ? "Pick all that apply, drives category filters on the public events page."
+            : "Pick all that apply, used for discovery on /events."
         }
       />
 

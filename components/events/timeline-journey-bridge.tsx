@@ -24,7 +24,7 @@ export function TimelineJourneyBridge({ showDiscoveryRails, upcomingCount }: Tim
             </p>
             <p className="mt-1 max-w-prose text-sm leading-relaxed text-[color:var(--neon-text1)]">
               {showDiscoveryRails
-                ? "You’ve seen what’s starting soon and what we’re hyped on. Drop into the full pulse below — every date is a chapter."
+                ? "You’ve seen what’s starting soon and what we’re hyped on. Drop into the full pulse below, every date is a chapter."
                 : "Scroll the living map of what’s happening across Virginia."}
             </p>
           </div>

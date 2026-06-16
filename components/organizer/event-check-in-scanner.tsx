@@ -226,14 +226,14 @@ export function EventCheckInScanner({
           }
           case "registration_cancelled": {
             const title = "Cancelled RSVP"
-            const message = name ? `${errText} — ${name}` : errText
+            const message = name ? `${errText}, ${name}` : errText
             titled(title, message)
             toast.error(message)
             return
           }
           case "registration_invalid_status": {
             const title = "Not confirmed"
-            const message = name ? `${errText} — ${name}` : errText
+            const message = name ? `${errText}, ${name}` : errText
             titled(title, message)
             toast.error(message)
             return
@@ -412,7 +412,7 @@ export function EventCheckInScanner({
           <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
             Recent scans
           </p>
-          <p className="mt-1 text-xs text-[color:var(--neon-text2)]">Last five swipes — confirm without re-scanning.</p>
+          <p className="mt-1 text-xs text-[color:var(--neon-text2)]">Last five swipes, confirm without re-scanning.</p>
           <ul className="mt-3 space-y-2">
             {recent.map((row) => (
               <li

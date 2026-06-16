@@ -117,6 +117,13 @@ export default async function OrgDashboardPage({
           </div>
 
           <OrganizerPartnershipUpsell orgSlug={slug} variant="dashboard" />
+
+          <Link
+            href={`/organizer/${slug}/payments`}
+            className="mt-4 inline-flex items-center text-xs font-mono uppercase tracking-widest text-neon-a hover:underline"
+          >
+            Payments &amp; Stripe Connect
+          </Link>
         </>
       )}
 

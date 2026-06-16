@@ -26,7 +26,7 @@ export async function MyVibesThisWeek({
             id="my-vibes-week-heading"
             className="font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl"
           >
-            My Vibes — This Week
+            My Vibes, This Week
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
             {savedCount} saved event{savedCount === 1 ? "" : "s"} in the next two weeks (Eastern dates).

@@ -57,7 +57,7 @@ export async function seedStaffTestNotification() {
     .insert({
       user_id: user.id,
       title: "[QA] Test notification",
-      body: "Seed from Admin — use the bell to verify unread count, single-row read, and mark all read.",
+      body: "Seed from Admin, use the bell to verify unread count, single-row read, and mark all read.",
       href: "/dashboard",
     })
     .select("id")

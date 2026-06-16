@@ -9,6 +9,7 @@ import { cancelRsvp, rsvpToEvent } from "@/app/actions/registrations"
 import { createTicketCheckoutSession } from "@/app/actions/ticket-checkout"
 import { formatUsdFromCents } from "@/lib/money/usd"
 import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
+import { TicketCheckoutPreview } from "@/components/events/ticket-checkout-preview"
 import { TicketAddedSuccessDialog } from "@/components/events/ticket-added-success-dialog"
 import { trackProductEvent, type ProductEventContext } from "@/lib/analytics/product-events"
 
@@ -106,7 +107,7 @@ export function EventRsvpCta({
           {capLabel}
           {isFull ? (
             <span className="ml-2 inline font-sans normal-case text-[color:var(--neon-text1)]">
-              — RSVP list is full.
+              , RSVP list is full.
             </span>
           ) : null}
         </p>
@@ -130,13 +131,13 @@ export function EventRsvpCta({
                 Checked in
               </span>
               <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
-                You&apos;re checked in — head inside and enjoy.
+                You&apos;re checked in, head inside and enjoy.
               </p>
             </>
           ) : (
             <>
               <span className="inline-flex items-center rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/50 px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)]">
-                {hasActiveTicket ? "Confirmed — in My Tickets" : "RSVP saved"}
+                {hasActiveTicket ? "Confirmed, in My Tickets" : "RSVP saved"}
               </span>
               <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
                 <span className="text-[color:var(--neon-text1)]">At the door:</span> open{" "}
@@ -183,7 +184,7 @@ export function EventRsvpCta({
                 <span>
                   {t.name}{" "}
                   <span className="text-[color:var(--neon-text2)]">
-                    ({formatUsdFromCents(t.price_cents)} + {formatUsdFromCents(calculateTicketCheckoutAmounts(t.price_cents).platformFeeCents)} fee)
+                    ({formatUsdFromCents(t.price_cents)} face value)
                   </span>
                 </span>
               </label>
@@ -222,13 +223,7 @@ export function EventRsvpCta({
         </p>
       ) : null}
 
-      {selectedPaidAmounts ? (
-        <p className="mb-3 text-xs leading-relaxed text-[color:var(--neon-text2)]">
-          Ticket subtotal <span className="text-[color:var(--neon-text1)]">{formatUsdFromCents(selectedPaidAmounts.subtotalCents)}</span>
-          {" · "}ViZb fee <span className="text-[color:var(--neon-text1)]">{formatUsdFromCents(selectedPaidAmounts.platformFeeCents)}</span>
-          {" · "}Total today <span className="text-[color:var(--neon-text0)]">{formatUsdFromCents(selectedPaidAmounts.totalCents)}</span>
-        </p>
-      ) : null}
+      {selectedPaidAmounts && canBuyPaid ? <TicketCheckoutPreview amounts={selectedPaidAmounts} /> : null}
 
       <div
         className={`grid grid-cols-1 gap-3 ${paidOnSale.length > 0 ? "sm:grid-cols-2" : ""}`}
@@ -376,7 +371,7 @@ export function EventRsvpCta({
       </div>
       {hasActiveTicket ? (
         <p className="mt-2 text-[11px] text-[color:var(--neon-text2)]">
-          Canceling RSVP does not refund card purchases — contact the organizer for help.
+          Canceling RSVP does not refund card purchases, contact the organizer for help.
         </p>
       ) : null}
 

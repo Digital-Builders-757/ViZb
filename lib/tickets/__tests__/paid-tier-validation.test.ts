@@ -17,10 +17,10 @@ describe("validatePaidTierPriceCents", () => {
 
   it("rejects paid prices below minimum", () => {
     expect(validatePaidTierPriceCents(1)).toEqual({
-      error: "Paid ticket price must be at least $0.50.",
+      error: "Paid ticket price must be at least $5.00.",
     })
-    expect(validatePaidTierPriceCents(49)).toEqual({
-      error: "Paid ticket price must be at least $0.50.",
+    expect(validatePaidTierPriceCents(499)).toEqual({
+      error: "Paid ticket price must be at least $5.00.",
     })
   })
 
@@ -34,12 +34,13 @@ describe("validatePaidTierPriceCents", () => {
 describe("parsePaidTierPriceUsd", () => {
   it("parses valid paid amounts", () => {
     expect(parsePaidTierPriceUsd("5.00")).toEqual({ cents: 500 })
-    expect(parsePaidTierPriceUsd("0.50")).toEqual({ cents: 50 })
+    expect(parsePaidTierPriceUsd("10")).toEqual({ cents: 1_000 })
   })
 
   it("rejects amounts below minimum for paid tiers", () => {
     expect("error" in parsePaidTierPriceUsd("0.01")).toBe(true)
-    expect("error" in parsePaidTierPriceUsd("0.49")).toBe(true)
+    expect("error" in parsePaidTierPriceUsd("4.99")).toBe(true)
+    expect("error" in parsePaidTierPriceUsd("0.50")).toBe(true)
   })
 
   it("rejects malformed input", () => {

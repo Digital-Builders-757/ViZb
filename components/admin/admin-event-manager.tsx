@@ -281,13 +281,13 @@ export function AdminEventManager({ events }: AdminEventManagerProps) {
                           {event.categories.map((c) => formatCategoryLabel(c)).join(" · ")}
                           {event.categories.length === 1 && event.categories[0] === "other" ? (
                             <span className="ml-1 font-mono text-[10px] normal-case tracking-normal text-muted-foreground">
-                              — edit categories on detail page
+                              , edit categories on detail page
                             </span>
                           ) : null}
                         </span>
                       ) : (
                         <span className="font-mono text-[10px] text-amber-400/90">
-                          No categories — edit on detail page
+                          No categories, edit on detail page
                         </span>
                       )}
                     </div>

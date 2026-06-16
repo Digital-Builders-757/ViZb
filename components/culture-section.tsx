@@ -19,7 +19,7 @@ export function CultureSection() {
               Everyone says you have to leave Virginia to find real culture. We don't believe that.
             </p>
             <p className="text-lg text-muted-foreground mt-4 max-w-md leading-relaxed">
-              VIZB is turning Virginia into a place where creators actually want to show up — not just for work, but for
+              VIZB is turning Virginia into a place where creators actually want to show up, not just for work, but for
               community, collaboration, and fun.
             </p>
 

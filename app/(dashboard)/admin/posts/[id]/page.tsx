@@ -125,7 +125,7 @@ export default async function AdminEditPostPage({
                     : "border-amber-500/45 bg-amber-500/12 text-amber-100"
               }`}
             >
-              {isLive ? "Live on /p" : isArchived ? "Archived — not public" : "Draft — not public yet"}
+              {isLive ? "Live on /p" : isArchived ? "Archived, not public" : "Draft, not public yet"}
             </span>
           </p>
         </div>

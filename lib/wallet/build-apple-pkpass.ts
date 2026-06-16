@@ -39,7 +39,7 @@ export function buildRsvpAppleWalletPkPass(input: {
     teamIdentifier: ids.teamIdentifier,
     serialNumber: input.registrationId,
     organizationName: orgName,
-    description: `${input.title} — ${orgName}`,
+    description: `${input.title}, ${orgName}`,
     foregroundColor: "rgb(215, 245, 255)",
     backgroundColor: "rgb(6, 22, 40)",
     labelColor: "rgb(140, 210, 235)",

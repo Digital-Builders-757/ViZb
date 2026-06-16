@@ -19,7 +19,7 @@ export function NotificationSeedCard() {
         toast.error(result.error)
         return
       }
-      toast.success("Unread notification created — check the bell.")
+      toast.success("Unread notification created, check the bell.")
     } finally {
       setPending(false)
     }

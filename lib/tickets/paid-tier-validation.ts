@@ -1,16 +1,18 @@
 import { parseUsdStringToCents } from "@/lib/money/usd"
+import { MIN_PAID_TICKET_CENTS } from "@/lib/payments/vizb-pricing-config"
 
-/** Minimum charge for paid tiers (Stripe USD minimum). */
-export const MIN_PAID_TICKET_CENTS = 50
+export { MIN_PAID_TICKET_CENTS }
 
 export const DEFAULT_PAID_TIER_NAME = "General Admission"
+
+const MIN_PAID_TICKET_MESSAGE = `Paid ticket price must be at least $${(MIN_PAID_TICKET_CENTS / 100).toFixed(2)}.`
 
 export function validatePaidTierPriceCents(cents: number): { ok: true } | { error: string } {
   if (!Number.isInteger(cents) || cents < 0) {
     return { error: "Price must be a valid non-negative amount." }
   }
   if (cents > 0 && cents < MIN_PAID_TICKET_CENTS) {
-    return { error: "Paid ticket price must be at least $0.50." }
+    return { error: MIN_PAID_TICKET_MESSAGE }
   }
   return { ok: true }
 }

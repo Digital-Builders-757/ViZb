@@ -53,7 +53,7 @@ export function SignUpSuccessPanel() {
       <AuthAlert
         variant="info"
         title="Need another email?"
-        message="Use the same address you signed up with on the sign-up page — we’ll open the resend option after you submit the form."
+        message="Use the same address you signed up with on the sign-up page, we’ll open the resend option after you submit the form."
         className="mt-8"
       />
     )

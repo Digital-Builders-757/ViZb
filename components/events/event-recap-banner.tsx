@@ -24,7 +24,7 @@ export function EventRecapPrompt({ recap }: { recap: EventRecapPost }) {
   return (
     <div className="rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-4">
       <p className="text-sm text-[color:var(--neon-text1)]">
-        You were there — revisit the{" "}
+        You were there, revisit the{" "}
         <Link href={`/p/${recap.slug}`} className="text-[color:var(--neon-a)] underline-offset-4 hover:underline">
           {recap.title}
         </Link>{" "}

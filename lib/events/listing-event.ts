@@ -53,6 +53,15 @@ export function getListingEventPriceLabel(
   return `From $${(lowest / 100).toFixed(0)}`
 }
 
+/** True when the listing supports ViZb-native RSVP or ticket checkout (not external community listings). */
+export function listingOffersVizbTickets(
+  ticketTypes: TicketStub[],
+  opts?: { isCommunity?: boolean; now?: Date },
+): boolean {
+  if (opts?.isCommunity) return false
+  return getListingEventPriceLabel(ticketTypes, opts) !== null
+}
+
 export function getListingTicketStatus(
   ticketTypes: TicketStub[],
   opts?: { isCommunity?: boolean; now?: Date },

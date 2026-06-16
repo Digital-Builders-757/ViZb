@@ -23,9 +23,13 @@ describe("advertiseInquirySchema", () => {
     }
   })
 
-  it("rejects short message", () => {
+  it("rejects short message with expected error copy", () => {
     const r = advertiseInquirySchema.safeParse({ ...validBase, message: "too short" })
     expect(r.success).toBe(false)
+    if (!r.success) {
+      const messageIssue = r.error.issues.find((issue) => issue.path[0] === "message")
+      expect(messageIssue?.message).toBe("Tell us a bit more — at least a few sentences (40+ characters).")
+    }
   })
 
   it("rejects filled honeypot", () => {

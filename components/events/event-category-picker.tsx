@@ -24,7 +24,7 @@ export function EventCategoryPicker({
   onToggle,
   disabled = false,
   required = false,
-  helpText = "Pick all that apply — used for discovery on /events.",
+  helpText = "Pick all that apply, used for discovery on /events.",
   legendClassName = "text-xs font-mono uppercase tracking-widest text-muted-foreground",
   helpTextClassName = "text-[11px] text-muted-foreground leading-relaxed max-w-xl",
   chipOnClassName = DEFAULT_CHIP_ON,

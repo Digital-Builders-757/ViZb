@@ -119,7 +119,7 @@ export function OpenMicLineupPanel({
 
       {!eventIsPublished ? (
         <p className="mb-4 text-sm text-muted-foreground border border-amber-500/30 bg-amber-500/5 px-3 py-2 rounded-md">
-          This event is not <span className="text-foreground/90">published</span> yet — the shareable{" "}
+          This event is not <span className="text-foreground/90">published</span> yet, the shareable{" "}
           <span className="font-mono text-xs">/lineup/…</span> page is only available after you publish the event.
         </p>
       ) : null}
@@ -171,7 +171,7 @@ export function OpenMicLineupPanel({
 
       {isArchived ? (
         <p className="text-sm text-muted-foreground border border-border/60 p-4 bg-muted/5">
-          This event is archived — lineup can’t be edited.
+          This event is archived, lineup can’t be edited.
         </p>
       ) : (
         <>
@@ -215,7 +215,7 @@ export function OpenMicLineupPanel({
           <div className="space-y-4">
             {entries.length === 0 ? (
               <p className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border/60">
-                No performers yet — add the first slot above.
+                No performers yet, add the first slot above.
               </p>
             ) : (
               entries.map((row, index) => {

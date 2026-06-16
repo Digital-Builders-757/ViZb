@@ -69,7 +69,7 @@ export function SentryDiagnostics({ checks, captureEnabled, overallReady }: Sent
     startTransition(async () => {
       try {
         await triggerSentryServerTestError()
-        setServerResult("Server action returned without throwing — unexpected.")
+        setServerResult("Server action returned without throwing, unexpected.")
       } catch (error) {
         setServerResult(error instanceof Error ? error.message : "Server test error thrown.")
       }
@@ -92,7 +92,7 @@ export function SentryDiagnostics({ checks, captureEnabled, overallReady }: Sent
           {overallReady
             ? "Sentry is active on this deployment"
             : captureEnabled
-              ? "Sentry capture is enabled — add auth token for source maps"
+              ? "Sentry capture is enabled, add auth token for source maps"
               : "Sentry capture is disabled on this deployment"}
         </p>
         <p className="mt-2 text-sm text-[color:var(--neon-text1)]">

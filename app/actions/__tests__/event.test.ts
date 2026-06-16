@@ -95,6 +95,11 @@ mockSupabase.from.mockImplementation((table: string) => {
                   },
                 )
               }
+              if (table === "organizer_stripe_accounts") {
+                return Promise.resolve(
+                  mockSelectResults.organizer_stripe_accounts ?? { data: null, error: null },
+                )
+              }
               return Promise.resolve({ data: null, error: null })
             },
           })),
@@ -116,6 +121,11 @@ mockSupabase.from.mockImplementation((table: string) => {
                   data: null,
                   error: { message: "Not found" },
                 },
+              )
+            }
+            if (table === "organizer_stripe_accounts") {
+              return Promise.resolve(
+                mockSelectResults.organizer_stripe_accounts ?? { data: null, error: null },
               )
             }
             return Promise.resolve({ data: null, error: null })
@@ -511,6 +521,18 @@ describe("createEvent paid ticketing", () => {
   })
 
   it("seeds free RSVP and paid tier when ticket_mode is paid", async () => {
+    mockSelectResults.organizer_stripe_accounts = {
+      data: {
+        id: "osa-1",
+        organizer_id: mockUser.id,
+        stripe_account_id: "acct_test",
+        charges_enabled: true,
+        payouts_enabled: true,
+        details_submitted: true,
+        onboarding_status: "active",
+      },
+      error: null,
+    }
     const result = await createEvent(baseCreateFormData("paid"))
     expect(result.success).toBe(true)
     expect(ticketTypeInserts).toHaveLength(2)

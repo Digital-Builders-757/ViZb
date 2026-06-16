@@ -44,7 +44,7 @@ export function OrganizerDuplicateEventDraft({
         return
       }
       if ("success" in result && result.success && result.slug) {
-        toast.success("Draft created — upload a flyer (official) before review.")
+        toast.success("Draft created, upload a flyer (official) before review.")
         router.push(`/organizer/${orgSlug}/events/${result.slug}`)
         router.refresh()
       }

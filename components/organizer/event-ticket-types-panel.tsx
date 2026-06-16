@@ -54,7 +54,7 @@ export function EventTicketTypesPanel({
       <p className="text-sm text-muted-foreground mb-3 max-w-2xl">
         Each row is its own form: use <span className="text-foreground/90 font-medium">Save tier</span> for that tier
         only. This does <span className="text-foreground/90 font-medium">not</span> save title, schedule, venue,
-        categories, or the whole-event RSVP cap — those use <span className="text-foreground/90 font-medium">Save event details</span>{" "}
+        categories, or the whole-event RSVP cap, those use <span className="text-foreground/90 font-medium">Save event details</span>{" "}
         above.
       </p>
       <p className="text-sm text-muted-foreground mb-6 max-w-2xl pb-6 border-b border-border/50">
@@ -120,7 +120,7 @@ export function EventTicketTypesPanel({
 
               <div className="flex flex-col gap-1">
                 <label className={labelClass}>
-                  Price (USD){t.is_default_rsvp ? " — default tier stays free" : ""}
+                  Price (USD){t.is_default_rsvp ? ", default tier stays free" : ""}
                 </label>
                 <input
                   name="price_usd"

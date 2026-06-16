@@ -4,7 +4,20 @@ import { z } from "zod"
 
 import { requireAuth } from "@/lib/auth-helpers"
 import { assertEventAcceptsPublicRegistration } from "@/lib/events/event-schedule"
-import { calculateTicketCheckoutAmounts } from "@/lib/payments/ticket-fees"
+import {
+  assertStripeLineItemsMatchBuyerTotal,
+  buildTicketCheckoutLineItems,
+  buildTicketCheckoutMetadata,
+} from "@/lib/payments/build-ticket-checkout-presentation"
+import {
+  calculateTicketCheckoutAmounts,
+  validatePaidTicketPriceForCheckout,
+} from "@/lib/payments/ticket-fees"
+import { assertEventOrganizerPayoutReadyWithAdmin } from "@/lib/organizer/payout-readiness"
+import {
+  buildPaidOrderInsertRow,
+  ORDER_PAYMENT_STATUS,
+} from "@/lib/orders/order-payment-fields"
 import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { getStripe } from "@/lib/stripe/server"
 import { isStripeCheckoutConfigured } from "@/lib/stripe/env"
@@ -83,7 +96,12 @@ export async function createTicketCheckoutSession(
 
   const price = typeof tt.price_cents === "number" ? tt.price_cents : Number(tt.price_cents)
   if (!Number.isFinite(price) || price < 1) {
-    return { error: "This tier is free — use RSVP instead." }
+    return { error: "This tier is free, use RSVP instead." }
+  }
+
+  const paidPriceCheck = validatePaidTicketPriceForCheckout(Math.trunc(price))
+  if ("error" in paidPriceCheck) {
+    return { error: paidPriceCheck.error }
   }
 
   const isActive = tt.is_active == null ? true : Boolean(tt.is_active)
@@ -103,7 +121,7 @@ export async function createTicketCheckoutSession(
 
   const { data: eventRow, error: evErr } = await supabase
     .from("events")
-    .select("id, status, slug, title, rsvp_capacity, starts_at, ends_at")
+    .select("id, status, slug, title, rsvp_capacity, starts_at, ends_at, created_by")
     .eq("id", eventId)
     .maybeSingle()
 
@@ -179,7 +197,16 @@ export async function createTicketCheckoutSession(
     return { error: "Only USD checkout is supported right now." }
   }
 
-  const { subtotalCents, platformFeeCents, totalCents } = calculateTicketCheckoutAmounts(price)
+  const { subtotalCents, platformFeeCents, processingFeeCents, totalCents, organizerPayoutCents } =
+    calculateTicketCheckoutAmounts(price)
+
+  const checkoutAmounts = {
+    subtotalCents,
+    platformFeeCents,
+    processingFeeCents,
+    totalCents,
+    organizerPayoutCents,
+  }
 
   let admin: ReturnType<typeof createServiceRoleClient>
   try {
@@ -188,17 +215,23 @@ export async function createTicketCheckoutSession(
     return { error: "Checkout service is not configured on the server yet." }
   }
 
+  const payoutCheck = await assertEventOrganizerPayoutReadyWithAdmin(admin, eventId)
+  if ("error" in payoutCheck) {
+    return { error: payoutCheck.error }
+  }
+
+  const organizerId = payoutCheck.organizerId
+
   const { data: order, error: orderErr } = await admin
     .from("orders")
-    .insert({
-      user_id: user.id,
-      event_id: eventId,
-      status: "pending_payment",
-      subtotal_cents: subtotalCents,
-      platform_fee_cents: platformFeeCents,
-      total_cents: totalCents,
-      currency,
-    })
+    .insert(
+      buildPaidOrderInsertRow({
+        userId: user.id,
+        eventId,
+        currency,
+        amounts: checkoutAmounts,
+      }),
+    )
     .select("id")
     .single()
 
@@ -215,13 +248,42 @@ export async function createTicketCheckoutSession(
   })
 
   if (orderItemErr) {
-    await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+    await admin
+      .from("orders")
+      .update({ status: "cancelled", payment_status: ORDER_PAYMENT_STATUS.canceled })
+      .eq("id", order.id)
     return { error: orderItemErr.message }
   }
 
   const origin = siteOriginFromEnv()
   const slug = String(eventRow.slug)
-  const productName = `${String(eventRow.title)} — ${String(tt.name)}`
+  const eventTitle = String(eventRow.title)
+  const ticketTierName = String(tt.name)
+
+  const lineItems = buildTicketCheckoutLineItems({
+    eventTitle,
+    ticketTierName,
+    currency,
+    amounts: checkoutAmounts,
+  })
+
+  const lineItemCheck = assertStripeLineItemsMatchBuyerTotal(lineItems, totalCents)
+  if ("error" in lineItemCheck) {
+    await admin
+      .from("orders")
+      .update({ status: "cancelled", payment_status: ORDER_PAYMENT_STATUS.canceled })
+      .eq("id", order.id)
+    return { error: lineItemCheck.error }
+  }
+
+  const checkoutMetadata = buildTicketCheckoutMetadata({
+    orderId: order.id,
+    eventId,
+    organizerId,
+    ticketTypeId,
+    userId: user.id,
+    amounts: checkoutAmounts,
+  })
 
   try {
     const stripe = getStripe()
@@ -229,52 +291,20 @@ export async function createTicketCheckoutSession(
       mode: "payment",
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
-      metadata: {
-        order_id: order.id,
-        user_id: user.id,
-        event_id: eventId,
-        ticket_type_id: ticketTypeId,
-      },
+      metadata: checkoutMetadata,
       payment_intent_data: {
-        metadata: {
-          order_id: order.id,
-          user_id: user.id,
-          event_id: eventId,
-          ticket_type_id: ticketTypeId,
-        },
+        metadata: checkoutMetadata,
       },
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency,
-            unit_amount: subtotalCents,
-            product_data: {
-              name: productName,
-            },
-          },
-        },
-        ...(platformFeeCents > 0
-          ? [
-              {
-                quantity: 1,
-                price_data: {
-                  currency,
-                  unit_amount: platformFeeCents,
-                  product_data: {
-                    name: `ViZb platform fee — ${String(eventRow.title)}`,
-                  },
-                },
-              },
-            ]
-          : []),
-      ],
+      line_items: lineItems,
       success_url: `${origin}/events/${slug}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/events/${slug}?checkout=cancelled`,
     })
 
     if (!session.url || !session.id) {
-      await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+      await admin
+        .from("orders")
+        .update({ status: "cancelled", payment_status: ORDER_PAYMENT_STATUS.canceled })
+        .eq("id", order.id)
       return { error: "Could not start checkout session." }
     }
 
@@ -283,12 +313,16 @@ export async function createTicketCheckoutSession(
       .from("orders")
       .update({
         stripe_checkout_session_id: session.id,
+        payment_status: ORDER_PAYMENT_STATUS.checkoutStarted,
         ...(paymentIntentId ? { stripe_payment_intent_id: paymentIntentId } : {}),
       })
       .eq("id", order.id)
 
     if (updateOrderErr) {
-      await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+      await admin
+        .from("orders")
+        .update({ status: "cancelled", payment_status: ORDER_PAYMENT_STATUS.canceled })
+        .eq("id", order.id)
       return { error: updateOrderErr.message }
     }
 
@@ -296,7 +330,10 @@ export async function createTicketCheckoutSession(
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not start checkout session."
     console.error("[ticket-checkout] Stripe error:", message, error)
-    await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+    await admin
+      .from("orders")
+      .update({ status: "cancelled", payment_status: ORDER_PAYMENT_STATUS.canceled })
+      .eq("id", order.id)
     return { error: message }
   }
 }

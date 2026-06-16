@@ -36,21 +36,21 @@ describe("getLineupEntryPublicVisibilityPresentation", () => {
 
   it("labels pending when public but not confirmed", () => {
     expect(getLineupEntryPublicVisibilityPresentation({ status: "pending", is_public: true })).toEqual({
-      label: "Pending — not on public lineup yet",
+      label: "Pending, not on public lineup yet",
       tone: "muted",
     })
   })
 
   it("labels no-show", () => {
     expect(getLineupEntryPublicVisibilityPresentation({ status: "no_show", is_public: true })).toEqual({
-      label: "No-show — not on public lineup",
+      label: "No-show, not on public lineup",
       tone: "caution",
     })
   })
 
   it("labels cancelled", () => {
     expect(getLineupEntryPublicVisibilityPresentation({ status: "cancelled", is_public: true })).toEqual({
-      label: "Cancelled — not on public lineup",
+      label: "Cancelled, not on public lineup",
       tone: "muted",
     })
   })

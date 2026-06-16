@@ -75,7 +75,7 @@ export function PostLoginIntentResolver({
       className="mx-auto mb-4 max-w-[1200px] rounded-xl border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 px-4 py-4 shadow-[0_0_20px_rgba(0,209,255,0.12)] sm:px-8"
       role="status"
     >
-      <p className="text-sm font-medium text-[color:var(--neon-text0)]">You&apos;re signed in — finish your RSVP below.</p>
+      <p className="text-sm font-medium text-[color:var(--neon-text0)]">You&apos;re signed in, finish your RSVP below.</p>
       <p className="mt-1 text-xs text-[color:var(--neon-text2)]">
         Pick free RSVP or buy a ticket, then confirm on this page.
       </p>

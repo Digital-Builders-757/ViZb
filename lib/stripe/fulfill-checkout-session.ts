@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import type Stripe from "stripe"
 
 import { coerceUuid } from "@/lib/coerce-uuid"
+import { logError } from "@/lib/log"
+import { createOrganizerPayoutRecordForOrder } from "@/lib/payments/create-organizer-payout-record"
 
 function readString(value: unknown): string | null {
   if (typeof value === "string") {
@@ -72,6 +74,12 @@ export async function fulfillPaidCheckoutSession(
   if (eventId) {
     const { data: eventRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle()
     eventSlug = readString(eventRow?.slug)
+  }
+
+  try {
+    await createOrganizerPayoutRecordForOrder(admin, orderId)
+  } catch (error) {
+    logError("fulfill.create_organizer_payout_record", error, { orderId, eventId })
   }
 
   return {

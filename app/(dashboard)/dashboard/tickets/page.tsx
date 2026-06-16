@@ -198,7 +198,7 @@ export default async function TicketsPage() {
         <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
           Active tickets stay up top for quick door access. Past events move to{" "}
           <span className="text-[color:var(--neon-text0)]">Ticket history</span> so you always have receipts and
-          memories—nothing disappears after the show.
+          memories, nothing disappears after the show.
         </p>
       </header>
 
@@ -238,7 +238,7 @@ export default async function TicketsPage() {
         <div className="min-w-0 space-y-10">
           <TicketSection
             title="Active tickets"
-            subtitle="Upcoming and ongoing events—including any without a firm end time."
+            subtitle="Upcoming and ongoing events, including any without a firm end time."
             rows={activeRows}
             emptyState={
               past.length > 0 ? (

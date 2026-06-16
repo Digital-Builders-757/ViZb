@@ -113,7 +113,7 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
             </span>
             {isFirstRun ? (
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Tell us where you pull up and what you are into — we will personalize your feed.
+                Tell us where you pull up and what you are into, we will personalize your feed.
               </p>
             ) : null}
           </div>
@@ -124,7 +124,7 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
         {state.success ? (
           <div className="mx-5 mt-5 border border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] bg-[color:color-mix(in_srgb,var(--neon-a)_10%,transparent)] px-4 py-3 md:mx-6">
             <p className="text-sm text-[color:var(--neon-a)]">
-              {isFirstRun ? "Preferences saved — your dashboard is personalized." : "Preferences updated."}
+              {isFirstRun ? "Preferences saved, your dashboard is personalized." : "Preferences updated."}
             </p>
           </div>
         ) : null}
@@ -141,7 +141,7 @@ export function MemberPreferencesForm({ initial, variant = "profile" }: MemberPr
               Home cities <span className="text-[color:var(--neon-a)]">*</span>
             </legend>
             <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)]">
-              Pick where you usually show up — we use this for near-me picks and reminders.
+              Pick where you usually show up, we use this for near-me picks and reminders.
             </p>
             <div className="flex flex-wrap gap-2">
               {MEMBER_HOME_CITY_OPTIONS.map((city) => {

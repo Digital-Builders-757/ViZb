@@ -28,7 +28,7 @@ export function EventCheckoutBanner({
     variant === "cancelled"
       ? "No payment was taken. You can try again when you're ready."
       : variant === "pending"
-        ? "Payment received. We're confirming your ticket now — check My Tickets in a moment or refresh that page."
+        ? "Payment received. We're confirming your ticket now, check My Tickets in a moment or refresh that page."
         : "We couldn't confirm your purchase yet. Open My Tickets to check status, or contact support if payment was taken."
 
   return (
