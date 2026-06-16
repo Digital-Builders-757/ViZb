@@ -41,6 +41,7 @@ export function AdvertiseContactForm({
 
   async function submitFromForm(formData: FormData) {
     setPending(true)
+    setState(null)
     const result = await submitAdvertiseInquiry(formData)
     setState(result)
     setPending(false)

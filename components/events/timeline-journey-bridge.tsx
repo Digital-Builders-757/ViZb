@@ -10,7 +10,7 @@ export function TimelineJourneyBridge({
   if (!showStaffPicksFeatured && upcomingCount === 0) return null
 
   return (
-    <div className="relative mx-auto max-w-[1200px] px-4 sm:px-8">
+    <div className="relative mx-auto my-4 max-w-[1200px] px-4 sm:px-8 md:my-5">
       <div className="events-timeline-journey-bridge events-card-surface relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/50 px-5 py-4 md:px-8 md:py-5">
         <div className="events-journey-bridge-glow pointer-events-none absolute inset-0 opacity-80" aria-hidden />
         <div className="relative z-[1] flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

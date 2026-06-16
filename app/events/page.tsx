@@ -366,7 +366,9 @@ export default async function EventsExplorePage({
         />
       </EventsDiscoveryHero>
 
-      <section className="px-4 pb-6 sm:px-8">
+      <OceanDivider variant="hero" density="sparse" />
+
+      <section className="px-4 pb-3 sm:px-8">
         <div className="mx-auto max-w-[1200px]">
           {eventsLoadError ? (
             <div
@@ -392,24 +394,18 @@ export default async function EventsExplorePage({
         </div>
       </section>
 
-      {/* Ocean wave divider */}
-      <OceanDivider variant="hero" density="normal" />
-
       {showStaffPicksFeatured && staffPicksMoment ? (
-        <>
-          <section className="px-4 pb-2 pt-8 sm:px-8 md:pt-10">
-            <div className="mx-auto max-w-[1200px]">
-              <EventsFeaturedMoment moment={staffPicksMoment} />
-            </div>
-          </section>
-          <OceanDivider variant="soft" density="sparse" />
-        </>
+        <section className="px-4 pb-0 pt-3 sm:px-8 md:pt-4">
+          <div className="mx-auto max-w-[1200px]">
+            <EventsFeaturedMoment moment={staffPicksMoment} />
+          </div>
+        </section>
       ) : null}
 
       <TimelineJourneyBridge showStaffPicksFeatured={showStaffPicksFeatured} upcomingCount={flatUpcoming.length} />
 
       {/* Timeline Section */}
-      <section id="timeline" className="events-timeline-section scroll-mt-24 px-4 py-14 sm:px-8 md:py-20">
+      <section id="timeline" className="events-timeline-section scroll-mt-24 px-4 pb-14 pt-10 sm:px-8 md:pb-20 md:pt-12">
         <div className="events-timeline-shell mx-auto max-w-[1200px]">
           {vibesSignedOutGate ? (
             <div
