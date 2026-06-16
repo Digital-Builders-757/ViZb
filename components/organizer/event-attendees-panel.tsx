@@ -100,7 +100,7 @@ export function EventAttendeesPanel({
           </div>
           {towardCap >= rsvpCapacity ? (
             <p className="mt-2 text-[11px] leading-relaxed text-amber-200/95">
-              At the RSVP limit — consider raising the cap in Event details before opening more RSVPs publicly.
+              At the RSVP limit, consider raising the cap in Event details before opening more RSVPs publicly.
             </p>
           ) : rsvpCapacity - towardCap <= 5 && rsvpCapacity > towardCap ? (
             <p className="mt-2 text-[11px] text-muted-foreground">
@@ -119,7 +119,7 @@ export function EventAttendeesPanel({
           <span className="text-foreground">none set (unlimited)</span>
         )}
         {rsvpCapacity != null && rsvpCapacity > 0 ? (
-          <span> — confirmed + checked-in count toward this limit.</span>
+          <span>, confirmed + checked-in count toward this limit.</span>
         ) : null}
       </p>
 

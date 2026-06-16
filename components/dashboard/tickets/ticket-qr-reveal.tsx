@@ -41,7 +41,7 @@ export function TicketQrReveal({
       toast.success("Backup code copied")
       window.setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error("Could not copy — select the code and copy manually.")
+      toast.error("Could not copy, select the code and copy manually.")
     }
   }, [token])
 

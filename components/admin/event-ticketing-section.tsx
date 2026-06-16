@@ -110,7 +110,7 @@ function TicketingFields({
               }
               className={fieldClass}
             />
-            <p className="text-xs text-muted-foreground">Minimum $0.50 for paid tiers.</p>
+            <p className="text-xs text-muted-foreground">Minimum $5.00 for paid tiers.</p>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -170,7 +170,7 @@ function TicketingFields({
               className="accent-[color:var(--neon-a)]"
             />
             <label htmlFor={`${idPrefix}is_active`} className="text-sm text-foreground">
-              Active — tier is available for purchase
+              Active, tier is available for purchase
             </label>
           </div>
         </div>

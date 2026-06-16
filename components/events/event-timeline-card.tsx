@@ -177,11 +177,7 @@ export function EventTimelineCard({
         }`}
       >
         <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 0% 0%, rgb(0 209 255 / 0.14), transparent 55%), radial-gradient(ellipse 70% 55% at 100% 100%, rgb(157 77 255 / 0.11), transparent 55%)",
-          }}
+          className="events-timeline-card-glow pointer-events-none absolute inset-0 opacity-80"
           aria-hidden
         />
         <Link

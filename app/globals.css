@@ -47,9 +47,9 @@
    */
   --neon-bg0: #05050a;
   --neon-bg1: #08081c;
-  /* Second pass: slightly more luminous glass + clearer hairlines */
-  --neon-surface: rgb(255 255 255 / 0.072);
-  --neon-hairline: rgb(255 255 255 / 0.13);
+  /* Second pass: slightly more luminous glass + clearer hairlines (#252 brighten) */
+  --neon-surface: rgb(255 255 255 / 0.085);
+  --neon-hairline: rgb(255 255 255 / 0.17);
   --neon-text0: #ffffff;
   --neon-text1: rgb(218 228 255 / 0.92);
   /* Muted tier: clearer placeholders + tertiary copy without losing cool tint */
@@ -67,8 +67,28 @@
   --vibe-glass-border: var(--neon-hairline);
   --vibe-text-secondary: var(--neon-text1);
   --vibe-text-muted: var(--neon-text2);
-  --vibe-neon-glow: 0 0 20px rgb(0 209 255 / 0.30), 0 0 48px rgb(157 77 255 / 0.18);
-  --vibe-neon-glow-subtle: 0 0 14px rgb(0 209 255 / 0.18);
+  --vibe-neon-glow: 0 0 22px rgb(0 209 255 / 0.38), 0 0 52px rgb(157 77 255 / 0.24);
+  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.26);
+
+  /* Event card + glass glow intensity (#252) */
+  --events-glow-ring: color-mix(in srgb, var(--neon-a) 18%, transparent);
+  --events-glow-cyan: rgb(0 209 255 / 0.10);
+  --events-glow-purple: rgb(157 77 255 / 0.07);
+  --events-glow-ring-hover: color-mix(in srgb, var(--neon-a) 32%, transparent);
+  --events-glow-cyan-hover: rgb(0 209 255 / 0.16);
+  --events-glow-purple-hover: rgb(157 77 255 / 0.10);
+  --events-glow-shadow-hover: rgb(0 209 255 / 0.18);
+  --events-glow-shadow-hover-amber: rgb(245 158 11 / 0.16);
+  --events-chip-active-glow: 0 0 24px rgb(0 209 255 / 0.24);
+  --events-chip-active-glow-purple: 0 0 22px rgb(157 77 255 / 0.18);
+  --events-card-radial-cyan: rgb(0 209 255 / 0.18);
+  --events-card-radial-purple: rgb(157 77 255 / 0.14);
+  --events-card-radial-amber: rgb(245 158 11 / 0.18);
+  --glass-hover-border: color-mix(in srgb, var(--neon-a) 52%, var(--neon-hairline));
+  --glass-hover-ring: color-mix(in srgb, var(--neon-a) 34%, transparent);
+  --glass-emphasis-ring: color-mix(in srgb, var(--neon-a) 26%, transparent);
+  --glass-inset-highlight: rgb(255 255 255 / 0.09);
+  --glass-glare: color-mix(in srgb, white 22%, transparent);
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
@@ -83,8 +103,8 @@
   /* Branded keyboard focus (.vibe-focus-ring + .vibe-input-glass halo) */
   --vibe-focus-outline: color-mix(in srgb, var(--neon-a) 88%, white 12%);
   --vibe-focus-glow: 0 0 0 1px color-mix(in srgb, var(--background) 65%, transparent),
-    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
-    0 0 34px color-mix(in srgb, var(--neon-b) 18%, transparent);
+    0 0 22px color-mix(in srgb, var(--neon-a) 48%, transparent),
+    0 0 38px color-mix(in srgb, var(--neon-b) 26%, transparent);
 
   --text-readable-secondary: color-mix(in oklch, var(--foreground) 68%, var(--muted-foreground));
 }
@@ -125,9 +145,9 @@
 
   --neon-bg0: #05050a;
   --neon-bg1: #08081c;
-  /* Second pass: slightly more luminous glass + clearer hairlines */
-  --neon-surface: rgb(255 255 255 / 0.072);
-  --neon-hairline: rgb(255 255 255 / 0.13);
+  /* Second pass: slightly more luminous glass + clearer hairlines (#252 brighten) */
+  --neon-surface: rgb(255 255 255 / 0.085);
+  --neon-hairline: rgb(255 255 255 / 0.17);
   --neon-text0: #ffffff;
   --neon-text1: rgb(218 228 255 / 0.92);
   /* Muted tier: clearer placeholders + tertiary copy without losing cool tint */
@@ -144,8 +164,28 @@
   --vibe-glass-border: var(--neon-hairline);
   --vibe-text-secondary: var(--neon-text1);
   --vibe-text-muted: var(--neon-text2);
-  --vibe-neon-glow: 0 0 20px rgb(0 209 255 / 0.30), 0 0 48px rgb(157 77 255 / 0.18);
-  --vibe-neon-glow-subtle: 0 0 14px rgb(0 209 255 / 0.18);
+  --vibe-neon-glow: 0 0 22px rgb(0 209 255 / 0.38), 0 0 52px rgb(157 77 255 / 0.24);
+  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.26);
+
+  /* Event card + glass glow intensity (#252) */
+  --events-glow-ring: color-mix(in srgb, var(--neon-a) 18%, transparent);
+  --events-glow-cyan: rgb(0 209 255 / 0.10);
+  --events-glow-purple: rgb(157 77 255 / 0.07);
+  --events-glow-ring-hover: color-mix(in srgb, var(--neon-a) 32%, transparent);
+  --events-glow-cyan-hover: rgb(0 209 255 / 0.16);
+  --events-glow-purple-hover: rgb(157 77 255 / 0.10);
+  --events-glow-shadow-hover: rgb(0 209 255 / 0.18);
+  --events-glow-shadow-hover-amber: rgb(245 158 11 / 0.16);
+  --events-chip-active-glow: 0 0 24px rgb(0 209 255 / 0.24);
+  --events-chip-active-glow-purple: 0 0 22px rgb(157 77 255 / 0.18);
+  --events-card-radial-cyan: rgb(0 209 255 / 0.18);
+  --events-card-radial-purple: rgb(157 77 255 / 0.14);
+  --events-card-radial-amber: rgb(245 158 11 / 0.18);
+  --glass-hover-border: color-mix(in srgb, var(--neon-a) 52%, var(--neon-hairline));
+  --glass-hover-ring: color-mix(in srgb, var(--neon-a) 34%, transparent);
+  --glass-emphasis-ring: color-mix(in srgb, var(--neon-a) 26%, transparent);
+  --glass-inset-highlight: rgb(255 255 255 / 0.09);
+  --glass-glare: color-mix(in srgb, white 22%, transparent);
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
@@ -158,8 +198,8 @@
 
   --vibe-focus-outline: color-mix(in srgb, var(--neon-a) 88%, white 12%);
   --vibe-focus-glow: 0 0 0 1px color-mix(in srgb, var(--background) 65%, transparent),
-    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
-    0 0 34px color-mix(in srgb, var(--neon-b) 18%, transparent);
+    0 0 22px color-mix(in srgb, var(--neon-a) 48%, transparent),
+    0 0 38px color-mix(in srgb, var(--neon-b) 26%, transparent);
 
   --text-readable-secondary: color-mix(in oklch, var(--foreground) 68%, var(--muted-foreground));
 }
@@ -475,15 +515,15 @@
 /* Events listing — resting dual-tone border glow (CSS-only, no animation) */
 .events-neon-card {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--neon-a) 12%, transparent),
-    0 0 16px rgb(0 209 255 / 0.06),
-    0 0 28px rgb(157 77 255 / 0.04);
+    0 0 0 1px var(--events-glow-ring),
+    0 0 16px var(--events-glow-cyan),
+    0 0 28px var(--events-glow-purple);
 }
 
 .events-neon-card-archive {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--neon-hairline) 40%, transparent),
-    0 0 12px rgb(0 209 255 / 0.04);
+    0 0 0 1px color-mix(in srgb, var(--neon-hairline) 55%, transparent),
+    0 0 14px rgb(0 209 255 / 0.07);
 }
 
 .events-neon-card-hover {
@@ -493,9 +533,48 @@
 .group:hover .events-neon-card-hover,
 .events-neon-card-hover:hover {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--neon-a) 24%, transparent),
-    0 0 22px rgb(0 209 255 / 0.11),
-    0 0 40px rgb(157 77 255 / 0.06);
+    0 0 0 1px var(--events-glow-ring-hover),
+    0 0 24px var(--events-glow-cyan-hover),
+    0 0 44px var(--events-glow-purple-hover);
+}
+
+/* Radial hover overlays for discovery / timeline cards */
+.events-card-hover-radial-hero {
+  background: radial-gradient(800px circle at 20% 0%, var(--events-card-radial-cyan), transparent 55%);
+}
+
+.events-card-hover-radial-compact {
+  background: radial-gradient(800px circle at 15% 0%, var(--events-card-radial-cyan), transparent 50%);
+}
+
+.events-card-hover-radial-compact-staff {
+  background: radial-gradient(800px circle at 15% 0%, var(--events-card-radial-amber), transparent 50%);
+}
+
+.events-card-hover-radial-preview {
+  background: radial-gradient(600px circle at 10% 0%, var(--events-card-radial-cyan), transparent 55%);
+}
+
+.events-timeline-card-glow {
+  background:
+    radial-gradient(ellipse 80% 60% at 0% 0%, var(--events-card-radial-cyan), transparent 55%),
+    radial-gradient(ellipse 70% 55% at 100% 100%, var(--events-card-radial-purple), transparent 55%);
+}
+
+.events-journey-bridge-glow {
+  background:
+    radial-gradient(900px circle at 0% 0%, var(--events-card-radial-cyan), transparent 55%),
+    radial-gradient(700px circle at 100% 100%, var(--events-card-radial-purple), transparent 50%);
+}
+
+.events-card-hover-radial-section {
+  background: radial-gradient(1200px circle at 20% 10%, var(--events-card-radial-cyan), transparent 55%);
+}
+
+.events-flyer-fallback-glow {
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 20%, var(--events-card-radial-cyan), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, var(--events-card-radial-purple), transparent 50%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -734,21 +813,21 @@
 
 /* Neon glow effect for elements (aligned with --neon-* tokens) */
 .neon-glow {
-  box-shadow: 0 0 5px color-mix(in srgb, var(--neon-b) 50%, transparent),
-    0 0 20px color-mix(in srgb, var(--neon-b) 30%, transparent),
-    0 0 40px color-mix(in srgb, var(--neon-b) 20%, transparent);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--neon-b) 58%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-b) 38%, transparent),
+    0 0 40px color-mix(in srgb, var(--neon-b) 26%, transparent);
 }
 
 .neon-glow-cyan {
-  box-shadow: 0 0 5px color-mix(in srgb, var(--neon-a) 50%, transparent),
-    0 0 20px color-mix(in srgb, var(--neon-a) 30%, transparent),
-    0 0 40px color-mix(in srgb, var(--neon-a) 20%, transparent);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--neon-a) 58%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-a) 38%, transparent),
+    0 0 40px color-mix(in srgb, var(--neon-a) 26%, transparent);
 }
 
 .neon-glow-blue-mid {
-  box-shadow: 0 0 5px color-mix(in srgb, var(--neon-b) 45%, transparent),
-    0 0 20px color-mix(in srgb, var(--neon-b) 28%, transparent),
-    0 0 40px color-mix(in srgb, var(--neon-b) 18%, transparent);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--neon-b) 52%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-b) 34%, transparent),
+    0 0 40px color-mix(in srgb, var(--neon-b) 24%, transparent);
 }
 
 /* Gradient top-border accent for cards (underwater neon spectrum) */
@@ -964,11 +1043,11 @@
   box-sizing: border-box;
   background: linear-gradient(
     100deg,
-    color-mix(in srgb, var(--water-b) 35%, transparent),
-    color-mix(in srgb, var(--water-a) 85%, transparent),
-    color-mix(in srgb, var(--water-b) 55%, transparent),
-    color-mix(in srgb, var(--water-a) 45%, transparent),
-    color-mix(in srgb, var(--water-b) 40%, transparent)
+    color-mix(in srgb, var(--water-b) 45%, transparent),
+    color-mix(in srgb, var(--water-a) 92%, transparent),
+    color-mix(in srgb, var(--water-b) 65%, transparent),
+    color-mix(in srgb, var(--water-a) 55%, transparent),
+    color-mix(in srgb, var(--water-b) 50%, transparent)
   );
   background-size: 220% 100%;
   animation: water-edge-flow 5.5s ease-in-out infinite;
@@ -987,8 +1066,8 @@
 .water-frame.water-border:hover,
 .water-frame.water-border:focus-within {
   box-shadow:
-    inset 0 0 48px color-mix(in srgb, var(--water-a) 16%, transparent),
-    inset 0 0 100px color-mix(in srgb, var(--water-b) 8%, transparent);
+    inset 0 0 48px color-mix(in srgb, var(--water-a) 22%, transparent),
+    inset 0 0 100px color-mix(in srgb, var(--water-b) 12%, transparent);
 }
 
 @media (hover: none) {
@@ -999,8 +1078,8 @@
 
   .water-frame.water-border:active {
     box-shadow:
-      inset 0 0 40px color-mix(in srgb, var(--water-a) 14%, transparent),
-      inset 0 0 80px color-mix(in srgb, var(--water-b) 7%, transparent);
+      inset 0 0 40px color-mix(in srgb, var(--water-a) 18%, transparent),
+      inset 0 0 80px color-mix(in srgb, var(--water-b) 10%, transparent);
   }
 }
 
@@ -1264,17 +1343,17 @@
 }
 
 .events-timeline-pulse-dot {
-  box-shadow: 0 0 12px rgb(0 209 255 / 0.45);
+  box-shadow: 0 0 14px rgb(0 209 255 / 0.55);
 }
 
 .events-timeline-line {
   background: linear-gradient(
     180deg,
-    rgb(0 209 255 / 0.35) 0%,
-    rgb(0 209 255 / 0.12) 45%,
-    rgb(157 77 255 / 0.08) 100%
+    rgb(0 209 255 / 0.45) 0%,
+    rgb(0 209 255 / 0.16) 45%,
+    rgb(157 77 255 / 0.12) 100%
   );
-  box-shadow: 0 0 18px rgb(0 209 255 / 0.28);
+  box-shadow: 0 0 22px rgb(0 209 255 / 0.34);
 }
 
 .events-timeline-card-enter {
@@ -1284,15 +1363,15 @@
 
 .events-neon-card-featured {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, rgb(245 158 11) 28%, transparent),
-    0 0 22px rgb(245 158 11 / 0.1),
-    0 0 40px rgb(0 209 255 / 0.08);
+    0 0 0 1px color-mix(in srgb, rgb(245 158 11) 36%, transparent),
+    0 0 24px rgb(245 158 11 / 0.14),
+    0 0 44px rgb(0 209 255 / 0.12);
 }
 
 .events-timeline-journey-bridge {
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.04),
-    0 0 32px rgb(0 209 255 / 0.06);
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 0 36px rgb(0 209 255 / 0.10);
 }
 
 #timeline:target .events-timeline-shell {

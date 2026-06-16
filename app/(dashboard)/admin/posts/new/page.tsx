@@ -24,7 +24,7 @@ export default async function AdminNewPostPage({
         </p>
         <p className="mt-3">
           <span className="inline-flex rounded-full border border-amber-500/45 bg-amber-500/12 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-amber-100">
-            New — not public until published
+            New, not public until published
           </span>
         </p>
       </header>

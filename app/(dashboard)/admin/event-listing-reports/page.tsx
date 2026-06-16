@@ -69,14 +69,14 @@ export default async function AdminEventListingReportsPage() {
       <div>
         <h1 className="font-serif text-xl md:text-3xl font-bold text-foreground">Event listing reports</h1>
         <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          Members flag listings from public event pages. Use this list to prioritize moderation — pairing with RSVP data and organizer context is recommended.
+          Members flag listings from public event pages. Use this list to prioritize moderation, pairing with RSVP data and organizer context is recommended.
         </p>
       </div>
 
       {loadError ? (
         <GlassCard className="p-6 border border-amber-500/30 bg-amber-500/5">
           <p className="text-sm text-amber-300">
-            Reports table may be missing locally — apply migration{" "}
+            Reports table may be missing locally, apply migration{" "}
             <span className="font-mono">20260505184652_event_staff_pick_and_listing_reports.sql</span>.{" "}
             {loadError}
           </p>

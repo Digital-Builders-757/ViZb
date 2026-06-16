@@ -54,7 +54,7 @@ function unknownFallback(options?: MapAuthErrorOptions): MappedAuthError {
         }),
     },
     secondaryAction: { label: "Back to Home", href: "/" },
-    hint: "No technical details are shown here on purpose — your account is still safe.",
+    hint: "No technical details are shown here on purpose, your account is still safe.",
   }
 }
 

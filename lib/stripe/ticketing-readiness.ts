@@ -7,9 +7,10 @@ import {
 import { getTicketQrSecret } from "@/lib/ticket-qr-token"
 import { isServiceRoleConfigured } from "@/lib/supabase/project-env"
 import {
-  getPlatformFeeFixedCentsFromEnv,
-  getPlatformFeePercentFromEnv,
-} from "@/lib/payments/ticket-fees"
+  MIN_PAID_TICKET_CENTS,
+  VIZB_PLATFORM_FEE_FIXED_CENTS,
+  VIZB_PLATFORM_FEE_PERCENT,
+} from "@/lib/payments/vizb-pricing-config"
 
 export type ReadinessCheckStatus = "pass" | "fail" | "warn"
 
@@ -56,8 +57,8 @@ export function getStripeTicketingReadinessChecks(): {
       label: "NEXT_PUBLIC_SITE_URL",
       status: isPreviewOrProduction() ? "fail" : "warn",
       detail: isPreviewOrProduction()
-        ? "Missing — Stripe success/cancel URLs and webhook registration need a public origin."
-        : "Not set — OK for local dev; set before Preview/Production deploys.",
+        ? "Missing, Stripe success/cancel URLs and webhook registration need a public origin."
+        : "Not set, OK for local dev; set before Preview/Production deploys.",
     })
   } else if (isLocalhostUrl(siteUrl)) {
     checks.push({
@@ -65,8 +66,8 @@ export function getStripeTicketingReadinessChecks(): {
       label: "NEXT_PUBLIC_SITE_URL",
       status: isPreviewOrProduction() ? "fail" : "warn",
       detail: isPreviewOrProduction()
-        ? `Points to localhost (${siteUrl}) — use your Vercel Preview or production URL.`
-        : `Localhost (${siteUrl}) — fine for local Stripe CLI testing.`,
+        ? `Points to localhost (${siteUrl}), use your Vercel Preview or production URL.`
+        : `Localhost (${siteUrl}), fine for local Stripe CLI testing.`,
     })
   } else {
     checks.push({
@@ -82,7 +83,7 @@ export function getStripeTicketingReadinessChecks(): {
     key: "stripe_publishable",
     label: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
     status: publishable ? "pass" : "fail",
-    detail: publishable ? maskKeyPrefix(publishable) : "Missing — paid checkout cannot start.",
+    detail: publishable ? maskKeyPrefix(publishable) : "Missing, paid checkout cannot start.",
   })
 
   const secret = getStripeSecretKey()
@@ -90,7 +91,7 @@ export function getStripeTicketingReadinessChecks(): {
     key: "stripe_secret",
     label: "STRIPE_SECRET_KEY",
     status: secret ? "pass" : "fail",
-    detail: secret ? `${maskKeyPrefix(secret, 7)} (server-only)` : "Missing — Checkout sessions cannot be created.",
+    detail: secret ? `${maskKeyPrefix(secret, 7)} (server-only)` : "Missing, Checkout sessions cannot be created.",
   })
 
   const webhookSecret = getStripeWebhookSecret()
@@ -100,7 +101,7 @@ export function getStripeTicketingReadinessChecks(): {
     status: webhookSecret ? "pass" : "fail",
     detail: webhookSecret
       ? "Configured (value hidden)"
-      : "Missing — webhook fulfillment will fail; buyers may rely on return-path sync only.",
+      : "Missing, webhook fulfillment will fail; buyers may rely on return-path sync only.",
   })
 
   checks.push({
@@ -109,7 +110,7 @@ export function getStripeTicketingReadinessChecks(): {
     status: isServiceRoleConfigured() ? "pass" : "fail",
     detail: isServiceRoleConfigured()
       ? "Configured (value hidden)"
-      : "Missing — pending orders and webhook fulfillment cannot run.",
+      : "Missing, pending orders and webhook fulfillment cannot run.",
   })
 
   const qrSecret = getTicketQrSecret()
@@ -119,36 +120,42 @@ export function getStripeTicketingReadinessChecks(): {
     status: qrSecret ? "pass" : "warn",
     detail: qrSecret
       ? "Configured (value hidden, min 16 chars)"
-      : "Missing or too short — door QR and scanner disabled.",
+      : "Missing or too short, door QR and scanner disabled.",
   })
 
-  const feePercent = getPlatformFeePercentFromEnv()
   checks.push({
     key: "fee_percent",
-    label: "TICKET_PLATFORM_FEE_PERCENT",
-    status: feePercent.ok ? "pass" : "fail",
-    detail: feePercent.ok
-      ? feePercent.usingDefault
-        ? `Using default ${feePercent.value}% (env unset)`
-        : `${feePercent.value}%`
-      : feePercent.error,
+    label: "VIZB platform fee percent",
+    status: "pass",
+    detail: `${VIZB_PLATFORM_FEE_PERCENT * 100}% of ticket subtotal (central config)`,
   })
 
-  const feeFixed = getPlatformFeeFixedCentsFromEnv()
   checks.push({
     key: "fee_fixed",
-    label: "TICKET_PLATFORM_FEE_FIXED_CENTS",
-    status: feeFixed.ok ? "pass" : "fail",
-    detail: feeFixed.ok
-      ? feeFixed.usingDefault
-        ? `Using default ${feeFixed.value}¢ (env unset)`
-        : `${feeFixed.value}¢ per order`
-      : feeFixed.error,
+    label: "VIZB platform fee fixed",
+    status: "pass",
+    detail: `${VIZB_PLATFORM_FEE_FIXED_CENTS}¢ per paid ticket (central config)`,
+  })
+
+  checks.push({
+    key: "min_paid_ticket",
+    label: "Minimum paid ticket",
+    status: "pass",
+    detail: `$${(MIN_PAID_TICKET_CENTS / 100).toFixed(2)} (${MIN_PAID_TICKET_CENTS}¢)`,
   })
 
   const webhookUrl = siteUrl && !isLocalhostUrl(siteUrl) ? `${siteUrl}/api/stripe/webhook` : null
 
-  const criticalKeys = ["site_url", "stripe_publishable", "stripe_secret", "stripe_webhook", "service_role", "fee_percent", "fee_fixed"]
+  const criticalKeys = [
+    "site_url",
+    "stripe_publishable",
+    "stripe_secret",
+    "stripe_webhook",
+    "service_role",
+    "fee_percent",
+    "fee_fixed",
+    "min_paid_ticket",
+  ]
   const overallReady = checks
     .filter((c) => criticalKeys.includes(c.key))
     .every((c) => c.status === "pass")

@@ -431,7 +431,7 @@ export default async function PublicEventDetailPage({
                   ) : null}
                   {listingCommunity ? (
                     <p className="text-[11px] leading-relaxed text-[color:var(--neon-text2)] max-w-xl">
-                      Listed for discovery; hosted by a third party — confirm details with the organizer.
+                      Listed for discovery; hosted by a third party, confirm details with the organizer.
                     </p>
                   ) : null}
                 </div>
@@ -544,7 +544,7 @@ export default async function PublicEventDetailPage({
                             </a>
                           ) : (
                             <p className="text-sm text-[color:var(--neon-text2)]">
-                              RSVP link is not available right now — check back later.
+                              RSVP link is not available right now, check back later.
                             </p>
                           )}
                         </>

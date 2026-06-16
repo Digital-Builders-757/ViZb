@@ -44,7 +44,7 @@ export function AdminEventStaffPickSwitch({
             Staff pick
           </Label>
           <p className="text-sm text-muted-foreground max-w-xl">
-            Highlight this listing as a ViZb editorial pick — shows a calm badge and can appear in the &quot;ViZb picks&quot; rail on Discover.
+            Highlight this listing as a ViZb editorial pick, shows a calm badge and can appear in the &quot;ViZb picks&quot; rail on Discover.
           </p>
         </div>
         <div className="flex flex-col items-start sm:items-end gap-2 shrink-0">

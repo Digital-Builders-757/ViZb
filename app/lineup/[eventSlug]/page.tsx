@@ -40,7 +40,7 @@ export async function generateMetadata({
 
   if (!event) return { title: "Lineup | VIZB" }
   return {
-    title: `Lineup — ${event.title} | VIZB`,
+    title: `Lineup, ${event.title} | VIZB`,
     description: `Open mic order for ${event.title} at ${event.venue_name}, ${event.city}.`,
   }
 }
@@ -174,7 +174,7 @@ export default async function PublicLineupPage({
             </p>
 
             <p className="text-base sm:text-lg text-[color:var(--neon-text1)] mt-4 max-w-2xl leading-relaxed">
-              The shareable running order for this show — tap through for RSVP, venue, and full details.
+              The shareable running order for this show, tap through for RSVP, venue, and full details.
             </p>
 
             <Link

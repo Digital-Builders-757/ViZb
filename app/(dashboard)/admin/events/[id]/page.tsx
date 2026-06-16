@@ -94,7 +94,7 @@ export default async function AdminEventDetailPage({
             </p>
           ) : (
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              If you just created a draft, check Admin → All events — the row may exist even when this page cannot load
+              If you just created a draft, check Admin → All events, the row may exist even when this page cannot load
               it.
             </p>
           )}
@@ -338,7 +338,7 @@ export default async function AdminEventDetailPage({
               <p className="mt-1 text-sm text-amber-200/90">{flyerUploadReason}</p>
             ) : null}
             <p className="mt-1 text-sm text-muted-foreground">
-              Use the uploader below to try again — your draft is saved.
+              Use the uploader below to try again, your draft is saved.
             </p>
           </div>
         ) : null}
@@ -391,7 +391,7 @@ export default async function AdminEventDetailPage({
                 review.
                 {!externalRsvp?.trim() ? (
                   <span className="block mt-2 text-amber-500">
-                    RSVP link missing — submission for review will be blocked until set.
+                    RSVP link missing, submission for review will be blocked until set.
                   </span>
                 ) : null}
               </p>
@@ -406,7 +406,7 @@ export default async function AdminEventDetailPage({
           Event details
         </h2>
         <p className="text-sm text-muted-foreground mb-2">
-          Same editor as the organizer dashboard — use for urgent fixes (e.g. RSVP cap, categories). Set categories here
+          Same editor as the organizer dashboard, use for urgent fixes (e.g. RSVP cap, categories). Set categories here
           so the event appears under the right filters on <span className="font-mono text-foreground/90">/events</span>.
           Staff only.
         </p>

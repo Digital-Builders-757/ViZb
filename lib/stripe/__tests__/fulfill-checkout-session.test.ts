@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
 import type Stripe from "stripe"
+
+vi.mock("@/lib/payments/create-organizer-payout-record", () => ({
+  createOrganizerPayoutRecordForOrder: vi.fn().mockResolvedValue({ created: true, payoutId: "payout-1" }),
+}))
+
 import {
   fulfillPaidCheckoutSession,
   lookupTicketIdForOrder,

@@ -28,13 +28,7 @@ export function EventFlyerFallback({
       )}
       aria-hidden
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-80"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 60% at 30% 20%, rgb(0 209 255 / 0.12), transparent 55%), radial-gradient(ellipse 60% 50% at 80% 80%, rgb(157 77 255 / 0.08), transparent 50%)",
-        }}
-      />
+      <div className="events-flyer-fallback-glow pointer-events-none absolute inset-0 opacity-80" aria-hidden />
       <div className="relative text-center">
         <span
           className={cn(

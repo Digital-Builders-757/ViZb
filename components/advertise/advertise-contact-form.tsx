@@ -23,7 +23,7 @@ const BUDGET_LABELS: Record<(typeof BUDGET_OPTIONS)[number], string> = {
 }
 
 const inputClass =
-  "vibe-focus-ring w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[rgb(5_6_18/0.72)] px-4 py-3 text-sm text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/50 transition-all"
+  "vibe-focus-ring w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[rgb(5_6_18/0.72)] px-4 py-3 text-sm text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/50 aria-invalid:border-destructive/55 aria-invalid:ring-1 aria-invalid:ring-destructive/25 transition-all"
 
 interface AdvertiseContactFormProps {
   supportEmail: string
@@ -39,9 +39,8 @@ export function AdvertiseContactForm({
   const [state, setState] = useState<Awaited<ReturnType<typeof submitAdvertiseInquiry>> | null>(null)
   const [pending, setPending] = useState(false)
 
-  async function onSubmit(formData: FormData) {
+  async function submitFromForm(formData: FormData) {
     setPending(true)
-    setState(null)
     const result = await submitAdvertiseInquiry(formData)
     setState(result)
     setPending(false)
@@ -51,11 +50,15 @@ export function AdvertiseContactForm({
     }
   }
 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    void submitFromForm(new FormData(event.currentTarget))
+  }
+
   const fieldErrors = state && !state.ok ? state.fieldErrors : undefined
 
   return (
-    <form id="advertise-inquiry-form" action={onSubmit} className="relative space-y-5">
-      {state?.ok ? (
+    <form id="advertise-inquiry-form" onSubmit={handleSubmit} className="relative space-y-5">      {state?.ok ? (
         <div
           className="rounded-lg border-2 border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 px-4 py-4 text-sm font-medium text-[color:var(--neon-text0)] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
           role="status"

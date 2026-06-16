@@ -20,7 +20,7 @@ export function PostEventRecapPromptsSection({ prompts }: { prompts: PostEventRe
               You checked in
             </p>
             <p className="mt-2 text-sm text-[color:var(--neon-text1)]">
-              Revisit <span className="font-semibold text-[color:var(--neon-text0)]">{p.eventTitle}</span> —{" "}
+              Revisit <span className="font-semibold text-[color:var(--neon-text0)]">{p.eventTitle}</span>,{" "}
               <Link href={`/p/${p.recap.slug}`} className="text-[color:var(--neon-a)] underline-offset-4 hover:underline">
                 {p.recap.title}
               </Link>

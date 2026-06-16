@@ -29,9 +29,9 @@ export function ForYouRail({ items, hasSignals, usedFallback }: ForYouRailProps)
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
             {!hasSignals
-              ? "Set your cities and categories on your profile for sharper picks — showing popular upcoming events for now."
+              ? "Set your cities and categories on your profile for sharper picks, showing popular upcoming events for now."
               : usedFallback
-                ? "We could not find strong matches yet — here are staff picks and soon events."
+                ? "We could not find strong matches yet, here are staff picks and soon events."
                 : "Picked from your preferences, saves, and RSVPs."}
           </p>
         </div>

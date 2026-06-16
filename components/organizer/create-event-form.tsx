@@ -285,7 +285,7 @@ export function CreateEventForm({
             <>
               Add a third-party listing for <span className="text-neon-a/90">{orgName}</span>. Choose categories so the
               event appears under the right filters on <span className="font-mono text-[color:var(--neon-text0)]">/events</span>.
-              You can attach an optional flyer now or later — it improves feed visibility. Set an RSVP link before submitting
+              You can attach an optional flyer now or later, it improves feed visibility. Set an RSVP link before submitting
               for review (here or on the detail page).
             </>
           ) : (
@@ -300,7 +300,7 @@ export function CreateEventForm({
           <span className="font-mono text-[10px] uppercase tracking-widest text-neon-a">Speed tip</span>
           <span className="text-[color:var(--neon-text1)]"> · </span>
           Reuse a past event: open it in Organizer (or Admin), then use{" "}
-          <span className="text-[color:var(--neon-text0)]">Duplicate draft</span> — optional +1 week / +1 month shifts,
+          <span className="text-[color:var(--neon-text0)]">Duplicate draft</span>, optional +1 week / +1 month shifts,
           ticket tiers copy over; official events still need a new flyer before review.
         </p>
       </div>
@@ -352,7 +352,7 @@ export function CreateEventForm({
                   chipOffClassName={chipOffClass}
                   helpText={
                     variant === "community"
-                      ? "Pick all that apply — drives category chips on the public events page (avoid Other unless nothing else fits)."
+                      ? "Pick all that apply, drives category chips on the public events page (avoid Other unless nothing else fits)."
                       : "Pick all that apply, it helps people discover your event faster."
                   }
                 />
@@ -398,7 +398,7 @@ export function CreateEventForm({
                       <span className={labelClass}>Flyer (optional)</span>
                       <p className={`${helpTextClass} mt-1 max-w-xl`}>
                         Optional for submission, but strongly recommended for feed visibility and click-through. JPEG, PNG,
-                        WebP, or GIF — max 5MB.
+                        WebP, or GIF, max 5MB.
                       </p>
                     </div>
 
@@ -706,7 +706,7 @@ export function CreateEventForm({
               </div>
               <p className="hidden font-mono text-[11px] text-[color:var(--neon-text2)] sm:block">
                 {variant === "community"
-                  ? "Optional flyer improves discovery — RSVP link required before review."
+                  ? "Optional flyer improves discovery, RSVP link required before review."
                   : "Create the draft first, then upload the flyer on the event page."}
               </p>
             </div>

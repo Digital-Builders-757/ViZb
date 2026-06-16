@@ -11,6 +11,7 @@ import {
   parsePaidTierPriceUsd,
   validatePaidTierPriceCents,
 } from "@/lib/tickets/paid-tier-validation"
+import { assertEventOrganizerPayoutReady } from "@/lib/organizer/payout-readiness"
 
 function parseOptionalInt(formData: FormData, key: string): number | null {
   const raw = formData.get(key)
@@ -30,7 +31,7 @@ function parseOptionalIso(formData: FormData, key: string): string | null {
 async function loadEventForOrg(supabase: SupabaseClient, orgId: string, eventId: string) {
   const { data, error } = await supabase
     .from("events")
-    .select("id, org_id, slug")
+    .select("id, org_id, slug, created_by")
     .eq("id", eventId)
     .eq("org_id", orgId)
     .maybeSingle()
@@ -126,6 +127,8 @@ export async function createEventTicketType(formData: FormData) {
   if (priceCents > 0) {
     const validated = validatePaidTierPriceCents(priceCents)
     if ("error" in validated) return validated
+    const payoutCheck = await assertEventOrganizerPayoutReady(supabase, eventId)
+    if ("error" in payoutCheck) return payoutCheck
   }
 
   const { data: maxRow } = await supabase
@@ -218,6 +221,8 @@ export async function updateEventTicketType(formData: FormData) {
     if (nextPriceCents > 0) {
       const validated = validatePaidTierPriceCents(nextPriceCents)
       if ("error" in validated) return validated
+      const payoutCheck = await assertEventOrganizerPayoutReady(supabase, eventId)
+      if ("error" in payoutCheck) return payoutCheck
     }
   }
 
@@ -363,8 +368,11 @@ export async function upsertEventPaidTicketTier(formData: FormData) {
   if ("error" in parsedPrice) return parsedPrice
   const priceCents = parsedPrice.cents
   if (priceCents < MIN_PAID_TICKET_CENTS) {
-    return { error: "Paid ticket price must be at least $0.50." }
+    return { error: `Paid ticket price must be at least $${(MIN_PAID_TICKET_CENTS / 100).toFixed(2)}.` }
   }
+
+  const payoutCheck = await assertEventOrganizerPayoutReady(supabase, eventId)
+  if ("error" in payoutCheck) return payoutCheck
 
   const cap = parseOptionalInt(formData, "capacity")
   if (cap != null && cap < 1) return { error: "Quantity must be at least 1, or leave blank." }

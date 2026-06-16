@@ -65,14 +65,14 @@ export function GlassCardInteractive({
       onPointerLeave={resetPointer}
       style={transform ? { transform } : undefined}
       className={cn(
-        "group/glass relative isolate overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]",
+        "group/glass relative isolate overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-md shadow-[inset_0_1px_0_0_var(--glass-inset-highlight)]",
         "transition-[border-color,box-shadow,transform] duration-200 ease-out hover:will-change-transform",
-        "hover:border-[color:color-mix(in_srgb,var(--neon-a)_42%,var(--neon-hairline))]",
-        "hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_26%,transparent),var(--vibe-neon-glow-subtle)]",
-        "focus-within:border-[color:color-mix(in_srgb,var(--neon-a)_42%,var(--neon-hairline))]",
-        "focus-within:shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_26%,transparent),var(--vibe-neon-glow-subtle)]",
+        "hover:border-[color:var(--glass-hover-border)]",
+        "hover:shadow-[0_0_0_1px_var(--glass-hover-ring),var(--vibe-neon-glow-subtle)]",
+        "focus-within:border-[color:var(--glass-hover-border)]",
+        "focus-within:shadow-[0_0_0_1px_var(--glass-hover-ring),var(--vibe-neon-glow-subtle)]",
         emphasis &&
-          "shadow-[var(--vibe-neon-glow-subtle),0_0_0_1px_color-mix(in_srgb,var(--neon-a)_18%,transparent)]",
+          "shadow-[var(--vibe-neon-glow-subtle),0_0_0_1px_var(--glass-emphasis-ring)]",
         "motion-reduce:transition-[border-color,box-shadow]",
         className,
       )}
@@ -85,7 +85,7 @@ export function GlassCardInteractive({
         )}
         aria-hidden
         style={{
-          background: `radial-gradient(400px circle at ${glare.x}% ${glare.y}%, color-mix(in srgb, white 17%, transparent), transparent 58%)`,
+          background: `radial-gradient(400px circle at ${glare.x}% ${glare.y}%, var(--glass-glare), transparent 58%)`,
         }}
       />
       {children}

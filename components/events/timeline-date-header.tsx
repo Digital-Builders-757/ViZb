@@ -42,11 +42,11 @@ export function TimelineDateHeader({ date, isFirst = false, chapterLabel = null 
               className="events-timeline-pulse-ring absolute inset-0 rounded-full bg-[color:var(--neon-a)]/25"
               aria-hidden
             />
-            <div className="relative h-3 w-3 rounded-full bg-[color:var(--neon-a)] shadow-[0_0_14px_rgb(0_209_255/0.45)]" />
+            <div className="events-timeline-pulse-dot relative h-3 w-3 rounded-full bg-[color:var(--neon-a)]" />
           </div>
           {!isFirst ? (
             <div
-              className="events-timeline-node-line mt-2 w-px flex-1 min-h-[3rem] bg-gradient-to-b from-[color:var(--neon-a)]/35 to-transparent"
+              className="events-timeline-node-line mt-2 w-px flex-1 min-h-[3rem] bg-gradient-to-b from-[color:var(--neon-a)]/50 to-transparent"
               aria-hidden
             />
           ) : null}
@@ -59,7 +59,7 @@ export function TimelineDateHeader({ date, isFirst = false, chapterLabel = null 
               className="events-timeline-pulse-ring absolute inset-0 rounded-full bg-[color:var(--neon-a)]/25"
               aria-hidden
             />
-            <div className="relative h-2.5 w-2.5 rounded-full bg-[color:var(--neon-a)]" />
+            <div className="events-timeline-pulse-dot relative h-2.5 w-2.5 rounded-full bg-[color:var(--neon-a)]" />
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export function TimelineDateHeader({ date, isFirst = false, chapterLabel = null 
       </div>
 
       <div
-        className="events-timeline-chapter-rule mt-4 h-px w-full bg-gradient-to-r from-[color:var(--neon-a)]/45 via-[color:var(--neon-hairline)]/70 to-transparent md:ml-10"
+        className="events-timeline-chapter-rule mt-4 h-px w-full bg-gradient-to-r from-[color:var(--neon-a)]/55 via-[color:var(--neon-hairline)]/75 to-transparent md:ml-10"
         aria-hidden
       />
     </div>

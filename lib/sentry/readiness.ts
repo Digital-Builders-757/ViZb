@@ -36,7 +36,7 @@ export function getSentryReadinessChecks(): {
     status: nodeEnv === "production" ? "pass" : "warn",
     detail:
       nodeEnv === "production"
-        ? "Production runtime — required for Sentry capture."
+        ? "Production runtime, required for Sentry capture."
         : `Current value is "${nodeEnv}". Local dev does not send Sentry events.`,
   })
 
@@ -45,9 +45,9 @@ export function getSentryReadinessChecks(): {
     label: "VERCEL_ENV",
     status: isVercelPreview() ? "warn" : isVercelProduction() ? "pass" : "warn",
     detail: isVercelPreview()
-      ? `Preview (${vercelEnv}) — Sentry DSNs should not be configured here.`
+      ? `Preview (${vercelEnv}), Sentry DSNs should not be configured here.`
       : isVercelProduction()
-        ? "Production deployment — expected target for Sentry."
+        ? "Production deployment, expected target for Sentry."
         : `Current: ${vercelEnv}. Capture only when DSNs are set and NODE_ENV is production.`,
   })
 
@@ -57,9 +57,9 @@ export function getSentryReadinessChecks(): {
     status: serverDsn ? (captureEnabled ? "pass" : "warn") : "fail",
     detail: serverDsn
       ? captureEnabled
-        ? "Configured — server and render errors will be captured."
+        ? "Configured, server and render errors will be captured."
         : "Present but capture is gated off (non-production runtime)."
-      : "Missing — server-side errors will not be sent to Sentry.",
+      : "Missing, server-side errors will not be sent to Sentry.",
   })
 
   checks.push({
@@ -68,9 +68,9 @@ export function getSentryReadinessChecks(): {
     status: clientDsn ? (captureEnabled ? "pass" : "warn") : "fail",
     detail: clientDsn
       ? captureEnabled
-        ? "Configured — client exceptions will be captured."
+        ? "Configured, client exceptions will be captured."
         : "Present but capture is gated off (non-production runtime)."
-      : "Missing — client errors will not be sent to Sentry.",
+      : "Missing, client errors will not be sent to Sentry.",
   })
 
   checks.push({
@@ -85,8 +85,8 @@ export function getSentryReadinessChecks(): {
     label: "SENTRY_AUTH_TOKEN",
     status: process.env.SENTRY_AUTH_TOKEN ? "pass" : "warn",
     detail: process.env.SENTRY_AUTH_TOKEN
-      ? "Configured — source maps upload during production builds."
-      : "Not set — runtime capture may work, but stack traces may be minified without source map upload.",
+      ? "Configured, source maps upload during production builds."
+      : "Not set, runtime capture may work, but stack traces may be minified without source map upload.",
   })
 
   const overallReady = captureEnabled && Boolean(process.env.SENTRY_AUTH_TOKEN)

@@ -53,6 +53,38 @@ function chainable(result: { data: unknown; error: unknown; count?: number }) {
 
 const EVENT_ID = "11111111-1111-4111-8111-111111111111"
 const TIER_ID = "22222222-2222-4222-8222-222222222222"
+const ORGANIZER_ID = "33333333-3333-4333-8333-333333333333"
+
+function payoutReadyServiceFromMocks(
+  orderInsertChain: {
+    insert: ReturnType<typeof vi.fn>
+    update: ReturnType<typeof vi.fn>
+  },
+  orderItemsChain: { insert: ReturnType<typeof vi.fn> },
+) {
+  mockServiceFrom.mockImplementation((table: string) => {
+    if (table === "orders") return orderInsertChain
+    if (table === "order_items") return orderItemsChain
+    if (table === "events") {
+      return chainable({ data: { created_by: ORGANIZER_ID }, error: null })
+    }
+    if (table === "organizer_stripe_accounts") {
+      return chainable({
+        data: {
+          id: "osa-1",
+          organizer_id: ORGANIZER_ID,
+          stripe_account_id: "acct_test",
+          charges_enabled: true,
+          payouts_enabled: true,
+          details_submitted: true,
+          onboarding_status: "active",
+        },
+        error: null,
+      })
+    }
+    return chainable({ data: null, error: null })
+  })
+}
 
 const baseEnv = { ...process.env }
 
@@ -192,7 +224,7 @@ describe("createTicketCheckoutSession", () => {
     expect(mockStripeCreate).not.toHaveBeenCalled()
   })
 
-  it("creates checkout with ticket + fee line items when fee > 0", async () => {
+  it("creates checkout with aligned line items, metadata, and buyer total", async () => {
     const ttChain = chainable({
       data: {
         id: TIER_ID,
@@ -214,6 +246,7 @@ describe("createTicketCheckoutSession", () => {
         rsvp_capacity: null,
         starts_at: "2026-12-01T19:00:00.000Z",
         ends_at: "2026-12-01T22:00:00.000Z",
+        created_by: ORGANIZER_ID,
       },
       error: null,
     })
@@ -243,11 +276,7 @@ describe("createTicketCheckoutSession", () => {
     const orderItemsChain = {
       insert: vi.fn().mockResolvedValue({ error: null }),
     }
-    mockServiceFrom.mockImplementation((table: string) => {
-      if (table === "orders") return orderInsertChain
-      if (table === "order_items") return orderItemsChain
-      return chainable({ data: null, error: null })
-    })
+    payoutReadyServiceFromMocks(orderInsertChain, orderItemsChain)
 
     const { createTicketCheckoutSession } = await import("@/app/actions/ticket-checkout")
     const result = await createTicketCheckoutSession({ eventId: EVENT_ID, ticketTypeId: TIER_ID })
@@ -255,14 +284,44 @@ describe("createTicketCheckoutSession", () => {
     expect(result.url).toContain("checkout.stripe.com")
     expect(mockStripeCreate).toHaveBeenCalledOnce()
     const args = mockStripeCreate.mock.calls[0][0]
-    expect(args.line_items).toHaveLength(2)
+    expect(args.line_items).toHaveLength(3)
     expect(args.line_items[0].price_data.unit_amount).toBe(2000)
-    expect(args.line_items[1].price_data.unit_amount).toBe(100)
+    expect(args.line_items[1].price_data.unit_amount).toBe(200)
+    expect(args.line_items[2].price_data.unit_amount).toBe(97)
+    expect(args.line_items[0].price_data.product_data.name).toBe("Live, GA")
+    expect(args.line_items[1].price_data.product_data.name).toBe("ViZb service fee, Live")
+    expect(args.line_items[2].price_data.product_data.name).toBe("Payment processing fee, Live")
+    const lineItemTotal = args.line_items.reduce(
+      (sum: number, item: { price_data: { unit_amount: number }; quantity: number }) =>
+        sum + item.price_data.unit_amount * item.quantity,
+      0,
+    )
+    expect(lineItemTotal).toBe(2297)
+    expect(args.metadata).toMatchObject({
+      order_id: "order-1",
+      event_id: EVENT_ID,
+      organizer_id: ORGANIZER_ID,
+      ticket_type_id: TIER_ID,
+      user_id: "user-1",
+      ticket_subtotal_cents: "2000",
+      vizb_service_fee_cents: "200",
+      processing_fee_cents: "97",
+      buyer_total_cents: "2297",
+      organizer_payout_cents: "2000",
+    })
+    expect(args.payment_intent_data.metadata).toEqual(args.metadata)
     expect(orderInsertChain.insert).toHaveBeenCalledWith(
       expect.objectContaining({
+        ticket_subtotal_cents: 2000,
+        vizb_service_fee_cents: 200,
+        processing_fee_cents: 97,
+        buyer_total_cents: 2297,
+        organizer_payout_cents: 2000,
+        payment_status: "created",
+        payout_status: "pending",
         subtotal_cents: 2000,
-        platform_fee_cents: 100,
-        total_cents: 2100,
+        platform_fee_cents: 200,
+        total_cents: 2297,
       }),
     )
   })
@@ -319,69 +378,27 @@ describe("createTicketCheckoutSession", () => {
     expect(mockStripeCreate).not.toHaveBeenCalled()
   })
 
-  it("skips fee line item when platform fee is zero", async () => {
-    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "0")
-    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "0")
-
+  it("rejects paid tickets below the $5 minimum", async () => {
     const ttChain = chainable({
       data: {
         id: TIER_ID,
         event_id: EVENT_ID,
-        name: "GA",
-        price_cents: 1500,
+        name: "Cheap",
+        price_cents: 499,
         currency: "usd",
         is_active: true,
         quantity_total: null,
       },
       error: null,
     })
-    const evChain = chainable({
-      data: {
-        id: EVENT_ID,
-        status: "published",
-        slug: "live-event",
-        title: "Live",
-        rsvp_capacity: null,
-        starts_at: "2026-12-01T19:00:00.000Z",
-        ends_at: "2026-12-01T22:00:00.000Z",
-      },
-      error: null,
-    })
-    const regChain = chainable({ data: null, error: null })
-    const ticketsCountChain = {
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    }
-
     mockFrom.mockImplementation((table: string) => {
       if (table === "ticket_types") return ttChain
-      if (table === "events") return evChain
-      if (table === "event_registrations") return regChain
-      if (table === "tickets") return ticketsCountChain
-      return chainable({ data: null, error: null })
-    })
-
-    const orderInsertChain = {
-      insert: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({ data: { id: "order-1" }, error: null }),
-        }),
-      }),
-      update: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
-    }
-    mockServiceFrom.mockImplementation((table: string) => {
-      if (table === "orders") return orderInsertChain
-      if (table === "order_items") return { insert: vi.fn().mockResolvedValue({ error: null }) }
       return chainable({ data: null, error: null })
     })
 
     const { createTicketCheckoutSession } = await import("@/app/actions/ticket-checkout")
     const result = await createTicketCheckoutSession({ eventId: EVENT_ID, ticketTypeId: TIER_ID })
-
-    expect(result.url).toContain("checkout.stripe.com")
-    const args = mockStripeCreate.mock.calls[0][0]
-    expect(args.line_items).toHaveLength(1)
-    expect(args.line_items[0].price_data.unit_amount).toBe(1500)
+    expect(result.error).toMatch(/\$5\.00/)
+    expect(mockStripeCreate).not.toHaveBeenCalled()
   })
 })

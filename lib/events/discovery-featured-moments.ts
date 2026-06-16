@@ -18,17 +18,17 @@ const MOMENT_COPY: Record<
   staff_picks: {
     title: "Staff picks",
     subtitle: "Curated highlights from the ViZb team.",
-    emptyHint: "No staff picks in this stretch — check ViZb picks above.",
+    emptyHint: "No staff picks in this stretch, check ViZb picks above.",
   },
   weekend_wave: {
     title: "Weekend wave",
-    subtitle: "Friday night through Sunday — plan your pull-up.",
+    subtitle: "Friday night through Sunday, plan your pull-up.",
     emptyHint: "No weekend events in view. Try This weekend filter.",
   },
   new_this_week: {
     title: "New this week",
     subtitle: "Fresh dates landing on the timeline.",
-    emptyHint: "Nothing new this week — browse the full timeline below.",
+    emptyHint: "Nothing new this week, browse the full timeline below.",
   },
   city_spotlight: {
     title: "City spotlight",

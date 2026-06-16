@@ -1,22 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import {
   calculatePlatformFeeCents,
   calculateTicketCheckoutAmounts,
-  getPlatformFeeFixedCentsFromEnv,
-  getPlatformFeePercentFromEnv,
+  calculateVizbTicketPricing,
   VIZB_PLATFORM_FEE_BPS,
 } from "@/lib/payments/ticket-fees"
 
-const baseEnv = { ...process.env }
-
-afterEach(() => {
-  process.env = { ...baseEnv }
-  vi.unstubAllEnvs()
-})
-
-describe("calculatePlatformFeeCents", () => {
-  it("calculates the default 5% platform fee in cents", () => {
+describe("calculatePlatformFeeCents (legacy percent-only)", () => {
+  it("calculates the 5% platform fee in cents with ceil", () => {
     expect(calculatePlatformFeeCents(2_500)).toBe(125)
     expect(calculatePlatformFeeCents(999)).toBe(50)
   })
@@ -31,62 +23,33 @@ describe("calculatePlatformFeeCents", () => {
 })
 
 describe("calculateTicketCheckoutAmounts", () => {
-  it("returns subtotal, fee, and total", () => {
-    expect(calculateTicketCheckoutAmounts(1_500)).toEqual({
-      subtotalCents: 1_500,
-      platformFeeCents: 75,
-      totalCents: 1_575,
-    })
-  })
-
-  it("supports custom basis points", () => {
-    expect(VIZB_PLATFORM_FEE_BPS).toBe(500)
-    expect(calculateTicketCheckoutAmounts(2_000, 250)).toEqual({
+  it("maps canonical pricing to checkout order fields", () => {
+    expect(calculateTicketCheckoutAmounts(2_000)).toEqual({
       subtotalCents: 2_000,
-      platformFeeCents: 50,
-      totalCents: 2_050,
+      platformFeeCents: 200,
+      processingFeeCents: 97,
+      totalCents: 2_297,
+      organizerPayoutCents: 2_000,
     })
   })
 
-  it("adds fixed cents from env override", () => {
-    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "0")
-    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "99")
-    expect(calculateTicketCheckoutAmounts(1_000)).toEqual({
-      subtotalCents: 1_000,
-      platformFeeCents: 99,
-      totalCents: 1_099,
+  it("exposes basis points derived from launch percent", () => {
+    expect(VIZB_PLATFORM_FEE_BPS).toBe(500)
+  })
+
+  it("delegates quantity to calculateVizbTicketPricing", () => {
+    expect(calculateTicketCheckoutAmounts(2_000, 2)).toEqual({
+      subtotalCents: 4_000,
+      platformFeeCents: 400,
+      processingFeeCents: 163,
+      totalCents: 4_563,
+      organizerPayoutCents: 4_000,
     })
   })
 })
 
-describe("platform fee env parsing", () => {
-  it("defaults percent and fixed when unset", () => {
-    expect(getPlatformFeePercentFromEnv()).toEqual({ ok: true, value: 5, usingDefault: true })
-    expect(getPlatformFeeFixedCentsFromEnv()).toEqual({ ok: true, value: 0, usingDefault: true })
-  })
-
-  it("rejects invalid env values", () => {
-    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "bad")
-    expect(getPlatformFeePercentFromEnv().ok).toBe(false)
-    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "1.5")
-    expect(getPlatformFeeFixedCentsFromEnv().ok).toBe(false)
-  })
-
-  it("falls back to default percent fee when env percent is invalid", () => {
-    vi.stubEnv("TICKET_PLATFORM_FEE_PERCENT", "bad")
-    expect(calculateTicketCheckoutAmounts(2_000)).toEqual({
-      subtotalCents: 2_000,
-      platformFeeCents: 100,
-      totalCents: 2_100,
-    })
-  })
-
-  it("falls back to zero fixed fee when env fixed cents is invalid", () => {
-    vi.stubEnv("TICKET_PLATFORM_FEE_FIXED_CENTS", "1.5")
-    expect(calculateTicketCheckoutAmounts(1_000)).toEqual({
-      subtotalCents: 1_000,
-      platformFeeCents: 50,
-      totalCents: 1_050,
-    })
+describe("calculateVizbTicketPricing re-export", () => {
+  it("is available from ticket-fees barrel", () => {
+    expect(calculateVizbTicketPricing({ ticketPriceCents: 500 }).buyerTotalCents).toBe(675)
   })
 })

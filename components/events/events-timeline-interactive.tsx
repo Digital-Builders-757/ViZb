@@ -111,7 +111,7 @@ export function EventsTimelineInteractive({
             <div className="flex-1 border-t border-[color:var(--neon-hairline)]/60" />
           </div>
           <p className="-mt-5 mb-8 max-w-prose text-xs text-[color:var(--neon-text2)]">
-            What just happened — still worth a look for vibes, recaps, and follow-ups.
+            What just happened, still worth a look for vibes, recaps, and follow-ups.
           </p>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-7 lg:grid-cols-3">

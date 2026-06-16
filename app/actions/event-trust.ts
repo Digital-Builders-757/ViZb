@@ -89,5 +89,5 @@ export async function submitEventListingReportMessage(
     return { ok: false, error: error.message }
   }
 
-  return { ok: true, message: "Thanks — we received your report." }
+  return { ok: true, message: "Thanks, we received your report." }
 }

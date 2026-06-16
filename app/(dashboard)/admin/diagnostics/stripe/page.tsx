@@ -16,7 +16,7 @@ export default async function StripeTicketingDiagnosticsPage() {
       </div>
       <h1 className="mt-2 font-serif text-xl font-bold text-foreground md:text-3xl">Stripe ticketing readiness</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Safe pass/fail checks for paid ticket checkout. Secret values are never shown — only presence and public key
+        Safe pass/fail checks for paid ticket checkout. Secret values are never shown, only presence and public key
         prefixes.
       </p>
 

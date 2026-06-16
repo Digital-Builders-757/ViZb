@@ -49,7 +49,7 @@ export function getLineupEntryPublicVisibilityPresentation(row: {
   const status = row.status.toLowerCase()
 
   if (status === "cancelled") {
-    return { label: "Cancelled — not on public lineup", tone: "muted" }
+    return { label: "Cancelled, not on public lineup", tone: "muted" }
   }
   if (isLineupEntryOnPublicPage(row)) {
     return { label: "Visible on public lineup", tone: "on_public" }
@@ -58,10 +58,10 @@ export function getLineupEntryPublicVisibilityPresentation(row: {
     return { label: "Public off", tone: "muted" }
   }
   if (status === "pending") {
-    return { label: "Pending — not on public lineup yet", tone: "muted" }
+    return { label: "Pending, not on public lineup yet", tone: "muted" }
   }
   if (status === "no_show") {
-    return { label: "No-show — not on public lineup", tone: "caution" }
+    return { label: "No-show, not on public lineup", tone: "caution" }
   }
   return { label: "Not on public lineup", tone: "muted" }
 }

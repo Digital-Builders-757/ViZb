@@ -20,6 +20,8 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | [OPERATIONS.md](./OPERATIONS.md) | Deploy, migrations, integrations, troubleshooting |
 | [DECISIONS.md](./DECISIONS.md) | Architectural decision log |
 | [DOCS_AUDIT_2026.md](./DOCS_AUDIT_2026.md) | Documentation audit summary |
+| [payment-system-audit.md](./payment-system-audit.md) | **Payment / ticketing master map** — Stripe, fees, schema, Connect gaps |
+| [vizb-payments-pricing-and-payouts.md](./vizb-payments-pricing-and-payouts.md) | **Internal company record** — pricing, checkout, Connect payouts, refunds, admin ops (June 2026) |
 | [MIGRATION_MAP.md](./MIGRATION_MAP.md) | Keep / merge / archive map for old docs |
 
 ---
@@ -75,7 +77,8 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | `contracts/` | Layer 2 — `INDEX.md` + per-domain `.md` |
 | `journeys/` | Layer 3 — `INDEX.md` + per-journey `.md` |
 | `guides/` | Setup how-tos — start with `guides/LOCAL_DEV_AND_AUTH.md` for dev + auth; **`/advertise`** inquiry capture: `guides/ADVERTISE_INQUIRIES_SETUP.md`; auth email via Resend: `guides/SUPABASE_AUTH_EMAIL_RESEND.md` |
-| `audits/`, `community/`, `content/`, `events/`, `features/`, `marketing/`, `operations/`, `performance/`, `security/`, `tests/` | Topic READMEs — add docs as you build |
+| `audits/` | Audit reports — [payment-system-audit.md](./payment-system-audit.md); issue roadmap: [github-issue-roadmap.md](./github-issue-roadmap.md) |
+| `community/`, `content/`, `events/`, `features/`, `marketing/`, `operations/`, `performance/`, `security/`, `tests/` | Topic READMEs — add docs as you build |
 | `operations/WALLET_PASSES_SETUP.md` | Apple + Google Wallet issuer/env checklist for ticket passes (`.pkpass`, save JWT) |
 | `troubleshooting/` | Errors (`COMMON_ERRORS_QUICK_REFERENCE.md`) |
 | `releasenotes/` | `/release` archive |
@@ -99,6 +102,8 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
   - `/admin/posts/[id]` (edit)
   - `/admin/diagnostics/stripe` (Stripe readiness checks, June 2026)
   - `/admin/revenue` (paid ticket revenue ledger, June 2026)
+  - `/admin/payments` (orders + fee audit, June 2026)
+  - `/admin/payments/payouts` (organizer payout ledger + manual release, June 2026)
 - Journeys:
   - `docs/journeys/public_discovery_to_member.md`
   - `docs/journeys/admin_publishes_post.md`

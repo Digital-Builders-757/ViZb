@@ -35,6 +35,7 @@ import {
   MIN_PAID_TICKET_CENTS,
   parsePaidTierPriceUsd,
 } from "@/lib/tickets/paid-tier-validation"
+import { assertOrganizerPayoutReady } from "@/lib/organizer/payout-readiness"
 
 /** Staff admin or org member with one of the allowed roles (for Server Actions; mirrors RLS intent). */
 async function isStaffOrHasOrgRole(
@@ -84,6 +85,7 @@ async function seedOfficialEventTicketTiers(
   supabase: SupabaseClient,
   eventId: string,
   formData: FormData,
+  organizerId: string,
 ): Promise<string | null> {
   const ticketMode = String(formData.get("ticket_mode") ?? "free_rsvp").trim()
 
@@ -98,6 +100,9 @@ async function seedOfficialEventTicketTiers(
 
   if (ticketMode !== "paid") return null
 
+  const payoutCheck = await assertOrganizerPayoutReady(supabase, organizerId)
+  if ("error" in payoutCheck) return payoutCheck.error
+
   const name = String(formData.get("paid_tier_name") ?? DEFAULT_PAID_TIER_NAME).trim()
   if (name.length < 1) return "Tier name is required."
   if (name.length > 120) return "Tier name is too long."
@@ -106,7 +111,7 @@ async function seedOfficialEventTicketTiers(
   const parsedPrice = parsePaidTierPriceUsd(priceRaw)
   if ("error" in parsedPrice) return parsedPrice.error
   if (parsedPrice.cents < MIN_PAID_TICKET_CENTS) {
-    return "Paid ticket price must be at least $0.50."
+    return `Paid ticket price must be at least $${(MIN_PAID_TICKET_CENTS / 100).toFixed(2)}.`
   }
 
   const cap = parseOptionalIntFromForm(formData, "capacity")
@@ -262,7 +267,7 @@ export async function createEvent(formData: FormData) {
   }
 
   if (event_kind === EVENT_KIND_OFFICIAL) {
-    const tierErr = await seedOfficialEventTicketTiers(supabase, event.id, formData)
+    const tierErr = await seedOfficialEventTicketTiers(supabase, event.id, formData, user.id)
     if (tierErr) {
       return { error: `Event created but ticketing setup failed: ${tierErr}` }
     }
@@ -961,13 +966,13 @@ export async function duplicateOrganizerEventDraft(params: {
   if (times.ends_at) {
     const endDate = new Date(times.ends_at)
     if (!Number.isNaN(endDate.getTime()) && endDate <= startDate) {
-      return { error: "Shifted dates are invalid — try None or edit after duplicate." }
+      return { error: "Shifted dates are invalid, try None or edit after duplicate." }
     }
   }
 
   const categories = normalizeCategories(row.categories).filter(isValidEventCategory)
   if (categories.length === 0) {
-    return { error: "Source event has no valid categories to copy — set categories on the original first." }
+    return { error: "Source event has no valid categories to copy, set categories on the original first." }
   }
 
   let rsvp_capacity: number | null = row.rsvp_capacity
@@ -976,7 +981,7 @@ export async function duplicateOrganizerEventDraft(params: {
     rsvp_capacity = null
     const parsed = parseExternalRsvpUrlOptional(external_rsvp_url ?? "")
     if (!parsed.ok && Boolean(external_rsvp_url?.trim())) {
-      return { error: "Source listing has an invalid external RSVP URL — fix the original, then duplicate." }
+      return { error: "Source listing has an invalid external RSVP URL, fix the original, then duplicate." }
     }
     external_rsvp_url = parsed.ok ? parsed.url : null
   } else {

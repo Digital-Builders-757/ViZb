@@ -89,7 +89,7 @@ export default async function DashboardPage({
           <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
             {!profile?.display_name
               ? "You're in. Set up your profile to get the most out of VIZB."
-              : "Almost there — tell us your cities and categories so we can personalize your feed."}
+              : "Almost there, tell us your cities and categories so we can personalize your feed."}
           </p>
         ) : null}
       </header>
@@ -235,10 +235,10 @@ export default async function DashboardPage({
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
             {trendingLive.length > 0
-              ? "Happening soon — open a card for full details."
+              ? "Happening soon, open a card for full details."
               : showTrendingMocks
                 ? "Sample picks for layout; connect Supabase to pull live published events."
-                : "No upcoming published events yet — browse the full feed for the latest."}
+                : "No upcoming published events yet, browse the full feed for the latest."}
           </p>
         </div>
         <div className="flex flex-col gap-4">

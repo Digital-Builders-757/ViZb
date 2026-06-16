@@ -244,7 +244,7 @@ export default async function AdminPage() {
             <div>
               <p className="font-semibold text-[color:var(--neon-text0)]">Platform events (ViZb)</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Create drafts under the platform organization—same workflow as organizers, with review and publish from Admin.
+                Create drafts under the platform organization, same workflow as organizers, with review and publish from Admin.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -263,7 +263,7 @@ export default async function AdminPage() {
             <div>
               <p className="font-semibold text-[color:var(--neon-text0)]">Listing reports</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Signed-in attendees can flag inaccurate or spammy listings — review here (no noisy dashboard required).
+                Signed-in attendees can flag inaccurate or spammy listings, review here (no noisy dashboard required).
               </p>
               <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 Total reports recorded: {listingReportsTotal}
@@ -282,7 +282,7 @@ export default async function AdminPage() {
             <div>
               <p className="font-semibold text-[color:var(--neon-text0)]">Local / Community events</p>
               <p className="mt-1 text-sm text-[color:var(--neon-text1)]">
-                Third-party listings for discovery—they share the platform org but appear as community events publicly, with RSVP on an external link.
+                Third-party listings for discovery, they share the platform org but appear as community events publicly, with RSVP on an external link.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -305,7 +305,10 @@ export default async function AdminPage() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <NeonLink href="/admin/diagnostics/stripe" shape="xl" className="sm:w-auto">
+              <NeonLink href="/admin/payments" shape="xl" className="sm:w-auto">
+                Payments review
+              </NeonLink>
+              <NeonLink href="/admin/diagnostics/stripe" variant="secondary" shape="xl" className="sm:w-auto">
                 Stripe diagnostics
               </NeonLink>
               <NeonLink href="/admin/revenue" variant="secondary" shape="xl" className="sm:w-auto">
@@ -497,7 +500,7 @@ export default async function AdminPage() {
         id="users"
         kicker="Directory"
         title="Users"
-        description="Recent sign-ups — open the full directory to search and manage accounts."
+        description="Recent sign-ups, open the full directory to search and manage accounts."
       >
         <UsersPreviewCard users={allUsers} totalCount={totalUsers} />
       </AdminSection>

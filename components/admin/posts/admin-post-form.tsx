@@ -144,9 +144,9 @@ export function AdminPostForm({
                   setDraft((d) => ({ ...d, status: e.target.value as AdminPostDraft["status"] }))
                 }
               >
-                <option value="draft">Draft — hidden from /p</option>
-                <option value="published">Published — live on /p</option>
-                <option value="archived">Archived — removed from public feed</option>
+                <option value="draft">Draft, hidden from /p</option>
+                <option value="published">Published, live on /p</option>
+                <option value="archived">Archived, removed from public feed</option>
               </select>
             </label>
             <p className="mt-2 text-xs text-[color:var(--neon-text2)]">
@@ -170,7 +170,7 @@ export function AdminPostForm({
             value={draft.content_md}
             onChange={(e) => setDraft((d) => ({ ...d, content_md: e.target.value }))}
             placeholder={
-              "Write your post in paragraphs. You can use blank lines between sections, simple lists, and links — the site will format it for readers."
+              "Write your post in paragraphs. You can use blank lines between sections, simple lists, and links, the site will format it for readers."
             }
             required
           />

@@ -20,7 +20,7 @@ export default async function SentryDiagnosticsPage() {
       <h1 className="mt-2 font-serif text-xl font-bold text-foreground md:text-3xl">Sentry monitoring readiness</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
         Production/main error monitoring only. Preview and develop are intentionally not monitored. Secret values are
-        never shown — only presence and environment labels.
+        never shown, only presence and environment labels.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-3">

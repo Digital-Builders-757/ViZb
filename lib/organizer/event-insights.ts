@@ -33,20 +33,20 @@ export function buildOrganizerInsightTips(input: OrganizerEventInsightInput): st
   if (input.viewCount === 0) {
     tips.push("Share your event link to start collecting page views.")
   } else if (conversion != null && conversion < 0.05) {
-    tips.push("Views are landing but RSVPs are low — refresh the flyer or add a clearer date and venue.")
+    tips.push("Views are landing but RSVPs are low, refresh the flyer or add a clearer date and venue.")
   }
 
   if (input.saveCount > 0 && input.rsvpCount === 0) {
-    tips.push("People are saving this event — add a strong RSVP call-to-action on the detail page.")
+    tips.push("People are saving this event, add a strong RSVP call-to-action on the detail page.")
   }
 
   const checkInRate = computeCheckInRate(input.rsvpCount, input.checkedInCount)
   if (input.rsvpCount > 0 && checkInRate != null && checkInRate < 0.5) {
-    tips.push("Check-in rate is below half of RSVPs — remind guests to bring their ticket QR.")
+    tips.push("Check-in rate is below half of RSVPs, remind guests to bring their ticket QR.")
   }
 
   if (tips.length === 0 && input.viewCount > 0) {
-    tips.push("Metrics look healthy — keep sharing and post a recap after the event.")
+    tips.push("Metrics look healthy, keep sharing and post a recap after the event.")
   }
 
   return tips
