@@ -6,6 +6,13 @@ import { Analytics } from "@vercel/analytics/next"
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt"
 import { StarfieldBackground } from "@/components/ui/starfield-background"
 import { Toaster } from "@/components/ui/sonner"
+import {
+  APPLE_ICON_SRC,
+  FAVICON_32_SRC,
+  FAVICON_ICO_SRC,
+  PWA_ICON_192_SRC,
+  PWA_ICON_512_SRC,
+} from "@/lib/brand-assets"
 import "./globals.css"
 
 const poppins = Poppins({
@@ -35,10 +42,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/pwa/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/pwa/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: FAVICON_ICO_SRC, sizes: "any" },
+      { url: FAVICON_32_SRC, sizes: "32x32", type: "image/png" },
+      { url: PWA_ICON_192_SRC, sizes: "192x192", type: "image/png" },
+      { url: PWA_ICON_512_SRC, sizes: "512x512", type: "image/png" },
     ],
-    apple: "/apple-icon.png",
+    apple: APPLE_ICON_SRC,
   },
 }
 

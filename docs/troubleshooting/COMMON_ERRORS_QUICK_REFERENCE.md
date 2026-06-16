@@ -1,6 +1,6 @@
 # Common errors — quick reference
 
-**Last updated:** June 15, 2026
+**Last updated:** June 16, 2026
 
 Short, searchable fixes. For deeper debugging, use `/debug` and the architecture docs.
 
@@ -51,5 +51,6 @@ Short, searchable fixes. For deeper debugging, use `/debug` and the architecture
 | **Paid ticket** configured in admin but **missing on public** `/events/[slug]` | Create form did not send **`ticket_mode=paid`**, tier **`is_active=false`**, sales window not open, event not **published** — or public loader queried missing **`sales_start_at`** columns (fixed June 2026, #189) | Re-save ticketing on **`/admin/events/[id]`**; confirm **`ticket_types`** has **`price_cents > 0`** and **`is_active`**; publish event; deploy **`load-public-ticket-tiers`** fallback; check logs for **`[loadPublicTicketTiersForEvent]`** |
 | Admin **link recap post** throws or 500 when event id is stale/deleted | **`linkEventRecapPost`** used **`.single()`** and read **`event.slug`** without a null row guard | *(Fixed June 2026)* Deploy **`app/actions/event-recap.ts`** with **`.maybeSingle()`** + **Event not found**; use a valid event id from **`/admin/events`** |
 | **ViZb logo** shows a **black square** on loading / dark UI | **`public/vizb-logo.png`** was **RGB** (no alpha) — black is part of the bitmap, not “transparency” | Re-export from design as **PNG with transparency**, or replace with **RGBA**; confirm with `python -c "from PIL import Image; print(Image.open('public/vizb-logo.png').mode)"` → **`RGBA`**; see **`lib/brand-assets.ts`** |
+| **PWA / home-screen icon** shows generic grid or white **V** (not ViZb wordmark) | Placeholder **`public/pwa/*`**, **`apple-icon.png`**, or stale **`/icon.svg`** cached by OS/browser | Run **`npm run icons:generate`** from **`public/vizb-logo.png`**; deploy; **delete and re-add** the home-screen shortcut (icons do not auto-update) |
 | Dashboard **Step 2 preferences** stuck on **Saving…** / category error after selecting chips | Hidden inputs inside **`disabled={isPending}`** fieldsets could drop city/category values on submit | *(Fixed June 2026, #192)* Deploy **`MemberPreferencesForm`** — manual **`FormData`** from React state + **`router.refresh()`** on success |
 | **`/advertise`** shows **RESEND_API_KEY** warning or “Email delivery is not configured” | Form previously required Resend; or migration / service role not applied | *(Fixed June 2026)* Deploy advertise Supabase capture + apply **`20260615120000_advertise_inquiries.sql`**; set **`SUPABASE_SERVICE_ROLE_KEY`** on server; see **`docs/guides/ADVERTISE_INQUIRIES_SETUP.md`**; fallback contact **`admin@thevavibe.com`** |

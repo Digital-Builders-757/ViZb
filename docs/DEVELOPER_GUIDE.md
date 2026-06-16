@@ -94,6 +94,7 @@ Requires `platform_role` column (from `scripts/020_posts_mvp_platform_role.sql` 
 | `npm run ci` | Full chain: typecheck → test → lint → build |
 | `npm run test:e2e` | Playwright (runs in CI too) |
 | `npm run redesign:screenshots` | Visual regression captures |
+| `npm run icons:generate` | Regenerate PWA/favicon PNGs from **`public/vizb-logo.png`** |
 
 ---
 

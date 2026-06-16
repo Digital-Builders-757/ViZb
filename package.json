@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "redesign:screenshots": "playwright test tests/e2e/redesign-screenshots.spec.ts",
+    "icons:generate": "node scripts/generate-pwa-icons.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -98,6 +99,8 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.1",
     "postcss": "^8.5",
+    "sharp": "^0.34.3",
+    "to-ico": "^1.1.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5",
