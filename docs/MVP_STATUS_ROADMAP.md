@@ -149,7 +149,7 @@
 - Waitlist subscription via `subscribers` table (scripts 001-002)
 - ViBE brand system fully implemented: dark mode, zero radius, Space Grotesk + Playfair Display + JetBrains Mono typography
 - Responsive navbar with mobile toggle
-- **Partnerships:** **`/advertise`** — “Advertise with ViZb” lead form; public **single-column** page uses the same **`AppShell` + neon backdrop** language as the dashboard (`GlassCard` form, **`WaterFrame`** hero, **`neon-gradient-text`** H1) without the signed-in sidebar. Submissions email **`admin@thevavibe.com`** by default via **Resend** (see **`.env.example`**: `RESEND_API_KEY`, `ADMIN_EMAIL`, `RESEND_FROM`)
+- **Partnerships:** **`/advertise`** — “Advertise with ViZb” lead form; public **single-column** page uses the same **`AppShell` + neon backdrop** language as the dashboard (`GlassCard` form, **`WaterFrame`** hero, **`neon-gradient-text`** H1) without the signed-in sidebar. Submissions persist to **`public.advertise_inquiries`** via service-role insert (**`SUPABASE_SERVICE_ROLE_KEY`**); public contact **`admin@thevavibe.com`** (**`ADMIN_EMAIL`**, **`NEXT_PUBLIC_SUPPORT_EMAIL`**). Resend optional (not required for form capture).
 
 ### Database (60+ Migrations Executed)
 
@@ -326,7 +326,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | Integration | Purpose | Status |
 |-------------|---------|--------|
 | Stripe | Paid ticket purchases | **LIVE** — checkout, webhook fulfillment, return-path sync, `/admin/diagnostics/stripe` readiness checks, `/admin/revenue` ledger (June 2026) |
-| Resend | Advertise inquiry email | Configured via env (`RESEND_API_KEY`) |
+| Resend | Auth SMTP + optional event-reminder email | Optional — **`RESEND_API_KEY`** not required for **`/advertise`** (inquiries saved to Supabase) |
 | Supabase Realtime (optional) | Live check-in counters | Not configured (Phase 5 backlog) |
 | Sentry | Error monitoring | Not wired — env placeholders only; logging is stdout via `lib/log.ts` (see `docs/OPERATIONS.md`) |
 

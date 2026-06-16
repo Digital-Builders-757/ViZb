@@ -20,7 +20,3 @@ export function getResendApiKey(): string | null {
   const v = process.env.RESEND_API_KEY?.trim()
   return v && v.length > 0 ? v : null
 }
-
-export function isAdvertiseEmailConfigured(): boolean {
-  return getResendApiKey() !== null
-}

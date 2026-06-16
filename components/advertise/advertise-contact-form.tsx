@@ -26,13 +26,13 @@ const inputClass =
   "vibe-focus-ring w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[rgb(5_6_18/0.72)] px-4 py-3 text-sm text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] focus-visible:border-[color:var(--neon-a)]/50 transition-all"
 
 interface AdvertiseContactFormProps {
-  emailConfigured: boolean
+  supportEmail: string
   submissionContextLine?: string
   defaultInterestType?: (typeof INTEREST_OPTIONS)[number]
 }
 
 export function AdvertiseContactForm({
-  emailConfigured,
+  supportEmail,
   submissionContextLine,
   defaultInterestType,
 }: AdvertiseContactFormProps) {
@@ -55,17 +55,6 @@ export function AdvertiseContactForm({
 
   return (
     <form id="advertise-inquiry-form" action={onSubmit} className="relative space-y-5">
-      {!emailConfigured && (
-        <div
-          className="rounded-lg border-2 border-amber-400/50 bg-amber-500/15 px-4 py-3 text-sm font-medium text-amber-100 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
-          role="status"
-        >
-          Outbound email is not configured (missing <span className="font-mono">RESEND_API_KEY</span>). The
-          form still validates input; add your key in{" "}
-          <span className="font-mono">.env.local</span> to deliver to the team inbox.
-        </div>
-      )}
-
       {state?.ok ? (
         <div
           className="rounded-lg border-2 border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 px-4 py-4 text-sm font-medium text-[color:var(--neon-text0)] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
@@ -226,8 +215,16 @@ export function AdvertiseContactForm({
 
       <div className="flex flex-col gap-3 border-t border-[color:var(--neon-hairline)] pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-md text-xs text-[color:var(--neon-text2)]">
-          Submissions go to our partnerships inbox. We typically reply within a few business days. Sponsored or paid
-          placements are always labeled wherever they appear — never mixed with editorial Staff picks.
+          Submissions are saved to our partnerships workflow. We typically reply within a few business days.
+          For direct contact, email{" "}
+          <a
+            href={`mailto:${supportEmail}`}
+            className="font-mono text-[color:var(--neon-a)] underline decoration-[color:var(--neon-hairline)] underline-offset-4 transition hover:decoration-[color:var(--neon-a)]"
+          >
+            {supportEmail}
+          </a>
+          . Sponsored or paid placements are always labeled wherever they appear, never mixed with editorial
+          Staff picks.
         </p>
         <button
           type="submit"
@@ -236,7 +233,7 @@ export function AdvertiseContactForm({
         >
           <span className="absolute inset-0 animate-neon-border-flow bg-gradient-to-r from-[color:var(--neon-a)] via-[color:var(--neon-b)] to-[color:var(--neon-a)] bg-[length:200%_100%]" />
           <span className="relative z-10 flex items-center justify-center rounded-lg bg-[color:var(--neon-bg0)]/80 px-8 py-3 text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text0)] transition-colors group-hover:bg-[color:var(--neon-bg0)]/60">
-            {pending ? "Sending…" : "Send inquiry"}
+            {pending ? "Submitting…" : "Send inquiry"}
           </span>
         </button>
       </div>

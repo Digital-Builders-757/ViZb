@@ -7,5 +7,6 @@ Add setup and how-to guides here (Supabase local dev, env vars, deployment). **S
 | Guide | Use when |
 |-------|----------|
 | [`LOCAL_DEV_AND_AUTH.md`](LOCAL_DEV_AND_AUTH.md) | Dev server + `.env.local` + Supabase redirect URLs + login/dashboard smoke test |
+| [`ADVERTISE_INQUIRIES_SETUP.md`](ADVERTISE_INQUIRIES_SETUP.md) | `/advertise` form → Supabase `advertise_inquiries` table + env vars (no Resend required) |
 | [`SUPABASE_AUTH_EMAIL_RESEND.md`](SUPABASE_AUTH_EMAIL_RESEND.md) | Wire **Resend SMTP** in Supabase so sign-up/confirm/reset emails deliver outside team-only limits |
 | [`RESEND_SUPABASE_AUTH_VERIFICATION.md`](RESEND_SUPABASE_AUTH_VERIFICATION.md) | Verification checklist; should be merged into the Resend SMTP guide in a later cleanup pass |

@@ -1,8 +1,8 @@
 /**
- * Prefix for referrer lines embedded in advertise inquiry emails (`submitAdvertiseInquiry`).
+ * Prefix for referrer lines embedded in advertise inquiries (`submitAdvertiseInquiry`).
  * Hidden form field values must equal the server-rendered built line starting with this prefix (see advertise action).
  */
-export const ADVERTISE_SUBMISSION_CONTEXT_PREFIX = "Source — Organizer dashboard"
+export const ADVERTISE_SUBMISSION_CONTEXT_PREFIX = "Source, Organizer dashboard"
 
 /** Valid slug/path segment character class for organizer + event identifiers in referrer lines. */
 const SLUG_SEGMENT = /^[a-z0-9-]{1,120}$/i
