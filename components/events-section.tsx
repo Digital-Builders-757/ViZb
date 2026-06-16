@@ -126,7 +126,7 @@ export async function EventsSection() {
               <WaterFrame key={e.slug} className="rounded-2xl">
                 <Link
                   href={`/events/${e.slug}`}
-                  className="group relative block overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/30 backdrop-blur"
+                  className="group relative block overflow-hidden rounded-2xl events-card-surface transition-[border-color,box-shadow] hover:border-[color:var(--neon-a)]/40"
                 >
                 <div className="events-card-hover-radial-section absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
 

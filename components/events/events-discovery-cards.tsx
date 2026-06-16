@@ -40,7 +40,7 @@ export function EventDiscoveryHeroCard({ e }: { e: ListingEvent }) {
   return (
     <Link
       href={`/events/${e.slug}`}
-      className="events-neon-card events-neon-card-hover group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 backdrop-blur hover:border-[color:var(--neon-a)]/50 hover:bg-[color:var(--neon-surface)]/26"
+      className="events-neon-card events-neon-card-hover events-card-surface events-card-surface-hover group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 hover:border-[color:var(--neon-a)]/50"
     >
       <div
         className="events-card-hover-radial-hero pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -119,14 +119,14 @@ export function EventDiscoveryCompactCard({
   const isStaffRail = variant === "staffPick"
   const isCompact = size === "compact"
   const borderHover = isStaffRail
-    ? "hover:border-amber-500/50 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_28px_var(--events-glow-shadow-hover-amber)]"
-    : "hover:border-[color:var(--neon-a)]/50 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_var(--events-glow-shadow-hover)]"
+    ? "hover:border-amber-500/50 hover:shadow-[0_0_28px_var(--events-glow-shadow-hover-amber)]"
+    : "hover:border-[color:var(--neon-a)]/50 hover:shadow-[0_0_32px_var(--events-glow-shadow-hover)]"
   const { dayNumber, monthShort } = flyerDateParts(e.starts_at)
 
   return (
     <Link
       href={`/events/${e.slug}`}
-      className={`events-neon-card events-neon-card-hover group relative overflow-hidden rounded-2xl border bg-[color:var(--neon-surface)]/20 backdrop-blur ${
+      className={`events-neon-card events-neon-card-hover events-card-surface events-card-surface-hover group relative overflow-hidden rounded-2xl border ${
         isCompact ? "p-2.5" : "p-3.5 sm:p-4"
       } ${
         isStaffRail ? "border-amber-500/35" : "border-[color:var(--neon-hairline)]/90"

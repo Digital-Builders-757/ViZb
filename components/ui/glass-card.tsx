@@ -20,7 +20,7 @@ export function GlassCard({ className, emphasis, interactive, ...props }: GlassC
   return (
     <div
       className={cn(
-        "rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-md shadow-[inset_0_1px_0_0_var(--glass-inset-highlight)]",
+        "rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-sm shadow-[inset_0_1px_0_0_var(--glass-inset-highlight)]",
         emphasis &&
           "shadow-[var(--vibe-neon-glow-subtle),0_0_0_1px_var(--glass-emphasis-ring)]",
         className,

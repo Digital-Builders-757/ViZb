@@ -23,12 +23,12 @@ export function EventFlyerFallback({
   return (
     <div
       className={cn(
-        "absolute inset-0 flex items-center justify-center bg-[color:var(--neon-surface)]/40",
+        "absolute inset-0 flex items-center justify-center bg-[color:var(--neon-bg1)]/90",
         className,
       )}
       aria-hidden
     >
-      <div className="events-flyer-fallback-glow pointer-events-none absolute inset-0 opacity-80" aria-hidden />
+      <div className="events-flyer-fallback-glow pointer-events-none absolute inset-0 opacity-55" aria-hidden />
       <div className="relative text-center">
         <span
           className={cn(

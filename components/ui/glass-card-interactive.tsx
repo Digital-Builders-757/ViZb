@@ -65,7 +65,7 @@ export function GlassCardInteractive({
       onPointerLeave={resetPointer}
       style={transform ? { transform } : undefined}
       className={cn(
-        "group/glass relative isolate overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-md shadow-[inset_0_1px_0_0_var(--glass-inset-highlight)]",
+        "group/glass relative isolate overflow-hidden rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)] text-[color:var(--neon-text0)] backdrop-blur-sm shadow-[inset_0_1px_0_0_var(--glass-inset-highlight)]",
         "transition-[border-color,box-shadow,transform] duration-200 ease-out hover:will-change-transform",
         "hover:border-[color:var(--glass-hover-border)]",
         "hover:shadow-[0_0_0_1px_var(--glass-hover-ring),var(--vibe-neon-glow-subtle)]",
@@ -81,7 +81,7 @@ export function GlassCardInteractive({
       <div
         className={cn(
           "pointer-events-none absolute inset-0 z-[2] opacity-0 transition-opacity duration-300 motion-reduce:hidden",
-          "group-hover/glass:opacity-100 group-focus-within/glass:opacity-95",
+          "group-hover/glass:opacity-70 group-focus-within/glass:opacity-65",
         )}
         aria-hidden
         style={{

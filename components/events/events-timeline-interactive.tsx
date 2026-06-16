@@ -118,7 +118,7 @@ export function EventsTimelineInteractive({
             {pastEvents.map((event) => (
               <div
                 key={event.id}
-                className="events-timeline-card-enter transition-[opacity,transform] duration-300 hover:opacity-100 md:opacity-[0.93]"
+                className="events-timeline-card-enter transition-[opacity,transform] duration-300"
                 style={{ ["--timeline-index" as string]: runningIndex }}
               >
                 <EventTimelineCard
