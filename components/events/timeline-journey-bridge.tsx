@@ -9,14 +9,7 @@ export function TimelineJourneyBridge({ showDiscoveryRails, upcomingCount }: Tim
   return (
     <div className="relative mx-auto max-w-[1200px] px-4 sm:px-8">
       <div className="events-timeline-journey-bridge relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/50 bg-[color:var(--neon-surface)]/12 px-5 py-4 backdrop-blur md:px-8 md:py-5">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-80"
-          style={{
-            background:
-              "radial-gradient(900px circle at 0% 0%, rgba(0,209,255,0.12), transparent 55%), radial-gradient(700px circle at 100% 100%, rgba(157,77,255,0.10), transparent 50%)",
-          }}
-          aria-hidden
-        />
+        <div className="events-journey-bridge-glow pointer-events-none absolute inset-0 opacity-80" aria-hidden />
         <div className="relative z-[1] flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--neon-a)]">

@@ -128,7 +128,7 @@ export async function EventsSection() {
                   href={`/events/${e.slug}`}
                   className="group relative block overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/30 backdrop-blur"
                 >
-                <div className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ background: "radial-gradient(1200px circle at 20% 10%, rgba(0,209,255,0.12), transparent 55%)" }} />
+                <div className="events-card-hover-radial-section absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
 
                 <div className="relative aspect-[16/10] overflow-hidden">
                   {e.event_kind === "community" ? (

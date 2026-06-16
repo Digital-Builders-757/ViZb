@@ -40,11 +40,10 @@ export function EventDiscoveryHeroCard({ e }: { e: ListingEvent }) {
   return (
     <Link
       href={`/events/${e.slug}`}
-      className="events-neon-card events-neon-card-hover group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 backdrop-blur hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26"
+      className="events-neon-card events-neon-card-hover group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 backdrop-blur hover:border-[color:var(--neon-a)]/50 hover:bg-[color:var(--neon-surface)]/26"
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: "radial-gradient(800px circle at 20% 0%, rgba(0,209,255,0.13), transparent 55%)" }}
+        className="events-card-hover-radial-hero pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         aria-hidden
       />
 
@@ -120,8 +119,8 @@ export function EventDiscoveryCompactCard({
   const isStaffRail = variant === "staffPick"
   const isCompact = size === "compact"
   const borderHover = isStaffRail
-    ? "hover:border-amber-500/45 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_28px_rgba(245,158,11,0.12)]"
-    : "hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_rgba(0,209,255,0.12)]"
+    ? "hover:border-amber-500/50 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_28px_var(--events-glow-shadow-hover-amber)]"
+    : "hover:border-[color:var(--neon-a)]/50 hover:bg-[color:var(--neon-surface)]/26 hover:shadow-[0_0_32px_var(--events-glow-shadow-hover)]"
   const { dayNumber, monthShort } = flyerDateParts(e.starts_at)
 
   return (
@@ -134,12 +133,9 @@ export function EventDiscoveryCompactCard({
       } ${borderHover}`}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: isStaffRail
-            ? "radial-gradient(800px circle at 15% 0%, rgba(245,158,11,0.14), transparent 50%)"
-            : "radial-gradient(800px circle at 15% 0%, rgba(0,209,255,0.14), transparent 50%)",
-        }}
+        className={`pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${
+          isStaffRail ? "events-card-hover-radial-compact-staff" : "events-card-hover-radial-compact"
+        }`}
         aria-hidden
       />
 

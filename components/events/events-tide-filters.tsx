@@ -9,7 +9,7 @@ import { EventsFilterSheet } from "@/components/events/events-filter-sheet"
 const chipBase =
   "vibe-focus-ring inline-flex min-h-[40px] items-center rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-widest backdrop-blur transition-all whitespace-nowrap sm:min-h-[44px] sm:px-4 sm:text-xs"
 const chipActive =
-  "border-[color:var(--neon-a)]/60 bg-[color:color-mix(in_srgb,var(--neon-a)_14%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[0_0_22px_rgba(0,209,255,0.18)]"
+  "border-[color:var(--neon-a)]/65 bg-[color:color-mix(in_srgb,var(--neon-a)_16%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[var(--events-chip-active-glow)]"
 const chipIdle =
   "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 text-[color:color-mix(in_srgb,var(--neon-text1)_82%,var(--neon-text2))] hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/28 hover:text-[color:var(--neon-text0)]"
 
@@ -133,7 +133,7 @@ export function EventsTideFilters(props: EventsTideFiltersProps) {
 
             const className =
               filter.kind === "vibes" && vibesFilter
-                ? `${chipBase} border-[color:var(--neon-b)]/50 bg-[color:color-mix(in_srgb,var(--neon-b)_12%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[0_0_20px_rgba(157,77,255,0.14)]`
+                ? `${chipBase} border-[color:var(--neon-b)]/55 bg-[color:color-mix(in_srgb,var(--neon-b)_14%,var(--neon-surface))] text-[color:var(--neon-text0)] shadow-[var(--events-chip-active-glow-purple)]`
                 : `${chipBase} ${active ? chipActive : chipIdle}`
 
             return (

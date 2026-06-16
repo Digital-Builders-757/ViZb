@@ -102,14 +102,10 @@ export function HomepageEventsPreview({ data }: HomepageEventsPreviewProps) {
                   <Link
                     key={cat.category}
                     href={`/events${eventsListingQuery({ category: cat.category })}`}
-                    className="events-neon-card events-neon-card-hover group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 p-5 backdrop-blur transition-colors hover:border-[color:var(--neon-a)]/40 hover:bg-[color:var(--neon-surface)]/26"
+                    className="events-neon-card events-neon-card-hover group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 p-5 backdrop-blur transition-colors hover:border-[color:var(--neon-a)]/50 hover:bg-[color:var(--neon-surface)]/26"
                   >
                     <div
-                      className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{
-                        background:
-                          "radial-gradient(600px circle at 10% 0%, rgba(0,209,255,0.12), transparent 55%)",
-                      }}
+                      className="events-card-hover-radial-preview pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                       aria-hidden
                     />
                     <div className="relative z-[1]">
