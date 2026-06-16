@@ -1,6 +1,7 @@
 import type { DashboardHomeStats, DashboardNextMove } from "@/lib/dashboard/dashboard-home-types"
 import { DashboardStats } from "@/components/dashboard/home/dashboard-stats"
 import { MyNextMoveCard } from "@/components/dashboard/home/my-next-move-card"
+import { PlannerSection, type PlannerSectionProps } from "@/components/dashboard/home/planner-section"
 
 export interface DashboardCommandCenterProps {
   displayName: string
@@ -9,6 +10,10 @@ export interface DashboardCommandCenterProps {
   firstRunHint: string | null
   stats: DashboardHomeStats
   nextMove: DashboardNextMove
+  upcomingPlans: PlannerSectionProps["upcomingPlans"]
+  savedUpcoming: PlannerSectionProps["savedUpcoming"]
+  ticketEventIds: PlannerSectionProps["ticketEventIds"]
+  siteOrigin: PlannerSectionProps["siteOrigin"]
 }
 
 export function DashboardCommandCenter({
@@ -18,6 +23,10 @@ export function DashboardCommandCenter({
   firstRunHint,
   stats,
   nextMove,
+  upcomingPlans,
+  savedUpcoming,
+  ticketEventIds,
+  siteOrigin,
 }: DashboardCommandCenterProps) {
   const subtext = firstRunHint
     ? firstRunHint
@@ -50,6 +59,14 @@ export function DashboardCommandCenter({
       <MyNextMoveCard nextMove={nextMove} />
 
       <DashboardStats stats={stats} />
+
+      <PlannerSection
+        upcomingPlans={upcomingPlans}
+        savedUpcoming={savedUpcoming}
+        ticketEventIds={ticketEventIds}
+        siteOrigin={siteOrigin}
+        variant="embedded"
+      />
     </section>
   )
 }

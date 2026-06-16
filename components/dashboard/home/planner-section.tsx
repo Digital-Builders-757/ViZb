@@ -13,6 +13,7 @@ export interface PlannerSectionProps {
   savedUpcoming: MyVibesEventRow[]
   ticketEventIds: string[]
   siteOrigin: string
+  variant?: "standalone" | "embedded"
 }
 
 export function PlannerSection({
@@ -20,17 +21,39 @@ export function PlannerSection({
   savedUpcoming,
   ticketEventIds,
   siteOrigin,
+  variant = "standalone",
 }: PlannerSectionProps) {
   const ticketIdSet = new Set(ticketEventIds)
   const savedOnly = savedUpcoming.filter((e) => !ticketIdSet.has(e.id))
   const hasContent = upcomingPlans.length > 0 || savedOnly.length > 0
 
+  const Wrapper = variant === "embedded" ? "div" : "section"
+  const wrapperProps =
+    variant === "embedded"
+      ? { className: "space-y-5" }
+      : {
+          id: "my-vibes-week-heading",
+          "aria-labelledby": "planner-heading",
+          className: "scroll-mt-24 space-y-5",
+        }
+
   return (
-    <section id="my-vibes-week-heading" aria-labelledby="planner-heading" className="scroll-mt-24 space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div id="planner-heading">
-          <SectionTitle kicker="Your week" title="Locked in & on your radar" />
-        </div>
+    <Wrapper {...wrapperProps}>
+      {variant === "embedded" ? (
+        <h2 id="planner-heading" className="sr-only">Your week — locked in & on your radar</h2>
+      ) : null}
+      <div
+        className={
+          variant === "embedded"
+            ? "flex justify-end"
+            : "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+        }
+      >
+        {variant === "standalone" ? (
+          <div id="planner-heading">
+            <SectionTitle kicker="Your week" title="Locked in & on your radar" />
+          </div>
+        ) : null}
         <a
           href="/api/calendar/ics?myVibes=1"
           className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] hover:border-[color:var(--neon-a)]/45"
@@ -92,6 +115,6 @@ export function PlannerSection({
       >
         Open full timeline →
       </Link>
-    </section>
+    </Wrapper>
   )
 }

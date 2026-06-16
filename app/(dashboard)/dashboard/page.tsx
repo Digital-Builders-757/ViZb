@@ -5,7 +5,6 @@ import { loadDashboardHome, formatDashboardRegion } from "@/lib/dashboard/load-d
 import { needsMemberPreferenceOnboarding } from "@/lib/member/preferences"
 import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { DashboardCommandCenter } from "@/components/dashboard/home/dashboard-command-center"
-import { PlannerSection } from "@/components/dashboard/home/planner-section"
 import { TicketPassesSection } from "@/components/dashboard/home/ticket-passes-section"
 import { SavedNotDecidedSection } from "@/components/dashboard/home/saved-not-decided-section"
 import { VibeProfileSection } from "@/components/dashboard/home/vibe-profile-section"
@@ -40,6 +39,10 @@ export default async function DashboardPage() {
         firstRunHint={firstRunHint}
         stats={home.stats}
         nextMove={home.nextMove}
+        upcomingPlans={home.upcomingPlans}
+        savedUpcoming={home.savedUpcoming}
+        ticketEventIds={home.rsvp.upcomingEventIds}
+        siteOrigin={siteOrigin}
       />
 
       {isFirstRun && !profile?.display_name ? (
@@ -67,13 +70,6 @@ export default async function DashboardPage() {
           <MemberPreferencesForm initial={home.memberPreferences} variant="first-run" />
         </section>
       ) : null}
-
-      <PlannerSection
-        upcomingPlans={home.upcomingPlans}
-        savedUpcoming={home.savedUpcoming}
-        ticketEventIds={home.rsvp.upcomingEventIds}
-        siteOrigin={siteOrigin}
-      />
 
       <TicketPassesSection
         loadError={home.rsvp.loadError}
