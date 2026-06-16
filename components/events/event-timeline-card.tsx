@@ -109,14 +109,10 @@ export function EventTimelineCard({
       interactive={interactive}
       role="article"
       style={{ ["--timeline-index" as string]: timelineIndex }}
-      className={`group vibe-glass-panel events-timeline-card-enter events-neon-card-hover relative flex flex-col ${
+      className={`group events-timeline-card-enter events-neon-card-hover relative flex flex-col ${
         isEven ? "md:flex-row" : "md:flex-row-reverse"
       } gap-0 ${isArchive ? "md:gap-6 events-neon-card-archive" : "md:gap-8 events-neon-card"} rounded-2xl p-0 ${
         featured && !isArchive ? "events-neon-card-featured" : ""
-      } ${
-        isArchive
-          ? "bg-[color:var(--neon-surface)]/10"
-          : "bg-[color:var(--neon-surface)]/20"
       }`}
     >
       {/* Flyer column: fixed-height image area (categories live in details column) */}
@@ -177,7 +173,7 @@ export function EventTimelineCard({
         }`}
       >
         <div
-          className="events-timeline-card-glow pointer-events-none absolute inset-0 opacity-80"
+          className="events-timeline-card-glow pointer-events-none absolute inset-0 opacity-50 transition-opacity duration-300 group-hover:opacity-80"
           aria-hidden
         />
         <Link
@@ -233,7 +229,7 @@ export function EventTimelineCard({
                 {visibleCategories.map((c, i) => (
                   <span
                     key={`${c}-${i}`}
-                    className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)] backdrop-blur sm:text-xs"
+                    className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/80 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text0)] sm:text-xs"
                   >
                     {formatCategoryLabel(c)}
                   </span>

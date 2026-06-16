@@ -43,13 +43,12 @@
   /*
    * Neon glass design system (single source for dashboard / mobile mock style).
    * shadcn --border/--background stay separate; use --neon-* in glass components.
-   * Mockup aliases: bg0/bg1/surface/hairline/text0-2/neonA-C → --neon-* below.
+   * #254: dark blue glass — avoid white rgba surfaces that read as gray site-wide haze.
    */
-  --neon-bg0: #05050a;
-  --neon-bg1: #08081c;
-  /* Second pass: slightly more luminous glass + clearer hairlines (#252 brighten) */
-  --neon-surface: rgb(255 255 255 / 0.085);
-  --neon-hairline: rgb(255 255 255 / 0.17);
+  --neon-bg0: #030308;
+  --neon-bg1: #060612;
+  --neon-surface: rgb(6 12 28 / 0.78);
+  --neon-hairline: rgb(0 189 255 / 0.14);
   --neon-text0: #ffffff;
   --neon-text1: rgb(218 228 255 / 0.92);
   /* Muted tier: clearer placeholders + tertiary copy without losing cool tint */
@@ -60,35 +59,35 @@
 
   /* Vibe UI — wired to neon tokens (additive; shadcn semantic tokens unchanged) */
   --vibe-void: var(--neon-bg0);
-  --vibe-void-elevated: #0c0c14;
+  --vibe-void-elevated: #080812;
   --vibe-neon-cyan: var(--neon-a);
   --vibe-neon-purple: var(--neon-b);
   --vibe-glass-bg: var(--neon-surface);
   --vibe-glass-border: var(--neon-hairline);
   --vibe-text-secondary: var(--neon-text1);
   --vibe-text-muted: var(--neon-text2);
-  --vibe-neon-glow: 0 0 22px rgb(0 209 255 / 0.38), 0 0 52px rgb(157 77 255 / 0.24);
-  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.26);
+  --vibe-neon-glow: 0 0 24px rgb(0 189 255 / 0.34), 0 0 48px rgb(13 64 255 / 0.18);
+  --vibe-neon-glow-subtle: 0 0 18px rgb(0 189 255 / 0.24);
 
-  /* Event card + glass glow intensity (#252) */
-  --events-glow-ring: color-mix(in srgb, var(--neon-a) 18%, transparent);
-  --events-glow-cyan: rgb(0 209 255 / 0.10);
-  --events-glow-purple: rgb(157 77 255 / 0.07);
-  --events-glow-ring-hover: color-mix(in srgb, var(--neon-a) 32%, transparent);
-  --events-glow-cyan-hover: rgb(0 209 255 / 0.16);
-  --events-glow-purple-hover: rgb(157 77 255 / 0.10);
-  --events-glow-shadow-hover: rgb(0 209 255 / 0.18);
+  /* Event card + glass glow intensity (#254 — cyan/blue contrast after haze removal) */
+  --events-glow-ring: color-mix(in srgb, var(--color-brand-cyan) 22%, transparent);
+  --events-glow-cyan: rgb(0 189 255 / 0.07);
+  --events-glow-purple: rgb(13 64 255 / 0.05);
+  --events-glow-ring-hover: color-mix(in srgb, var(--color-brand-cyan-bright) 44%, transparent);
+  --events-glow-cyan-hover: rgb(0 229 255 / 0.22);
+  --events-glow-purple-hover: rgb(13 64 255 / 0.14);
+  --events-glow-shadow-hover: rgb(0 189 255 / 0.24);
   --events-glow-shadow-hover-amber: rgb(245 158 11 / 0.16);
-  --events-chip-active-glow: 0 0 24px rgb(0 209 255 / 0.24);
-  --events-chip-active-glow-purple: 0 0 22px rgb(157 77 255 / 0.18);
-  --events-card-radial-cyan: rgb(0 209 255 / 0.18);
-  --events-card-radial-purple: rgb(157 77 255 / 0.14);
+  --events-chip-active-glow: 0 0 28px rgb(0 189 255 / 0.28);
+  --events-chip-active-glow-purple: 0 0 24px rgb(13 64 255 / 0.16);
+  --events-card-radial-cyan: rgb(0 189 255 / 0.14);
+  --events-card-radial-purple: rgb(13 64 255 / 0.09);
   --events-card-radial-amber: rgb(245 158 11 / 0.18);
-  --glass-hover-border: color-mix(in srgb, var(--neon-a) 52%, var(--neon-hairline));
-  --glass-hover-ring: color-mix(in srgb, var(--neon-a) 34%, transparent);
-  --glass-emphasis-ring: color-mix(in srgb, var(--neon-a) 26%, transparent);
-  --glass-inset-highlight: rgb(255 255 255 / 0.09);
-  --glass-glare: color-mix(in srgb, white 22%, transparent);
+  --glass-hover-border: color-mix(in srgb, var(--color-brand-cyan) 62%, var(--neon-hairline));
+  --glass-hover-ring: color-mix(in srgb, var(--color-brand-cyan) 40%, transparent);
+  --glass-emphasis-ring: color-mix(in srgb, var(--color-brand-blue) 30%, transparent);
+  --glass-inset-highlight: rgb(0 189 255 / 0.05);
+  --glass-glare: color-mix(in srgb, var(--color-brand-cyan-bright) 14%, transparent);
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
@@ -143,11 +142,10 @@
   --sidebar-border: oklch(0.24 0 0);
   --sidebar-ring: oklch(0.6 0.22 250);
 
-  --neon-bg0: #05050a;
-  --neon-bg1: #08081c;
-  /* Second pass: slightly more luminous glass + clearer hairlines (#252 brighten) */
-  --neon-surface: rgb(255 255 255 / 0.085);
-  --neon-hairline: rgb(255 255 255 / 0.17);
+  --neon-bg0: #030308;
+  --neon-bg1: #060612;
+  --neon-surface: rgb(6 12 28 / 0.78);
+  --neon-hairline: rgb(0 189 255 / 0.14);
   --neon-text0: #ffffff;
   --neon-text1: rgb(218 228 255 / 0.92);
   /* Muted tier: clearer placeholders + tertiary copy without losing cool tint */
@@ -157,35 +155,35 @@
   --neon-c: #ff4ecd;
 
   --vibe-void: var(--neon-bg0);
-  --vibe-void-elevated: #0c0c14;
+  --vibe-void-elevated: #080812;
   --vibe-neon-cyan: var(--neon-a);
   --vibe-neon-purple: var(--neon-b);
   --vibe-glass-bg: var(--neon-surface);
   --vibe-glass-border: var(--neon-hairline);
   --vibe-text-secondary: var(--neon-text1);
   --vibe-text-muted: var(--neon-text2);
-  --vibe-neon-glow: 0 0 22px rgb(0 209 255 / 0.38), 0 0 52px rgb(157 77 255 / 0.24);
-  --vibe-neon-glow-subtle: 0 0 16px rgb(0 209 255 / 0.26);
+  --vibe-neon-glow: 0 0 24px rgb(0 189 255 / 0.34), 0 0 48px rgb(13 64 255 / 0.18);
+  --vibe-neon-glow-subtle: 0 0 18px rgb(0 189 255 / 0.24);
 
-  /* Event card + glass glow intensity (#252) */
-  --events-glow-ring: color-mix(in srgb, var(--neon-a) 18%, transparent);
-  --events-glow-cyan: rgb(0 209 255 / 0.10);
-  --events-glow-purple: rgb(157 77 255 / 0.07);
-  --events-glow-ring-hover: color-mix(in srgb, var(--neon-a) 32%, transparent);
-  --events-glow-cyan-hover: rgb(0 209 255 / 0.16);
-  --events-glow-purple-hover: rgb(157 77 255 / 0.10);
-  --events-glow-shadow-hover: rgb(0 209 255 / 0.18);
+  /* Event card + glass glow intensity (#254 — cyan/blue contrast after haze removal) */
+  --events-glow-ring: color-mix(in srgb, var(--color-brand-cyan) 22%, transparent);
+  --events-glow-cyan: rgb(0 189 255 / 0.07);
+  --events-glow-purple: rgb(13 64 255 / 0.05);
+  --events-glow-ring-hover: color-mix(in srgb, var(--color-brand-cyan-bright) 44%, transparent);
+  --events-glow-cyan-hover: rgb(0 229 255 / 0.22);
+  --events-glow-purple-hover: rgb(13 64 255 / 0.14);
+  --events-glow-shadow-hover: rgb(0 189 255 / 0.24);
   --events-glow-shadow-hover-amber: rgb(245 158 11 / 0.16);
-  --events-chip-active-glow: 0 0 24px rgb(0 209 255 / 0.24);
-  --events-chip-active-glow-purple: 0 0 22px rgb(157 77 255 / 0.18);
-  --events-card-radial-cyan: rgb(0 209 255 / 0.18);
-  --events-card-radial-purple: rgb(157 77 255 / 0.14);
+  --events-chip-active-glow: 0 0 28px rgb(0 189 255 / 0.28);
+  --events-chip-active-glow-purple: 0 0 24px rgb(13 64 255 / 0.16);
+  --events-card-radial-cyan: rgb(0 189 255 / 0.14);
+  --events-card-radial-purple: rgb(13 64 255 / 0.09);
   --events-card-radial-amber: rgb(245 158 11 / 0.18);
-  --glass-hover-border: color-mix(in srgb, var(--neon-a) 52%, var(--neon-hairline));
-  --glass-hover-ring: color-mix(in srgb, var(--neon-a) 34%, transparent);
-  --glass-emphasis-ring: color-mix(in srgb, var(--neon-a) 26%, transparent);
-  --glass-inset-highlight: rgb(255 255 255 / 0.09);
-  --glass-glare: color-mix(in srgb, white 22%, transparent);
+  --glass-hover-border: color-mix(in srgb, var(--color-brand-cyan) 62%, var(--neon-hairline));
+  --glass-hover-ring: color-mix(in srgb, var(--color-brand-cyan) 40%, transparent);
+  --glass-emphasis-ring: color-mix(in srgb, var(--color-brand-blue) 30%, transparent);
+  --glass-inset-highlight: rgb(0 189 255 / 0.05);
+  --glass-glare: color-mix(in srgb, var(--color-brand-cyan-bright) 14%, transparent);
 
   --water-a: var(--neon-a);
   --water-b: var(--neon-b);
@@ -285,11 +283,11 @@
     radial-gradient(1px 1px at 8% 12%, rgb(0 212 255 / 0.45), transparent),
     radial-gradient(1px 1px at 18% 44%, rgb(192 132 252 / 0.35), transparent),
     radial-gradient(1px 1px at 28% 78%, rgb(0 212 255 / 0.25), transparent),
-    radial-gradient(1px 1px at 38% 22%, rgb(255 255 255 / 0.12), transparent),
+    radial-gradient(1px 1px at 38% 22%, rgb(0 189 255 / 0.08), transparent),
     radial-gradient(1px 1px at 48% 56%, rgb(192 132 252 / 0.2), transparent),
     radial-gradient(1px 1px at 58% 88%, rgb(0 212 255 / 0.3), transparent),
     radial-gradient(1px 1px at 68% 14%, rgb(0 212 255 / 0.2), transparent),
-    radial-gradient(1px 1px at 78% 40%, rgb(255 255 255 / 0.1), transparent),
+    radial-gradient(1px 1px at 78% 40%, rgb(0 189 255 / 0.06), transparent),
     radial-gradient(1px 1px at 88% 72%, rgb(192 132 252 / 0.28), transparent),
     radial-gradient(1px 1px at 92% 30%, rgb(0 212 255 / 0.35), transparent),
     radial-gradient(1.5px 1.5px at 12% 62%, rgb(0 212 255 / 0.4), transparent),
@@ -299,20 +297,20 @@
     radial-gradient(1px 1px at 96% 48%, rgb(192 132 252 / 0.18), transparent);
   background-repeat: repeat;
   background-size: 120% 120%;
-  opacity: 0.85;
+  opacity: 0.72;
 }
 
 /* Extra depth for dashboard (fixed; stacks above global starfield, below content) */
 .neon-dashboard-aurora {
   background:
-    radial-gradient(ellipse 130% 90% at 50% -25%, rgb(0 209 255 / 0.14), transparent 55%),
-    radial-gradient(ellipse 100% 70% at 100% 25%, rgb(157 77 255 / 0.11), transparent 52%),
-    radial-gradient(ellipse 90% 60% at 0% 75%, rgb(255 78 205 / 0.07), transparent 48%),
-    linear-gradient(180deg, rgb(8 8 28 / 0.55) 0%, transparent 42%, rgb(2 2 10 / 0.4) 100%);
+    radial-gradient(ellipse 130% 90% at 50% -25%, rgb(13 64 255 / 0.11), transparent 55%),
+    radial-gradient(ellipse 100% 70% at 100% 25%, rgb(12 116 232 / 0.08), transparent 52%),
+    radial-gradient(ellipse 90% 60% at 0% 75%, rgb(0 189 255 / 0.05), transparent 48%),
+    linear-gradient(180deg, rgb(4 6 18 / 0.42) 0%, transparent 42%, rgb(2 2 8 / 0.32) 100%);
 }
 
 .neon-dashboard-noise {
-  opacity: 0.035;
+  opacity: 0.02;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -346,7 +344,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgb(5 5 10 / 0.35) 0%, transparent 40%, rgb(5 5 10 / 0.25) 100%);
+  background: linear-gradient(180deg, rgb(3 4 12 / 0.22) 0%, transparent 42%, rgb(2 2 8 / 0.16) 100%);
 }
 
 .vizb-caustic-hero::before {
@@ -384,7 +382,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgb(5 5 10 / 0.45);
+  background: linear-gradient(180deg, rgb(3 4 12 / 0.26) 0%, transparent 46%, rgb(2 2 8 / 0.18) 100%);
 }
 
 .vizb-depth-layer {
@@ -455,8 +453,8 @@
 .vibe-glass-panel {
   background: var(--vibe-glass-bg);
   border: 1px solid var(--vibe-glass-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .vibe-input-glass {
@@ -469,8 +467,8 @@
   color: var(--foreground);
   background: var(--vibe-glass-bg);
   border: 1px solid var(--vibe-glass-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -512,6 +510,16 @@
   }
 }
 
+/* Events listing — dark card fill without stacked white glass (#254) */
+.events-card-surface {
+  background: color-mix(in srgb, var(--neon-bg1) 84%, rgb(13 64 255 / 5%));
+}
+
+.group:hover .events-card-surface-hover,
+.events-card-surface-hover:hover {
+  background: color-mix(in srgb, var(--neon-bg1) 78%, rgb(0 189 255 / 8%));
+}
+
 /* Events listing — resting dual-tone border glow (CSS-only, no animation) */
 .events-neon-card {
   box-shadow:
@@ -532,10 +540,11 @@
 
 .group:hover .events-neon-card-hover,
 .events-neon-card-hover:hover {
+  border-color: color-mix(in srgb, var(--color-brand-cyan) 38%, var(--neon-hairline));
   box-shadow:
     0 0 0 1px var(--events-glow-ring-hover),
-    0 0 24px var(--events-glow-cyan-hover),
-    0 0 44px var(--events-glow-purple-hover);
+    0 0 28px var(--events-glow-cyan-hover),
+    0 0 52px var(--events-glow-purple-hover);
 }
 
 /* Radial hover overlays for discovery / timeline cards */
@@ -1370,8 +1379,8 @@
 
 .events-timeline-journey-bridge {
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.06),
-    0 0 36px rgb(0 209 255 / 0.10);
+    inset 0 1px 0 rgb(0 189 255 / 0.05),
+    0 0 36px rgb(0 189 255 / 0.10);
 }
 
 #timeline:target .events-timeline-shell {

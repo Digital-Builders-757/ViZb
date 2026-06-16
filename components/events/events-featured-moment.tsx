@@ -45,7 +45,7 @@ export function EventsFeaturedMoment({ moment }: { moment: FeaturedMoment }) {
             <Link
               key={`${moment.kind}-${e.id}`}
               href={`/events/${e.slug}`}
-              className="events-neon-card events-neon-card-hover group snap-start flex w-[78vw] shrink-0 flex-col overflow-hidden rounded-xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 md:w-auto"
+              className="events-neon-card events-neon-card-hover events-card-surface events-card-surface-hover group snap-start flex w-[78vw] shrink-0 flex-col overflow-hidden rounded-xl border border-[color:var(--neon-hairline)]/90 md:w-auto"
             >
               <div className="relative h-28 overflow-hidden bg-black/40">
                 {e.flyer_url ? (

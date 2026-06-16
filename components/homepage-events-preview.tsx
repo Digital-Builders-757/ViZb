@@ -102,7 +102,7 @@ export function HomepageEventsPreview({ data }: HomepageEventsPreviewProps) {
                   <Link
                     key={cat.category}
                     href={`/events${eventsListingQuery({ category: cat.category })}`}
-                    className="events-neon-card events-neon-card-hover group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 bg-[color:var(--neon-surface)]/20 p-5 backdrop-blur transition-colors hover:border-[color:var(--neon-a)]/50 hover:bg-[color:var(--neon-surface)]/26"
+                    className="events-neon-card events-neon-card-hover events-card-surface events-card-surface-hover group relative overflow-hidden rounded-2xl border border-[color:var(--neon-hairline)]/90 p-5 transition-colors hover:border-[color:var(--neon-a)]/50"
                   >
                     <div
                       className="events-card-hover-radial-preview pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
