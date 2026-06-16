@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { planFeaturedMoments } from "@/lib/events/discovery-featured-moments"
+import { buildStaffPicksMoment } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
 import { getListingEventPriceLabel, getListingTicketStatus, listingOffersVizbTickets } from "@/lib/events/listing-event"
 import { matchesPaid } from "@/lib/events/discovery-filters"
@@ -62,16 +62,19 @@ describe("listing event display", () => {
   })
 })
 
-describe("planFeaturedMoments", () => {
-  it("inserts staff picks after first date group when enough picks exist", () => {
+describe("buildStaffPicksMoment", () => {
+  it("returns staff picks moment when at least two staff picks exist", () => {
     const events = [
       mockEvent({ id: "a", is_staff_pick: true }),
       mockEvent({ id: "b", is_staff_pick: true, slug: "b" }),
       mockEvent({ id: "c", slug: "c" }),
     ]
-    const grouped = { "2026-06-14": events }
-    const moments = planFeaturedMoments(["2026-06-14"], grouped, events, new Date("2026-06-12T12:00:00.000Z"))
-    expect(moments.get(0)?.kind).toBe("staff_picks")
-    expect(moments.get(0)?.events).toHaveLength(2)
+    const moment = buildStaffPicksMoment(events)
+    expect(moment?.kind).toBe("staff_picks")
+    expect(moment?.events).toHaveLength(2)
+  })
+
+  it("returns null when fewer than two staff picks exist", () => {
+    expect(buildStaffPicksMoment([mockEvent({ is_staff_pick: true })])).toBeNull()
   })
 })

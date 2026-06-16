@@ -3,14 +3,12 @@ import { logError } from "@/lib/log"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { EventsDiscoveryHero } from "@/components/events/events-discovery-hero"
+import { EventsSearchBar } from "@/components/events/events-search-bar"
 import { EventsTideFilters } from "@/components/events/events-tide-filters"
 import { EventsTimelineInteractive } from "@/components/events/events-timeline-interactive"
+import { EventsFeaturedMoment } from "@/components/events/events-featured-moment"
 import { TimelineJourneyBridge } from "@/components/events/timeline-journey-bridge"
 import { TimelineSectionIntro } from "@/components/events/timeline-section-intro"
-import {
-  EventDiscoveryCompactCard,
-  EventDiscoveryHeroCard,
-} from "@/components/events/events-discovery-cards"
 import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
@@ -30,8 +28,7 @@ import {
   type DiscoveryPreset,
   type TicketStub,
 } from "@/lib/events/discovery-filters"
-import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
-import { planFeaturedMoments } from "@/lib/events/discovery-featured-moments"
+import { buildStaffPicksMoment } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
 import {
   buildCityFilterOptions,
@@ -105,7 +102,7 @@ export default async function EventsExplorePage({
   // Use current time as the upcoming/past split -- simple, no timezone edge cases
   const now = new Date()
 
-  // Past events cutoff: 30 days ago
+  // Query window: include recently started events so ongoing multi-day listings are not missed
   const pastCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
   const pastCutoffISO = pastCutoff.toISOString()
 
@@ -254,23 +251,15 @@ export default async function EventsExplorePage({
     )
   }
 
-  let flatPastBase = allFlat
-    .filter((e) => !isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
-    .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
-    .slice(0, 12)
-
   const vibesSignedOutGate = vibesFilter && !isSignedInForVibes
 
   if (vibesSignedOutGate) {
     upcomingBase = []
-    flatPastBase = []
   } else if (vibesFilter && isSignedInForVibes) {
     upcomingBase = upcomingBase.filter((e) => savedIdSet.has(e.id))
-    flatPastBase = flatPastBase.filter((e) => savedIdSet.has(e.id))
   }
 
   const hasUnfilteredUpcoming = upcomingBase.length > 0
-  const hasUnfilteredPast = flatPastBase.length > 0
 
   const hasTimelineFilters = Boolean(activeCity || discoveryPreset || searchQ.trim())
 
@@ -294,25 +283,22 @@ export default async function EventsExplorePage({
     return true
   }
 
-  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
-  const showDiscoveryRails =
-    !hasTimelineFilters && !vibesFilter && (trending.length > 0 || staffPicks.length > 0)
+  const staffPicksMoment = buildStaffPicksMoment(upcomingBase)
+  const showStaffPicksFeatured =
+    !hasTimelineFilters && !vibesFilter && staffPicksMoment !== null
 
   let flatUpcoming = upcomingBase.filter(passesDiscoveryAndSearch)
-  let flatPast = flatPastBase.filter(passesDiscoveryAndSearch)
 
   if (sortMode === "city") {
     flatUpcoming = [...flatUpcoming].sort(compareEventsByCityThenTime)
-    flatPast = [...flatPast].sort(compareEventsByCityThenTime)
   }
 
   const filteredTimelineEmptyButPoolHasEvents =
     !vibesSignedOutGate &&
     flatUpcoming.length === 0 &&
-    flatPast.length === 0 &&
-    (hasUnfilteredUpcoming || hasUnfilteredPast)
+    hasUnfilteredUpcoming
 
-  const hasPoolEvents = hasUnfilteredUpcoming || hasUnfilteredPast
+  const hasPoolEvents = hasUnfilteredUpcoming
   const activeDiscoveryLabel = discoveryPreset
     ? (DISCOVERY_PRESET_OPTIONS.find((o) => o.value === discoveryPreset)?.label ?? discoveryPreset)
     : null
@@ -356,10 +342,7 @@ export default async function EventsExplorePage({
 
   const dateKeys = Object.keys(grouped).sort()
   const hasUpcoming = dateKeys.length > 0
-  const hasPast = flatPast.length > 0
   const cityFilterOptions = buildCityFilterOptions(upcomingBase)
-  const featuredMoments = planFeaturedMoments(dateKeys, grouped, upcomingBase, now)
-  const featuredByDateIndex = Object.fromEntries(featuredMoments.entries())
   const siteOrigin = getPublicSiteOrigin()
 
   return (
@@ -371,7 +354,17 @@ export default async function EventsExplorePage({
       <Navbar />
 
       {/* Hero + search + tide filters */}
-      <EventsDiscoveryHero upcomingCount={upcomingBase.length} />
+      <EventsDiscoveryHero upcomingCount={upcomingBase.length}>
+        <EventsSearchBar
+          searchQ={searchQ}
+          activeFilter={activeFilter}
+          activeCity={activeCity}
+          vibesFilter={vibesFilter}
+          discoveryPreset={discoveryPreset}
+          sortMode={sortMode}
+          clearSearchHref={`/events${ql({ q: undefined })}`}
+        />
+      </EventsDiscoveryHero>
 
       <section className="px-4 pb-6 sm:px-8">
         <div className="mx-auto max-w-[1200px]">
@@ -386,47 +379,6 @@ export default async function EventsExplorePage({
               </p>
             </div>
           ) : null}
-
-          <form
-            method="get"
-            action="/events"
-            className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-3"
-            role="search"
-          >
-            {activeFilter && activeFilter !== "all" ? (
-              <input type="hidden" name="category" value={activeFilter} />
-            ) : null}
-            {activeCity ? <input type="hidden" name="city" value={activeCity} /> : null}
-            {vibesFilter ? <input type="hidden" name="vibes" value="1" /> : null}
-            {discoveryPreset ? <input type="hidden" name="discover" value={discoveryPreset} /> : null}
-            {sortMode === "city" ? <input type="hidden" name="sort" value="city" /> : null}
-            <label htmlFor="events-q" className="sr-only">
-              Search events
-            </label>
-            <input
-              id="events-q"
-              name="q"
-              type="search"
-              defaultValue={searchQ}
-              placeholder="Search title, venue, city…"
-              className="vibe-focus-ring min-h-11 w-full max-w-md rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-5 py-3 font-mono text-xs text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] backdrop-blur md:min-h-12"
-              autoComplete="off"
-            />
-            <button
-              type="submit"
-              className="vibe-focus-ring shrink-0 rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/12 px-7 py-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] transition-[background-color,box-shadow] hover:bg-[color:var(--neon-a)]/22 hover:shadow-[var(--vibe-neon-glow-subtle)]"
-            >
-              Search
-            </button>
-            {searchQ.trim() ? (
-              <Link
-                href={ql({ q: undefined })}
-                className="shrink-0 text-center font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] underline-offset-4 hover:text-[color:var(--neon-text0)] hover:underline"
-              >
-                Clear search
-              </Link>
-            ) : null}
-          </form>
 
           <EventsTideFilters
             listingBase={listingOptsBase}
@@ -443,88 +395,18 @@ export default async function EventsExplorePage({
       {/* Ocean wave divider */}
       <OceanDivider variant="hero" density="normal" />
 
-      {showDiscoveryRails ? (
+      {showStaffPicksFeatured && staffPicksMoment ? (
         <>
-          {trending.length > 0 ? (
-            <section className="px-4 pb-2 pt-8 sm:px-8 md:pt-10">
-              <div className="mx-auto max-w-[1200px]">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                      Starting soon
-                    </p>
-                    <p className="mt-1 max-w-prose text-xs text-[color:var(--neon-text1)]/90">
-                      ViZb official picks first. Tap through for tickets and RSVP.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mobile: snap scroll carousel */}
-                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                  {trending.map((e) => (
-                    <div key={e.id} className="snap-start w-[88vw] shrink-0">
-                      <EventDiscoveryCompactCard e={e} variant="default" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Desktop: hero + sidebar layout */}
-                <div className="mt-5 hidden md:grid md:grid-cols-[3fr_2fr] md:gap-4 lg:grid-cols-[5fr_3fr]">
-                  {/* Featured hero card — first event */}
-                  <EventDiscoveryHeroCard e={trending[0]} />
-
-                  {/* Sidebar — remaining events stacked */}
-                  {trending.length > 1 ? (
-                    <div className="flex flex-col gap-4">
-                      {trending.slice(1).map((e) => (
-                        <EventDiscoveryCompactCard key={e.id} e={e} variant="default" />
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </section>
-          ) : null}
-
-          {staffPicks.length > 0 ? (
-            <section className="px-4 pb-2 pt-6 sm:px-8 md:pt-8">
-              <div className="mx-auto max-w-[1200px]">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-amber-200/90">
-                      ViZb picks
-                    </p>
-                    <p className="mt-1 max-w-prose text-xs text-[color:var(--neon-text1)]/90">
-                      Highlights from our team. Official and community listings mixed together.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mobile: snap scroll carousel */}
-                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                  {staffPicks.map((e) => (
-                    <div key={`pick-mob-${e.id}`} className="snap-start w-[88vw] shrink-0">
-                      <EventDiscoveryCompactCard e={e} variant="staffPick" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Desktop: 3-column grid */}
-                <div className="mt-5 hidden md:grid md:grid-cols-3 md:gap-4">
-                  {staffPicks.map((e) => (
-                    <EventDiscoveryCompactCard key={`pick-${e.id}`} e={e} variant="staffPick" />
-                  ))}
-                </div>
-              </div>
-            </section>
-          ) : null}
+          <section className="px-4 pb-2 pt-8 sm:px-8 md:pt-10">
+            <div className="mx-auto max-w-[1200px]">
+              <EventsFeaturedMoment moment={staffPicksMoment} />
+            </div>
+          </section>
+          <OceanDivider variant="soft" density="sparse" />
         </>
       ) : null}
 
-      {/* Ocean wave divider before timeline */}
-      {showDiscoveryRails ? <OceanDivider variant="soft" density="sparse" /> : null}
-
-      <TimelineJourneyBridge showDiscoveryRails={showDiscoveryRails} upcomingCount={flatUpcoming.length} />
+      <TimelineJourneyBridge showStaffPicksFeatured={showStaffPicksFeatured} upcomingCount={flatUpcoming.length} />
 
       {/* Timeline Section */}
       <section id="timeline" className="events-timeline-section scroll-mt-24 px-4 py-14 sm:px-8 md:py-20">
@@ -621,13 +503,10 @@ export default async function EventsExplorePage({
             <EventsTimelineInteractive
               dateKeys={dateKeys}
               grouped={grouped}
-              pastEvents={flatPast}
-              featuredByDateIndex={featuredByDateIndex}
               isSignedIn={isSignedInForVibes}
               savedEventIds={savedEventIds}
               siteOrigin={siteOrigin}
               hasUpcoming={hasUpcoming}
-              hasPast={hasPast}
             />
           ) : vibesSignedOutGate ? null : eventsLoadError ? null : (
             <div className="mx-auto max-w-xl py-16 md:py-28">

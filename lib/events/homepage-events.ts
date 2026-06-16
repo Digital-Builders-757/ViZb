@@ -8,6 +8,8 @@ import {
 import type { TicketStub } from "@/lib/events/discovery-filters"
 import { formatCategoryLabel } from "@/lib/events/event-display-format"
 import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
+import type { FeaturedMoment } from "@/lib/events/discovery-featured-moments"
+import { buildStaffPicksMoment } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
 import { isPublicListingEventStatus } from "@/lib/events/public-listing"
 
@@ -33,8 +35,7 @@ export type HomepageCategoryPreview = {
 }
 
 export type HomepageEventsPreviewData = {
-  featuredEvent: ListingEvent | null
-  startingSoonEvents: ListingEvent[]
+  staffPicksMoment: FeaturedMoment | null
   topCategories: HomepageCategoryPreview[]
   eventsLoadError: boolean
 }
@@ -159,8 +160,7 @@ export function computeTopCategories(events: ListingEvent[]): HomepageCategoryPr
 
 function emptyPreview(eventsLoadError = false): HomepageEventsPreviewData {
   return {
-    featuredEvent: null,
-    startingSoonEvents: [],
+    staffPicksMoment: null,
     topCategories: computeTopCategories([]),
     eventsLoadError,
   }
@@ -200,13 +200,11 @@ export async function getHomepageEventsPreview(): Promise<HomepageEventsPreviewD
     .filter((e) => isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
 
-  const featuredEvent = pickFeaturedEvent(upcoming)
-  const startingSoonEvents = pickStartingSoonEvents(upcoming, featuredEvent)
+  const staffPicksMoment = buildStaffPicksMoment(upcoming)
   const topCategories = computeTopCategories(upcoming)
 
   return {
-    featuredEvent,
-    startingSoonEvents,
+    staffPicksMoment,
     topCategories,
     eventsLoadError: false,
   }
