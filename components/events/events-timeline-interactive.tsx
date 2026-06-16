@@ -2,19 +2,16 @@
 
 import { useCallback, useMemo, useState } from "react"
 import { EventTimelineCard } from "@/components/events/event-timeline-card"
-import { EventsFeaturedMoment } from "@/components/events/events-featured-moment"
 import {
   EventQuickPreviewPanel,
   saveEventsListingScroll,
 } from "@/components/events/event-quick-preview-panel"
 import { TimelineDateHeader } from "@/components/events/timeline-date-header"
-import type { FeaturedMoment } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
 
 export interface EventsTimelineInteractiveProps {
   dateKeys: string[]
   grouped: Record<string, ListingEvent[]>
-  featuredByDateIndex: Record<number, FeaturedMoment>
   isSignedIn: boolean
   savedEventIds: string[]
   siteOrigin: string
@@ -25,7 +22,6 @@ export interface EventsTimelineInteractiveProps {
 export function EventsTimelineInteractive({
   dateKeys,
   grouped,
-  featuredByDateIndex,
   isSignedIn,
   savedEventIds,
   siteOrigin,
@@ -53,7 +49,6 @@ export function EventsTimelineInteractive({
           {dateKeys.map((dateKey, di) => {
             const dateObj = new Date(`${dateKey}T12:00:00-05:00`)
             const eventsForDate = grouped[dateKey]
-            const featured = featuredByDateIndex[di]
 
             return (
               <div key={dateKey}>
@@ -85,12 +80,6 @@ export function EventsTimelineInteractive({
                     return card
                   })}
                 </div>
-
-                {featured ? (
-                  <div className="md:ml-10">
-                    <EventsFeaturedMoment moment={featured} />
-                  </div>
-                ) : null}
               </div>
             )
           })}

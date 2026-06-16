@@ -1,9 +1,6 @@
 import Link from "next/link"
 
-import {
-  EventDiscoveryCompactCard,
-  EventDiscoveryHeroCard,
-} from "@/components/events/events-discovery-cards"
+import { EventsFeaturedMoment } from "@/components/events/events-featured-moment"
 import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
@@ -15,8 +12,8 @@ interface HomepageEventsPreviewProps {
 }
 
 export function HomepageEventsPreview({ data }: HomepageEventsPreviewProps) {
-  const { featuredEvent, startingSoonEvents, topCategories, eventsLoadError } = data
-  const hasEvents = Boolean(featuredEvent) || startingSoonEvents.length > 0
+  const { staffPicksMoment, topCategories, eventsLoadError } = data
+  const hasEvents = Boolean(staffPicksMoment) || topCategories.some((cat) => cat.count > 0)
 
   return (
     <section
@@ -53,43 +50,11 @@ export function HomepageEventsPreview({ data }: HomepageEventsPreviewProps) {
 
         {hasEvents ? (
           <>
-            <div className="mt-8">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                Starting soon
-              </p>
-
-              {/* Mobile: snap-scroll rail — featured first, then compact cards */}
-              <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                {featuredEvent ? (
-                  <div className="snap-start w-[85vw] shrink-0">
-                    <EventDiscoveryHeroCard e={featuredEvent} />
-                  </div>
-                ) : null}
-                {startingSoonEvents.map((e) => (
-                  <div key={e.id} className="snap-start w-[85vw] shrink-0">
-                    <EventDiscoveryCompactCard e={e} variant="default" />
-                  </div>
-                ))}
+            {staffPicksMoment ? (
+              <div className="mt-8">
+                <EventsFeaturedMoment moment={staffPicksMoment} />
               </div>
-
-              {/* Desktop: asymmetric featured + sidebar */}
-              <div className="mt-5 hidden md:grid md:grid-cols-[5fr_3fr] md:items-stretch md:gap-4 lg:grid-cols-[5fr_3fr]">
-                {featuredEvent ? (
-                  <div className="h-full">
-                    <EventDiscoveryHeroCard e={featuredEvent} />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-[color:var(--neon-hairline)]/60 bg-[color:var(--neon-surface)]/10 p-8" />
-                )}
-                {startingSoonEvents.length > 0 ? (
-                  <div className="flex flex-col gap-4">
-                    {startingSoonEvents.map((e) => (
-                      <EventDiscoveryCompactCard key={e.id} e={e} variant="default" />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            </div>
+            ) : null}
 
             <OceanDivider variant="soft" density="sparse" className="my-10" />
 

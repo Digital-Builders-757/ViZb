@@ -1,10 +1,13 @@
 type TimelineJourneyBridgeProps = {
-  showDiscoveryRails: boolean
+  showStaffPicksFeatured: boolean
   upcomingCount: number
 }
 
-export function TimelineJourneyBridge({ showDiscoveryRails, upcomingCount }: TimelineJourneyBridgeProps) {
-  if (!showDiscoveryRails && upcomingCount === 0) return null
+export function TimelineJourneyBridge({
+  showStaffPicksFeatured,
+  upcomingCount,
+}: TimelineJourneyBridgeProps) {
+  if (!showStaffPicksFeatured && upcomingCount === 0) return null
 
   return (
     <div className="relative mx-auto max-w-[1200px] px-4 sm:px-8">
@@ -13,11 +16,11 @@ export function TimelineJourneyBridge({ showDiscoveryRails, upcomingCount }: Tim
         <div className="relative z-[1] flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--neon-a)]">
-              {showDiscoveryRails ? "Now loading the city" : "Event radar"}
+              {showStaffPicksFeatured ? "Now loading the city" : "Event radar"}
             </p>
             <p className="mt-1 max-w-prose text-sm leading-relaxed text-[color:var(--neon-text1)]">
-              {showDiscoveryRails
-                ? "You’ve seen what’s starting soon and what we’re hyped on. Drop into the full pulse below, every date is a chapter."
+              {showStaffPicksFeatured
+                ? "You’ve seen what we’re hyped on. Drop into the full pulse below, every date is a chapter."
                 : "Scroll the living map of what’s happening across Virginia."}
             </p>
           </div>

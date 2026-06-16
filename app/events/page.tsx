@@ -6,12 +6,9 @@ import { EventsDiscoveryHero } from "@/components/events/events-discovery-hero"
 import { EventsSearchBar } from "@/components/events/events-search-bar"
 import { EventsTideFilters } from "@/components/events/events-tide-filters"
 import { EventsTimelineInteractive } from "@/components/events/events-timeline-interactive"
+import { EventsFeaturedMoment } from "@/components/events/events-featured-moment"
 import { TimelineJourneyBridge } from "@/components/events/timeline-journey-bridge"
 import { TimelineSectionIntro } from "@/components/events/timeline-section-intro"
-import {
-  EventDiscoveryCompactCard,
-  EventDiscoveryHeroCard,
-} from "@/components/events/events-discovery-cards"
 import { EmptyStateCard } from "@/components/ui/empty-state-card"
 import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
@@ -31,8 +28,7 @@ import {
   type DiscoveryPreset,
   type TicketStub,
 } from "@/lib/events/discovery-filters"
-import { buildDiscoveryRails } from "@/lib/events/discovery-rails"
-import { planFeaturedMoments } from "@/lib/events/discovery-featured-moments"
+import { buildStaffPicksMoment } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
 import {
   buildCityFilterOptions,
@@ -287,9 +283,9 @@ export default async function EventsExplorePage({
     return true
   }
 
-  const { trending, staffPicks } = buildDiscoveryRails(upcomingBase)
-  const showDiscoveryRails =
-    !hasTimelineFilters && !vibesFilter && (trending.length > 0 || staffPicks.length > 0)
+  const staffPicksMoment = buildStaffPicksMoment(upcomingBase)
+  const showStaffPicksFeatured =
+    !hasTimelineFilters && !vibesFilter && staffPicksMoment !== null
 
   let flatUpcoming = upcomingBase.filter(passesDiscoveryAndSearch)
 
@@ -347,8 +343,6 @@ export default async function EventsExplorePage({
   const dateKeys = Object.keys(grouped).sort()
   const hasUpcoming = dateKeys.length > 0
   const cityFilterOptions = buildCityFilterOptions(upcomingBase)
-  const featuredMoments = planFeaturedMoments(dateKeys, grouped, upcomingBase, now)
-  const featuredByDateIndex = Object.fromEntries(featuredMoments.entries())
   const siteOrigin = getPublicSiteOrigin()
 
   return (
@@ -401,88 +395,18 @@ export default async function EventsExplorePage({
       {/* Ocean wave divider */}
       <OceanDivider variant="hero" density="normal" />
 
-      {showDiscoveryRails ? (
+      {showStaffPicksFeatured && staffPicksMoment ? (
         <>
-          {trending.length > 0 ? (
-            <section className="px-4 pb-2 pt-8 sm:px-8 md:pt-10">
-              <div className="mx-auto max-w-[1200px]">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                      Starting soon
-                    </p>
-                    <p className="mt-1 max-w-prose text-xs text-[color:var(--neon-text1)]/90">
-                      ViZb official picks first. Tap through for tickets and RSVP.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mobile: snap scroll carousel */}
-                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                  {trending.map((e) => (
-                    <div key={e.id} className="snap-start w-[88vw] shrink-0">
-                      <EventDiscoveryCompactCard e={e} variant="default" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Desktop: hero + sidebar layout */}
-                <div className="mt-5 hidden md:grid md:grid-cols-[3fr_2fr] md:gap-4 lg:grid-cols-[5fr_3fr]">
-                  {/* Featured hero card — first event */}
-                  <EventDiscoveryHeroCard e={trending[0]} />
-
-                  {/* Sidebar — remaining events stacked */}
-                  {trending.length > 1 ? (
-                    <div className="flex flex-col gap-4">
-                      {trending.slice(1).map((e) => (
-                        <EventDiscoveryCompactCard key={e.id} e={e} variant="default" />
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </section>
-          ) : null}
-
-          {staffPicks.length > 0 ? (
-            <section className="px-4 pb-2 pt-6 sm:px-8 md:pt-8">
-              <div className="mx-auto max-w-[1200px]">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-amber-200/90">
-                      ViZb picks
-                    </p>
-                    <p className="mt-1 max-w-prose text-xs text-[color:var(--neon-text1)]/90">
-                      Highlights from our team. Official and community listings mixed together.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mobile: snap scroll carousel */}
-                <div className="mt-5 flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-2 md:hidden">
-                  {staffPicks.map((e) => (
-                    <div key={`pick-mob-${e.id}`} className="snap-start w-[88vw] shrink-0">
-                      <EventDiscoveryCompactCard e={e} variant="staffPick" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Desktop: 3-column grid */}
-                <div className="mt-5 hidden md:grid md:grid-cols-3 md:gap-4">
-                  {staffPicks.map((e) => (
-                    <EventDiscoveryCompactCard key={`pick-${e.id}`} e={e} variant="staffPick" />
-                  ))}
-                </div>
-              </div>
-            </section>
-          ) : null}
+          <section className="px-4 pb-2 pt-8 sm:px-8 md:pt-10">
+            <div className="mx-auto max-w-[1200px]">
+              <EventsFeaturedMoment moment={staffPicksMoment} />
+            </div>
+          </section>
+          <OceanDivider variant="soft" density="sparse" />
         </>
       ) : null}
 
-      {/* Ocean wave divider before timeline */}
-      {showDiscoveryRails ? <OceanDivider variant="soft" density="sparse" /> : null}
-
-      <TimelineJourneyBridge showDiscoveryRails={showDiscoveryRails} upcomingCount={flatUpcoming.length} />
+      <TimelineJourneyBridge showStaffPicksFeatured={showStaffPicksFeatured} upcomingCount={flatUpcoming.length} />
 
       {/* Timeline Section */}
       <section id="timeline" className="events-timeline-section scroll-mt-24 px-4 py-14 sm:px-8 md:py-20">
@@ -579,7 +503,6 @@ export default async function EventsExplorePage({
             <EventsTimelineInteractive
               dateKeys={dateKeys}
               grouped={grouped}
-              featuredByDateIndex={featuredByDateIndex}
               isSignedIn={isSignedInForVibes}
               savedEventIds={savedEventIds}
               siteOrigin={siteOrigin}
