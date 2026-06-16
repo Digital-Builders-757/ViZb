@@ -3,6 +3,7 @@ import { logError } from "@/lib/log"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { EventsDiscoveryHero } from "@/components/events/events-discovery-hero"
+import { EventsSearchBar } from "@/components/events/events-search-bar"
 import { EventsTideFilters } from "@/components/events/events-tide-filters"
 import { EventsTimelineInteractive } from "@/components/events/events-timeline-interactive"
 import { TimelineJourneyBridge } from "@/components/events/timeline-journey-bridge"
@@ -105,7 +106,7 @@ export default async function EventsExplorePage({
   // Use current time as the upcoming/past split -- simple, no timezone edge cases
   const now = new Date()
 
-  // Past events cutoff: 30 days ago
+  // Query window: include recently started events so ongoing multi-day listings are not missed
   const pastCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
   const pastCutoffISO = pastCutoff.toISOString()
 
@@ -254,23 +255,15 @@ export default async function EventsExplorePage({
     )
   }
 
-  let flatPastBase = allFlat
-    .filter((e) => !isEventUpcomingOrOngoing(e.starts_at, e.ends_at, now.getTime()))
-    .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime())
-    .slice(0, 12)
-
   const vibesSignedOutGate = vibesFilter && !isSignedInForVibes
 
   if (vibesSignedOutGate) {
     upcomingBase = []
-    flatPastBase = []
   } else if (vibesFilter && isSignedInForVibes) {
     upcomingBase = upcomingBase.filter((e) => savedIdSet.has(e.id))
-    flatPastBase = flatPastBase.filter((e) => savedIdSet.has(e.id))
   }
 
   const hasUnfilteredUpcoming = upcomingBase.length > 0
-  const hasUnfilteredPast = flatPastBase.length > 0
 
   const hasTimelineFilters = Boolean(activeCity || discoveryPreset || searchQ.trim())
 
@@ -299,20 +292,17 @@ export default async function EventsExplorePage({
     !hasTimelineFilters && !vibesFilter && (trending.length > 0 || staffPicks.length > 0)
 
   let flatUpcoming = upcomingBase.filter(passesDiscoveryAndSearch)
-  let flatPast = flatPastBase.filter(passesDiscoveryAndSearch)
 
   if (sortMode === "city") {
     flatUpcoming = [...flatUpcoming].sort(compareEventsByCityThenTime)
-    flatPast = [...flatPast].sort(compareEventsByCityThenTime)
   }
 
   const filteredTimelineEmptyButPoolHasEvents =
     !vibesSignedOutGate &&
     flatUpcoming.length === 0 &&
-    flatPast.length === 0 &&
-    (hasUnfilteredUpcoming || hasUnfilteredPast)
+    hasUnfilteredUpcoming
 
-  const hasPoolEvents = hasUnfilteredUpcoming || hasUnfilteredPast
+  const hasPoolEvents = hasUnfilteredUpcoming
   const activeDiscoveryLabel = discoveryPreset
     ? (DISCOVERY_PRESET_OPTIONS.find((o) => o.value === discoveryPreset)?.label ?? discoveryPreset)
     : null
@@ -356,7 +346,6 @@ export default async function EventsExplorePage({
 
   const dateKeys = Object.keys(grouped).sort()
   const hasUpcoming = dateKeys.length > 0
-  const hasPast = flatPast.length > 0
   const cityFilterOptions = buildCityFilterOptions(upcomingBase)
   const featuredMoments = planFeaturedMoments(dateKeys, grouped, upcomingBase, now)
   const featuredByDateIndex = Object.fromEntries(featuredMoments.entries())
@@ -371,7 +360,17 @@ export default async function EventsExplorePage({
       <Navbar />
 
       {/* Hero + search + tide filters */}
-      <EventsDiscoveryHero upcomingCount={upcomingBase.length} />
+      <EventsDiscoveryHero upcomingCount={upcomingBase.length}>
+        <EventsSearchBar
+          searchQ={searchQ}
+          activeFilter={activeFilter}
+          activeCity={activeCity}
+          vibesFilter={vibesFilter}
+          discoveryPreset={discoveryPreset}
+          sortMode={sortMode}
+          clearSearchHref={`/events${ql({ q: undefined })}`}
+        />
+      </EventsDiscoveryHero>
 
       <section className="px-4 pb-6 sm:px-8">
         <div className="mx-auto max-w-[1200px]">
@@ -386,47 +385,6 @@ export default async function EventsExplorePage({
               </p>
             </div>
           ) : null}
-
-          <form
-            method="get"
-            action="/events"
-            className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-3"
-            role="search"
-          >
-            {activeFilter && activeFilter !== "all" ? (
-              <input type="hidden" name="category" value={activeFilter} />
-            ) : null}
-            {activeCity ? <input type="hidden" name="city" value={activeCity} /> : null}
-            {vibesFilter ? <input type="hidden" name="vibes" value="1" /> : null}
-            {discoveryPreset ? <input type="hidden" name="discover" value={discoveryPreset} /> : null}
-            {sortMode === "city" ? <input type="hidden" name="sort" value="city" /> : null}
-            <label htmlFor="events-q" className="sr-only">
-              Search events
-            </label>
-            <input
-              id="events-q"
-              name="q"
-              type="search"
-              defaultValue={searchQ}
-              placeholder="Search title, venue, city…"
-              className="vibe-focus-ring min-h-11 w-full max-w-md rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-5 py-3 font-mono text-xs text-[color:var(--neon-text0)] placeholder:text-[color:var(--neon-text2)] backdrop-blur md:min-h-12"
-              autoComplete="off"
-            />
-            <button
-              type="submit"
-              className="vibe-focus-ring shrink-0 rounded-full border border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/12 px-7 py-3 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] transition-[background-color,box-shadow] hover:bg-[color:var(--neon-a)]/22 hover:shadow-[var(--vibe-neon-glow-subtle)]"
-            >
-              Search
-            </button>
-            {searchQ.trim() ? (
-              <Link
-                href={ql({ q: undefined })}
-                className="shrink-0 text-center font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] underline-offset-4 hover:text-[color:var(--neon-text0)] hover:underline"
-              >
-                Clear search
-              </Link>
-            ) : null}
-          </form>
 
           <EventsTideFilters
             listingBase={listingOptsBase}
@@ -621,13 +579,11 @@ export default async function EventsExplorePage({
             <EventsTimelineInteractive
               dateKeys={dateKeys}
               grouped={grouped}
-              pastEvents={flatPast}
               featuredByDateIndex={featuredByDateIndex}
               isSignedIn={isSignedInForVibes}
               savedEventIds={savedEventIds}
               siteOrigin={siteOrigin}
               hasUpcoming={hasUpcoming}
-              hasPast={hasPast}
             />
           ) : vibesSignedOutGate ? null : eventsLoadError ? null : (
             <div className="mx-auto max-w-xl py-16 md:py-28">

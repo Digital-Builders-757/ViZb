@@ -19,14 +19,10 @@ type QuickFilter =
   | { kind: "category"; value: string; label: string }
   | { kind: "vibes" }
 
-const QUICK_FILTERS: QuickFilter[] = [
+const VISIBLE_QUICK_FILTERS: QuickFilter[] = [
   { kind: "all" },
   { kind: "discover", value: "tonight" },
   { kind: "discover", value: "weekend" },
-  { kind: "discover", value: "free" },
-  { kind: "category", value: "workshop", label: "Workshops" },
-  { kind: "category", value: "concert", label: "Music & culture" },
-  { kind: "category", value: "networking", label: "Networking" },
   { kind: "vibes" },
 ]
 
@@ -111,7 +107,7 @@ export function EventsTideFilters(props: EventsTideFiltersProps) {
     <div className="mt-6 flex flex-col gap-3 border-t border-[color:var(--neon-hairline)]/35 pt-6 md:mt-8">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <div role="group" aria-label="Quick filters" className="flex flex-1 flex-wrap gap-2 sm:gap-3">
-          {QUICK_FILTERS.map((filter) => {
+          {VISIBLE_QUICK_FILTERS.map((filter) => {
             const active = isQuickFilterActive(filter, props)
             let href = "/events"
 

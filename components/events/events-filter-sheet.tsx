@@ -78,7 +78,7 @@ export function EventsFilterSheet({
   const secondaryActiveCount =
     (activeFilter && activeFilter !== "all" ? 1 : 0) +
     (activeCity ? 1 : 0) +
-    (discoveryPreset && !["tonight", "weekend", "free"].includes(discoveryPreset) ? 1 : 0) +
+    (discoveryPreset && !["tonight", "weekend"].includes(discoveryPreset) ? 1 : 0) +
     (discoveryPreset === "paid" ? 1 : 0)
 
   return (

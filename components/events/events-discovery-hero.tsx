@@ -1,12 +1,13 @@
+import type { ReactNode } from "react"
 import { CurrentText } from "@/components/ui/current-text"
 import { DepthLayer } from "@/components/ui/depth-layer"
-import { NeonLink } from "@/components/ui/neon-link"
 
 export interface EventsDiscoveryHeroProps {
   upcomingCount: number
+  children?: ReactNode
 }
 
-export function EventsDiscoveryHero({ upcomingCount }: EventsDiscoveryHeroProps) {
+export function EventsDiscoveryHero({ upcomingCount, children }: EventsDiscoveryHeroProps) {
   return (
     <section className="relative overflow-hidden px-4 pb-10 pt-24 sm:px-8 sm:pb-12 md:pb-14 md:pt-28">
       <DepthLayer level="far" className="pointer-events-none absolute inset-0 -z-[1] opacity-80" />
@@ -47,11 +48,7 @@ export function EventsDiscoveryHero({ upcomingCount }: EventsDiscoveryHeroProps)
           {upcomingCount > 0 ? `${upcomingCount} upcoming events` : "Timeline loading"} · Eastern time
         </p>
 
-        <div className="mt-8">
-          <NeonLink href="#timeline" variant="primary" size="default" shape="pill">
-            Jump to events
-          </NeonLink>
-        </div>
+        {children ? <div className="mt-8">{children}</div> : null}
       </div>
     </section>
   )

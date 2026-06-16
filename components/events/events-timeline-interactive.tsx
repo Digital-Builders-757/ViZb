@@ -14,26 +14,22 @@ import type { ListingEvent } from "@/lib/events/listing-event"
 export interface EventsTimelineInteractiveProps {
   dateKeys: string[]
   grouped: Record<string, ListingEvent[]>
-  pastEvents: ListingEvent[]
   featuredByDateIndex: Record<number, FeaturedMoment>
   isSignedIn: boolean
   savedEventIds: string[]
   siteOrigin: string
   hasUpcoming: boolean
-  hasPast: boolean
   initialRunningIndex?: number
 }
 
 export function EventsTimelineInteractive({
   dateKeys,
   grouped,
-  pastEvents,
   featuredByDateIndex,
   isSignedIn,
   savedEventIds,
   siteOrigin,
   hasUpcoming,
-  hasPast,
   initialRunningIndex = 0,
 }: EventsTimelineInteractiveProps) {
   const savedSet = useMemo(() => new Set(savedEventIds), [savedEventIds])
@@ -98,45 +94,6 @@ export function EventsTimelineInteractive({
               </div>
             )
           })}
-        </div>
-      ) : null}
-
-      {hasPast ? (
-        <div className={hasUpcoming ? "mt-20 md:mt-28" : ""}>
-          <div className="mb-9 flex items-center gap-3">
-            <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--neon-text2)]/45" />
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)]">
-              Recent past
-            </span>
-            <div className="flex-1 border-t border-[color:var(--neon-hairline)]/60" />
-          </div>
-          <p className="-mt-5 mb-8 max-w-prose text-xs text-[color:var(--neon-text2)]">
-            What just happened, still worth a look for vibes, recaps, and follow-ups.
-          </p>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-7 lg:grid-cols-3">
-            {pastEvents.map((event) => (
-              <div
-                key={event.id}
-                className="events-timeline-card-enter transition-[opacity,transform] duration-300"
-                style={{ ["--timeline-index" as string]: runningIndex }}
-              >
-                <EventTimelineCard
-                  event={event}
-                  index={runningIndex}
-                  timelineIndex={runningIndex}
-                  isSignedIn={isSignedIn}
-                  isSaved={savedSet.has(event.id)}
-                  tone="archive"
-                  interactive={false}
-                  ticketTypes={event.ticket_types}
-                  eventKind={event.event_kind}
-                  siteOrigin={siteOrigin}
-                  onPreview={() => openPreview(event)}
-                />
-              </div>
-            ))}
-          </div>
         </div>
       ) : null}
 
