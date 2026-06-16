@@ -129,6 +129,7 @@
 - **June 12, 2026 — Events discovery experience epic (#195–#201):** Ocean-themed **`EventsDiscoveryHero`**, **`EventsTideFilters`** (city + Paid preset), immersive **`EventTimelineCard`** actions (preview, calendar, price/ticket status), scroll **`EventsFeaturedMoment`** inserts, **`EventQuickPreviewPanel`** with scroll restore. Verified: **`npm run typecheck`**, **`npm run test`** (243), **`npm run lint`**, **`npm run build`**.
 - **June 12, 2026 — Events hero water-current text (#217):** **`CurrentText`** + **`.water-current-*`** CSS (liquid frame border, caustic wash, shimmer accent on **What's on**, refractive glow on **Dive into**, sheen kicker on **Ride the current**); **`prefers-reduced-motion`** static fallbacks. Filters/timeline unchanged. Verified: **`npm run typecheck`**, **`npm run test`** (257), **`npm run lint`**, **`npm run build`**.
 - **June 15, 2026 — Homepage events discovery preview:** Public **`/`** adds **`HomepageEventsPreview`** between hero and timeline — server **`getHomepageEventsPreview()`** (**`lib/events/homepage-events.ts`**), featured official event + **Starting soon** rail, dynamic top categories, empty/error states; shared **`EventDiscoveryHeroCard`** / **`EventDiscoveryCompactCard`** extracted for **`/events`** rails; hero + preview host CTA renamed **Create event**; featured hero card uses taller flyer + bottom title overlay (no stretch gap). Verified: **`npm run typecheck`**, **`npm run test`** (257), **`npm run lint`**, **`npm run build`**.
+- **June 15, 2026 — Advertise inquiries → Supabase:** **`/advertise`** partnership form saves to **`public.advertise_inquiries`** via service-role server action (migration **`20260615120000_advertise_inquiries.sql`**); no **`RESEND_API_KEY`** required for capture; public contact **`admin@thevavibe.com`**; guide **`docs/guides/ADVERTISE_INQUIRIES_SETUP.md`**. Verified: **`npm run typecheck`**, **`npm run test`** (257), **`npm run lint`**, **`npm run build`**.
 - **June 12, 2026 — Ticket history trust (#205):** **`/dashboard/tickets`** splits **Active tickets** vs **Ticket history**; past events show **Event ended** badge + muted styling; dashboard home CTA when only past tickets; tier name on wallet cards. Verified: **`npm run ci`** (255 tests).
 - **June 12, 2026 — Ticket wallet pass UI (#206):** Pass-style **`TicketWalletCard`** (flyer header, perforated divider, high-contrast QR panel); **`getTicketDisplayState()`** helper + tests. Verified: **`npm run ci`**.
 - **June 12, 2026 — Admin Stripe card reorder (#208):** Stripe ticketing diagnostics card moved to bottom of admin Content section (before Stats). Verified: **`npm run ci`**.
@@ -149,7 +150,7 @@
 - Waitlist subscription via `subscribers` table (scripts 001-002)
 - ViBE brand system fully implemented: dark mode, zero radius, Space Grotesk + Playfair Display + JetBrains Mono typography
 - Responsive navbar with mobile toggle
-- **Partnerships:** **`/advertise`** — “Advertise with ViZb” lead form; public **single-column** page uses the same **`AppShell` + neon backdrop** language as the dashboard (`GlassCard` form, **`WaterFrame`** hero, **`neon-gradient-text`** H1) without the signed-in sidebar. Submissions email **`admin@thevavibe.com`** by default via **Resend** (see **`.env.example`**: `RESEND_API_KEY`, `ADMIN_EMAIL`, `RESEND_FROM`)
+- **Partnerships:** **`/advertise`** — “Advertise with ViZb” lead form; public **single-column** page uses the same **`AppShell` + neon backdrop** language as the dashboard (`GlassCard` form, **`WaterFrame`** hero, **`neon-gradient-text`** H1) without the signed-in sidebar. Submissions persist to **`public.advertise_inquiries`** via service-role insert (**`SUPABASE_SERVICE_ROLE_KEY`**); public contact **`admin@thevavibe.com`** (**`ADMIN_EMAIL`**, **`NEXT_PUBLIC_SUPPORT_EMAIL`**). Resend optional (not required for form capture).
 
 ### Database (60+ Migrations Executed)
 
@@ -326,7 +327,7 @@ Run this checklist after applying any batch of migrations to confirm no regressi
 | Integration | Purpose | Status |
 |-------------|---------|--------|
 | Stripe | Paid ticket purchases | **LIVE** — checkout, webhook fulfillment, return-path sync, `/admin/diagnostics/stripe` readiness checks, `/admin/revenue` ledger (June 2026) |
-| Resend | Advertise inquiry email | Configured via env (`RESEND_API_KEY`) |
+| Resend | Auth SMTP + optional event-reminder email | Optional — **`RESEND_API_KEY`** not required for **`/advertise`** (inquiries saved to Supabase) |
 | Supabase Realtime (optional) | Live check-in counters | Not configured (Phase 5 backlog) |
 | Sentry | Error monitoring | Not wired — env placeholders only; logging is stdout via `lib/log.ts` (see `docs/OPERATIONS.md`) |
 

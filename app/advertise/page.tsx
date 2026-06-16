@@ -6,7 +6,7 @@ import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { WaterFrame } from "@/components/ui/water-frame"
-import { getAdminInboxEmail, isAdvertiseEmailConfigured } from "@/lib/email/project-env"
+import { getAdminInboxEmail } from "@/lib/email/project-env"
 import { buildAdvertiseSubmissionContext } from "@/lib/partnerships/advertise-context"
 import { INTEREST_OPTIONS } from "@/lib/advertise-contact-schema"
 
@@ -22,7 +22,6 @@ export default async function AdvertisePage({
   searchParams: Promise<{ from?: string; org?: string; event?: string }>
 }) {
   const sp = await searchParams
-  const emailConfigured = isAdvertiseEmailConfigured()
   const inbox = getAdminInboxEmail()
   const fromOrganizer = sp.from === "organizer"
   const submissionContextLine = buildAdvertiseSubmissionContext({
@@ -112,7 +111,7 @@ export default async function AdvertisePage({
             <GlassCard emphasis className="mt-10 p-6 sm:p-8">
               <AdvertiseContactForm
                 key={formInstanceKey}
-                emailConfigured={emailConfigured}
+                supportEmail={inbox}
                 submissionContextLine={submissionContextLine}
                 defaultInterestType={defaultInterest}
               />
