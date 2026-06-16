@@ -58,8 +58,7 @@ export function AdvertiseContactForm({
   const fieldErrors = state && !state.ok ? state.fieldErrors : undefined
 
   return (
-    <form id="advertise-inquiry-form" onSubmit={handleSubmit} className="relative space-y-5">
-      {state?.ok ? (
+    <form id="advertise-inquiry-form" onSubmit={handleSubmit} className="relative space-y-5">      {state?.ok ? (
         <div
           className="rounded-lg border-2 border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/10 px-4 py-4 text-sm font-medium text-[color:var(--neon-text0)] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
           role="status"
