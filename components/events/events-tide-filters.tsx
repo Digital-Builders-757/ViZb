@@ -23,7 +23,6 @@ const VISIBLE_QUICK_FILTERS: QuickFilter[] = [
   { kind: "all" },
   { kind: "discover", value: "tonight" },
   { kind: "discover", value: "weekend" },
-  { kind: "vibes" },
 ]
 
 export interface EventsTideFiltersProps {
@@ -104,7 +103,7 @@ export function EventsTideFilters(props: EventsTideFiltersProps) {
   }
 
   return (
-    <div className="mt-6 flex flex-col gap-3 border-t border-[color:var(--neon-hairline)]/35 pt-6 md:mt-8">
+    <div className="mt-2 flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <div role="group" aria-label="Quick filters" className="flex flex-1 flex-wrap gap-2 sm:gap-3">
           {VISIBLE_QUICK_FILTERS.map((filter) => {

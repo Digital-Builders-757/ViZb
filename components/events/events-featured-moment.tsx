@@ -9,7 +9,7 @@ import { EmptyStateCard } from "@/components/ui/empty-state-card"
 export function EventsFeaturedMoment({ moment }: { moment: FeaturedMoment }) {
   if (moment.events.length === 0) {
     return (
-      <div className="my-10 md:my-12">
+      <div className="mb-4 md:mb-5">
         <EmptyStateCard
           title={moment.title}
           description={moment.emptyHint ?? "Nothing to highlight here yet."}
@@ -20,7 +20,7 @@ export function EventsFeaturedMoment({ moment }: { moment: FeaturedMoment }) {
 
   return (
     <aside
-      className="events-featured-moment my-10 rounded-2xl border border-[color:var(--neon-hairline)]/50 bg-[color:color-mix(in_srgb,var(--neon-surface)_18%,transparent)] p-5 backdrop-blur md:my-12 md:p-6"
+      className="events-featured-moment mb-4 rounded-2xl border border-[color:var(--neon-hairline)]/50 bg-[color:color-mix(in_srgb,var(--neon-surface)_18%,transparent)] p-5 backdrop-blur md:mb-5 md:p-6"
       aria-labelledby={`featured-${moment.kind}`}
     >
       <div className="flex flex-wrap items-end justify-between gap-3">

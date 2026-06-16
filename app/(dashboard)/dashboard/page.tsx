@@ -1,104 +1,50 @@
-import { getUserOrganizations } from "@/lib/auth-helpers"
-import { MemberHomeQuickActions } from "@/components/dashboard/member-home-quick-actions"
-import { MemberHomeTicketsSection } from "@/components/dashboard/member-home-tickets-section"
-import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
-import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
-import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
-import {
-  formatCategoryLabels,
-  formatDashboardEventWhen,
-  getDashboardUpcomingEventPreviews,
-} from "@/lib/events/upcoming-preview"
-import { isServerSupabaseConfigured } from "@/lib/supabase/server"
-import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Building2, Heart, Shield, Sparkles, Ticket, Users } from "lucide-react"
-
-import { EmptyStateCard } from "@/components/ui/empty-state-card"
-import { GlassCard } from "@/components/ui/glass-card"
-import { NeonLink } from "@/components/ui/neon-link"
-import { StatCard } from "@/components/ui/stat-card"
-import { loadMemberHomeRsvpSummary } from "@/lib/dashboard/member-home-data"
-import { MyVibesThisWeek } from "@/components/dashboard/my-vibes-week"
-import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
-import { fetchMemberPreferences } from "@/lib/member/load-preferences"
+import { Building2, Shield } from "lucide-react"
+import { getUserOrganizations } from "@/lib/auth-helpers"
+import { loadDashboardHome, formatDashboardRegion } from "@/lib/dashboard/load-dashboard-home"
 import { needsMemberPreferenceOnboarding } from "@/lib/member/preferences"
-import { fetchForYouRecommendations, fetchFollowedOrganizerEvents } from "@/lib/events/for-you-queries"
-import { ForYouRail } from "@/components/dashboard/for-you-rail"
-import { FollowedOrganizersRail } from "@/components/dashboard/followed-organizers-rail"
+import { getPublicSiteOrigin } from "@/lib/public-site-url"
+import { DashboardCommandCenter } from "@/components/dashboard/home/dashboard-command-center"
+import { PlannerSection } from "@/components/dashboard/home/planner-section"
+import { TicketPassesSection } from "@/components/dashboard/home/ticket-passes-section"
+import { SavedNotDecidedSection } from "@/components/dashboard/home/saved-not-decided-section"
+import { VibeProfileSection } from "@/components/dashboard/home/vibe-profile-section"
+import { LocalPulseSection } from "@/components/dashboard/home/local-pulse-section"
+import { RecommendedEventsSection } from "@/components/dashboard/home/recommended-events-section"
 import { PostEventRecapPromptsSection } from "@/components/dashboard/post-event-recap-prompts"
-import { fetchPostEventRecapPrompts } from "@/lib/events/post-event-recap-prompts"
 import { MemberPreferencesForm } from "@/components/dashboard/member-preferences-form"
+import { GlassCard } from "@/components/ui/glass-card"
 
-const TRENDING_MOCK = [
-  {
-    title: "The Matrix Party",
-    location: "Norfolk",
-    dates: "Fri–Sat, Apr 26–27",
-    tag: "Urban Nightlife",
-  },
-  {
-    title: "BeatNight 757",
-    location: "Norfolk",
-    dates: "Sat, Apr 27",
-    tag: "Hip-hop",
-  },
-] as const
-
-/** Labels are editorial; `category` must match `events.categories` + `/events` filter (lowercase). */
-const CULTURE_PICKS = [
-  { label: "Parties & nightlife", category: "party" as const, icon: Sparkles },
-  { label: "Network & connect", category: "networking" as const, icon: Users },
-  { label: "Workshops & builds", category: "workshop" as const, icon: Heart },
-] as const
-
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ cal?: string }>
-}) {
-  const { cal } = await searchParams
-  const { year, monthIndex, calKey } = parseDashboardCalendarMonth(cal)
-
+export default async function DashboardPage() {
   const { profile, user, supabase, memberships } = await getUserOrganizations()
-  const rsvp = await loadMemberHomeRsvpSummary(supabase, user.id)
-  const myVibesSavedIds = await fetchMySavedEventIds(supabase, user.id)
-  const memberPreferences = await fetchMemberPreferences(supabase, user.id)
-  const needsPreferenceOnboarding = needsMemberPreferenceOnboarding(memberPreferences)
-  const forYou = await fetchForYouRecommendations(supabase, user.id, memberPreferences, 4)
-  const followedOrgEvents = await fetchFollowedOrganizerEvents(supabase, user.id, 4)
-  const recapPrompts = await fetchPostEventRecapPrompts(supabase, user.id, 3)
-  const trendingLive = await getDashboardUpcomingEventPreviews(3)
-  const calendarEvents = await getPublishedEventsForDashboardMonth(year, monthIndex)
-  const supabaseReady = isServerSupabaseConfigured()
-  const showTrendingMocks = !supabaseReady
+  const home = await loadDashboardHome(supabase, user.id, profile ?? {})
+  const siteOrigin = getPublicSiteOrigin()
 
   const displayName = profile?.display_name || "there"
+  const needsPreferenceOnboarding = needsMemberPreferenceOnboarding(home.memberPreferences)
   const isFirstRun = !profile?.display_name || needsPreferenceOnboarding
+  const region = formatDashboardRegion(home.memberPreferences)
+
+  const firstRunHint = !profile?.display_name
+    ? "You're in. Set up your profile to get the most out of ViBE."
+    : needsPreferenceOnboarding
+      ? "Almost there — tell us your cities and categories so we can personalize your command center."
+      : null
 
   return (
     <div className="max-w-full space-y-10 overflow-x-hidden md:space-y-12">
-      <header className="vizb-control-room-header rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 py-5 backdrop-blur md:px-6 vizb-motion-enter">
-        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
-          Overview
-        </span>
-        <h1 className="mt-2 text-balance font-serif text-2xl font-bold text-[color:var(--neon-text0)] md:text-3xl">
-          {isFirstRun ? "Welcome to VIZB" : `Hey, ${displayName}`}
-        </h1>
-        {isFirstRun ? (
-          <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
-            {!profile?.display_name
-              ? "You're in. Set up your profile to get the most out of VIZB."
-              : "Almost there, tell us your cities and categories so we can personalize your feed."}
-          </p>
-        ) : null}
-      </header>
-
-      <MemberHomeQuickActions />
+      <DashboardCommandCenter
+        displayName={displayName}
+        region={region}
+        isFirstRun={isFirstRun}
+        firstRunHint={firstRunHint}
+        stats={home.stats}
+        nextMove={home.nextMove}
+      />
 
       {isFirstRun && !profile?.display_name ? (
         <Link href="/profile" className="group block">
-          <GlassCard className="flex w-full items-center gap-4 p-4 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99] sm:w-auto sm:p-5">
+          <GlassCard className="flex w-full items-center gap-4 rounded-none p-4 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99] sm:w-auto sm:p-5">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center bg-gradient-to-br from-[color:var(--neon-a)] to-[color:var(--neon-b)] font-bold text-[color:var(--neon-text0)]">
               1
             </div>
@@ -118,66 +64,43 @@ export default async function DashboardPage({
           <h2 id="first-run-preferences" className="sr-only">
             Set your culture preferences
           </h2>
-          <MemberPreferencesForm initial={memberPreferences} variant="first-run" />
+          <MemberPreferencesForm initial={home.memberPreferences} variant="first-run" />
         </section>
       ) : null}
 
-      <ForYouRail
-        items={forYou.items}
-        hasSignals={forYou.hasSignals}
-        usedFallback={forYou.usedFallback}
+      <PlannerSection
+        upcomingPlans={home.upcomingPlans}
+        savedUpcoming={home.savedUpcoming}
+        ticketEventIds={home.rsvp.upcomingEventIds}
+        siteOrigin={siteOrigin}
       />
 
-      <FollowedOrganizersRail items={followedOrgEvents} />
+      <TicketPassesSection
+        loadError={home.rsvp.loadError}
+        upcomingPreviews={home.rsvp.upcomingPreviews}
+        upcomingCount={home.rsvp.upcomingCount}
+        pastCount={home.rsvp.pastCount}
+        ticketSigningConfigured={home.ticketSigningConfigured}
+      />
 
-      <section aria-labelledby="dash-stats">
-        <h2 id="dash-stats" className="sr-only">
-          Your stats
-        </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          <StatCard
-            icon={Ticket}
-            label="Tickets"
-            value={rsvp.loadError ? "—" : rsvp.upcomingCount}
-            hint="Upcoming RSVPs"
-            accent="a"
-          />
-          <StatCard
-            icon={Building2}
-            label="Organizations"
-            value={memberships.length}
-            hint={
-              memberships.length === 0 ? "Not part of any org yet" : "Active memberships"
-            }
-            accent="b"
-          />
-          <StatCard
-            icon={Calendar}
-            label="Events"
-            value={rsvp.loadError ? "—" : rsvp.attendedCount}
-            hint="Check-ins recorded"
-            accent="c"
-          />
-        </div>
-      </section>
+      <SavedNotDecidedSection events={home.savedNotDecided} siteOrigin={siteOrigin} />
 
-      <MyVibesThisWeek supabase={supabase} userId={user.id} />
+      <VibeProfileSection
+        preferences={home.memberPreferences}
+        profileCompletionPct={home.stats.profileCompletionPct}
+        profileCompletionLabel={home.stats.profileCompletionLabel}
+      />
 
-      <PostEventRecapPromptsSection prompts={recapPrompts} />
+      <PostEventRecapPromptsSection prompts={home.recapPrompts} />
 
-      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
-        <h2 id="dash-calendar-heading" className="sr-only">
-          Events this month
-        </h2>
-        <DashboardCalendarShell
-          key={calKey}
-          year={year}
-          monthIndex={monthIndex}
-          calKey={calKey}
-          events={calendarEvents}
-          savedEventIds={myVibesSavedIds}
-        />
-      </section>
+      <LocalPulseSection
+        trending={home.trending}
+        followedOrgEvents={home.followedOrgEvents}
+        pulseDigest={home.pulseDigest}
+        region={region}
+      />
+
+      <RecommendedEventsSection forYou={home.forYou} />
 
       {memberships.length === 0 && profile?.platform_role !== "staff_admin" ? (
         <section>
@@ -188,12 +111,12 @@ export default async function DashboardPage({
             Want to Host Events?
           </h2>
           <Link href="/host/apply" className="mt-4 block">
-            <GlassCard className="flex items-center gap-4 p-4 transition-[box-shadow] hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-5">
+            <GlassCard className="flex items-center gap-4 rounded-none p-4 transition-[box-shadow] hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-5">
               <Building2 className="h-5 w-5 shrink-0 text-[color:var(--neon-a)]" />
               <div className="min-w-0 text-left">
                 <p className="font-semibold text-[color:var(--neon-text0)]">Request to Host</p>
                 <p className="text-sm text-[color:var(--neon-text2)]">
-                  Apply to become an event organizer on VIZB
+                  Apply to become an event organizer on ViBE
                 </p>
               </div>
               <span className="ml-auto text-[color:var(--neon-a)]">→</span>
@@ -211,7 +134,7 @@ export default async function DashboardPage({
             Create an Organization
           </h2>
           <Link href="/admin" className="mt-4 block">
-            <GlassCard className="flex items-center gap-4 p-4 transition-[box-shadow] hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-5">
+            <GlassCard className="flex items-center gap-4 rounded-none p-4 transition-[box-shadow] hover:shadow-[var(--vibe-neon-glow-subtle)] md:p-5">
               <Shield className="h-5 w-5 shrink-0 text-[color:var(--neon-b)]" />
               <div className="min-w-0 text-left">
                 <p className="font-semibold text-[color:var(--neon-text0)]">Go to Admin Panel</p>
@@ -224,187 +147,6 @@ export default async function DashboardPage({
           </Link>
         </section>
       ) : null}
-
-      <section aria-labelledby="trending-heading">
-        <div className="mb-4">
-          <h2
-            id="trending-heading"
-            className="font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl"
-          >
-            Trending this weekend
-          </h2>
-          <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
-            {trendingLive.length > 0
-              ? "Happening soon, open a card for full details."
-              : showTrendingMocks
-                ? "Sample picks for layout; connect Supabase to pull live published events."
-                : "No upcoming published events yet, browse the full feed for the latest."}
-          </p>
-        </div>
-        <div className="flex flex-col gap-4">
-          {trendingLive.length > 0
-            ? trendingLive.map((ev) => (
-                <Link key={ev.id} href={`/events/${ev.slug}`} className="block">
-                  <GlassCard className="overflow-hidden p-0 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99]" emphasis>
-                    {ev.flyer_url ? (
-                      <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
-                        <Image
-                          src={ev.flyer_url}
-                          alt={`${ev.title} flyer`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, 800px"
-                        />
-                        {/* readability overlay for text-on-image (mobile-first) */}
-                        <div
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/95 via-[color:var(--neon-bg0)]/35 to-transparent"
-                          aria-hidden
-                        />
-                        <div className="absolute inset-x-0 bottom-0 space-y-1.5 p-4 md:hidden">
-                          <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
-                          <p className="text-sm text-[color:var(--neon-text1)]">
-                            {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
-                          </p>
-                          <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)] backdrop-blur">
-                            {formatCategoryLabels(ev.categories)}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10">
-                        <div
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/85 via-[color:var(--neon-bg0)]/30 to-transparent"
-                          aria-hidden
-                        />
-                        <div className="absolute inset-x-0 bottom-0 space-y-1.5 p-4 md:hidden">
-                          <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
-                          <p className="text-sm text-[color:var(--neon-text1)]">
-                            {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
-                          </p>
-                          <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)] backdrop-blur">
-                            {formatCategoryLabels(ev.categories)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* desktop detail stack */}
-                    <div className="hidden space-y-2 p-4 md:block md:p-5">
-                      <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
-                      <p className="text-sm text-[color:var(--neon-text1)]">
-                        {ev.city} · {formatDashboardEventWhen(ev.starts_at, ev.ends_at)}
-                      </p>
-                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
-                        {formatCategoryLabels(ev.categories)}
-                      </span>
-                    </div>
-                  </GlassCard>
-                </Link>
-              ))
-            : showTrendingMocks
-              ? TRENDING_MOCK.map((ev) => (
-                  <GlassCard key={ev.title} className="overflow-hidden p-0" emphasis>
-                    <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[color:var(--neon-a)]/25 via-[color:var(--neon-b)]/15 to-[color:var(--neon-c)]/10">
-                      <div
-                        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[color:var(--neon-bg0)]/85 via-[color:var(--neon-bg0)]/30 to-transparent"
-                        aria-hidden
-                      />
-                      <div className="absolute inset-x-0 bottom-0 space-y-1.5 p-4 md:hidden">
-                        <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
-                        <p className="text-sm text-[color:var(--neon-text1)]">
-                          {ev.location} · {ev.dates}
-                        </p>
-                        <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/55 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)] backdrop-blur">
-                          {ev.tag}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="hidden space-y-2 p-4 md:block md:p-5">
-                      <h3 className="text-lg font-bold text-[color:var(--neon-text0)]">{ev.title}</h3>
-                      <p className="text-sm text-[color:var(--neon-text1)]">
-                        {ev.location} · {ev.dates}
-                      </p>
-                      <span className="inline-flex rounded-full border border-[color:var(--neon-hairline)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-a)]">
-                        {ev.tag}
-                      </span>
-                    </div>
-                  </GlassCard>
-                ))
-              : (
-                  <EmptyStateCard
-                    kicker="Nothing scheduled"
-                    title="Check the events feed"
-                    description="Published events you can attend will show up here first. Explore everything on the timeline."
-                  >
-                    <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
-                      Browse events
-                    </NeonLink>
-                  </EmptyStateCard>
-                )}
-        </div>
-      </section>
-
-      <section aria-labelledby="culture-heading">
-        <h2
-          id="culture-heading"
-          className="mb-4 font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl"
-        >
-          Culture picks
-        </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {CULTURE_PICKS.map(({ label, category, icon: Icon }) => (
-            <Link
-              key={label}
-              href={`/events?category=${category}`}
-              className="group block transition-[transform] active:scale-[0.99]"
-            >
-              <GlassCard
-                className={
-                  "relative flex h-full items-center gap-3 overflow-hidden p-4 " +
-                  // subtle neon edge + depth (closer to mock pill cards)
-                  "shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_18%,transparent),0_0_22px_rgb(0_209_255/0.12)] " +
-                  "transition-[box-shadow,transform] group-hover:shadow-[var(--vibe-neon-glow-subtle)]"
-                }
-              >
-                <span
-                  className="grid h-10 w-10 place-items-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/35 backdrop-blur-md"
-                  aria-hidden
-                >
-                  <Icon className="h-5 w-5 text-[color:var(--neon-a)]" aria-hidden />
-                </span>
-
-                <div className="min-w-0">
-                  <span className="block text-sm font-semibold text-[color:var(--neon-text0)]">
-                    {label}
-                  </span>
-                  <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                    Tap to browse
-                  </span>
-                </div>
-
-                <span
-                  className="ml-auto font-mono text-[10px] uppercase tracking-wider text-[color:var(--neon-text2)] transition-colors group-hover:text-[color:var(--neon-a)]"
-                  aria-hidden
-                >
-                  →
-                </span>
-
-                <span
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[color:var(--neon-b)]/35 to-transparent"
-                  aria-hidden
-                />
-              </GlassCard>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <MemberHomeTicketsSection
-        loadError={rsvp.loadError}
-        upcomingPreviews={rsvp.upcomingPreviews}
-        upcomingCount={rsvp.upcomingCount}
-        pastCount={rsvp.pastCount}
-      />
     </div>
   )
 }
