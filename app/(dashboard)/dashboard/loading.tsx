@@ -2,14 +2,19 @@ import { UnderwaterLoadingPanel, UnderwaterSkeleton } from "@/components/ui/unde
 
 export default function DashboardLoading() {
   return (
-    <div className="space-y-8">
-      <UnderwaterLoadingPanel title="Dashboard" description="Loading your events and tickets…" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <UnderwaterSkeleton key={i} className="h-28" />
+    <div className="space-y-10 md:space-y-12">
+      <UnderwaterLoadingPanel title="Command center" description="Loading your plans, passes, and pulse…" />
+      <UnderwaterSkeleton className="h-44 w-full rounded-none" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <UnderwaterSkeleton key={i} className="h-28 rounded-none" />
         ))}
       </div>
-      <UnderwaterSkeleton className="h-40 w-full" />
+      <UnderwaterSkeleton className="h-32 w-full rounded-none" />
+      <UnderwaterSkeleton className="h-56 w-full rounded-none" />
+      <UnderwaterSkeleton className="h-40 w-full rounded-none" />
+      <UnderwaterSkeleton className="h-36 w-full rounded-none" />
+      <UnderwaterSkeleton className="h-48 w-full rounded-none" />
     </div>
   )
 }

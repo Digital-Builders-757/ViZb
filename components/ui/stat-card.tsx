@@ -41,7 +41,7 @@ export function StatCard({
       <div className="mb-3 flex items-center gap-3 md:mb-4">
         <span
           className={cn(
-            "grid h-10 w-10 place-items-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/40 backdrop-blur-md",
+            "grid h-10 w-10 place-items-center rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/40 backdrop-blur-md",
             "shadow-[0_0_0_1px_color-mix(in_srgb,var(--neon-a)_14%,transparent),0_0_18px_rgb(0_209_255/0.12)]",
           )}
           aria-hidden
