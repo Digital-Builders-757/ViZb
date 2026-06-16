@@ -534,7 +534,7 @@ export async function reviewEvent(formData: FormData) {
 
   const { data: event, error: fetchError } = await supabase
     .from("events")
-    .select("id, org_id, slug, status, title, event_kind, external_rsvp_url")
+    .select("id, org_id, slug, status, title, event_kind, external_rsvp_url, source")
     .eq("id", eventId)
     .single()
 
@@ -570,6 +570,24 @@ export async function reviewEvent(formData: FormData) {
     updatePayload.published_at = now
   }
 
+  const isImported = Boolean((event as { source?: string | null }).source)
+  if (isImported) {
+    updatePayload.import_status = action === "approve" ? "approved" : "rejected"
+    if (action === "approve") {
+      updatePayload.approved_at = now
+      updatePayload.approved_by = user.id
+      updatePayload.rejected_at = null
+      updatePayload.rejected_by = null
+      updatePayload.rejection_reason = null
+    } else {
+      updatePayload.rejected_at = now
+      updatePayload.rejected_by = user.id
+      updatePayload.rejection_reason = reviewNotes
+      updatePayload.approved_at = null
+      updatePayload.approved_by = null
+    }
+  }
+
   const { data: updated, error: updateError } = await supabase
     .from("events")
     .update(updatePayload)
@@ -596,6 +614,7 @@ export async function reviewEvent(formData: FormData) {
   revalidatePath(`/organizer/${orgSlug}/events/${event.slug}`)
   revalidatePublicEventDiscoveryPaths(event.slug)
   revalidatePath("/admin")
+  revalidatePath("/admin/events/imports")
   revalidatePath("/dashboard")
 
   return {
