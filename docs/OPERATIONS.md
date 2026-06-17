@@ -231,9 +231,9 @@ Webhook uses **service role** — missing key returns 503.
 | Stripe webhook | Order fulfillment, ticket mint, path revalidation |
 | DB triggers | `quantity_sold` recalc, `updated_at`, review field guards |
 | View beacon | `POST /api/events/[slug]/view` → RPC increment (fire-and-forget) |
-| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role) |
+| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role); **`GET /api/cron/eventbrite-import`** every 6h when **`EVENTBRITE_IMPORT_ENABLED=true`** (#259) |
 
-Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`.
+Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`. Eventbrite: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/eventbrite-import` — see [`docs/imports/eventbrite.md`](./imports/eventbrite.md).
 
 ---
 

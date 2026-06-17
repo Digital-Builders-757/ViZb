@@ -18,6 +18,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | Setup, commands, testing, contribution |
 | [REPO_MAP.md](./REPO_MAP.md) | Repository layout and key files |
 | [OPERATIONS.md](./OPERATIONS.md) | Deploy, migrations, integrations, troubleshooting |
+| [imports/eventbrite.md](./imports/eventbrite.md) | Eventbrite import env, cron, admin approval queue (#259) |
 | [DECISIONS.md](./DECISIONS.md) | Architectural decision log |
 | [DOCS_AUDIT_2026.md](./DOCS_AUDIT_2026.md) | Documentation audit summary |
 | [payment-system-audit.md](./payment-system-audit.md) | **Payment / ticketing master map** — Stripe, fees, schema, Connect gaps |
