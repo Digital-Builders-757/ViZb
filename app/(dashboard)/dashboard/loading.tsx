@@ -12,7 +12,7 @@ export default function DashboardLoading() {
       </div>
       <UnderwaterSkeleton className="h-32 w-full rounded-none" />
       <UnderwaterSkeleton className="min-h-[420px] w-full rounded-none" />
-      <UnderwaterSkeleton className="h-56 w-full rounded-none" />
+      <UnderwaterSkeleton className="h-44 w-full rounded-none" />
       <UnderwaterSkeleton className="h-40 w-full rounded-none" />
       <UnderwaterSkeleton className="h-36 w-full rounded-none" />
       <UnderwaterSkeleton className="h-48 w-full rounded-none" />

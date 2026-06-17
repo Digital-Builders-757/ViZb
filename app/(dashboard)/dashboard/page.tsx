@@ -60,6 +60,20 @@ export default async function DashboardPage({
         siteOrigin={siteOrigin}
       />
 
+      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
+        <h2 id="dash-calendar-heading" className="sr-only">
+          Town calendar planner
+        </h2>
+        <DashboardCalendarShell
+          key={calKey}
+          year={year}
+          monthIndex={monthIndex}
+          calKey={calKey}
+          events={calendarEvents}
+          savedEventIds={myVibesSavedIds}
+        />
+      </section>
+
       {isFirstRun && !profile?.display_name ? (
         <Link href="/profile" className="group block">
           <GlassCard className="flex w-full items-center gap-4 rounded-none p-4 transition-[box-shadow,transform] hover:shadow-[var(--vibe-neon-glow-subtle)] active:scale-[0.99] sm:w-auto sm:p-5">
@@ -85,20 +99,6 @@ export default async function DashboardPage({
           <MemberPreferencesForm initial={home.memberPreferences} variant="first-run" />
         </section>
       ) : null}
-
-      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
-        <h2 id="dash-calendar-heading" className="sr-only">
-          Town calendar planner
-        </h2>
-        <DashboardCalendarShell
-          key={calKey}
-          year={year}
-          monthIndex={monthIndex}
-          calKey={calKey}
-          events={calendarEvents}
-          savedEventIds={myVibesSavedIds}
-        />
-      </section>
 
       <TicketPassesSection
         loadError={home.rsvp.loadError}
