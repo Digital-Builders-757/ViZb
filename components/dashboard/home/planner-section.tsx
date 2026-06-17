@@ -30,7 +30,10 @@ export function PlannerSection({
   const Wrapper = variant === "embedded" ? "div" : "section"
   const wrapperProps =
     variant === "embedded"
-      ? { className: "space-y-5" }
+      ? {
+          id: "my-vibes-week-heading",
+          className: "scroll-mt-24 space-y-5",
+        }
       : {
           id: "my-vibes-week-heading",
           "aria-labelledby": "planner-heading",
