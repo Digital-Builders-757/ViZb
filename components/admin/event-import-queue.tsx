@@ -91,10 +91,31 @@ export function EventImportQueue({ events }: { events: ImportedEventQueueRow[] }
     const ids = [...selected]
     if (ids.length === 0) return
     setPendingIds(new Set(ids))
-    await bulkReviewImportedEvents(ids, "approve")
-    setRows((prev) => prev.filter((e) => !selected.has(e.id)))
-    setSelected(new Set())
+    setImportSummary(null)
+
+    const res = await bulkReviewImportedEvents(ids, "approve")
     setPendingIds(new Set())
+
+    const succeededIds =
+      "succeededIds" in res && Array.isArray(res.succeededIds) ? new Set(res.succeededIds) : new Set<string>()
+
+    if (succeededIds.size === 0) {
+      setImportSummary("error" in res && res.error ? res.error : "Bulk approve failed.")
+      return
+    }
+
+    setRows((prev) => prev.filter((e) => !succeededIds.has(e.id)))
+    setSelected((prev) => {
+      const next = new Set(prev)
+      for (const id of succeededIds) next.delete(id)
+      return next
+    })
+
+    if ("success" in res && res.success) {
+      setImportSummary(`Approved ${succeededIds.size} event(s).`)
+    } else if ("error" in res && res.error) {
+      setImportSummary(res.error)
+    }
   }
 
   function toggleSelected(id: string) {

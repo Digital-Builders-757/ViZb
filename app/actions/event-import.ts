@@ -39,15 +39,24 @@ export async function bulkReviewImportedEvents(
   revalidatePath("/admin/events/imports")
   revalidatePath("/admin")
 
+  const succeeded = results.filter((r) => r.success)
   const failed = results.filter((r) => r.error)
-  if (failed.length === results.length) {
+
+  if (succeeded.length === 0) {
     return { error: failed[0]?.error ?? "Bulk review failed." }
   }
 
+  const actionLabel = action === "approve" ? "approved" : "rejected"
+  const allSucceeded = failed.length === 0
+
   return {
-    success: true,
+    success: allSucceeded,
+    error: allSucceeded
+      ? undefined
+      : `${failed.length} of ${results.length} events could not be ${actionLabel}.`,
     processed: results.length,
     failed: failed.length,
+    succeededIds: succeeded.map((r) => r.id),
     results,
   }
 }
