@@ -4,6 +4,10 @@ import { getUserOrganizations } from "@/lib/auth-helpers"
 import { loadDashboardHome, formatDashboardRegion } from "@/lib/dashboard/load-dashboard-home"
 import { needsMemberPreferenceOnboarding } from "@/lib/member/preferences"
 import { getPublicSiteOrigin } from "@/lib/public-site-url"
+import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
+import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
+import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
 import { DashboardCommandCenter } from "@/components/dashboard/home/dashboard-command-center"
 import { TicketPassesSection } from "@/components/dashboard/home/ticket-passes-section"
 import { SavedNotDecidedSection } from "@/components/dashboard/home/saved-not-decided-section"
@@ -14,9 +18,20 @@ import { PostEventRecapPromptsSection } from "@/components/dashboard/post-event-
 import { MemberPreferencesForm } from "@/components/dashboard/member-preferences-form"
 import { GlassCard } from "@/components/ui/glass-card"
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cal?: string }>
+}) {
+  const { cal } = await searchParams
+  const { year, monthIndex, calKey } = parseDashboardCalendarMonth(cal)
+
   const { profile, user, supabase, memberships } = await getUserOrganizations()
-  const home = await loadDashboardHome(supabase, user.id, profile ?? {})
+  const [home, myVibesSavedIds, calendarEvents] = await Promise.all([
+    loadDashboardHome(supabase, user.id, profile ?? {}),
+    fetchMySavedEventIds(supabase, user.id),
+    getPublishedEventsForDashboardMonth(year, monthIndex),
+  ])
   const siteOrigin = getPublicSiteOrigin()
 
   const displayName = profile?.display_name || "there"
@@ -44,6 +59,20 @@ export default async function DashboardPage() {
         ticketEventIds={home.rsvp.upcomingEventIds}
         siteOrigin={siteOrigin}
       />
+
+      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
+        <h2 id="dash-calendar-heading" className="sr-only">
+          Town calendar planner
+        </h2>
+        <DashboardCalendarShell
+          key={calKey}
+          year={year}
+          monthIndex={monthIndex}
+          calKey={calKey}
+          events={calendarEvents}
+          savedEventIds={myVibesSavedIds}
+        />
+      </section>
 
       {isFirstRun && !profile?.display_name ? (
         <Link href="/profile" className="group block">

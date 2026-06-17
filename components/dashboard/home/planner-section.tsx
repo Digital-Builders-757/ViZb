@@ -30,7 +30,11 @@ export function PlannerSection({
   const Wrapper = variant === "embedded" ? "div" : "section"
   const wrapperProps =
     variant === "embedded"
-      ? { className: "space-y-5" }
+      ? {
+          id: "my-vibes-week-heading",
+          "aria-labelledby": "planner-heading",
+          className: "scroll-mt-24 space-y-5",
+        }
       : {
           id: "my-vibes-week-heading",
           "aria-labelledby": "planner-heading",
@@ -39,21 +43,16 @@ export function PlannerSection({
 
   return (
     <Wrapper {...wrapperProps}>
-      {variant === "embedded" ? (
-        <h2 id="planner-heading" className="sr-only">Your week — locked in & on your radar</h2>
-      ) : null}
       <div
         className={
           variant === "embedded"
-            ? "flex justify-end"
+            ? "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
             : "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         }
       >
-        {variant === "standalone" ? (
-          <div id="planner-heading">
-            <SectionTitle kicker="Your week" title="Locked in & on your radar" />
-          </div>
-        ) : null}
+        <div id="planner-heading">
+          <SectionTitle kicker="Your week" title="Locked in & on your radar" />
+        </div>
         <a
           href="/api/calendar/ics?myVibes=1"
           className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text0)] hover:border-[color:var(--neon-a)]/45"
