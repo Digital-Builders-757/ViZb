@@ -27,7 +27,7 @@ Product boundary: discovered third-party events may become reviewed public listi
 
 ### First public discovery source
 
-- [ ] **#267** — Ticketmaster Discovery adapter
+- [x] **#267** — Ticketmaster Discovery adapter (June 2026 — disabled by default until Preview shadow import)
 - [ ] **#269** — cross-source duplicate detection and merge workflow
 - [ ] **#270** — unified multi-source admin review queue
 

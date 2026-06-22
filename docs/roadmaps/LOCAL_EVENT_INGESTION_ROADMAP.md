@@ -80,11 +80,11 @@ Maintain the architecture, operations, moderation, ownership, commerce, troubles
 
 ### Phase 2 — First public discovery source
 
-#### #267 — Ticketmaster Discovery adapter
+#### #267 — Ticketmaster Discovery adapter ✅ (June 2026)
 
 Implement the first supported public discovery source and send its results into the shared candidate queue.
 
-**Exit gate:** A configured import can produce idempotent, attributed, pending candidates for the launch geography.
+**Exit gate:** A configured import can produce idempotent, attributed, pending candidates for the launch geography. **Met** — adapter registered; manual + cron routes wired; writes to `event_candidates` only. Production remains disabled until shadow import approval.
 
 #### #269 — Cross-source deduplication
 

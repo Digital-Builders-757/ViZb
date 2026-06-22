@@ -21,10 +21,14 @@ function createMockAdmin(overrides: {
   enabledInDb?: boolean
   runId?: string
   overlappingRun?: boolean
+  finalizeRunError?: string
+  sourceHealthError?: string
 } = {}): SupabaseClient {
   const runId = overrides.runId ?? "run-1"
   const enabledInDb = overrides.enabledInDb ?? true
   const overlappingRun = overrides.overlappingRun ?? false
+  const finalizeRunError = overrides.finalizeRunError
+  const sourceHealthError = overrides.sourceHealthError
 
   const from = vi.fn((table: string) => {
     if (table === "event_sources") {
@@ -38,7 +42,9 @@ function createMockAdmin(overrides: {
           })),
         })),
         update: vi.fn(() => ({
-          eq: vi.fn(async () => ({ error: null })),
+          eq: vi.fn(async () => ({
+            error: sourceHealthError ? { message: sourceHealthError } : null,
+          })),
         })),
       }
     }
@@ -68,7 +74,9 @@ function createMockAdmin(overrides: {
           })),
         })),
         update: vi.fn(() => ({
-          eq: vi.fn(async () => ({ error: null })),
+          eq: vi.fn(async () => ({
+            error: finalizeRunError ? { message: finalizeRunError } : null,
+          })),
         })),
       }
     }
@@ -225,5 +233,46 @@ describe("runSourceImport", () => {
     expect(summary.skipped).toBe(true)
     expect(summary.reason).toBe("overlap_in_progress")
     expect(mockUpsertCandidate).not.toHaveBeenCalled()
+  })
+
+  it("returns run_finalize_failed when run row update fails after successful import", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(mockAdapter())
+    mockUpsertCandidate.mockResolvedValue({ action: "created", candidateId: "c-1" })
+
+    const summary = await runSourceImport(
+      createMockAdmin({ finalizeRunError: "connection reset" }),
+      {
+        sourceKey: "test_source",
+        trigger: "manual",
+      },
+    )
+
+    expect(summary.ok).toBe(false)
+    expect(summary.reason).toBe("run_finalize_failed")
+    expect(summary.created).toBe(1)
+    expect(summary.errors.some((e) => e.includes("connection reset"))).toBe(true)
+  })
+
+  it("appends finalize error when import fails and run row update also fails", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(
+      mockAdapter({
+        fetchCandidates: vi.fn(async function* () {
+          throw new Error("fetch failed")
+        }),
+      }),
+    )
+
+    const summary = await runSourceImport(
+      createMockAdmin({ finalizeRunError: "connection reset" }),
+      {
+        sourceKey: "test_source",
+        trigger: "manual",
+      },
+    )
+
+    expect(summary.ok).toBe(false)
+    expect(summary.reason).toBeUndefined()
+    expect(summary.errors).toContain("fetch failed")
+    expect(summary.errors.some((e) => e.includes("connection reset"))).toBe(true)
   })
 })

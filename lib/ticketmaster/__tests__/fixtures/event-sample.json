@@ -1,0 +1,64 @@
+{
+  "id": "G5vYZbY1A4X9A",
+  "name": "Norfolk Jazz Festival",
+  "url": "https://www.ticketmaster.com/event/G5vYZbY1A4X9A",
+  "info": "Live jazz on the waterfront.",
+  "pleaseNote": "All ages welcome.",
+  "dates": {
+    "start": {
+      "localDate": "2026-08-01",
+      "localTime": "19:00:00",
+      "dateTime": "2026-08-02T00:00:00Z",
+      "dateTBD": false,
+      "dateTBA": false,
+      "timeTBA": false,
+      "noSpecificTime": false
+    },
+    "end": {
+      "localDate": "2026-08-01",
+      "localTime": "22:00:00",
+      "dateTime": "2026-08-02T03:00:00Z"
+    },
+    "timezone": "America/New_York",
+    "status": { "code": "onsale" },
+    "access": {
+      "startDateTime": "2026-06-01T15:00:00Z"
+    }
+  },
+  "images": [
+    { "ratio": "4_3", "url": "https://images.example.com/jazz-4x3.jpg", "width": 640, "height": 480 },
+    { "ratio": "16_9", "url": "https://images.example.com/jazz-16x9.jpg", "width": 1920, "height": 1080 },
+    { "ratio": "16_9", "url": "https://images.example.com/jazz-16x9-small.jpg", "width": 1024, "height": 576 }
+  ],
+  "classifications": [
+    {
+      "primary": true,
+      "segment": { "name": "Music" },
+      "genre": { "name": "Jazz" },
+      "subGenre": { "name": "Jazz" }
+    }
+  ],
+  "promoter": { "id": "494", "name": "PROMOTED" },
+  "_embedded": {
+    "venues": [
+      {
+        "name": "Harbor Stage",
+        "city": { "name": "Norfolk" },
+        "state": { "stateCode": "VA", "name": "Virginia" },
+        "country": { "countryCode": "US", "name": "United States Of America" },
+        "address": { "line1": "1 Waterside Dr" },
+        "postalCode": "23510",
+        "location": { "latitude": "36.8468", "longitude": "-76.2923" }
+      }
+    ],
+    "attractions": [{ "id": "K8vZ9171oPf", "name": "Norfolk Jazz Collective", "type": "attraction" }]
+  },
+  "sales": {
+    "public": {
+      "startDateTime": "2026-06-01T15:00:00Z",
+      "endDateTime": "2026-08-02T00:00:00Z"
+    }
+  },
+  "accessibility": { "info": "Wheelchair accessible.", "ticketLimit": 8 },
+  "ageRestrictions": { "legalAgeEnforced": false }
+}

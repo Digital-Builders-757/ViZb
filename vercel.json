@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/eventbrite-import",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/ticketmaster-import",
+      "schedule": "0 */6 * * *"
     }
   ]
 }
