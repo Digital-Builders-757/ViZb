@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   DISCOVERY_PRESET_OPTIONS,
   type DiscoveryPreset,
@@ -57,6 +57,18 @@ export function EventsFilterSheet({
   cityOptions,
 }: EventsFilterSheetProps) {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      document.documentElement.dataset.eventsFiltersOpen = "true"
+    } else {
+      delete document.documentElement.dataset.eventsFiltersOpen
+    }
+
+    return () => {
+      delete document.documentElement.dataset.eventsFiltersOpen
+    }
+  }, [open])
 
   function ql(overrides: Partial<ListingQueryOpts> = {}): string {
     return eventsListingQuery({ ...listingBase, ...overrides })

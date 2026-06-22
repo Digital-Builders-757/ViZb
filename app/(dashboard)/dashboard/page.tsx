@@ -7,7 +7,6 @@ import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
 import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
-import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
 import { DashboardCommandCenter } from "@/components/dashboard/home/dashboard-command-center"
 import { TicketPassesSection } from "@/components/dashboard/home/ticket-passes-section"
 import { SavedNotDecidedSection } from "@/components/dashboard/home/saved-not-decided-section"
@@ -58,21 +57,12 @@ export default async function DashboardPage({
         savedUpcoming={home.savedUpcoming}
         ticketEventIds={home.rsvp.upcomingEventIds}
         siteOrigin={siteOrigin}
+        calendarYear={year}
+        calendarMonthIndex={monthIndex}
+        calendarKey={calKey}
+        calendarEvents={calendarEvents}
+        savedEventIds={myVibesSavedIds}
       />
-
-      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
-        <h2 id="dash-calendar-heading" className="sr-only">
-          Town calendar planner
-        </h2>
-        <DashboardCalendarShell
-          key={calKey}
-          year={year}
-          monthIndex={monthIndex}
-          calKey={calKey}
-          events={calendarEvents}
-          savedEventIds={myVibesSavedIds}
-        />
-      </section>
 
       {isFirstRun && !profile?.display_name ? (
         <Link href="/profile" className="group block">
