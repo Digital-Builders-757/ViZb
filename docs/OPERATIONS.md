@@ -231,7 +231,7 @@ Webhook uses **service role** — missing key returns 503.
 | Stripe webhook | Order fulfillment, ticket mint, path revalidation |
 | DB triggers | `quantity_sold` recalc, `updated_at`, review field guards |
 | View beacon | `POST /api/events/[slug]/view` → RPC increment (fire-and-forget) |
-| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role); **`GET /api/cron/eventbrite-import`** every 6h when **`EVENTBRITE_IMPORT_ENABLED=true`** (#259) |
+| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role); **`GET /api/cron/eventbrite-import`** every 6h when **`EVENTBRITE_IMPORT_ENABLED=true`** (#259); **`GET /api/cron/ticketmaster-import`** every 6h when **`TICKETMASTER_IMPORT_ENABLED=true`** (#267) |
 
 Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`. Eventbrite: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/eventbrite-import` — see [`docs/imports/eventbrite.md`](./imports/eventbrite.md) (remain disabled: `EVENTBRITE_IMPORT_ENABLED=false`).
 
@@ -252,6 +252,13 @@ Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test:
 - **Production default:** `INGESTION_DISCOVERY_ENABLED` unset → discovery disabled in production
 - **Overlap protection:** `runSourceImport` skips when another `event_import_runs.status = running` exists for the same source
 - **Ops summary:** use `describeActiveSourceCoverage(sourceKey)` in server code or inspect geography module for city list, window, and limits
+
+### Ticketmaster Discovery (#267)
+
+- **Ops guide:** [`docs/imports/ticketmaster.md`](./imports/ticketmaster.md)
+- **Manual run:** `POST /api/admin/imports/ticketmaster/run` (staff_admin + service role)
+- **Cron:** `GET /api/cron/ticketmaster-import` every 6h via `vercel.json` — fail-closed when disabled
+- **Production:** keep `TICKETMASTER_IMPORT_ENABLED=false` and `event_sources.enabled_in_db = false` until Preview shadow import approved
 
 ---
 

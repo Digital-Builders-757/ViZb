@@ -2,7 +2,7 @@
 
 **Epic:** #265  
 **Roadmap:** `docs/roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md`  
-**Status:** Foundation (#266) and Hampton Roads geography (#268, June 2026) implemented. Ticketmaster (#267), deduplication (#269), and unified review queue (#270) are next.
+**Status:** Foundation (#266), geography (#268), and Ticketmaster adapter (#267, June 2026) implemented. Deduplication (#269) and unified review queue (#270) are next.
 
 ## Purpose
 
@@ -117,6 +117,26 @@ Shipped June 2026 — centralized server-only configuration in `lib/imports/geog
 **Orchestrator integration:** `runSourceImport` uses `buildDiscoveryDateWindow()` for default windows and skips when another `event_import_runs.status = running` row exists for the same source.
 
 Adapters must consume geography helpers — do not hardcode Hampton Roads cities inside source-specific clients.
+
+## Ticketmaster Discovery (#267)
+
+Shipped June 2026 — first public geographic source:
+
+| Component | Location |
+|-----------|----------|
+| Env helpers | `lib/ticketmaster/env.ts` |
+| Discovery client | `lib/ticketmaster/client.ts` |
+| Normalizer | `lib/ticketmaster/normalize.ts` |
+| Adapter | `lib/ticketmaster/adapter.ts` |
+| Import entry | `lib/imports/run-ticketmaster-import.ts` |
+| Ops guide | `docs/imports/ticketmaster.md` |
+
+**Staff ops endpoints:**
+
+- `POST /api/admin/imports/ticketmaster/run` — manual Ticketmaster run
+- `GET /api/cron/ticketmaster-import` — scheduled run (fail-closed when disabled)
+
+**Production policy:** keep `TICKETMASTER_IMPORT_ENABLED=false` and `event_sources.enabled_in_db = false` until Preview shadow import is approved.
 
 ## Domain model
 

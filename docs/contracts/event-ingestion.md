@@ -1,9 +1,9 @@
 # Contract: event ingestion (#266)
 
-**Status:** Foundation + geography shipped (#266, #268)  
+**Status:** Foundation + geography + Ticketmaster adapter shipped (#266, #268, #267)  
 **Epic:** #265  
 **Architecture:** `docs/imports/LOCAL_EVENT_INGESTION.md`  
-**Code:** `lib/imports/*`, `lib/imports/geography/*`, `lib/eventbrite/adapter.ts`
+**Code:** `lib/imports/*`, `lib/imports/geography/*`, `lib/eventbrite/adapter.ts`, `lib/ticketmaster/*`
 
 ## Invariants
 
@@ -114,8 +114,12 @@ Pure logic in `lib/imports/candidate-upsert.ts` (`buildCandidateUpsertPlan`):
 | `GET /api/admin/imports/sources` | `requireStaffAdminApi` |
 | `GET /api/admin/imports/sources/[sourceKey]/health` | `requireStaffAdminApi` |
 | `POST /api/admin/imports/eventbrite/run` | `requireStaffAdminApi` + service role |
+| `POST /api/admin/imports/ticketmaster/run` | `requireStaffAdminApi` + service role |
 
-Cron: `GET /api/cron/eventbrite-import` (Bearer `CRON_SECRET`; fail-closed when disabled).
+Cron:
+
+- `GET /api/cron/eventbrite-import` (Bearer `CRON_SECRET`; fail-closed when disabled)
+- `GET /api/cron/ticketmaster-import` (Bearer `CRON_SECRET`; fail-closed when disabled)
 
 ## Canonical events boundary
 

@@ -19,6 +19,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | [REPO_MAP.md](./REPO_MAP.md) | Repository layout and key files |
 | [OPERATIONS.md](./OPERATIONS.md) | Deploy, migrations, integrations, troubleshooting |
 | [imports/eventbrite.md](./imports/eventbrite.md) | Eventbrite import env, cron, admin approval queue (#259; parked) |
+| [imports/ticketmaster.md](./imports/ticketmaster.md) | Ticketmaster Discovery import env, cron, candidate pipeline (#267; disabled by default) |
 | [imports/LOCAL_EVENT_INGESTION.md](./imports/LOCAL_EVENT_INGESTION.md) | Multi-source ingestion architecture (#265) |
 | [roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md](./roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md) | Local event ingestion delivery roadmap |
 | [contracts/event-ingestion.md](./contracts/event-ingestion.md) | Candidate schema, adapter contract, geography, RLS (#266, #268) |
