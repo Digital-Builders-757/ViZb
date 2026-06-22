@@ -233,7 +233,17 @@ Webhook uses **service role** — missing key returns 503.
 | View beacon | `POST /api/events/[slug]/view` → RPC increment (fire-and-forget) |
 | Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role); **`GET /api/cron/eventbrite-import`** every 6h when **`EVENTBRITE_IMPORT_ENABLED=true`** (#259) |
 
-Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`. Eventbrite: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/eventbrite-import` — see [`docs/imports/eventbrite.md`](./imports/eventbrite.md).
+Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`. Eventbrite: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/eventbrite-import` — see [`docs/imports/eventbrite.md`](./imports/eventbrite.md) (remain disabled: `EVENTBRITE_IMPORT_ENABLED=false`).
+
+### Multi-source ingestion (#266)
+
+- **Architecture:** [`docs/imports/LOCAL_EVENT_INGESTION.md`](./imports/LOCAL_EVENT_INGESTION.md)
+- **Contract:** [`docs/contracts/event-ingestion.md`](./contracts/event-ingestion.md)
+- **Staff readiness:** `GET /api/admin/imports/sources` (session + `staff_admin`)
+- **Per-source health:** `GET /api/admin/imports/sources/{sourceKey}/health`
+- **Runtime gates:** per-source env flag **and** `event_sources.enabled_in_db = true`
+- **Disable a source:** set env flag false; set `enabled_in_db = false` in `event_sources`; cron/manual routes fail closed
+- **Preview verification:** apply migration `20260622193500_event_ingestion_foundation.sql`, confirm readiness endpoints, optional dev import with both gates enabled — candidates land in `event_candidates` (admin UI queue rewrite is #270)
 
 ---
 

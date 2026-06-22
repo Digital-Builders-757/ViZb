@@ -38,11 +38,6 @@ export function PostCard({
             />
           )}
 
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[color:var(--neon-bg0)]/75 via-[color:var(--neon-bg0)]/20 to-transparent"
-            aria-hidden
-          />
-
           <div className="absolute inset-x-0 top-0 flex flex-wrap gap-2 p-4">
             <span className="rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-a)] backdrop-blur">
               {kicker}
@@ -53,22 +48,22 @@ export function PostCard({
               </span>
             ) : null}
           </div>
+        </div>
 
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            {publishedLabel ? (
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-                {publishedLabel}
-              </p>
-            ) : null}
-            <h3 className="mt-1 text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
-              {post.title}
-            </h3>
-            {post.excerpt ? (
-              <p className="mt-1 line-clamp-2 text-[13px] leading-[1.6] text-[color:var(--neon-text1)] sm:text-sm">
-                {post.excerpt}
-              </p>
-            ) : null}
-          </div>
+        <div className="min-h-[5.5rem] border-t border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/85 p-4 backdrop-blur-sm">
+          {publishedLabel ? (
+            <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+              {publishedLabel}
+            </p>
+          ) : null}
+          <h3 className="mt-1 line-clamp-2 text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
+            {post.title}
+          </h3>
+          {post.excerpt ? (
+            <p className="mt-1 line-clamp-2 text-[13px] leading-[1.6] text-[color:var(--neon-text1)] sm:text-sm">
+              {post.excerpt}
+            </p>
+          ) : null}
         </div>
       </GlassCard>
     </Link>

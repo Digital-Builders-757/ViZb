@@ -4,6 +4,7 @@ import type { EventbriteImportStatus } from "@/lib/eventbrite/env"
 import { EVENTBRITE_SOURCE } from "@/lib/eventbrite/env"
 import { normalizeCategories } from "@/lib/events/categories"
 import { EVENT_KIND_COMMUNITY } from "@/lib/events/event-kind"
+import type { NormalizedEventCandidate } from "@/lib/imports/types"
 
 export type EventbriteImportCandidate = {
   title: string
@@ -94,6 +95,38 @@ export function buildEventbritePayloadHash(raw: EventbriteEventRaw): string {
 export function hashCanonicalJson(value: unknown): string {
   const canonical = JSON.stringify(value)
   return createHash("sha256").update(canonical, "utf8").digest("hex")
+}
+
+/** Maps legacy Eventbrite candidate shape to shared NormalizedEventCandidate (#266). */
+export function toNormalizedEventCandidate(
+  candidate: EventbriteImportCandidate,
+): NormalizedEventCandidate {
+  return {
+    source_key: candidate.source,
+    source_event_id: candidate.source_event_id,
+    source_url: candidate.source_url,
+    source_attribution: "Eventbrite",
+    source_payload: candidate.source_payload,
+    source_payload_hash: candidate.source_payload_hash,
+    source_status: null,
+    title: candidate.title,
+    description: candidate.description,
+    starts_at: candidate.starts_at,
+    ends_at: candidate.ends_at,
+    timezone: candidate.timezone,
+    venue_name: candidate.venue_name,
+    address: candidate.address,
+    city: candidate.city,
+    region: null,
+    postal_code: null,
+    latitude: null,
+    longitude: null,
+    image_url: candidate.flyer_url,
+    categories: candidate.categories,
+    classifications: { event_kind: candidate.event_kind, import_status: candidate.import_status },
+    organizer_hints: {},
+    external_ticket_url: candidate.external_rsvp_url,
+  }
 }
 
 export function normalizeEventbriteEvent(
