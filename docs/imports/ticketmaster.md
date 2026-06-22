@@ -48,6 +48,25 @@ Both must be true before a run proceeds:
 
 Production should remain **disabled on both gates** until Preview shadow import is reviewed.
 
+## Release workflow (Preview-first)
+
+Deploying ingestion code to **Production** (`main`) does **not** activate imports. Use this order:
+
+| Phase | Where | Env + DB gates | Purpose |
+|-------|--------|----------------|---------|
+| **A — Preview shadow** | Vercel Preview + Preview DB (or shared DB with gate toggled briefly) | `TICKETMASTER_IMPORT_ENABLED=true` + `enabled_in_db=true` | Validate candidates, rate limits, ops endpoints |
+| **B — Local dev** | `.env.local` + dev Supabase | Same double-gate on your dev project | Fast iteration (see Local setup below) |
+| **C — Production** | Vercel Production + Production DB | Only after Preview sign-off | Manual import first, then cron |
+
+**Production verification (gates OFF):**
+
+- Cron without auth → `401 Unauthorized`
+- Cron with `CRON_SECRET` while disabled → `{ ok: true, skipped: true, reason: "disabled" }`
+- `event_sources.enabled_in_db = false` for `ticketmaster`
+- Candidates do not appear on public `/events` until #270 approval UI
+
+After Preview review, disable the Preview DB gate unless continuing active testing.
+
 ## Geographic coverage
 
 Uses centralized Hampton Roads config from `lib/imports/geography/`:
