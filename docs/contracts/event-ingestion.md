@@ -1,9 +1,9 @@
 # Contract: event ingestion (#266)
 
-**Status:** Foundation shipped  
+**Status:** Foundation + geography shipped (#266, #268)  
 **Epic:** #265  
 **Architecture:** `docs/imports/LOCAL_EVENT_INGESTION.md`  
-**Code:** `lib/imports/*`, `lib/eventbrite/adapter.ts`
+**Code:** `lib/imports/*`, `lib/imports/geography/*`, `lib/eventbrite/adapter.ts`
 
 ## Invariants
 
@@ -69,9 +69,22 @@ Register implementations in `lib/imports/adapters/registry.ts`.
 1. Resolve adapter from registry
 2. Check env readiness (`validateConfig`)
 3. Check `event_sources.enabled_in_db`
-4. Insert `event_import_runs` row
-5. Fetch pages → normalize → `upsertCandidate`
-6. Finish run + update source health
+4. Skip if overlapping run in progress (`event_import_runs.status = running` for same source)
+5. Build default date window via `buildDiscoveryDateWindow()` when `window` not supplied
+6. Insert `event_import_runs` row
+7. Fetch pages → normalize → `upsertCandidate`
+8. Finish run + update source health
+
+## Discovery geography (#268)
+
+- **Launch market:** Hampton Roads — 8 cities in `lib/imports/geography/hampton-roads.ts`
+- **Date windows:** Eastern civil calendar → UTC ISO (`buildDiscoveryDateWindow`)
+- **Limits:** page size, max pages per city, max records per run (`lib/imports/geography/limits.ts`)
+- **Stale threshold:** `isCandidateStale()` for freshness workflows (#269+)
+- **Environment:** `INGESTION_DISCOVERY_ENABLED` defaults false in production
+- **Overlap lock:** one active run per source at a time
+
+Adapters must use geography helpers for city lists and limits — no hardcoded Hampton Roads cities in source clients.
 
 Eventbrite entry point: `runEventbriteImport` → delegates to `runSourceImport` with `sourceKey: eventbrite`.
 

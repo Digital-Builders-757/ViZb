@@ -55,7 +55,7 @@ Build the source-adapter contract, normalized candidate model, provenance fields
 
 **Exit gate:** A second source can be added without copying the Eventbrite implementation or changing the public event domain. **Met** — register adapters in `lib/imports/adapters/registry.ts`; Ticketmaster (#267) can plug in without touching Eventbrite code paths.
 
-#### #268 — Hampton Roads geography and schedules
+#### #268 — Hampton Roads geography and schedules ✅ (June 2026)
 
 Centralize launch-market coverage for:
 
@@ -70,7 +70,7 @@ Centralize launch-market coverage for:
 
 Define date windows, cadence, stale-event handling, source controls, and environment rollout policy.
 
-**Exit gate:** Operators can explain exactly what geographic inventory each enabled source is expected to return.
+**Exit gate:** Operators can explain exactly what geographic inventory each enabled source is expected to return. **Met** — `describeActiveSourceCoverage()` in `lib/imports/geography/coverage.ts` and env vars documented in `.env.example`.
 
 #### #275 — Documentation and roadmap
 

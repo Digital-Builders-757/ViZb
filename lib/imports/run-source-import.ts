@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { getRegisteredAdapter } from "@/lib/imports/adapters/registry"
 import { upsertCandidate } from "@/lib/imports/candidate-repository"
+import { buildDiscoveryDateWindow } from "@/lib/imports/geography/date-window"
+import { findOverlappingImportRun } from "@/lib/imports/geography/run-lock"
 import { getIngestionEnvironment } from "@/lib/imports/source-env"
 import type { ImportRunSummary, RunSourceImportOptions, SourceWindow } from "@/lib/imports/types"
 import { logError, logWarn } from "@/lib/log"
@@ -60,12 +62,14 @@ async function updateSourceHealth(
 }
 
 function defaultWindow(lookaheadDays: number): SourceWindow {
-  const now = new Date()
-  const rangeEnd = new Date(now)
-  rangeEnd.setUTCDate(rangeEnd.getUTCDate() + lookaheadDays)
+  const window = buildDiscoveryDateWindow({ lookaheadDays })
   return {
-    rangeStartIso: now.toISOString(),
-    rangeEndIso: rangeEnd.toISOString(),
+    rangeStartIso: window.rangeStartIso,
+    rangeEndIso: window.rangeEndIso,
+    metadata: {
+      timezone: window.timezone,
+      pastEventGraceDays: window.pastEventGraceDays,
+    },
   }
 }
 
@@ -124,6 +128,25 @@ export async function runSourceImport(
       updated: 0,
       skippedRecords: 0,
       errors: [`Source ${sourceKey} is not enabled in the event_sources registry.`],
+    }
+  }
+
+  const overlap = await findOverlappingImportRun(admin, sourceKey)
+  if (overlap.blocked) {
+    logWarn(`imports.run.${sourceKey}`, "Import skipped — overlapping run in progress.", {
+      sourceKey,
+      runId: overlap.runId,
+    })
+    return {
+      ok: false,
+      skipped: true,
+      reason: "overlap_in_progress",
+      sourceKey,
+      found: 0,
+      created: 0,
+      updated: 0,
+      skippedRecords: 0,
+      errors: [`Import already running for ${sourceKey} (run ${overlap.runId}).`],
     }
   }
 

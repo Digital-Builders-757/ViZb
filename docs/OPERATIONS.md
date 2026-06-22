@@ -245,6 +245,14 @@ Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test:
 - **Disable a source:** set env flag false; set `enabled_in_db = false` in `event_sources`; cron/manual routes fail closed
 - **Preview verification:** apply migration `20260622193458_event_ingestion_foundation.sql`, confirm readiness endpoints, optional dev import with both gates enabled — candidates land in `event_candidates` (admin UI queue rewrite is #270)
 
+### Discovery geography (#268)
+
+- **Code:** `lib/imports/geography/*` — Hampton Roads launch market, ET date windows, pagination limits, stale thresholds, overlap lock
+- **Env vars:** `INGESTION_DISCOVERY_*` in `.env.example` (no secrets)
+- **Production default:** `INGESTION_DISCOVERY_ENABLED` unset → discovery disabled in production
+- **Overlap protection:** `runSourceImport` skips when another `event_import_runs.status = running` exists for the same source
+- **Ops summary:** use `describeActiveSourceCoverage(sourceKey)` in server code or inspect geography module for city list, window, and limits
+
 ---
 
 ## Storage operations

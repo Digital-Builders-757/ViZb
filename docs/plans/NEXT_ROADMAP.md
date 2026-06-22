@@ -22,7 +22,7 @@ Product boundary: discovered third-party events may become reviewed public listi
 ### Foundation
 
 - [x] **#266** — source adapters, normalized candidates, provenance, and import-run logs (June 2026)
-- [ ] **#268** — Hampton Roads geography, schedules, freshness, and source controls
+- [x] **#268** — Hampton Roads geography, schedules, freshness, and source controls (June 2026)
 - [ ] **#275** — end-to-end documentation and roadmap maintenance
 
 ### First public discovery source
