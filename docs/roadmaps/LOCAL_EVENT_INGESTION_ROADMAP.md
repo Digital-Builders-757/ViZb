@@ -92,11 +92,13 @@ Detect exact and likely duplicates across public sources, organizer submissions,
 
 **Exit gate:** Staff can compare and safely merge likely duplicates without losing provenance or overwriting a native canonical event.
 
-#### #270 — Unified review queue
+#### #270 — Unified review queue ✅ (partial — June 2026)
 
 Turn `/admin/events/imports` into a source-agnostic moderation workspace.
 
-**Exit gate:** Staff can filter, inspect, edit, approve, reject, merge, and audit candidates from more than one source.
+**Shipped:** Candidate queue + detail, source filters, audit trail, manual import controls, import history, source health, publish-to-community-`events` for approved candidates. **Remaining:** staff edit form, automated dedup merge (#269), deprecate legacy `events` import queue when drained.
+
+**Exit gate:** Staff can filter, inspect, edit, approve, reject, merge, and audit candidates from more than one source. **Partially met** — filter, inspect, reject, suppress, link, publish, and audit are live; full edit/merge workflows follow #269/#270 polish.
 
 ### Phase 3 — Grow local supply
 

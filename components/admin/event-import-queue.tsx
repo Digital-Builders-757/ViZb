@@ -24,7 +24,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-export function EventImportQueue({ events }: { events: ImportedEventQueueRow[] }) {
+export function EventImportQueue({
+  events,
+  showRunImport = true,
+}: {
+  events: ImportedEventQueueRow[]
+  showRunImport?: boolean
+}) {
   const [rows, setRows] = useState(events)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
@@ -134,15 +140,17 @@ export function EventImportQueue({ events }: { events: ImportedEventQueueRow[] }
           {rows.length} Eventbrite event{rows.length === 1 ? "" : "s"} awaiting approval.
         </p>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={handleRunImport}
-            disabled={importPending}
-            className="inline-flex min-h-10 items-center gap-2 border border-border px-4 font-mono text-[10px] uppercase tracking-widest hover:border-neon-a/45 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${importPending ? "animate-spin" : ""}`} aria-hidden />
-            Run import now
-          </button>
+          {showRunImport ? (
+            <button
+              type="button"
+              onClick={handleRunImport}
+              disabled={importPending}
+              className="inline-flex min-h-10 items-center gap-2 border border-border px-4 font-mono text-[10px] uppercase tracking-widest hover:border-neon-a/45 disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${importPending ? "animate-spin" : ""}`} aria-hidden />
+              Run import now
+            </button>
+          ) : null}
           {selected.size > 0 ? (
             <button
               type="button"
