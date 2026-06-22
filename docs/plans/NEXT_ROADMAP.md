@@ -21,7 +21,7 @@ Product boundary: discovered third-party events may become reviewed public listi
 
 ### Foundation
 
-- [ ] **#266** — source adapters, normalized candidates, provenance, and import-run logs
+- [x] **#266** — source adapters, normalized candidates, provenance, and import-run logs (June 2026)
 - [ ] **#268** — Hampton Roads geography, schedules, freshness, and source controls
 - [ ] **#275** — end-to-end documentation and roadmap maintenance
 

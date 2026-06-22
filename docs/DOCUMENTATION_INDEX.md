@@ -18,7 +18,10 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | Setup, commands, testing, contribution |
 | [REPO_MAP.md](./REPO_MAP.md) | Repository layout and key files |
 | [OPERATIONS.md](./OPERATIONS.md) | Deploy, migrations, integrations, troubleshooting |
-| [imports/eventbrite.md](./imports/eventbrite.md) | Eventbrite import env, cron, admin approval queue (#259) |
+| [imports/eventbrite.md](./imports/eventbrite.md) | Eventbrite import env, cron, admin approval queue (#259; parked) |
+| [imports/LOCAL_EVENT_INGESTION.md](./imports/LOCAL_EVENT_INGESTION.md) | Multi-source ingestion architecture (#265) |
+| [roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md](./roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md) | Local event ingestion delivery roadmap |
+| [contracts/event-ingestion.md](./contracts/event-ingestion.md) | Candidate schema, adapter contract, RLS (#266) |
 | [DECISIONS.md](./DECISIONS.md) | Architectural decision log |
 | [DOCS_AUDIT_2026.md](./DOCS_AUDIT_2026.md) | Documentation audit summary |
 | [payment-system-audit.md](./payment-system-audit.md) | **Payment / ticketing master map** — Stripe, fees, schema, Connect gaps |

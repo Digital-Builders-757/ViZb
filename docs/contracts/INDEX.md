@@ -8,6 +8,7 @@ Contracts define **invariants**, **owners** (routes + actions), **data touched**
 |----------|------|--------|
 | Auth & session | `auth.md` | MVP — Supabase Auth, `proxy.ts`, `platform_role`, app gates |
 | Events | `events.md` | MVP — lifecycle, discovery, official/community, trust signals, open mic |
+| Event ingestion | `event-ingestion.md` | Foundation (#266) — candidates, adapters, import runs |
 | RSVPs & orders | `rsvps.md` | MVP — free RSVP + `$0` tickets + Stripe paid checkout |
 | Check-in | `checkins.md` | MVP — QR scan API + manual check-in/undo |
 | Member profiles | `member_profiles.md` | MVP — trigger-created profiles, platform roles |

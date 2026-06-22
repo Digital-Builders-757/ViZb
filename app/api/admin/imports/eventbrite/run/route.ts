@@ -28,10 +28,12 @@ export async function POST() {
       skipped: summary.skipped ?? false,
       reason: summary.reason,
       runId: summary.runId,
+      sourceKey: summary.sourceKey,
       found: summary.found,
       created: summary.created,
       updated: summary.updated,
-      skippedEvents: summary.skippedEvents,
+      skippedEvents: summary.skippedRecords,
+      skippedRecords: summary.skippedRecords,
       errors: summary.errors,
     })
   } catch (err) {

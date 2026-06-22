@@ -49,6 +49,14 @@ Current `event_status` values (see `scripts/003_create_enums.sql` + `scripts/008
 - **`createEvent`:** `event_kind=community` is accepted only for **staff_admin** creating under the **platform** org (see `lib/orgs/platform-org.ts`); otherwise the row stays `official`.
 - **Public:** `/events` and `/events/[slug]` label **`community`** rows **Local Event** (not ViZb-hosted); primary RSVP is the external link (`target="_blank"`, `rel="noopener noreferrer"`).
 
+## Imported candidates vs canonical events (#266)
+
+- **`event_candidates`** holds normalized third-party records before staff approval. See **`docs/contracts/event-ingestion.md`**.
+- **`events`** remains the canonical public listing table. Automated imports must not write here after #266; approval/promotion from candidates is #270.
+- Legacy Eventbrite rows may still exist on **`events`** with **`source = eventbrite`** from pre-foundation imports.
+- **`event_candidates.canonical_event_id`** links an approved candidate to its published **`events`** row (populated in #270).
+- Unclaimed imported listings must not create **`ticket_types`**, checkout sessions, or organizer management rights.
+
 ## Staff pick + listing reports (trust layer)
 
 - Column **`events.is_staff_pick`** (boolean, default **false**): when **true**, public surfaces show a calm **Staff pick** badge (alongside **`event_kind`** labels) and the event may appear in the **`ViZb picks`** rail on **`/events`**. Toggle from **staff admin** on **`/admin/events/[id]`** (Trust & discovery). Server Action: **`setEventStaffPickFromAdmin`** in **`app/actions/event-trust.ts`** (revalidates **`/events`**, **`/events/[slug]`**, home, admin).
