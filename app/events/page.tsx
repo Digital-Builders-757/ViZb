@@ -32,6 +32,7 @@ import { buildStaffPicksMoment } from "@/lib/events/discovery-featured-moments"
 import type { ListingEvent } from "@/lib/events/listing-event"
 import {
   buildCityFilterOptions,
+  cityMatchesFilter,
   eventsListingQuery,
   normalizeCityLabel,
   parseCityParam,
@@ -264,7 +265,7 @@ export default async function EventsExplorePage({
   const hasTimelineFilters = Boolean(activeCity || discoveryPreset || searchQ.trim())
 
   function passesDiscoveryAndSearch(e: FlatEvent): boolean {
-    if (activeCity && normalizeCityLabel(e.city).toLowerCase() !== activeCity.toLowerCase()) return false
+    if (activeCity && !cityMatchesFilter(e.city, activeCity)) return false
     if (forYouMode) {
       // Ranking handled above; only apply search here.
     } else if (discoveryPreset && !applyDiscoveryPreset(discoveryPreset, e, now)) return false

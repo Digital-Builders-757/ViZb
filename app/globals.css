@@ -1287,13 +1287,11 @@
   -webkit-text-fill-color: transparent;
   animation: water-current-flow 5s ease-in-out infinite;
   filter: drop-shadow(0 0 24px rgb(0 189 255 / 0.45)) drop-shadow(0 0 48px rgb(13 64 255 / 0.25));
-  will-change: background-position;
 }
 
 .water-current-primary {
   color: var(--neon-text0);
   animation: water-current-glow 6s ease-in-out infinite;
-  will-change: text-shadow;
 }
 
 .water-current-kicker {
@@ -1319,6 +1317,16 @@
   animation: water-sheen 3.6s ease-in-out infinite;
   opacity: 0.75;
   pointer-events: none;
+}
+
+/* Pause events hero headline animations while filter sheet is open (mobile compositor stability) */
+html[data-events-filters-open="true"] .events-discovery-hero .water-current-text,
+html[data-events-filters-open="true"] .events-discovery-hero .water-current-primary,
+html[data-events-filters-open="true"] .events-discovery-hero .water-current-frame::before,
+html[data-events-filters-open="true"] .events-discovery-hero .water-current-frame::after,
+html[data-events-filters-open="true"] .events-discovery-hero .water-current-kicker::after,
+html[data-events-filters-open="true"] .events-discovery-hero .motion-safe\:animate-pulse {
+  animation-play-state: paused;
 }
 
 /* Events timeline — cinematic scroll rhythm */

@@ -43,6 +43,26 @@ export function normalizeCityLabel(city: string): string {
     .join(" ")
 }
 
+const VIRGINIA_CITY_SUFFIX = /,\s*va\b/i
+
+/** True when a city label includes a Virginia state suffix (e.g. "Norfolk, Va"). */
+export function hasVirginiaCitySuffix(label: string): boolean {
+  return VIRGINIA_CITY_SUFFIX.test(label.trim())
+}
+
+/** Strip trailing ", va" / ", virginia" for loose city matching. */
+function stripVirginiaCitySuffix(label: string): string {
+  return normalizeCityLabel(label).replace(/,\s*(va|virginia)\s*$/i, "").trim()
+}
+
+/** Match event city to an active filter city, ignoring state suffix differences. */
+export function cityMatchesFilter(eventCity: string, filterCity: string): boolean {
+  const eventBase = stripVirginiaCitySuffix(eventCity)
+  const filterBase = stripVirginiaCitySuffix(filterCity)
+  if (!eventBase || !filterBase) return false
+  return eventBase.toLowerCase() === filterBase.toLowerCase()
+}
+
 /** Top cities by event count for tide filter chips. */
 export function buildCityFilterOptions(events: { city: string }[], limit = 8): string[] {
   const counts = new Map<string, { label: string; count: number }>()
@@ -56,6 +76,7 @@ export function buildCityFilterOptions(events: { city: string }[], limit = 8): s
   }
   return [...counts.values()]
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .filter((v) => hasVirginiaCitySuffix(v.label))
     .slice(0, limit)
     .map((v) => v.label)
 }

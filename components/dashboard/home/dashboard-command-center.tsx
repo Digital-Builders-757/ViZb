@@ -1,4 +1,6 @@
 import type { DashboardHomeStats, DashboardNextMove } from "@/lib/dashboard/dashboard-home-types"
+import type { DashboardCalendarEvent } from "@/lib/events/dashboard-calendar"
+import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
 import { DashboardStats } from "@/components/dashboard/home/dashboard-stats"
 import { MyNextMoveCard } from "@/components/dashboard/home/my-next-move-card"
 import { PlannerSection, type PlannerSectionProps } from "@/components/dashboard/home/planner-section"
@@ -14,6 +16,11 @@ export interface DashboardCommandCenterProps {
   savedUpcoming: PlannerSectionProps["savedUpcoming"]
   ticketEventIds: PlannerSectionProps["ticketEventIds"]
   siteOrigin: PlannerSectionProps["siteOrigin"]
+  calendarYear: number
+  calendarMonthIndex: number
+  calendarKey: string
+  calendarEvents: DashboardCalendarEvent[]
+  savedEventIds: string[]
 }
 
 export function DashboardCommandCenter({
@@ -27,6 +34,11 @@ export function DashboardCommandCenter({
   savedUpcoming,
   ticketEventIds,
   siteOrigin,
+  calendarYear,
+  calendarMonthIndex,
+  calendarKey,
+  calendarEvents,
+  savedEventIds,
 }: DashboardCommandCenterProps) {
   const subtext = firstRunHint
     ? firstRunHint
@@ -56,10 +68,6 @@ export function DashboardCommandCenter({
         </p>
       </header>
 
-      <MyNextMoveCard nextMove={nextMove} />
-
-      <DashboardStats stats={stats} />
-
       <PlannerSection
         upcomingPlans={upcomingPlans}
         savedUpcoming={savedUpcoming}
@@ -67,6 +75,24 @@ export function DashboardCommandCenter({
         siteOrigin={siteOrigin}
         variant="embedded"
       />
+
+      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
+        <h2 id="dash-calendar-heading" className="sr-only">
+          Town calendar planner
+        </h2>
+        <DashboardCalendarShell
+          key={calendarKey}
+          year={calendarYear}
+          monthIndex={calendarMonthIndex}
+          calKey={calendarKey}
+          events={calendarEvents}
+          savedEventIds={savedEventIds}
+        />
+      </section>
+
+      <MyNextMoveCard nextMove={nextMove} />
+
+      <DashboardStats stats={stats} />
     </section>
   )
 }

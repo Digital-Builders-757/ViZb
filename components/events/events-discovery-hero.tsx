@@ -9,7 +9,7 @@ export interface EventsDiscoveryHeroProps {
 
 export function EventsDiscoveryHero({ upcomingCount, children }: EventsDiscoveryHeroProps) {
   return (
-    <section className="relative overflow-hidden px-4 pb-4 pt-24 sm:px-8 sm:pb-5 md:pb-6 md:pt-28">
+    <section className="events-discovery-hero relative overflow-hidden px-4 pb-4 pt-24 sm:px-8 sm:pb-5 md:pb-6 md:pt-28">
       <DepthLayer level="far" className="pointer-events-none absolute inset-0 -z-[1] opacity-80" />
       <div
         className="pointer-events-none absolute -left-24 top-16 h-64 w-64 rounded-full bg-[color:var(--neon-a)]/10 blur-3xl motion-safe:animate-pulse"
