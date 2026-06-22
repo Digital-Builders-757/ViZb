@@ -49,11 +49,11 @@ The shared platform owns:
 
 ### Phase 1 — Foundation
 
-#### #266 — Ingestion foundation
+#### #266 — Ingestion foundation ✅ (June 2026)
 
 Build the source-adapter contract, normalized candidate model, provenance fields, source flags, and import-run logging.
 
-**Exit gate:** A second source can be added without copying the Eventbrite implementation or changing the public event domain.
+**Exit gate:** A second source can be added without copying the Eventbrite implementation or changing the public event domain. **Met** — register adapters in `lib/imports/adapters/registry.ts`; Ticketmaster (#267) can plug in without touching Eventbrite code paths.
 
 #### #268 — Hampton Roads geography and schedules
 

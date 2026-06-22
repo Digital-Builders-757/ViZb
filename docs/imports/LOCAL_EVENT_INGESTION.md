@@ -2,7 +2,7 @@
 
 **Epic:** #265  
 **Roadmap:** `docs/roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md`  
-**Status:** Design baseline for implementation
+**Status:** Foundation implemented (#266, June 2026). Geography (#268), Ticketmaster (#267), deduplication (#269), and unified review queue (#270) are next.
 
 ## Purpose
 
@@ -55,6 +55,44 @@ EVENTBRITE_IMPORT_ENABLED=false
 ```
 
 Do not add production credentials or enable the Eventbrite cron until the reactivation conditions in #259 and the roadmap are met.
+
+When re-enabled, Eventbrite runs through the shared candidate pipeline (`event_candidates`) via `lib/eventbrite/adapter.ts` — not direct writes to `events`. The legacy admin queue at `/admin/events/imports` still reads historical Eventbrite rows on `events` until #270.
+
+## Foundation implementation (#266)
+
+Shipped June 2026:
+
+| Component | Location |
+|-----------|----------|
+| Adapter contract | `lib/imports/adapters/event-source-adapter.ts` |
+| Adapter registry | `lib/imports/adapters/registry.ts` |
+| Shared types | `lib/imports/types.ts` |
+| Import orchestrator | `lib/imports/run-source-import.ts` |
+| Candidate upsert rules | `lib/imports/candidate-upsert.ts` |
+| Candidate repository | `lib/imports/candidate-repository.ts` |
+| Source readiness API helpers | `lib/imports/source-readiness.ts` |
+| Eventbrite adapter (parked) | `lib/eventbrite/adapter.ts` |
+| Schema migration | `supabase/migrations/20260622193458_event_ingestion_foundation.sql` |
+
+**Database tables:**
+
+- `event_sources` — registry + operational health (staff SELECT via RLS)
+- `event_candidates` — normalized staging records (staff SELECT via RLS; writes via service role)
+- `event_candidate_reviews` — import and moderation audit history
+- `event_import_runs` — extended with candidate counters and window metadata
+
+**Runtime gates (both required for automated runs):**
+
+1. Per-source env flag (e.g. `EVENTBRITE_IMPORT_ENABLED=true`)
+2. `event_sources.enabled_in_db = true` for that source key
+
+**Staff ops endpoints:**
+
+- `GET /api/admin/imports/sources` — registry + env readiness (no secrets)
+- `GET /api/admin/imports/sources/[sourceKey]/health` — adapter health check
+- `POST /api/admin/imports/eventbrite/run` — manual Eventbrite run (delegates to shared runner)
+
+Contract reference: `docs/contracts/event-ingestion.md`.
 
 ## Domain model
 
@@ -201,10 +239,12 @@ export interface EventSourceAdapter {
   sourceKey: string
   validateConfig(): Promise<SourceReadiness>
   fetchCandidates(input: SourceWindow): AsyncIterable<SourcePage>
-  normalize(record: unknown): NormalizedEventCandidate
+  normalize(record: unknown): NormalizedEventCandidate | { error: string }
   health(): Promise<SourceHealth>
 }
 ```
+
+Implemented in `lib/imports/adapters/event-source-adapter.ts`. Register new adapters in `lib/imports/adapters/registry.ts`.
 
 The adapter is responsible for:
 
