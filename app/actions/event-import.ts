@@ -1,5 +1,7 @@
 "use server"
 
+/** Legacy Eventbrite queue on `events` — candidate moderation lives in `app/actions/candidate-import.ts`. */
+
 import { reviewEvent } from "@/app/actions/event"
 import { requireAdmin } from "@/lib/auth-helpers"
 import { EVENTBRITE_SOURCE } from "@/lib/eventbrite/env"

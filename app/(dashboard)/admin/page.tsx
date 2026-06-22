@@ -490,8 +490,8 @@ export default async function AdminPage() {
       <AdminSection
         id="eventbrite-imports"
         kicker="Import Queue"
-        title="Eventbrite Imports"
-        description="Events pulled from Eventbrite land here as pending review. Approve to publish on the public timeline, or reject to hide."
+        title="Event Import Review"
+        description="Review imported Ticketmaster, Eventbrite, and other source candidates before they appear on the public timeline."
       >
         <div className="flex flex-col gap-4">
           <NeonLink href="/admin/events/imports" shape="xl" className="sm:w-auto">
