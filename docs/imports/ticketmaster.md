@@ -63,7 +63,7 @@ Deploying ingestion code to **Production** (`main`) does **not** activate import
 - Cron without auth → `401 Unauthorized`
 - Cron with `CRON_SECRET` while disabled → `{ ok: true, skipped: true, reason: "disabled" }`
 - `event_sources.enabled_in_db = false` for `ticketmaster`
-- Candidates do not appear on public `/events` until #270 approval UI
+- Candidates do not appear on public `/events` until staff publish from **Admin → Event Import Review**
 
 After Preview review, disable the Preview DB gate unless continuing active testing.
 
@@ -96,7 +96,7 @@ curl -b "your-session-cookie" http://localhost:3000/api/admin/imports/sources
 curl -b "your-session-cookie" http://localhost:3000/api/admin/imports/sources/ticketmaster/health
 ```
 
-7. Run manual import:
+7. Run manual import from **Admin → Event Import Review** (`/admin/events/imports`) or:
 
 ```bash
 curl -X POST -b "your-session-cookie" http://localhost:3000/api/admin/imports/ticketmaster/run
@@ -192,5 +192,6 @@ The client uses sequential city requests, conservative pacing (~250ms), bounded 
 | Import entry | `lib/imports/run-ticketmaster-import.ts` |
 | Manual route | `POST /api/admin/imports/ticketmaster/run` |
 | Cron route | `GET /api/cron/ticketmaster-import` |
+| Admin review UI | `/admin/events/imports` |
 
 Contract: [`docs/contracts/event-ingestion.md`](../contracts/event-ingestion.md)
