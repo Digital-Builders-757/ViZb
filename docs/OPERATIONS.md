@@ -258,7 +258,7 @@ Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test:
 - **Ops guide:** [`docs/imports/ticketmaster.md`](./imports/ticketmaster.md)
 - **Manual run:** `POST /api/admin/imports/ticketmaster/run` (staff_admin + service role)
 - **Cron:** `GET /api/cron/ticketmaster-import` every 6h via `vercel.json` — fail-closed when disabled
-- **Production:** keep `TICKETMASTER_IMPORT_ENABLED=false` and `event_sources.enabled_in_db = false` until Preview shadow import approved
+- **Production:** keep `TICKETMASTER_IMPORT_ENABLED=false` and `event_sources.enabled_in_db = false` until Preview shadow import approved. Deploying ingestion code to Production does **not** activate imports — gates must be enabled explicitly after Preview sign-off.
 
 ---
 
