@@ -20,9 +20,11 @@ const mockUpsertCandidate = vi.mocked(upsertCandidate)
 function createMockAdmin(overrides: {
   enabledInDb?: boolean
   runId?: string
+  overlappingRun?: boolean
 } = {}): SupabaseClient {
   const runId = overrides.runId ?? "run-1"
   const enabledInDb = overrides.enabledInDb ?? true
+  const overlappingRun = overrides.overlappingRun ?? false
 
   const from = vi.fn((table: string) => {
     if (table === "event_sources") {
@@ -42,6 +44,24 @@ function createMockAdmin(overrides: {
     }
     if (table === "event_import_runs") {
       return {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              order: vi.fn(() => ({
+                limit: vi.fn(() => ({
+                  maybeSingle: vi.fn(async () =>
+                    overlappingRun
+                      ? {
+                          data: { id: "run-overlap", started_at: "2026-06-15T10:00:00.000Z" },
+                          error: null,
+                        }
+                      : { data: null, error: null },
+                  ),
+                })),
+              })),
+            })),
+          })),
+        })),
         insert: vi.fn(() => ({
           select: vi.fn(() => ({
             single: vi.fn(async () => ({ data: { id: runId }, error: null })),
@@ -193,5 +213,17 @@ describe("runSourceImport", () => {
     expect(summary.found).toBe(1)
     expect(summary.created).toBe(1)
     expect(mockUpsertCandidate).toHaveBeenCalledOnce()
+  })
+
+  it("skips when an overlapping import run is in progress", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(mockAdapter())
+    const summary = await runSourceImport(createMockAdmin({ overlappingRun: true }), {
+      sourceKey: "test_source",
+      trigger: "manual",
+    })
+
+    expect(summary.skipped).toBe(true)
+    expect(summary.reason).toBe("overlap_in_progress")
+    expect(mockUpsertCandidate).not.toHaveBeenCalled()
   })
 })
