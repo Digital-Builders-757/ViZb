@@ -1,11 +1,47 @@
 # Next roadmap — current follow-ups
 
-**Last updated:** June 11, 2026
+**Last updated:** June 22, 2026
 **Status source:** `docs/MVP_STATUS_ROADMAP.md` (deep detail) · `MVP_STATUS.md` (at a glance)
 
 All prior roadmaps are complete and archived (`docs/archive/`). **Retention + personalization batch (#154–#161)** closed June 11, 2026 on `develop`. **#162 (Sentry SDK)** wired June 11, 2026 — Production/main only.
 
 This file is the single forward-looking list. Add new items here (or open GitHub issues and link them) instead of resurrecting archived roadmaps.
+
+---
+
+## Active initiative — multi-source local event ingestion
+
+**Epic:** #265  
+**Canonical roadmap:** `docs/roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md`  
+**Architecture and operations:** `docs/imports/LOCAL_EVENT_INGESTION.md`
+
+ViZb is shifting from a single Eventbrite-organization importer toward a source-agnostic local event ingestion system for Hampton Roads. The Eventbrite importer is implemented but parked under #259 and remains disabled by default.
+
+Product boundary: discovered third-party events may become reviewed public listings, but ViZb-native ticketing is only available after a verified organizer claims or creates the event and completes the required commerce setup.
+
+### Foundation
+
+- [ ] **#266** — source adapters, normalized candidates, provenance, and import-run logs
+- [ ] **#268** — Hampton Roads geography, schedules, freshness, and source controls
+- [ ] **#275** — end-to-end documentation and roadmap maintenance
+
+### First public discovery source
+
+- [ ] **#267** — Ticketmaster Discovery adapter
+- [ ] **#269** — cross-source duplicate detection and merge workflow
+- [ ] **#270** — unified multi-source admin review queue
+
+### Supply growth
+
+- [ ] **#271** — native organizer event submission
+- [ ] **#272** — staff event URL import
+- [ ] **#273** — venue and calendar feed registry
+
+### Native commerce conversion
+
+- [ ] **#274** — verified organizer claim and conversion to ViZb-native ticketing
+
+Recommended order: #266 → #268 → #267 → #269 → #270, then #271/#272, #273, and #274. Documentation issue #275 stays active across every implementation pull request.
 
 ---
 
