@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { getRegisteredAdapter } from "@/lib/imports/adapters/registry"
 import { upsertCandidate } from "@/lib/imports/candidate-repository"
+import { buildDiscoveryDateWindow } from "@/lib/imports/geography/date-window"
+import { findOverlappingImportRun } from "@/lib/imports/geography/run-lock"
 import { getIngestionEnvironment } from "@/lib/imports/source-env"
 import type { ImportRunSummary, RunSourceImportOptions, SourceWindow } from "@/lib/imports/types"
 import { logError, logWarn } from "@/lib/log"
@@ -24,11 +26,11 @@ async function updateSourceHealth(
   sourceKey: string,
   success: boolean,
   errorSummary: string | null,
-): Promise<void> {
+): Promise<string | null> {
   const now = new Date().toISOString()
 
   if (success) {
-    await admin
+    const { error } = await admin
       .from("event_sources")
       .update({
         last_success_at: now,
@@ -37,7 +39,7 @@ async function updateSourceHealth(
         updated_at: now,
       })
       .eq("source_key", sourceKey)
-    return
+    return error?.message ?? null
   }
 
   const { data: current } = await admin
@@ -48,7 +50,7 @@ async function updateSourceHealth(
 
   const failures = ((current?.consecutive_failures as number | undefined) ?? 0) + 1
 
-  await admin
+  const { error } = await admin
     .from("event_sources")
     .update({
       last_failure_at: now,
@@ -57,15 +59,19 @@ async function updateSourceHealth(
       updated_at: now,
     })
     .eq("source_key", sourceKey)
+
+  return error?.message ?? null
 }
 
 function defaultWindow(lookaheadDays: number): SourceWindow {
-  const now = new Date()
-  const rangeEnd = new Date(now)
-  rangeEnd.setUTCDate(rangeEnd.getUTCDate() + lookaheadDays)
+  const window = buildDiscoveryDateWindow({ lookaheadDays })
   return {
-    rangeStartIso: now.toISOString(),
-    rangeEndIso: rangeEnd.toISOString(),
+    rangeStartIso: window.rangeStartIso,
+    rangeEndIso: window.rangeEndIso,
+    metadata: {
+      timezone: window.timezone,
+      pastEventGraceDays: window.pastEventGraceDays,
+    },
   }
 }
 
@@ -127,6 +133,25 @@ export async function runSourceImport(
     }
   }
 
+  const overlap = await findOverlappingImportRun(admin, sourceKey)
+  if (overlap.blocked) {
+    logWarn(`imports.run.${sourceKey}`, "Import skipped — overlapping run in progress.", {
+      sourceKey,
+      runId: overlap.runId,
+    })
+    return {
+      ok: false,
+      skipped: true,
+      reason: "overlap_in_progress",
+      sourceKey,
+      found: 0,
+      created: 0,
+      updated: 0,
+      skippedRecords: 0,
+      errors: [`Import already running for ${sourceKey} (run ${overlap.runId}).`],
+    }
+  }
+
   const window =
     options.window ??
     defaultWindow(options.defaultLookaheadDays ?? 90)
@@ -161,8 +186,11 @@ export async function runSourceImport(
 
   const runId = runRow.id as string
 
-  const finishRun = async (status: "completed" | "failed", errorMessage: string | null) => {
-    await admin
+  const finalizeImportRun = async (
+    status: "completed" | "failed",
+    errorMessage: string | null,
+  ): Promise<{ ok: true } | { ok: false; message: string }> => {
+    const { error: runUpdateError } = await admin
       .from("event_import_runs")
       .update({
         status,
@@ -184,12 +212,22 @@ export async function runSourceImport(
       })
       .eq("id", runId)
 
-    await updateSourceHealth(
+    if (runUpdateError) {
+      return { ok: false, message: runUpdateError.message }
+    }
+
+    const healthError = await updateSourceHealth(
       admin,
       sourceKey,
       status === "completed" && errors.length === 0,
       errorMessage,
     )
+
+    if (healthError) {
+      return { ok: false, message: `Source health update failed: ${healthError}` }
+    }
+
+    return { ok: true }
   }
 
   try {
@@ -225,7 +263,26 @@ export async function runSourceImport(
       }
     }
 
-    await finishRun("completed", errors.length > 0 ? errors.slice(0, 3).join("; ") : null)
+    const finalize = await finalizeImportRun(
+      "completed",
+      errors.length > 0 ? errors.slice(0, 3).join("; ") : null,
+    )
+
+    if (!finalize.ok) {
+      logError(`imports.run.${sourceKey}`, new Error(finalize.message), { runId, sourceKey })
+      errors.push(`Import run finalize failed: ${finalize.message}`)
+      return {
+        ok: false,
+        reason: "run_finalize_failed",
+        runId,
+        sourceKey,
+        found,
+        created,
+        updated,
+        skippedRecords,
+        errors,
+      }
+    }
 
     return {
       ok: true,
@@ -241,7 +298,11 @@ export async function runSourceImport(
     logError(`imports.run.${sourceKey}`, err)
     const msg = err instanceof Error ? err.message : "Import failed."
     errors.push(msg)
-    await finishRun("failed", msg)
+    const finalize = await finalizeImportRun("failed", msg)
+    if (!finalize.ok) {
+      logError(`imports.run.${sourceKey}`, new Error(finalize.message), { runId, sourceKey })
+      errors.push(`Import run finalize failed: ${finalize.message}`)
+    }
     return {
       ok: false,
       runId,

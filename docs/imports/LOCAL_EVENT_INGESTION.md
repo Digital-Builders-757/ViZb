@@ -2,7 +2,7 @@
 
 **Epic:** #265  
 **Roadmap:** `docs/roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md`  
-**Status:** Foundation implemented (#266, June 2026). Geography (#268), Ticketmaster (#267), deduplication (#269), and unified review queue (#270) are next.
+**Status:** Foundation (#266), geography (#268), and Ticketmaster adapter (#267, June 2026) implemented. Deduplication (#269) and unified review queue (#270) are next.
 
 ## Purpose
 
@@ -93,6 +93,50 @@ Shipped June 2026:
 - `POST /api/admin/imports/eventbrite/run` — manual Eventbrite run (delegates to shared runner)
 
 Contract reference: `docs/contracts/event-ingestion.md`.
+
+## Geography and schedules (#268)
+
+Shipped June 2026 — centralized server-only configuration in `lib/imports/geography/`:
+
+| Component | Location |
+|-----------|----------|
+| Launch market + 8 cities | `lib/imports/geography/hampton-roads.ts` |
+| Schedule defaults + env parsing | `lib/imports/geography/schedule-config.ts` |
+| ET → UTC date windows | `lib/imports/geography/date-window.ts` |
+| Pagination / record limits | `lib/imports/geography/limits.ts` |
+| Stale threshold helpers | `lib/imports/geography/freshness.ts` |
+| Ops coverage summary | `lib/imports/geography/coverage.ts` |
+| Overlapping run lock | `lib/imports/geography/run-lock.ts` |
+
+**Launch cities:** Norfolk, Virginia Beach, Chesapeake, Portsmouth, Hampton, Newport News, Suffolk, Williamsburg (`stateCode=VA`, `countryCode=US`, `timezone=America/New_York`).
+
+**Conservative defaults:** 90-day lookahead, 1-day past-event grace, 14-day stale threshold, page size 20, max 5 pages per city, max 500 records per run, 6-hour documented cadence (matches `event_sources.default_cadence_hours`).
+
+**Environment policy:** `INGESTION_DISCOVERY_ENABLED` defaults to **false in production**; preview/development allow discovery unless explicitly disabled.
+
+**Orchestrator integration:** `runSourceImport` uses `buildDiscoveryDateWindow()` for default windows and skips when another `event_import_runs.status = running` row exists for the same source.
+
+Adapters must consume geography helpers — do not hardcode Hampton Roads cities inside source-specific clients.
+
+## Ticketmaster Discovery (#267)
+
+Shipped June 2026 — first public geographic source:
+
+| Component | Location |
+|-----------|----------|
+| Env helpers | `lib/ticketmaster/env.ts` |
+| Discovery client | `lib/ticketmaster/client.ts` |
+| Normalizer | `lib/ticketmaster/normalize.ts` |
+| Adapter | `lib/ticketmaster/adapter.ts` |
+| Import entry | `lib/imports/run-ticketmaster-import.ts` |
+| Ops guide | `docs/imports/ticketmaster.md` |
+
+**Staff ops endpoints:**
+
+- `POST /api/admin/imports/ticketmaster/run` — manual Ticketmaster run
+- `GET /api/cron/ticketmaster-import` — scheduled run (fail-closed when disabled)
+
+**Production policy:** keep `TICKETMASTER_IMPORT_ENABLED=false` and `event_sources.enabled_in_db = false` until Preview shadow import is approved.
 
 ## Domain model
 

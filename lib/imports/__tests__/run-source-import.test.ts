@@ -20,9 +20,15 @@ const mockUpsertCandidate = vi.mocked(upsertCandidate)
 function createMockAdmin(overrides: {
   enabledInDb?: boolean
   runId?: string
+  overlappingRun?: boolean
+  finalizeRunError?: string
+  sourceHealthError?: string
 } = {}): SupabaseClient {
   const runId = overrides.runId ?? "run-1"
   const enabledInDb = overrides.enabledInDb ?? true
+  const overlappingRun = overrides.overlappingRun ?? false
+  const finalizeRunError = overrides.finalizeRunError
+  const sourceHealthError = overrides.sourceHealthError
 
   const from = vi.fn((table: string) => {
     if (table === "event_sources") {
@@ -36,19 +42,41 @@ function createMockAdmin(overrides: {
           })),
         })),
         update: vi.fn(() => ({
-          eq: vi.fn(async () => ({ error: null })),
+          eq: vi.fn(async () => ({
+            error: sourceHealthError ? { message: sourceHealthError } : null,
+          })),
         })),
       }
     }
     if (table === "event_import_runs") {
       return {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              order: vi.fn(() => ({
+                limit: vi.fn(() => ({
+                  maybeSingle: vi.fn(async () =>
+                    overlappingRun
+                      ? {
+                          data: { id: "run-overlap", started_at: "2026-06-15T10:00:00.000Z" },
+                          error: null,
+                        }
+                      : { data: null, error: null },
+                  ),
+                })),
+              })),
+            })),
+          })),
+        })),
         insert: vi.fn(() => ({
           select: vi.fn(() => ({
             single: vi.fn(async () => ({ data: { id: runId }, error: null })),
           })),
         })),
         update: vi.fn(() => ({
-          eq: vi.fn(async () => ({ error: null })),
+          eq: vi.fn(async () => ({
+            error: finalizeRunError ? { message: finalizeRunError } : null,
+          })),
         })),
       }
     }
@@ -193,5 +221,58 @@ describe("runSourceImport", () => {
     expect(summary.found).toBe(1)
     expect(summary.created).toBe(1)
     expect(mockUpsertCandidate).toHaveBeenCalledOnce()
+  })
+
+  it("skips when an overlapping import run is in progress", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(mockAdapter())
+    const summary = await runSourceImport(createMockAdmin({ overlappingRun: true }), {
+      sourceKey: "test_source",
+      trigger: "manual",
+    })
+
+    expect(summary.skipped).toBe(true)
+    expect(summary.reason).toBe("overlap_in_progress")
+    expect(mockUpsertCandidate).not.toHaveBeenCalled()
+  })
+
+  it("returns run_finalize_failed when run row update fails after successful import", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(mockAdapter())
+    mockUpsertCandidate.mockResolvedValue({ action: "created", candidateId: "c-1" })
+
+    const summary = await runSourceImport(
+      createMockAdmin({ finalizeRunError: "connection reset" }),
+      {
+        sourceKey: "test_source",
+        trigger: "manual",
+      },
+    )
+
+    expect(summary.ok).toBe(false)
+    expect(summary.reason).toBe("run_finalize_failed")
+    expect(summary.created).toBe(1)
+    expect(summary.errors.some((e) => e.includes("connection reset"))).toBe(true)
+  })
+
+  it("appends finalize error when import fails and run row update also fails", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(
+      mockAdapter({
+        fetchCandidates: vi.fn(async function* () {
+          throw new Error("fetch failed")
+        }),
+      }),
+    )
+
+    const summary = await runSourceImport(
+      createMockAdmin({ finalizeRunError: "connection reset" }),
+      {
+        sourceKey: "test_source",
+        trigger: "manual",
+      },
+    )
+
+    expect(summary.ok).toBe(false)
+    expect(summary.reason).toBeUndefined()
+    expect(summary.errors).toContain("fetch failed")
+    expect(summary.errors.some((e) => e.includes("connection reset"))).toBe(true)
   })
 })

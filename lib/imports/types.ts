@@ -38,7 +38,13 @@ export type SourceReadiness = {
   ready: boolean
   enabled: boolean
   configured: boolean
-  code?: "disabled" | "missing_credentials" | "not_registered" | "registry_disabled"
+  code?:
+    | "disabled"
+    | "missing_credentials"
+    | "not_registered"
+    | "registry_disabled"
+    | "overlap_in_progress"
+    | "invalid_geography"
   message?: string
 }
 

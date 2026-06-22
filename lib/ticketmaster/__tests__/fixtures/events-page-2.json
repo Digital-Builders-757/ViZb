@@ -1,0 +1,36 @@
+{
+  "page": {
+    "size": 1,
+    "totalElements": 2,
+    "totalPages": 2,
+    "number": 1
+  },
+  "_embedded": {
+    "events": [
+      {
+        "id": "G5vYZbY1A4X9A",
+        "name": "Norfolk Jazz Festival Duplicate",
+        "url": "https://www.ticketmaster.com/event/G5vYZbY1A4X9A",
+        "dates": {
+          "start": { "dateTime": "2026-08-02T00:00:00Z" },
+          "timezone": "America/New_York"
+        },
+        "_embedded": {
+          "venues": [{ "name": "Harbor Stage", "city": { "name": "Virginia Beach" }, "state": { "stateCode": "VA" } }]
+        }
+      },
+      {
+        "id": "G5vYZbY1A4X9B",
+        "name": "Virginia Beach Concert",
+        "url": "https://www.ticketmaster.com/event/G5vYZbY1A4X9B",
+        "dates": {
+          "start": { "dateTime": "2026-08-03T00:00:00Z" },
+          "timezone": "America/New_York"
+        },
+        "_embedded": {
+          "venues": [{ "name": "Beach Arena", "city": { "name": "Virginia Beach" }, "state": { "stateCode": "VA" } }]
+        }
+      }
+    ]
+  }
+}
