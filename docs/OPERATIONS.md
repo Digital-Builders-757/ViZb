@@ -243,7 +243,7 @@ Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test:
 - **Per-source health:** `GET /api/admin/imports/sources/{sourceKey}/health`
 - **Runtime gates:** per-source env flag **and** `event_sources.enabled_in_db = true`
 - **Disable a source:** set env flag false; set `enabled_in_db = false` in `event_sources`; cron/manual routes fail closed
-- **Preview verification:** apply migration `20260622193500_event_ingestion_foundation.sql`, confirm readiness endpoints, optional dev import with both gates enabled — candidates land in `event_candidates` (admin UI queue rewrite is #270)
+- **Preview verification:** apply migration `20260622193458_event_ingestion_foundation.sql`, confirm readiness endpoints, optional dev import with both gates enabled — candidates land in `event_candidates` (admin UI queue rewrite is #270)
 
 ---
 

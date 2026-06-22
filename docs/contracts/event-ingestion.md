@@ -22,7 +22,7 @@
 | `event_candidate_reviews` | Immutable audit of import and review actions |
 | `event_import_runs` | Per-run summaries (legacy `events_*` + `candidates_*` counters) |
 
-Migration: `supabase/migrations/20260622193500_event_ingestion_foundation.sql`
+Migration: `supabase/migrations/20260622193458_event_ingestion_foundation.sql`
 
 ## Candidate identity
 

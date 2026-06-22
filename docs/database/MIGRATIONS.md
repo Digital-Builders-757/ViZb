@@ -44,7 +44,7 @@ At minimum, shared environments used for event workflows should have applied:
 
 **Eventbrite import (parked):** `20260617120000_eventbrite_import.sql` — source columns on `events`, `event_import_runs` audit table.
 
-**Multi-source ingestion foundation (#266):** `20260622193500_event_ingestion_foundation.sql` — `event_sources`, `event_candidates`, `event_candidate_reviews`; extends `event_import_runs` with candidate counters and window metadata. RLS: staff SELECT on all new tables; writes via service role. See **`docs/contracts/event-ingestion.md`**.
+**Multi-source ingestion foundation (#266):** `20260622193458_event_ingestion_foundation.sql` — `event_sources`, `event_candidates`, `event_candidate_reviews`; extends `event_import_runs` with candidate counters and window metadata. RLS: staff SELECT on all new tables; writes via service role. See **`docs/contracts/event-ingestion.md`**.
 
 ## Quick verification
 

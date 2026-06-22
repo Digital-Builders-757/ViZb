@@ -72,7 +72,7 @@ Shipped June 2026:
 | Candidate repository | `lib/imports/candidate-repository.ts` |
 | Source readiness API helpers | `lib/imports/source-readiness.ts` |
 | Eventbrite adapter (parked) | `lib/eventbrite/adapter.ts` |
-| Schema migration | `supabase/migrations/20260622193500_event_ingestion_foundation.sql` |
+| Schema migration | `supabase/migrations/20260622193458_event_ingestion_foundation.sql` |
 
 **Database tables:**
 
