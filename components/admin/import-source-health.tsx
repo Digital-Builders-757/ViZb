@@ -42,7 +42,7 @@ export function ImportSourceHealth({ sources }: { sources: EventSourceListItem[]
                 </dd>
               </div>
               <div>
-                <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Failures</dt>
+                <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Run failures</dt>
                 <dd className="mt-1 text-foreground">{source.consecutive_failures}</dd>
               </div>
               <div>
