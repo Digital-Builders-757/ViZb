@@ -223,6 +223,26 @@ describe("runSourceImport", () => {
     expect(mockUpsertCandidate).toHaveBeenCalledOnce()
   })
 
+  it("completes successfully when records are skipped during normalization", async () => {
+    mockGetRegisteredAdapter.mockReturnValue(
+      mockAdapter({
+        normalize: vi.fn(() => ({ error: "Ticketmaster event abc missing start dateTime." })),
+      }),
+    )
+
+    const summary = await runSourceImport(createMockAdmin(), {
+      sourceKey: "test_source",
+      trigger: "manual",
+    })
+
+    expect(summary.ok).toBe(true)
+    expect(summary.found).toBe(1)
+    expect(summary.created).toBe(0)
+    expect(summary.skippedRecords).toBe(1)
+    expect(summary.errors).toContain("Ticketmaster event abc missing start dateTime.")
+    expect(mockUpsertCandidate).not.toHaveBeenCalled()
+  })
+
   it("skips when an overlapping import run is in progress", async () => {
     mockGetRegisteredAdapter.mockReturnValue(mockAdapter())
     const summary = await runSourceImport(createMockAdmin({ overlappingRun: true }), {

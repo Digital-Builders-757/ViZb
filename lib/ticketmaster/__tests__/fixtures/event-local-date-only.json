@@ -1,0 +1,25 @@
+{
+  "id": "Z7r9jZ1A7x8J7",
+  "name": "Time TBA Show",
+  "url": "https://www.ticketmaster.com/event/Z7r9jZ1A7x8J7",
+  "dates": {
+    "start": {
+      "localDate": "2026-09-15",
+      "dateTBD": false,
+      "dateTBA": false,
+      "timeTBA": true,
+      "noSpecificTime": false
+    },
+    "timezone": "America/New_York",
+    "status": { "code": "onsale" }
+  },
+  "_embedded": {
+    "venues": [
+      {
+        "name": "Scope Arena",
+        "city": { "name": "Norfolk" },
+        "state": { "stateCode": "VA" }
+      }
+    ]
+  }
+}

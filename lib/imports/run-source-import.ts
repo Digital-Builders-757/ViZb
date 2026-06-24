@@ -81,6 +81,8 @@ export async function runSourceImport(
 ): Promise<ImportRunSummary> {
   const { sourceKey, trigger, triggeredBy } = options
   const errors: string[] = []
+  const recordSkips: string[] = []
+  const operationalErrors: string[] = []
   let found = 0
   let created = 0
   let updated = 0
@@ -186,9 +188,20 @@ export async function runSourceImport(
 
   const runId = runRow.id as string
 
+  const buildCompletedRunMessage = (): string | null => {
+    if (operationalErrors.length > 0) {
+      return operationalErrors.slice(0, 3).join("; ")
+    }
+    if (recordSkips.length > 0) {
+      return `${recordSkips.length} record(s) skipped: ${recordSkips.slice(0, 3).join("; ")}`
+    }
+    return null
+  }
+
   const finalizeImportRun = async (
     status: "completed" | "failed",
     errorMessage: string | null,
+    healthSuccess: boolean,
   ): Promise<{ ok: true } | { ok: false; message: string }> => {
     const { error: runUpdateError } = await admin
       .from("event_import_runs")
@@ -208,6 +221,8 @@ export async function runSourceImport(
           trigger,
           triggered_by: triggeredBy ?? null,
           errors: errors.slice(0, 50),
+          record_skips: recordSkips.slice(0, 50),
+          operational_errors: operationalErrors.slice(0, 50),
         },
       })
       .eq("id", runId)
@@ -219,8 +234,8 @@ export async function runSourceImport(
     const healthError = await updateSourceHealth(
       admin,
       sourceKey,
-      status === "completed" && errors.length === 0,
-      errorMessage,
+      healthSuccess,
+      healthSuccess ? null : errorMessage,
     )
 
     if (healthError) {
@@ -236,6 +251,7 @@ export async function runSourceImport(
         found += 1
         const normalized = adapter.normalize(record)
         if ("error" in normalized) {
+          recordSkips.push(normalized.error)
           errors.push(normalized.error)
           skippedRecords += 1
           continue
@@ -256,6 +272,7 @@ export async function runSourceImport(
           }
         } catch (err) {
           const msg = err instanceof Error ? err.message : "Candidate upsert failed."
+          operationalErrors.push(msg)
           errors.push(msg)
           skippedRecords += 1
           logError(`imports.candidate.upsert`, err, { sourceKey })
@@ -263,9 +280,11 @@ export async function runSourceImport(
       }
     }
 
+    const completedMessage = buildCompletedRunMessage()
     const finalize = await finalizeImportRun(
       "completed",
-      errors.length > 0 ? errors.slice(0, 3).join("; ") : null,
+      completedMessage,
+      operationalErrors.length === 0,
     )
 
     if (!finalize.ok) {
@@ -297,8 +316,9 @@ export async function runSourceImport(
   } catch (err) {
     logError(`imports.run.${sourceKey}`, err)
     const msg = err instanceof Error ? err.message : "Import failed."
+    operationalErrors.push(msg)
     errors.push(msg)
-    const finalize = await finalizeImportRun("failed", msg)
+    const finalize = await finalizeImportRun("failed", msg, false)
     if (!finalize.ok) {
       logError(`imports.run.${sourceKey}`, new Error(finalize.message), { runId, sourceKey })
       errors.push(`Import run finalize failed: ${finalize.message}`)
