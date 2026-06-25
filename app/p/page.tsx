@@ -43,7 +43,7 @@ export default async function PostsIndexPage() {
                 description="Check back soon for recaps, scene notes, and what's next across Virginia."
               />
             ) : (
-              <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="mt-10 grid grid-cols-1 items-stretch gap-4 md:grid-cols-3">
                 {posts.map((p) => (
                   <PostCard key={p.id} post={p} isRecap={recapIds.has(p.id)} />
                 ))}

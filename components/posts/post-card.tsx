@@ -19,10 +19,14 @@ export function PostCard({
   return (
     <Link
       href={href}
-      className="events-neon-card events-neon-card-hover group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
+      className="events-neon-card events-neon-card-hover group flex h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
     >
-      <GlassCard className="overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/20 p-0" emphasis interactive>
-        <div className="relative aspect-[16/9] w-full bg-[color:var(--neon-bg1)]">
+      <GlassCard
+        className="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-[color:var(--neon-surface)]/20 p-0"
+        emphasis
+        interactive
+      >
+        <div className="relative aspect-[16/9] w-full shrink-0 bg-[color:var(--neon-bg1)]">
           {post.cover_image_url ? (
             <Image
               src={post.cover_image_url}
@@ -50,20 +54,18 @@ export function PostCard({
           </div>
         </div>
 
-        <div className="min-h-[5.5rem] border-t border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/85 p-4 backdrop-blur-sm">
+        <div className="flex flex-1 flex-col border-t border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/85 p-4 backdrop-blur-sm">
           {publishedLabel ? (
             <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
               {publishedLabel}
             </p>
           ) : null}
-          <h3 className="mt-1 line-clamp-2 text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
+          <h3 className="mt-1 line-clamp-2 min-h-[2.75rem] text-balance text-base font-bold tracking-tight text-[color:var(--neon-text0)] md:text-lg">
             {post.title}
           </h3>
-          {post.excerpt ? (
-            <p className="mt-1 line-clamp-2 text-[13px] leading-[1.6] text-[color:var(--neon-text1)] sm:text-sm">
-              {post.excerpt}
-            </p>
-          ) : null}
+          <p className="mt-1 line-clamp-2 min-h-[2.5rem] text-[13px] leading-[1.6] text-[color:var(--neon-text1)] sm:text-sm">
+            {post.excerpt ?? "\u00A0"}
+          </p>
         </div>
       </GlassCard>
     </Link>

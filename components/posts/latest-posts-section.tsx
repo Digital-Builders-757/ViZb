@@ -33,7 +33,7 @@ export async function LatestPostsSection() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-3">
         {posts.map((p) => (
           <PostCard key={p.id} post={p} isRecap={recapIds.has(p.id)} />
         ))}
