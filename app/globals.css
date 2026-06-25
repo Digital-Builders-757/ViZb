@@ -203,8 +203,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-poppins), "Poppins", system-ui, sans-serif;
-  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-outfit), "Outfit", system-ui, sans-serif;
+  --font-serif: var(--font-outfit), "Outfit", system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
   /* ViBE brand spectrum */
   --color-brand-blue: #0D40FF;
@@ -618,10 +618,10 @@
 
 /* Editorial text styles */
 .headline-xl {
-  font-size: clamp(3rem, 12vw, 10rem);
+  font-size: clamp(3rem, 12vw, 7rem);
   line-height: 0.9;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  letter-spacing: -0.04em;
+  font-weight: 900;
 }
 
 .headline-lg {
@@ -659,14 +659,14 @@
 
 /* Adding neon gradient text animation - GPU accelerated */
 .neon-gradient-text {
-  background: linear-gradient(90deg, #0d40ff 0%, #0c74e8 25%, #00bdff 50%, #00e5ff 75%, #0d40ff 100%);
-  background-size: 200% auto;
+  background: linear-gradient(135deg, #00e5ff 0%, #9d00ff 100%);
+  background-size: 100% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: neon-flow 3s linear infinite;
-  text-shadow: 0 0 40px rgba(13, 64, 255, 0.5);
-  will-change: background-position;
+  color: transparent;
+  animation: none;
+  text-shadow: none;
 }
 
 @keyframes neon-flow {
@@ -1429,5 +1429,90 @@ html[data-events-filters-open="true"] .events-discovery-hero .motion-safe\:anima
 
   #timeline:target .events-timeline-shell {
     animation: none;
+  }
+}
+
+/* Home redesign (reference mockup) — scoped utilities */
+.home-redesign-grid {
+  background-size: 50px 50px;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+  mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+}
+
+.home-redesign-glow-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-redesign-text-gradient {
+  background: linear-gradient(135deg, #00e5ff 0%, #9d00ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.home-redesign-text-gradient-alt {
+  background: linear-gradient(135deg, #ff007f 0%, #9d00ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.home-redesign-glass {
+  background: rgb(15 16 22 / 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.home-redesign-glass-card {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.03) 0%, rgb(255 255 255 / 0.01) 100%);
+  background-color: rgb(15 16 22 / 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 0.05);
+  transition: all 0.3s ease;
+}
+
+.home-redesign-glass-card:hover {
+  border-color: rgb(0 229 255 / 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgb(0 229 255 / 0.15);
+}
+
+.home-redesign-btn-primary {
+  background: linear-gradient(135deg, #00e5ff 0%, #9d00ff 100%);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.home-redesign-btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  filter: blur(15px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.home-redesign-btn-primary:hover::before {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-redesign-glass-card:hover {
+    transform: none;
   }
 }
