@@ -1,7 +1,6 @@
 import { Navbar } from "@/components/navbar"
-import { HeroSection } from "@/components/hero-section"
-import { HomepageEventsPreview } from "@/components/homepage-events-preview"
-import { HomeTimelineSection } from "@/components/home-timeline-section"
+import { HomeRedesignHero } from "@/components/home/home-redesign-hero"
+import { HomeEventsGrid } from "@/components/home/home-events-grid"
 import { Footer } from "@/components/footer"
 import { AppShell } from "@/components/ui/app-shell"
 import { getHomepageEventsPreview } from "@/lib/events/homepage-events"
@@ -13,15 +12,13 @@ export default async function HomePage() {
 
   return (
     <AppShell
-      withNeonBackdrop
-      causticVariant="hero"
-      className="text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
+      withNeonBackdrop={false}
+      className="bg-[#060609] text-[15px] leading-relaxed text-[color:var(--neon-text1)]"
     >
       <main className="min-h-screen">
         <Navbar />
-        <HeroSection />
-        <HomepageEventsPreview data={homepageEventsPreview} />
-        <HomeTimelineSection />
+        <HomeRedesignHero />
+        <HomeEventsGrid data={homepageEventsPreview} />
         <Footer />
       </main>
     </AppShell>
