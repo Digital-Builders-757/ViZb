@@ -3,32 +3,31 @@ import Link from "next/link"
 import { Clock, MapPin } from "lucide-react"
 
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
-import { formatCategoryLabel, formatEventTime } from "@/lib/events/event-display-format"
+import {
+  formatCategoryLabel,
+  formatEventTimeRangeWithZone,
+} from "@/lib/events/event-display-format"
 import { EVENT_DISPLAY_TIMEZONE } from "@/lib/events/eastern-datetime"
 import type { ListingEvent } from "@/lib/events/listing-event"
 import { getListingEventPriceLabel } from "@/lib/events/listing-event"
 
 const CATEGORY_PILL_CLASS: Record<string, string> = {
-  party: "bg-[#9d00ff]",
-  concert: "bg-[#ff007f]",
-  networking: "bg-[#00e5ff]",
-  workshop: "bg-[#00e5ff]",
-  social: "bg-[#9d00ff]",
-  open_mic: "bg-yellow-500",
-  other: "bg-[#00e5ff]",
+  party: "border-[color:var(--neon-c)]/45 bg-[color:var(--neon-c)]/18 text-[color:var(--neon-text0)]",
+  concert: "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/18 text-[color:var(--neon-text0)]",
+  networking: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
+  workshop: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
+  social: "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/18 text-[color:var(--neon-text0)]",
+  open_mic: "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 text-[color:var(--neon-text0)]",
+  other: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
 }
 
 function categoryPillClass(category: string): string {
   const key = category.toLowerCase()
-  return CATEGORY_PILL_CLASS[key] ?? "bg-[#9d00ff]"
+  return CATEGORY_PILL_CLASS[key] ?? CATEGORY_PILL_CLASS.other
 }
 
 function formatEventTimeRange(startsAt: string, endsAt: string | null): string {
-  const start = formatEventTime(startsAt)
-  if (!endsAt) return `${start} ET`
-  const end = formatEventTime(endsAt)
-  if (start === end) return `${start} ET`
-  return `${start} – ${end} ET`
+  return formatEventTimeRangeWithZone(startsAt, endsAt)
 }
 
 function ctaLabel(priceLabel: string | null): string {
@@ -84,7 +83,7 @@ export function HomeEventGridCard({ event }: { event: ListingEvent }) {
         <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0f1016] via-transparent to-transparent" />
         <div className="absolute left-4 top-4 z-20 flex gap-2">
           <span
-            className={`${categoryPillClass(primaryCategory)} rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white`}
+            className={`${categoryPillClass(primaryCategory)} rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-widest backdrop-blur`}
           >
             {categoryLabel}
           </span>
@@ -109,9 +108,11 @@ export function HomeEventGridCard({ event }: { event: ListingEvent }) {
             <span>{timeRange}</span>
           </div>
         </div>
-        <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
-          <span className="text-lg font-bold text-white">{priceLabel ?? "See details"}</span>
-          <span className="rounded-lg bg-white/5 px-4 py-2 text-sm font-bold text-white transition-all group-hover:bg-[color:var(--neon-a)] group-hover:text-black">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-[color:var(--neon-hairline)]/55 pt-4">
+          <span className="min-w-0 text-base font-bold text-[color:var(--neon-text0)]">
+            {priceLabel ?? "See details"}
+          </span>
+          <span className="shrink-0 rounded-lg border border-[color:var(--neon-a)]/35 bg-[color:var(--neon-a)]/10 px-4 py-2 text-sm font-bold text-[color:var(--neon-a)] transition-all group-hover:bg-[color:var(--neon-a)] group-hover:text-[color:var(--neon-bg0)]">
             {ctaLabel(priceLabel)}
           </span>
         </div>

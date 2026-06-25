@@ -3,6 +3,7 @@
 import { TZDate } from "@date-fns/tz"
 
 export const EVENT_DISPLAY_TIMEZONE = "America/New_York" as const
+export const EVENT_DISPLAY_TIMEZONE_LABEL = "EST" as const
 
 const DATETIME_LOCAL_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
 
@@ -104,7 +105,7 @@ export function reinterpretUtcComponentsAsEasternToIso(iso: string): string | nu
   return parseEasternDatetimeLocalToIso(localLike)
 }
 
-/** Noon UTC anchor for an Eastern civil date key — safe for ET date formatting. */
+/** Noon UTC anchor for an Eastern civil date key - safe for Eastern date formatting. */
 export function easternCivilDateKeyToDate(dateKey: string): Date {
   const [y, m, d] = dateKey.split("-").map((part) => Number.parseInt(part, 10))
   return new Date(Date.UTC(y, m - 1, d, 12, 0, 0))

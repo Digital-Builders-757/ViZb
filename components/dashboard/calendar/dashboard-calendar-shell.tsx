@@ -154,7 +154,7 @@ export function DashboardCalendarShell({
             Planner
           </h2>
           <p className="mt-1 text-sm text-[color:var(--neon-text2)]">
-            Scan the month, plan the week, or browse what&apos;s next (Eastern dates).
+            Scan the month, plan the week, or browse what&apos;s next (EST dates).
           </p>
         </div>
 

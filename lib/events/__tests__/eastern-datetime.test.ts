@@ -9,7 +9,7 @@ import {
 } from "../eastern-datetime"
 
 describe("parseEasternDatetimeLocalToIso", () => {
-  it("converts Eastern summer wall time to UTC (EDT, UTC-4)", () => {
+  it("converts Eastern summer wall time to UTC (UTC-4 offset)", () => {
     expect(parseEasternDatetimeLocalToIso("2026-07-01T19:00")).toBe("2026-07-01T23:00:00.000Z")
   })
 

@@ -1,19 +1,17 @@
 import Link from "next/link"
 import { ArrowDown, ArrowRight } from "lucide-react"
 
+import { WaterHeadline } from "@/components/home/water-headline"
+
 export function HomeRedesignHero() {
   return (
     <section
       id="hero"
-      className="relative flex w-full flex-col items-center overflow-hidden px-6 pb-12 pt-28 text-center lg:pb-16 lg:pt-36"
+      className="home-midnight-hero relative flex w-full flex-col items-center overflow-hidden px-6 pb-16 pt-28 text-center lg:pb-20 lg:pt-36"
     >
       <div className="home-redesign-grid absolute inset-0 z-0" aria-hidden />
-
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
-        <div className="home-redesign-glow-blob -right-[100px] -top-[200px] h-[600px] w-[600px] bg-[#9d00ff]/20" />
-        <div className="home-redesign-glow-blob -left-[200px] top-[40%] h-[500px] w-[500px] bg-[#00e5ff]/15" />
-        <div className="home-redesign-glow-blob -bottom-[300px] right-[10%] h-[700px] w-[700px] bg-[#ff007f]/10" />
-      </div>
+      <div className="home-midnight-caustics absolute inset-0 z-0" aria-hidden />
+      <div className="home-midnight-horizon absolute inset-x-0 bottom-0 z-0 h-48" aria-hidden />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center">
         <div className="home-redesign-glass mb-8 inline-flex items-center gap-2 rounded-full border-[color:rgb(0_229_255_/_0.3)] px-4 py-2 text-sm font-medium text-[color:var(--neon-a)]">
@@ -21,10 +19,7 @@ export function HomeRedesignHero() {
           The heartbeat of Virginia
         </div>
 
-        <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tighter sm:text-6xl md:text-7xl lg:text-[7rem]">
-          Virginia <br className="hidden md:block" />
-          <span className="home-redesign-text-gradient">Isn&apos;t Boring</span>
-        </h1>
+        <WaterHeadline eyebrow="Virginia" accent="Isn't Boring" />
 
         <p className="mb-10 max-w-2xl text-lg font-light text-[color:var(--neon-text1)] md:text-2xl">
           Discover curated events, underground parties, and local culture across the 757, RVA, DMV

@@ -11,7 +11,11 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { Calendar, Clock, MapPin, ArrowLeft, Mic2 } from "lucide-react"
 import { normalizeCategories } from "@/lib/events/categories"
-import { formatCategoryLabel, formatEventDateLong, formatEventTime } from "@/lib/events/event-display-format"
+import {
+  formatCategoryLabel,
+  formatEventDateLong,
+  formatEventTimeWithZone,
+} from "@/lib/events/event-display-format"
 import {
   formatLineupStatusLabel,
   PUBLIC_LINEUP_STATUSES,
@@ -98,8 +102,8 @@ export default async function PublicLineupPage({
   const endsAt = rawEvent.ends_at ? new Date(rawEvent.ends_at) : null
 
   const dateStr = formatEventDateLong(startsAt.toISOString())
-  const timeStr = `${formatEventTime(startsAt.toISOString())} ET`
-  const endTimeStr = endsAt ? `${formatEventTime(endsAt.toISOString())} ET` : null
+  const timeStr = formatEventTimeWithZone(startsAt.toISOString())
+  const endTimeStr = endsAt ? formatEventTimeWithZone(endsAt.toISOString()) : null
 
   const eventDetailHref = `/events/${rawEvent.slug}`
 

@@ -16,7 +16,11 @@ import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
 import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
 import { normalizeCategories } from "@/lib/events/categories"
-import { formatCategoryLabel, formatEventDateLong, formatEventTime } from "@/lib/events/event-display-format"
+import {
+  formatCategoryLabel,
+  formatEventDateLong,
+  formatEventTimeWithZone,
+} from "@/lib/events/event-display-format"
 import { EventAttendeesPanel } from "@/components/organizer/event-attendees-panel"
 import {
   EventTicketTypesPanel,
@@ -162,11 +166,11 @@ export default async function EventDetailPage({
 
   const startDateStr = startsAt ? formatEventDateLong(startsAt.toISOString()) : null
 
-  const startTimeStr = startsAt ? `${formatEventTime(startsAt.toISOString())} ET` : null
+  const startTimeStr = startsAt ? formatEventTimeWithZone(startsAt.toISOString()) : null
 
   const endDateStr = endsAt ? formatEventDateLong(endsAt.toISOString()) : null
 
-  const endTimeStr = endsAt ? `${formatEventTime(endsAt.toISOString())} ET` : null
+  const endTimeStr = endsAt ? formatEventTimeWithZone(endsAt.toISOString()) : null
 
   const saveCount = await loadEventSaveCount(supabase, event.id)
   const communityListing = isCommunityEvent((event as { event_kind?: string }).event_kind)

@@ -45,7 +45,7 @@ export function EventsDiscoveryHero({ upcomingCount, children }: EventsDiscovery
           Filters for city, category, and vibe.
         </p>
         <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-          {upcomingCount > 0 ? `${upcomingCount} upcoming events` : "Timeline loading"} · Eastern time
+          {upcomingCount > 0 ? `${upcomingCount} upcoming events` : "Timeline loading"} · EST
         </p>
 
         {children ? <div className="mt-6">{children}</div> : null}
