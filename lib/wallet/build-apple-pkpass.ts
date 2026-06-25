@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { PKPass, type Barcode } from "passkit-generator"
+import { formatEventDateTimeCompact } from "@/lib/events/event-display-format"
 import { buildTicketBarcodeMessage } from "@/lib/tickets/barcode-token"
 import { getApplePassStaticIds, getBarcodeSecretOrThrow, loadAppleSignerMaterial } from "@/lib/wallet/env"
 
@@ -24,14 +25,7 @@ export function buildRsvpAppleWalletPkPass(input: {
   const start = new Date(input.startsAtIso)
   const dateStr = Number.isNaN(start.getTime())
     ? "TBA"
-    : start.toLocaleString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      })
+    : `${formatEventDateTimeCompact(input.startsAtIso)} ET`
 
   const passJson = {
     formatVersion: 1,

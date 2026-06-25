@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2, ExternalLink } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
-import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { formatCategoryLabel, formatEventDateLong, formatEventTime } from "@/lib/events/event-display-format"
 import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
@@ -311,19 +311,9 @@ export default async function PublicEventDetailPage({
   const siteBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
   const eventPublicUrl = siteBase ? `${siteBase}/events/${event.slug}` : `/events/${event.slug}`
 
-  const dateStr = startsAt.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  })
-  const timeStr = startsAt.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  })
-  const endTimeStr = endsAt
-    ? endsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-    : null
+  const dateStr = formatEventDateLong(startsAt.toISOString())
+  const timeStr = `${formatEventTime(startsAt.toISOString())} ET`
+  const endTimeStr = endsAt ? `${formatEventTime(endsAt.toISOString())} ET` : null
 
   return (
     <AppShell

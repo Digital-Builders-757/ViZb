@@ -5,6 +5,10 @@ import {
   CANDIDATE_DUPLICATE_STATUSES,
   CANDIDATE_REVIEW_STATUSES,
 } from "@/lib/imports/types"
+import {
+  formatIsoToEasternDatetimeLocal,
+  parseEasternDatetimeLocalToIso,
+} from "@/lib/events/eastern-datetime"
 import { NeonButton } from "@/components/ui/neon-button"
 import type { CandidateQueueFilters } from "@/lib/admin/candidate-queue-params"
 
@@ -30,8 +34,14 @@ export function CandidateImportFilters({
     if (reviewStatus) params.set("reviewStatus", reviewStatus)
     if (duplicateStatus) params.set("duplicateStatus", duplicateStatus)
     if (city) params.set("city", city)
-    if (startsFrom) params.set("startsFrom", new Date(startsFrom).toISOString())
-    if (startsTo) params.set("startsTo", new Date(startsTo).toISOString())
+    if (startsFrom) {
+      const iso = parseEasternDatetimeLocalToIso(startsFrom)
+      if (iso) params.set("startsFrom", iso)
+    }
+    if (startsTo) {
+      const iso = parseEasternDatetimeLocalToIso(startsTo)
+      if (iso) params.set("startsTo", iso)
+    }
 
     const qs = params.toString()
     router.push(qs ? `/admin/events/imports?${qs}` : "/admin/events/imports")
@@ -41,10 +51,8 @@ export function CandidateImportFilters({
     router.push("/admin/events/imports?reviewStatus=pending_review")
   }
 
-  const startsFromValue = filters.startsFrom
-    ? new Date(filters.startsFrom).toISOString().slice(0, 16)
-    : ""
-  const startsToValue = filters.startsTo ? new Date(filters.startsTo).toISOString().slice(0, 16) : ""
+  const startsFromValue = filters.startsFrom ? formatIsoToEasternDatetimeLocal(filters.startsFrom) : ""
+  const startsToValue = filters.startsTo ? formatIsoToEasternDatetimeLocal(filters.startsTo) : ""
 
   return (
     <form

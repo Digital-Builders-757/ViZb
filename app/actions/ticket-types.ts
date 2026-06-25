@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { requireOrgMember } from "@/lib/auth-helpers"
 import { revalidatePublicEventDiscoveryPaths } from "@/lib/events/revalidate-public-discovery"
 import { revalidatePath } from "next/cache"
+import { parseEasternDatetimeLocalToIso } from "@/lib/events/eastern-datetime"
 import { parseUsdStringToCents } from "@/lib/money/usd"
 import {
   DEFAULT_PAID_TIER_NAME,
@@ -23,9 +24,7 @@ function parseOptionalInt(formData: FormData, key: string): number | null {
 function parseOptionalIso(formData: FormData, key: string): string | null {
   const raw = formData.get(key)
   if (raw == null || String(raw).trim() === "") return null
-  const d = new Date(String(raw))
-  if (Number.isNaN(d.getTime())) return null
-  return d.toISOString()
+  return parseEasternDatetimeLocalToIso(String(raw))
 }
 
 async function loadEventForOrg(supabase: SupabaseClient, orgId: string, eventId: string) {

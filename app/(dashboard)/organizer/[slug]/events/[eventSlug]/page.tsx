@@ -16,7 +16,7 @@ import { FlyerUploadForm } from "@/components/organizer/flyer-upload-form"
 import { SubmitReviewButton } from "@/components/organizer/submit-review-button"
 import { EventDetailsEditForm } from "@/components/organizer/event-details-edit-form"
 import { normalizeCategories } from "@/lib/events/categories"
-import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { formatCategoryLabel, formatEventDateLong, formatEventTime } from "@/lib/events/event-display-format"
 import { EventAttendeesPanel } from "@/components/organizer/event-attendees-panel"
 import {
   EventTicketTypesPanel,
@@ -160,31 +160,13 @@ export default async function EventDetailPage({
   const startsAt = event.starts_at ? new Date(event.starts_at) : null
   const endsAt = event.ends_at ? new Date(event.ends_at) : null
 
-  const startDateStr = startsAt
-    ? startsAt.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null
+  const startDateStr = startsAt ? formatEventDateLong(startsAt.toISOString()) : null
 
-  const startTimeStr = startsAt
-    ? startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-    : null
+  const startTimeStr = startsAt ? `${formatEventTime(startsAt.toISOString())} ET` : null
 
-  const endDateStr = endsAt
-    ? endsAt.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null
+  const endDateStr = endsAt ? formatEventDateLong(endsAt.toISOString()) : null
 
-  const endTimeStr = endsAt
-    ? endsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-    : null
+  const endTimeStr = endsAt ? `${formatEventTime(endsAt.toISOString())} ET` : null
 
   const saveCount = await loadEventSaveCount(supabase, event.id)
   const communityListing = isCommunityEvent((event as { event_kind?: string }).event_kind)

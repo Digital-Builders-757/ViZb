@@ -1,6 +1,7 @@
 /** Pure display helpers — safe for Client Components (no server Supabase imports). */
 
 import { normalizeCategories } from "@/lib/events/categories"
+import { EVENT_DISPLAY_TIMEZONE } from "@/lib/events/eastern-datetime"
 
 /** Cap category chips for compact/medium surfaces; pair with `formatCategoryLabel` when rendering. */
 export function sliceCategoriesForDisplay(
@@ -16,7 +17,7 @@ export function sliceCategoriesForDisplay(
 
 export function formatDashboardEventWhen(startsAt: string, endsAt: string | null): string {
   const df = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
+    timeZone: EVENT_DISPLAY_TIMEZONE,
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -47,7 +48,7 @@ export function formatCategoryLabels(categories: string[] | null | undefined): s
 /** Compact Eastern time (and range) for dashboard day rows. */
 export function formatDashboardEventTimeShort(startsAt: string, endsAt: string | null): string {
   const tf = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
+    timeZone: EVENT_DISPLAY_TIMEZONE,
     hour: "numeric",
     minute: "2-digit",
   })
@@ -63,4 +64,46 @@ export function formatDashboardEventEtDetailLines(startsAt: string, endsAt: stri
   const dateLine = formatDashboardEventWhen(startsAt, endsAt)
   const times = formatDashboardEventTimeShort(startsAt, endsAt)
   return `${dateLine} · ${times} ET`
+}
+
+/** Public event detail — long weekday date in Eastern. */
+export function formatEventDateLong(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: EVENT_DISPLAY_TIMEZONE,
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(iso))
+}
+
+/** Public event detail — clock time in Eastern. */
+export function formatEventTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: EVENT_DISPLAY_TIMEZONE,
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(iso))
+}
+
+/** Public event detail — date + time range with ET suffix. */
+export function formatEventDateTimeDetail(startsAt: string, endsAt: string | null): string {
+  const dateLine = formatEventDateLong(startsAt)
+  const startTime = formatEventTime(startsAt)
+  if (!endsAt) return `${dateLine} · ${startTime} ET`
+  const endTime = formatEventTime(endsAt)
+  if (startTime === endTime) return `${dateLine} · ${startTime} ET`
+  return `${dateLine} · ${startTime} – ${endTime} ET`
+}
+
+/** Compact Eastern datetime for ticket cards and lists. */
+export function formatEventDateTimeCompact(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: EVENT_DISPLAY_TIMEZONE,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(iso))
 }

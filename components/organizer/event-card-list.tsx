@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Calendar, MapPin, Tag, ArrowRight } from "lucide-react"
 import { EVENT_STATUS_CONFIG } from "@/lib/constants"
-import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { formatCategoryLabel, formatDashboardEventWhen, formatEventTime } from "@/lib/events/event-display-format"
 
 interface EventItem {
   id: string
@@ -120,13 +120,8 @@ function EventCard({ event, orgSlug }: { event: EventItem; orgSlug: string }) {
   const accent = STATUS_ACCENT[event.status] ?? STATUS_ACCENT.draft
   const glow = STATUS_GLOW[event.status] ?? ""
 
-  const startsAt = event.starts_at ? new Date(event.starts_at) : null
-  const dateStr = startsAt
-    ? startsAt.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
-    : null
-  const timeStr = startsAt
-    ? startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-    : null
+  const dateStr = event.starts_at ? formatDashboardEventWhen(event.starts_at, event.ends_at) : null
+  const timeStr = event.starts_at ? `${formatEventTime(event.starts_at)} ET` : null
 
   return (
     <Link
