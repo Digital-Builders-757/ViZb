@@ -47,13 +47,12 @@ export function EventsTimelineInteractive({
           <div className="events-timeline-line hidden md:block absolute left-[5px] top-0 bottom-0 w-px" />
 
           {dateKeys.map((dateKey, di) => {
-            const dateObj = new Date(`${dateKey}T12:00:00-05:00`)
             const eventsForDate = grouped[dateKey]
 
             return (
               <div key={dateKey}>
                 <TimelineDateHeader
-                  date={dateObj}
+                  dateKey={dateKey}
                   isFirst={di === 0}
                   chapterLabel={di === 0 ? "This week's signal" : null}
                 />

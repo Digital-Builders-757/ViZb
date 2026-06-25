@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Save, X } from "lucide-react"
 import { toast } from "sonner"
 import { updateEventDetails } from "@/app/actions/event"
+import { formatIsoToEasternDatetimeLocal } from "@/lib/events/eastern-datetime"
 import { EventCategoryPicker } from "@/components/events/event-category-picker"
 
 export function EventDetailsEditForm({
@@ -189,27 +190,30 @@ export function EventDetailsEditForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Starts at</label>
+          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Starts at (Eastern)</label>
           <input
             name="starts_at"
             type="datetime-local"
-            defaultValue={event.starts_at?.slice(0, 16)}
+            defaultValue={formatIsoToEasternDatetimeLocal(event.starts_at)}
             required
             disabled={archived}
             className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Ends at (optional)</label>
+          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Ends at (optional, Eastern)</label>
           <input
             name="ends_at"
             type="datetime-local"
-            defaultValue={event.ends_at ? event.ends_at.slice(0, 16) : ""}
+            defaultValue={event.ends_at ? formatIsoToEasternDatetimeLocal(event.ends_at) : ""}
             disabled={archived}
             className="vibe-input-glass vibe-focus-ring text-sm disabled:opacity-50"
           />
         </div>
       </div>
+      <p className="text-[11px] text-muted-foreground leading-relaxed max-w-xl">
+        All event times are Eastern (ET) — Virginia local time.
+      </p>
 
       {!community ? (
         <div className="pt-6 mt-2 section-divider flex flex-col gap-3">

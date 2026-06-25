@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import { Ticket } from "lucide-react"
 import { upsertEventPaidTicketTier } from "@/app/actions/ticket-types"
+import { formatIsoToEasternDatetimeLocal } from "@/lib/events/eastern-datetime"
 import { DEFAULT_PAID_TIER_NAME } from "@/lib/tickets/paid-tier-validation"
 import { GlassCard } from "@/components/ui/glass-card"
 
@@ -25,10 +26,7 @@ const actionButtonClass =
 
 function toLocalInput(iso: string | null) {
   if (!iso) return ""
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ""
-  const p = (n: number) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+  return formatIsoToEasternDatetimeLocal(iso)
 }
 
 type TicketMode = "free_rsvp" | "paid"

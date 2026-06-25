@@ -6,6 +6,7 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { OceanDivider } from "@/components/ui/ocean-divider"
 import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server"
 import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import { EVENT_DISPLAY_TIMEZONE } from "@/lib/events/eastern-datetime"
 import { isEventUpcomingOrOngoing } from "@/lib/events/event-schedule"
 import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 
@@ -24,9 +25,10 @@ type LandingEvent = {
 
 function formatMonthDay(startsAt: string): { month: string; day: string; dow: string } {
   const d = new Date(startsAt)
-  const month = d.toLocaleString("en-US", { month: "short" })
-  const day = d.toLocaleString("en-US", { day: "2-digit" })
-  const dow = d.toLocaleString("en-US", { weekday: "short" })
+  const opts = { timeZone: EVENT_DISPLAY_TIMEZONE } as const
+  const month = d.toLocaleString("en-US", { ...opts, month: "short" })
+  const day = d.toLocaleString("en-US", { ...opts, day: "2-digit" })
+  const dow = d.toLocaleString("en-US", { ...opts, weekday: "short" })
   return { month, day, dow }
 }
 

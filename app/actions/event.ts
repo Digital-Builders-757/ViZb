@@ -10,6 +10,7 @@ import {
   normalizeCategories,
   isValidEventCategory,
 } from "@/lib/events/categories"
+import { parseEasternDatetimeLocalToIso } from "@/lib/events/eastern-datetime"
 import { parseRsvpCapacityField } from "@/lib/events/rsvp-capacity"
 import {
   EVENT_FLYER_ALLOWED_MIME_TYPES,
@@ -69,9 +70,15 @@ function parseOptionalIntFromForm(formData: FormData, key: string): number | nul
 function parseOptionalIsoFromForm(formData: FormData, key: string): string | null {
   const raw = formData.get(key)
   if (raw == null || String(raw).trim() === "") return null
-  const d = new Date(String(raw))
-  if (Number.isNaN(d.getTime())) return null
-  return d.toISOString()
+  return parseEasternDatetimeLocalToIso(String(raw))
+}
+
+function normalizeEventDatetimeFromForm(raw: string): { iso: string | null; error: string | null } {
+  const trimmed = raw.trim()
+  if (!trimmed) return { iso: null, error: "Date and time are required." }
+  const iso = parseEasternDatetimeLocalToIso(trimmed)
+  if (!iso) return { iso: null, error: "Invalid date or time." }
+  return { iso, error: null }
 }
 
 function parseIsActiveFromForm(formData: FormData): boolean {
@@ -151,14 +158,14 @@ export async function createEvent(formData: FormData) {
   const orgId = formData.get("org_id") as string
   const title = (formData.get("title") as string)?.trim()
   const description = (formData.get("description") as string)?.trim()
-  const startsAt = formData.get("starts_at") as string
-  const endsAt = (formData.get("ends_at") as string) || null
+  const startsAtRaw = formData.get("starts_at") as string
+  const endsAtRaw = (formData.get("ends_at") as string) || null
   const venueName = (formData.get("venue_name") as string)?.trim()
   const address = (formData.get("address") as string)?.trim() || null
   const city = (formData.get("city") as string)?.trim()
   const categoriesInput = parseCategoriesFromFormData(formData)
 
-  if (!orgId || !title || !startsAt || !venueName || !city) {
+  if (!orgId || !title || !startsAtRaw || !venueName || !city) {
     return { error: "Please fill in all required fields." }
   }
 
@@ -226,6 +233,21 @@ export async function createEvent(formData: FormData) {
 
   if (existing) {
     slug = `${slug}-${Date.now().toString(36).slice(-4)}`
+  }
+
+  const startNormalized = normalizeEventDatetimeFromForm(startsAtRaw)
+  if (startNormalized.error || !startNormalized.iso) {
+    return { error: startNormalized.error ?? "Invalid start date." }
+  }
+  const startsAt = startNormalized.iso
+
+  let endsAt: string | null = null
+  if (endsAtRaw) {
+    const endNormalized = normalizeEventDatetimeFromForm(endsAtRaw)
+    if (endNormalized.error || !endNormalized.iso) {
+      return { error: endNormalized.error ?? "Invalid end date." }
+    }
+    endsAt = endNormalized.iso
   }
 
   const startDate = new Date(startsAt)
@@ -661,15 +683,14 @@ export async function updateEventDetails(formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim()
   const description = String(formData.get("description") ?? "").trim() || null
-  const startsAt = String(formData.get("starts_at") ?? "").trim()
+  const startsAtRaw = String(formData.get("starts_at") ?? "").trim()
   const endsAtRaw = String(formData.get("ends_at") ?? "").trim()
-  const endsAt = endsAtRaw ? endsAtRaw : null
   const venueName = String(formData.get("venue_name") ?? "").trim()
   const address = String(formData.get("address") ?? "").trim() || null
   const city = String(formData.get("city") ?? "").trim()
   const categoriesRaw = parseCategoriesFromFormData(formData)
 
-  if (!title || !startsAt || !venueName || !city) {
+  if (!title || !startsAtRaw || !venueName || !city) {
     return { error: "Please fill in all required fields." }
   }
 
@@ -684,6 +705,21 @@ export async function updateEventDetails(formData: FormData) {
     parsedCap = { capacity: capResult.capacity ?? null, error: capResult.error ?? null }
   }
   if (parsedCap.error) return { error: parsedCap.error }
+
+  const startNormalized = normalizeEventDatetimeFromForm(startsAtRaw)
+  if (startNormalized.error || !startNormalized.iso) {
+    return { error: startNormalized.error ?? "Invalid start date." }
+  }
+  const startsAt = startNormalized.iso
+
+  let endsAt: string | null = null
+  if (endsAtRaw) {
+    const endNormalized = normalizeEventDatetimeFromForm(endsAtRaw)
+    if (endNormalized.error || !endNormalized.iso) {
+      return { error: endNormalized.error ?? "Invalid end date." }
+    }
+    endsAt = endNormalized.iso
+  }
 
   const startDate = new Date(startsAt)
   if (Number.isNaN(startDate.getTime())) {

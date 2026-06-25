@@ -1,5 +1,7 @@
 import Image from "next/image"
 
+import { EVENT_DISPLAY_TIMEZONE } from "@/lib/events/eastern-datetime"
+
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { WaterFrame } from "@/components/ui/water-frame"
 import { cn } from "@/lib/utils"
@@ -34,10 +36,12 @@ export function EventPremiumFlyer({
   className?: string
 }) {
   const start = new Date(startsAt)
-  const dayNumber = Number.isNaN(start.getTime()) ? "?" : String(start.getDate())
+  const dayNumber = Number.isNaN(start.getTime())
+    ? "?"
+    : new Intl.DateTimeFormat("en-US", { timeZone: EVENT_DISPLAY_TIMEZONE, day: "numeric" }).format(start)
   const monthShort = Number.isNaN(start.getTime())
     ? "---"
-    : start.toLocaleDateString("en-US", { month: "short" })
+    : new Intl.DateTimeFormat("en-US", { timeZone: EVENT_DISPLAY_TIMEZONE, month: "short" }).format(start)
 
   return (
     <WaterFrame className={cn(VARIANT_FRAME[variant], "event-premium-flyer", className)}>

@@ -524,6 +524,9 @@ export function CreateEventForm({
             {/* ---- Section 2: Date & Time ---- */}
             <section>
               <SectionHeader icon={Clock} label="Date & Time" number="02" />
+              <p className="mb-4 text-[11px] text-muted-foreground leading-relaxed max-w-xl">
+                All times are Eastern (ET) — Virginia local time.
+              </p>
               <div className="flex flex-col gap-6">
                 {/* Start Date + Time */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

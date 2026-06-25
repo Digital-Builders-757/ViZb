@@ -1,25 +1,26 @@
+import {
+  easternCivilDateKeyDiffDays,
+  easternCivilDateKeyToDate,
+  easternDateKeyFromIso,
+  EVENT_DISPLAY_TIMEZONE,
+} from "@/lib/events/eastern-datetime"
+
 interface TimelineDateHeaderProps {
-  date: Date
+  dateKey: string
   isFirst?: boolean
   chapterLabel?: string | null
 }
 
-export function TimelineDateHeader({ date, isFirst = false, chapterLabel = null }: TimelineDateHeaderProps) {
-  // All display in America/New_York for Virginia audience
-  const tz = "America/New_York"
+export function TimelineDateHeader({ dateKey, isFirst = false, chapterLabel = null }: TimelineDateHeaderProps) {
+  const tz = EVENT_DISPLAY_TIMEZONE
+  const date = easternCivilDateKeyToDate(dateKey)
   const dayOfWeek = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "long" }).format(date)
   const month = new Intl.DateTimeFormat("en-US", { timeZone: tz, month: "long" }).format(date)
   const day = new Intl.DateTimeFormat("en-US", { timeZone: tz, day: "numeric" }).format(date)
   const year = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric" }).format(date)
 
-  // Check if it's today or tomorrow (in ET)
-  const now = new Date()
-  const todayET = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(now)
-  const eventET = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(date)
-
-  const todayDate = new Date(todayET + "T12:00:00")
-  const eventDate = new Date(eventET + "T12:00:00")
-  const diffDays = Math.round((eventDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24))
+  const todayET = easternDateKeyFromIso(new Date().toISOString())
+  const diffDays = easternCivilDateKeyDiffDays(todayET, dateKey)
 
   let relativeLabel: string | null = null
   if (diffDays === 0) relativeLabel = "Today"

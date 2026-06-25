@@ -5,7 +5,7 @@ import { reviewEvent } from "@/app/actions/event"
 import { Clock, CheckCircle2, XCircle, Calendar, MapPin, ImageIcon, Eye, AlertTriangle } from "lucide-react"
 import Image from "next/image"
 import { normalizeCategories } from "@/lib/events/categories"
-import { formatCategoryLabel } from "@/lib/events/event-display-format"
+import { formatCategoryLabel, formatDashboardEventWhen, formatEventTime } from "@/lib/events/event-display-format"
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -168,17 +168,8 @@ export function EventReviewQueue({ events }: { events: ReviewEvent[] }) {
                 : "border-l-amber-500"
             const cats = normalizeCategories(evt.categories)
 
-            const startDate = new Date(evt.starts_at)
-            const formattedDate = startDate.toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-            const formattedTime = startDate.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-            })
+            const formattedDate = formatDashboardEventWhen(evt.starts_at, evt.ends_at ?? null)
+            const formattedTime = `${formatEventTime(evt.starts_at)} ET`
 
             return (
               <div

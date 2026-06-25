@@ -215,12 +215,11 @@ export async function HomeTimelineSection() {
             <div className="absolute bottom-0 left-[5px] top-0 hidden w-px bg-[color:var(--neon-a)]/25 shadow-[0_0_10px_rgb(0_209_255/0.18)] md:block" />
 
             {dateKeys.map((dateKey, di) => {
-              const dateObj = new Date(dateKey + "T12:00:00-05:00")
               const eventsForDate = grouped[dateKey]
 
               return (
                 <div key={dateKey}>
-                  <TimelineDateHeader date={dateObj} isFirst={di === 0} />
+                  <TimelineDateHeader dateKey={dateKey} isFirst={di === 0} />
 
                   <div className="mt-6 flex flex-col gap-7 md:ml-10 md:mt-8 md:gap-9">
                     {eventsForDate.map((event) => {
