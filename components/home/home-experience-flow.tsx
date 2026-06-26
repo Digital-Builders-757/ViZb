@@ -51,7 +51,7 @@ export function HomeExperienceFlow() {
           <div>
             <SectionTitle kicker="Why it works" title="From first look to pull-up." gradient />
             <p className="mt-5 max-w-prose text-pretty text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-              The vibe moves fast. VIZB keeps the signal clean: what is happening, where it is,
+              The vibe moves fast. VIZB keeps the signal clean, what is happening, where it is,
               who is hosting, and how to get in.
             </p>
           </div>
