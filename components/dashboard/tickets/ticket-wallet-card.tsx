@@ -4,8 +4,11 @@ import { EventCalendarActions } from "@/components/dashboard/tickets/event-calen
 import { TicketWalletPassActions } from "@/components/dashboard/tickets/ticket-wallet-actions"
 import { TicketQrReveal } from "@/components/dashboard/tickets/ticket-qr-reveal"
 import { getTicketDisplayState, type TicketEventPhase } from "@/lib/dashboard/ticket-wallet-shared"
-import { formatEventDateTimeCompact } from "@/lib/events/event-display-format"
-import { EVENT_DISPLAY_TIMEZONE } from "@/lib/events/eastern-datetime"
+import { formatEventDateTimeCompactWithZone } from "@/lib/events/event-display-format"
+import {
+  EVENT_DISPLAY_TIMEZONE,
+  EVENT_DISPLAY_TIMEZONE_LABEL,
+} from "@/lib/events/eastern-datetime"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
 
@@ -78,7 +81,7 @@ export function TicketWalletCard({
 }) {
   const start = new Date(e.starts_at)
   const dateValid = !Number.isNaN(start.getTime())
-  const dateLine = dateValid ? `${formatEventDateTimeCompact(e.starts_at)} ET` : "Date to be announced"
+  const dateLine = dateValid ? formatEventDateTimeCompactWithZone(e.starts_at) : "Date to be announced"
 
   const isPast = eventPhase === "past"
   const display = getTicketDisplayState(status, eventPhase)
@@ -149,7 +152,7 @@ export function TicketWalletCard({
                     hour: "numeric",
                     minute: "2-digit",
                   })}{" "}
-                  ET
+                  {EVENT_DISPLAY_TIMEZONE_LABEL}
                 </span>
               ) : null}
             </div>

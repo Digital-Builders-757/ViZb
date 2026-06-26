@@ -15,7 +15,11 @@ import { MyVibesButton } from "@/components/events/my-vibes-button"
 import { EventFlyerFallback } from "@/components/events/event-flyer-fallback"
 import { NeonLink } from "@/components/ui/neon-link"
 import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
-import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import {
+  formatCategoryLabel,
+  formatEventStartLabelWithZone,
+  sliceCategoriesForDisplay,
+} from "@/lib/events/event-display-format"
 import {
   getListingEventPriceLabel,
   getListingTicketStatus,
@@ -70,16 +74,7 @@ export function EventQuickPreviewPanel({
   if (!event) return null
 
   const start = new Date(event.starts_at)
-  const startLabel = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZoneName: "short",
-  }).format(start)
+  const startLabel = formatEventStartLabelWithZone(event.starts_at)
 
   const priceLabel = getListingEventPriceLabel(event.ticket_types, {
     isCommunity: event.event_kind === "community",

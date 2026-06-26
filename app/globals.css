@@ -1436,22 +1436,42 @@ html[data-events-filters-open="true"] .events-discovery-hero .motion-safe\:anima
 .home-redesign-grid {
   background-size: 50px 50px;
   background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgb(0 209 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(157 77 255 / 0.035) 1px, transparent 1px);
   mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
 }
 
-.home-redesign-glow-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  z-index: 0;
+.home-midnight-hero {
+  background:
+    radial-gradient(ellipse 110% 65% at 50% -18%, rgb(0 209 255 / 0.16), transparent 58%),
+    radial-gradient(ellipse 75% 55% at 88% 35%, rgb(157 77 255 / 0.12), transparent 62%),
+    linear-gradient(180deg, rgb(3 3 8 / 0.88) 0%, rgb(6 6 18 / 0.82) 52%, rgb(3 3 8 / 0.94) 100%);
+  isolation: isolate;
+}
+
+.home-midnight-caustics {
   pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0%, rgb(0 209 255 / 0.1) 20%, transparent 36%),
+    linear-gradient(68deg, transparent 0%, rgb(157 77 255 / 0.08) 32%, transparent 54%),
+    radial-gradient(ellipse 80% 32% at 50% 8%, rgb(255 255 255 / 0.055), transparent 62%);
+  background-size: 220% 100%, 180% 100%, 100% 100%;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+.home-midnight-horizon {
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 0%, rgb(0 209 255 / 0.08) 58%, transparent 100%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgb(0 209 255 / 0.12), transparent 62%);
+  mask-image: linear-gradient(to top, black 0%, transparent 92%);
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 92%);
 }
 
 .home-redesign-text-gradient {
-  background: linear-gradient(135deg, #00e5ff 0%, #9d00ff 100%);
+  background: linear-gradient(135deg, var(--neon-a) 0%, var(--neon-b) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1467,19 +1487,23 @@ html[data-events-filters-open="true"] .events-discovery-hero .motion-safe\:anima
 }
 
 .home-redesign-glass {
-  background: rgb(15 16 22 / 0.6);
+  background: color-mix(in srgb, var(--neon-bg1) 68%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgb(255 255 255 / 0.08);
+  border: 1px solid color-mix(in srgb, var(--neon-a) 24%, transparent);
 }
 
 .home-redesign-glass-card {
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.03) 0%, rgb(255 255 255 / 0.01) 100%);
-  background-color: rgb(15 16 22 / 0.4);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035) 0%, rgb(255 255 255 / 0.012) 100%),
+    color-mix(in srgb, var(--neon-bg1) 70%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgb(255 255 255 / 0.05);
-  transition: all 0.3s ease;
+  border: 1px solid color-mix(in srgb, var(--neon-hairline) 82%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.035),
+    0 0 0 1px rgb(0 209 255 / 0.025);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .home-redesign-glass-card:hover {
@@ -1489,7 +1513,7 @@ html[data-events-filters-open="true"] .events-discovery-hero .motion-safe\:anima
 }
 
 .home-redesign-btn-primary {
-  background: linear-gradient(135deg, #00e5ff 0%, #9d00ff 100%);
+  background: linear-gradient(135deg, var(--neon-a) 0%, var(--neon-b) 100%);
   position: relative;
   z-index: 1;
   transition: all 0.3s ease;
@@ -1513,6 +1537,112 @@ html[data-events-filters-open="true"] .events-discovery-hero .motion-safe\:anima
 
 @media (prefers-reduced-motion: reduce) {
   .home-redesign-glass-card:hover {
+    transform: none;
+  }
+}
+
+.home-water-headline {
+  letter-spacing: 0;
+  text-shadow:
+    0 0 34px rgb(0 209 255 / 0.18),
+    0 0 68px rgb(157 77 255 / 0.12);
+}
+
+.home-water-headline__line {
+  position: relative;
+  display: block;
+}
+
+.home-water-headline__accent {
+  display: inline-block;
+  background-image:
+    linear-gradient(112deg, transparent 0%, rgb(255 255 255 / 0.18) 46%, transparent 58%),
+    linear-gradient(135deg, var(--neon-a) 0%, #8befff 30%, var(--neon-b) 68%, var(--neon-c) 100%);
+  background-size: 190% 100%, 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 28px rgb(0 209 255 / 0.34));
+}
+
+.home-water-headline__refract {
+  position: absolute;
+  inset: 0;
+  display: inline-block;
+  color: rgb(255 255 255 / 0.16);
+  filter: url("#home-water-ripple") blur(0.15px);
+  mix-blend-mode: screen;
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.home-events-section {
+  background:
+    linear-gradient(180deg, rgb(3 3 8 / 0.65) 0%, transparent 24%, transparent 76%, rgb(3 3 8 / 0.7) 100%),
+    radial-gradient(ellipse 90% 50% at 50% 0%, rgb(0 209 255 / 0.06), transparent 65%);
+}
+
+.home-flow-section {
+  background:
+    radial-gradient(ellipse 110% 80% at 50% 0%, rgb(157 77 255 / 0.07), transparent 58%),
+    linear-gradient(180deg, rgb(3 3 8 / 0.72) 0%, rgb(6 8 18 / 0.72) 48%, rgb(3 3 8 / 0.82) 100%);
+}
+
+.home-proof-tile,
+.home-path-card {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.035),
+    0 18px 50px rgb(0 0 0 / 0.16);
+}
+
+.home-path-card {
+  transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+}
+
+.home-path-card:hover {
+  border-color: color-mix(in srgb, var(--neon-a) 42%, var(--neon-hairline));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 24px 70px rgb(0 0 0 / 0.24),
+    0 0 32px rgb(0 209 255 / 0.1);
+  transform: translateY(-2px);
+}
+
+.home-editorial-bridge {
+  background:
+    linear-gradient(120deg, rgb(0 209 255 / 0.08), transparent 44%),
+    color-mix(in srgb, var(--neon-bg1) 84%, rgb(157 77 255 / 0.06));
+}
+
+.home-editorial-bridge__panel {
+  background:
+    linear-gradient(130deg, rgb(0 209 255 / 0.12), transparent 42%),
+    linear-gradient(215deg, rgb(157 77 255 / 0.12), transparent 46%),
+    color-mix(in srgb, var(--neon-bg0) 78%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-midnight-caustics {
+    animation: water-sheen 16s ease-in-out infinite alternate;
+  }
+
+  .home-water-headline__accent {
+    animation: water-current-flow 7s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-midnight-caustics,
+  .home-water-headline__accent {
+    animation: none;
+  }
+
+  .home-water-headline__refract {
+    display: none;
+  }
+
+  .home-path-card:hover {
     transform: none;
   }
 }

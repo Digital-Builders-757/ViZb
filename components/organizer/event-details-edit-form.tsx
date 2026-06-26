@@ -212,7 +212,7 @@ export function EventDetailsEditForm({
         </div>
       </div>
       <p className="text-[11px] text-muted-foreground leading-relaxed max-w-xl">
-        All event times are Eastern (ET) — Virginia local time.
+        All event times are Eastern (EST) - Virginia local time.
       </p>
 
       {!community ? (

@@ -3,7 +3,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Clock, Eye } from "lucide-react"
-import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/event-display-format"
+import {
+  formatCategoryLabel,
+  formatEventStartLabelWithZone,
+  sliceCategoriesForDisplay,
+} from "@/lib/events/event-display-format"
 import { eventKindBadgeShort, STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { buildEventAuthHref } from "@/lib/auth/post-login-intent"
 import { MyVibesButton } from "@/components/events/my-vibes-button"
@@ -68,17 +72,7 @@ export function EventTimelineCard({
   const start = new Date(event.starts_at)
   const detailHref = `/events/${event.slug}`
 
-  // Always display in America/New_York (ET) for Virginia audience
-  const startLabel = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZoneName: "short",
-  }).format(start)
+  const startLabel = formatEventStartLabelWithZone(event.starts_at)
 
   const dayNumber = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",

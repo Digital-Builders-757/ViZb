@@ -12,19 +12,27 @@ import { AuthAlert } from "@/components/auth/auth-alert"
 import { NeonButton } from "@/components/ui/neon-button"
 import { mapAuthError, type MappedAuthError } from "@/lib/auth/auth-error-map"
 import { PENDING_VERIFY_EMAIL_KEY } from "@/lib/auth/pending-verify-email"
+import {
+  parseSignupForm,
+  REFERRAL_SOURCE_LABELS,
+  REFERRAL_SOURCE_OPTIONS,
+  type ReferralSource,
+} from "@/lib/auth/signup-schema"
 import { supportMailtoHref } from "@/lib/auth/support-contact"
-
-const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [referralSource, setReferralSource] = useState<ReferralSource | "">("")
   const [authIssue, setAuthIssue] = useState<MappedAuthError | null>(null)
   const [fieldErrors, setFieldErrors] = useState<{
     displayName?: string
     email?: string
     password?: string
+    phone?: string
+    referralSource?: string
   }>({})
   const [validationBanner, setValidationBanner] = useState<{ title: string; message: string } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -51,13 +59,24 @@ export default function SignUpPage() {
 
     const name = displayName.trim()
     const em = email.trim()
-    const errs: typeof fieldErrors = {}
-    if (!name) errs.displayName = "Add the name you want other members to see."
-    if (!emailOk(em)) errs.email = "Enter a valid email address."
-    if (password.length < 6) {
-      errs.password = "Use at least 6 characters for your password."
-    }
-    if (Object.keys(errs).length) {
+    const parsed = parseSignupForm({
+      displayName: name,
+      email: em,
+      password,
+      phone,
+      referralSource,
+    })
+
+    if (!parsed.success) {
+      const errs: typeof fieldErrors = {}
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0]
+        if (key === "displayName" && !errs.displayName) errs.displayName = issue.message
+        if (key === "email" && !errs.email) errs.email = issue.message
+        if (key === "password" && !errs.password) errs.password = issue.message
+        if (key === "phone" && !errs.phone) errs.phone = issue.message
+        if (key === "referralSource" && !errs.referralSource) errs.referralSource = issue.message
+      }
       setFieldErrors(errs)
       setValidationBanner({
         title: "Fix a few things",
@@ -67,16 +86,20 @@ export default function SignUpPage() {
       return
     }
 
+    const validated = parsed.data
+
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
-      email: em,
-      password,
+      email: validated.email,
+      password: validated.password,
       options: {
         emailRedirectTo:
           process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
           `${window.location.origin}/auth/callback`,
         data: {
-          display_name: name,
+          display_name: validated.displayName,
+          phone_number: validated.phone,
+          referral_source: validated.referralSource ?? null,
         },
       },
     })
@@ -93,7 +116,7 @@ export default function SignUpPage() {
     }
 
     try {
-      sessionStorage.setItem(PENDING_VERIFY_EMAIL_KEY, em)
+      sessionStorage.setItem(PENDING_VERIFY_EMAIL_KEY, validated.email)
     } catch {
       /* ignore */
     }
@@ -315,6 +338,50 @@ export default function SignUpPage() {
                   Use at least 6 characters. Longer phrases with numbers or symbols are more secure.
                 </p>
               )}
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-2">
+                Phone <span className="text-[color:var(--neon-a)]">*</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                placeholder="(757) 555-0123"
+                aria-invalid={!!fieldErrors.phone}
+                className="vibe-input-glass vibe-focus-ring text-[color:var(--neon-text0)]"
+              />
+              {fieldErrors.phone ? (
+                <p className="mt-2 text-sm text-destructive">{fieldErrors.phone}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <label htmlFor="referral-source" className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] mb-2">
+                Where did you find us?{" "}
+                <span className="text-[color:var(--neon-text2)]/80">(optional)</span>
+              </label>
+              <select
+                id="referral-source"
+                value={referralSource}
+                onChange={(e) => setReferralSource(e.target.value as ReferralSource | "")}
+                aria-invalid={!!fieldErrors.referralSource}
+                className="vibe-input-glass vibe-focus-ring w-full text-[color:var(--neon-text0)]"
+              >
+                <option value="">Select one (optional)</option>
+                {REFERRAL_SOURCE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {REFERRAL_SOURCE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+              {fieldErrors.referralSource ? (
+                <p className="mt-2 text-sm text-destructive">{fieldErrors.referralSource}</p>
+              ) : null}
             </div>
 
             <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">

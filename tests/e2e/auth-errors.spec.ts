@@ -1,5 +1,15 @@
 import { test, expect } from "@playwright/test"
 
+async function fillSignupForm(
+  page: import("@playwright/test").Page,
+  opts: { email: string; displayName?: string; password?: string; phone?: string },
+) {
+  await page.getByLabel(/display name/i).fill(opts.displayName ?? "Jordan")
+  await page.getByLabel(/^email$/i).fill(opts.email)
+  await page.getByLabel(/^password$/i).fill(opts.password ?? "secret12")
+  await page.getByLabel(/^phone/i).fill(opts.phone ?? "7575550123")
+}
+
 test.describe("Auth error UX (mocked Supabase)", () => {
   test("signup with existing email shows AuthAlert and sign-in action", async ({ page }) => {
     await page.route("**/auth/v1/signup**", async (route) => {
@@ -14,9 +24,7 @@ test.describe("Auth error UX (mocked Supabase)", () => {
     })
 
     await page.goto("/signup")
-    await page.getByLabel(/display name/i).fill("Jordan")
-    await page.getByLabel(/^email$/i).fill("taken@example.com")
-    await page.getByLabel(/^password$/i).fill("secret12")
+    await fillSignupForm(page, { email: "taken@example.com", displayName: "Jordan" })
     await page.getByRole("button", { name: /create account/i }).click()
 
     const alert = page.getByTestId("auth-alert")
@@ -58,9 +66,7 @@ test.describe("Auth error UX (mocked Supabase)", () => {
     })
 
     await page.goto("/signup")
-    await page.getByLabel(/display name/i).fill("Alex")
-    await page.getByLabel(/^email$/i).fill("new@example.com")
-    await page.getByLabel(/^password$/i).fill("secret12")
+    await fillSignupForm(page, { email: "new@example.com", displayName: "Alex" })
     await page.getByRole("button", { name: /create account/i }).click()
 
     await expect(page.getByTestId("auth-alert")).toContainText(/slow down/i)
@@ -85,9 +91,7 @@ test.describe("Auth error screenshots", () => {
     })
 
     await page.goto("/signup")
-    await page.getByLabel(/display name/i).fill("Jordan")
-    await page.getByLabel(/^email$/i).fill("taken@example.com")
-    await page.getByLabel(/^password$/i).fill("secret12")
+    await fillSignupForm(page, { email: "taken@example.com", displayName: "Jordan" })
     await page.getByRole("button", { name: /create account/i }).click()
     await expect(page.getByTestId("auth-alert")).toBeVisible()
     await page.screenshot({

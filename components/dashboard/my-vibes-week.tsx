@@ -29,7 +29,7 @@ export async function MyVibesThisWeek({
             My Vibes, This Week
           </h2>
           <p className="mt-1 text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
-            {savedCount} saved event{savedCount === 1 ? "" : "s"} in the next two weeks (Eastern dates).
+            {savedCount} saved event{savedCount === 1 ? "" : "s"} in the next two weeks (EST dates).
             In-app reminders fire about 24 hours and 2 hours before start when enabled in your profile.
           </p>
         </div>
