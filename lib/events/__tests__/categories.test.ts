@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest"
-import { parseCategoriesFromFormData, normalizeCategories, isValidEventCategory } from "../categories"
+import {
+  isValidEventCategory,
+  normalizeCategories,
+  normalizeCategoriesForPersistence,
+  parseCategoriesFromFormData,
+} from "../categories"
 import { formatCategoryLabel } from "../event-display-format"
 
 describe("parseCategoriesFromFormData", () => {
@@ -22,20 +27,38 @@ describe("parseCategoriesFromFormData", () => {
     expect(parseCategoriesFromFormData(fd)).toBeNull()
   })
 
-  it("accepts open_mic", () => {
+  it("accepts open_mic and music", () => {
     const fd = new FormData()
     fd.append("categories", "open_mic")
-    expect(parseCategoriesFromFormData(fd)).toEqual(["open_mic"])
+    fd.append("categories", "music")
+    expect(parseCategoriesFromFormData(fd)).toEqual(["open_mic", "music"])
   })
 })
 
 describe("normalizeCategories", () => {
-  it("filters non-strings and dedupes", () => {
-    expect(normalizeCategories(["party", "party", 1, "concert"])).toEqual(["party", "concert"])
+  it("normalizes, filters invalid values, and dedupes", () => {
+    expect(normalizeCategories([" Party ", "party", 1, "concert", "Jazz"])).toEqual([
+      "party",
+      "concert",
+    ])
   })
 
   it("handles non-array", () => {
     expect(normalizeCategories(null)).toEqual([])
+  })
+})
+
+describe("normalizeCategoriesForPersistence", () => {
+  it("keeps valid categories", () => {
+    expect(normalizeCategoriesForPersistence(["music", "concert"])).toEqual([
+      "music",
+      "concert",
+    ])
+  })
+
+  it("falls back to other when an external taxonomy contains no valid categories", () => {
+    expect(normalizeCategoriesForPersistence(["Music", "R&B", "Soul"])).toEqual(["music"])
+    expect(normalizeCategoriesForPersistence(["Jazz", "R&B", "Soul"])).toEqual(["other"])
   })
 })
 
@@ -49,6 +72,7 @@ describe("isValidEventCategory", () => {
   it("accepts known values", () => {
     expect(isValidEventCategory("workshop")).toBe(true)
     expect(isValidEventCategory("open_mic")).toBe(true)
+    expect(isValidEventCategory("music")).toBe(true)
   })
 
   it("rejects unknown", () => {
