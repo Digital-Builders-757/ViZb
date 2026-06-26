@@ -3,6 +3,7 @@ import {
   isValidEventCategory,
   normalizeCategories,
   normalizeCategoriesForPersistence,
+  normalizeValidEventCategories,
   parseCategoriesFromFormData,
 } from "../categories"
 import { formatCategoryLabel } from "../event-display-format"
@@ -36,15 +37,24 @@ describe("parseCategoriesFromFormData", () => {
 })
 
 describe("normalizeCategories", () => {
-  it("normalizes, filters invalid values, and dedupes", () => {
-    expect(normalizeCategories([" Party ", "party", 1, "concert", "Jazz"])).toEqual([
+  it("preserves arbitrary string values while filtering non-strings and deduping", () => {
+    expect(normalizeCategories(["party", "party", 1, "Jazz"])).toEqual([
       "party",
-      "concert",
+      "Jazz",
     ])
   })
 
   it("handles non-array", () => {
     expect(normalizeCategories(null)).toEqual([])
+  })
+})
+
+describe("normalizeValidEventCategories", () => {
+  it("normalizes and filters to the ViZb taxonomy", () => {
+    expect(normalizeValidEventCategories([" Party ", "party", "concert", "Jazz"])).toEqual([
+      "party",
+      "concert",
+    ])
   })
 })
 
