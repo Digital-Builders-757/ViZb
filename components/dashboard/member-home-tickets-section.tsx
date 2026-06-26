@@ -12,10 +12,10 @@ interface MemberHomeTicketsSectionProps {
   pastCount: number
 }
 
-import { formatEventDateTimeCompact } from "@/lib/events/event-display-format"
+import { formatEventDateTimeCompactWithZone } from "@/lib/events/event-display-format"
 
 function formatTicketWhen(iso: string) {
-  return `${formatEventDateTimeCompact(iso)} ET`
+  return formatEventDateTimeCompactWithZone(iso)
 }
 
 export function MemberHomeTicketsSection({

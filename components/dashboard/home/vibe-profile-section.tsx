@@ -8,6 +8,7 @@ import { SectionTitle } from "@/components/ui/section-title"
 
 const VIBE_INTEREST_LABELS: Record<string, string> = {
   party: "Nightlife",
+  music: "Music",
   concert: "Music",
   workshop: "Workshops",
   networking: "Networking",

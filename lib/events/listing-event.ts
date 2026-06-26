@@ -43,7 +43,7 @@ export function getListingEventPriceLabel(
   ticketTypes: TicketStub[],
   opts?: { isCommunity?: boolean; now?: Date },
 ): string | null {
-  if (opts?.isCommunity) return "Free listing"
+  if (opts?.isCommunity) return null
   const now = opts?.now ?? new Date()
   const lowest = getListingLowestPriceCents(ticketTypes, now)
   if (lowest === null) {

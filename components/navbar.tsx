@@ -164,7 +164,7 @@ export function Navbar() {
               Events
             </Link>
             <Link href="/p" className={navText(onPosts)} aria-current={onPosts ? "page" : undefined}>
-              Posts
+              News
             </Link>
             <Link
               href="/advertise"
@@ -230,7 +230,7 @@ export function Navbar() {
               Events
             </Link>
             <Link href="/p" className={navText(onPosts, true)} onClick={() => setIsOpen(false)}>
-              Posts
+              News
             </Link>
             <Link href="/advertise" className={navText(onAdvertise, true)} onClick={() => setIsOpen(false)}>
               Advertise

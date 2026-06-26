@@ -14,7 +14,7 @@ import type { ListingEvent } from "@/lib/events/listing-event"
 import { isPublicListingEventStatus } from "@/lib/events/public-listing"
 
 const QUERY_LIMIT = 80
-const STARTING_SOON_MAX = 6
+const GRID_MAX = 9
 const FALLBACK_CATEGORIES: EventCategoryValue[] = ["workshop", "party"]
 
 const CATEGORY_MICROCOPY: Record<EventCategoryValue, string> = {
@@ -22,6 +22,7 @@ const CATEGORY_MICROCOPY: Record<EventCategoryValue, string> = {
   party: "Culture, music, nightlife, and celebration.",
   networking: "Meet people building, hosting, creating, and moving Virginia forward.",
   social: "Low-pressure hangs, community mixers, and real-world connection.",
+  music: "Live music, DJs, performances, and sounds worth showing up for.",
   concert: "Live music, performances, and crowd energy.",
   open_mic: "Artists, poets, comics, and creators taking the mic.",
   other: "Unexpected experiences worth leaving the house for.",
@@ -37,6 +38,7 @@ export type HomepageCategoryPreview = {
 export type HomepageEventsPreviewData = {
   staffPicksMoment: FeaturedMoment | null
   topCategories: HomepageCategoryPreview[]
+  gridEvents: ListingEvent[]
   eventsLoadError: boolean
 }
 
@@ -113,12 +115,20 @@ export function pickFeaturedEvent(upcoming: ListingEvent[]): ListingEvent | null
   return official ?? upcoming[0] ?? null
 }
 
-export function pickStartingSoonEvents(
-  upcoming: ListingEvent[],
-  featured: ListingEvent | null,
-): ListingEvent[] {
-  const pool = featured ? upcoming.filter((e) => e.id !== featured.id) : upcoming
-  return pool.slice(0, STARTING_SOON_MAX)
+export function pickHomeGridEvents(upcoming: ListingEvent[]): ListingEvent[] {
+  const staffFirst = upcoming.filter((e) => e.is_staff_pick)
+  const rest = upcoming.filter((e) => !e.is_staff_pick)
+  const merged: ListingEvent[] = []
+  const seen = new Set<string>()
+
+  for (const e of [...staffFirst, ...rest]) {
+    if (merged.length >= GRID_MAX) break
+    if (seen.has(e.id)) continue
+    merged.push(e)
+    seen.add(e.id)
+  }
+
+  return merged
 }
 
 export function computeTopCategories(events: ListingEvent[]): HomepageCategoryPreview[] {
@@ -162,6 +172,7 @@ function emptyPreview(eventsLoadError = false): HomepageEventsPreviewData {
   return {
     staffPicksMoment: null,
     topCategories: computeTopCategories([]),
+    gridEvents: [],
     eventsLoadError,
   }
 }
@@ -202,10 +213,12 @@ export async function getHomepageEventsPreview(): Promise<HomepageEventsPreviewD
 
   const staffPicksMoment = buildStaffPicksMoment(upcoming)
   const topCategories = computeTopCategories(upcoming)
+  const gridEvents = pickHomeGridEvents(upcoming)
 
   return {
     staffPicksMoment,
     topCategories,
+    gridEvents,
     eventsLoadError: false,
   }
 }

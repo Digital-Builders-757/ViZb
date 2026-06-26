@@ -96,11 +96,7 @@ curl -b "your-session-cookie" http://localhost:3000/api/admin/imports/sources
 curl -b "your-session-cookie" http://localhost:3000/api/admin/imports/sources/ticketmaster/health
 ```
 
-<<<<<<< HEAD
 7. Run manual import from **Admin → Event Import Review** (`/admin/events/imports`) or:
-=======
-7. Run manual import:
->>>>>>> origin/main
 
 ```bash
 curl -X POST -b "your-session-cookie" http://localhost:3000/api/admin/imports/ticketmaster/run
@@ -196,9 +192,6 @@ The client uses sequential city requests, conservative pacing (~250ms), bounded 
 | Import entry | `lib/imports/run-ticketmaster-import.ts` |
 | Manual route | `POST /api/admin/imports/ticketmaster/run` |
 | Cron route | `GET /api/cron/ticketmaster-import` |
-<<<<<<< HEAD
 | Admin review UI | `/admin/events/imports` |
-=======
->>>>>>> origin/main
 
 Contract: [`docs/contracts/event-ingestion.md`](../contracts/event-ingestion.md)

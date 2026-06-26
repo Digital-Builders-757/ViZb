@@ -6,7 +6,11 @@ import Link from "next/link"
 import { Calendar, Clock, MapPin, ArrowLeft, Users, Ticket, Mic2, ExternalLink } from "lucide-react"
 import type { Metadata } from "next"
 import { normalizeCategories } from "@/lib/events/categories"
-import { formatCategoryLabel, formatEventDateLong, formatEventTime } from "@/lib/events/event-display-format"
+import {
+  formatCategoryLabel,
+  formatEventDateLong,
+  formatEventTimeWithZone,
+} from "@/lib/events/event-display-format"
 import { AppShell } from "@/components/ui/app-shell"
 import { GlassCard } from "@/components/ui/glass-card"
 import { NeonLink } from "@/components/ui/neon-link"
@@ -312,8 +316,8 @@ export default async function PublicEventDetailPage({
   const eventPublicUrl = siteBase ? `${siteBase}/events/${event.slug}` : `/events/${event.slug}`
 
   const dateStr = formatEventDateLong(startsAt.toISOString())
-  const timeStr = `${formatEventTime(startsAt.toISOString())} ET`
-  const endTimeStr = endsAt ? `${formatEventTime(endsAt.toISOString())} ET` : null
+  const timeStr = formatEventTimeWithZone(startsAt.toISOString())
+  const endTimeStr = endsAt ? formatEventTimeWithZone(endsAt.toISOString()) : null
 
   return (
     <AppShell

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto"
 import { TZDate } from "@date-fns/tz"
 import { hashCanonicalJson } from "@/lib/imports/eventbrite-normalize"
 import type { NormalizedEventCandidate } from "@/lib/imports/types"
+import { mapTicketmasterCategories } from "@/lib/ticketmaster/category-map"
 import { TICKETMASTER_SOURCE } from "@/lib/ticketmaster/env"
 import type {
   TicketmasterDateBlock,
@@ -142,21 +143,6 @@ export function pickTicketmasterImageUrl(images: TicketmasterImage[] | undefined
   return valid.sort((a, b) => b.width - a.width)[0]?.url ?? null
 }
 
-function buildCategories(event: TicketmasterEvent): string[] {
-  const categories = new Set<string>()
-  for (const classification of event.classifications ?? []) {
-    for (const value of [
-      classification.segment?.name,
-      classification.genre?.name,
-      classification.subGenre?.name,
-    ]) {
-      const trimmed = value?.trim()
-      if (trimmed) categories.add(trimmed)
-    }
-  }
-  return categories.size > 0 ? [...categories] : ["other"]
-}
-
 function buildClassifications(event: TicketmasterEvent): Record<string, unknown> {
   const primary = event.classifications?.find((item) => item.primary) ?? event.classifications?.[0]
   return {
@@ -260,7 +246,7 @@ export function normalizeTicketmasterEvent(
     latitude: parseCoordinate(venue?.location?.latitude),
     longitude: parseCoordinate(venue?.location?.longitude),
     image_url: pickTicketmasterImageUrl(event.images),
-    categories: buildCategories(event),
+    categories: mapTicketmasterCategories(event),
     classifications: buildClassifications(event),
     organizer_hints: buildOrganizerHints(event),
     external_ticket_url: sourceUrl,

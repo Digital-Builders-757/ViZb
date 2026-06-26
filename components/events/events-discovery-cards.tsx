@@ -6,11 +6,11 @@ import { formatCategoryLabel, sliceCategoriesForDisplay } from "@/lib/events/eve
 import { STAFF_PICK_BADGE_CLASS, STAFF_PICK_BADGE_LABEL } from "@/lib/events/event-kind"
 import { getListingEventPriceLabel, listingOffersVizbTickets, type ListingEvent } from "@/lib/events/listing-event"
 
-const ET = "America/New_York"
+const EVENT_CARD_TIMEZONE = "America/New_York"
 
 function formatEventDateLabel(startsAt: string): string {
   return new Intl.DateTimeFormat("en-US", {
-    timeZone: ET,
+    timeZone: EVENT_CARD_TIMEZONE,
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -19,10 +19,10 @@ function formatEventDateLabel(startsAt: string): string {
 
 function flyerDateParts(startsAt: string): { dayNumber: string; monthShort: string } {
   return {
-    dayNumber: new Intl.DateTimeFormat("en-US", { timeZone: ET, day: "numeric" }).format(
+    dayNumber: new Intl.DateTimeFormat("en-US", { timeZone: EVENT_CARD_TIMEZONE, day: "numeric" }).format(
       new Date(startsAt),
     ),
-    monthShort: new Intl.DateTimeFormat("en-US", { timeZone: ET, month: "short" }).format(
+    monthShort: new Intl.DateTimeFormat("en-US", { timeZone: EVENT_CARD_TIMEZONE, month: "short" }).format(
       new Date(startsAt),
     ),
   }
