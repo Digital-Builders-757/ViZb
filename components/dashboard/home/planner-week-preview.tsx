@@ -47,10 +47,10 @@ export function PlannerWeekPreview({
               key={dateKey}
               className="min-w-[7.5rem] rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 px-3 py-3 backdrop-blur"
             >
-              <p className="font-mono text-[9px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+              <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
                 {label.split("·")[0]?.trim() ?? label}
               </p>
-              <p className="mt-1 font-serif text-sm font-bold text-[color:var(--neon-text0)]">
+              <p className="mt-1 font-serif text-base font-bold text-[color:var(--neon-text0)]">
                 {count} {count === 1 ? "move" : "moves"}
               </p>
             </div>

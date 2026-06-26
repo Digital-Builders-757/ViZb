@@ -49,21 +49,21 @@ export function DashboardCommandCenter({
   return (
     <section aria-labelledby="command-center-heading" className="space-y-6">
       <header className="vizb-control-room-header rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 pt-3 pb-5 backdrop-blur md:px-6 md:pt-4 md:pb-5 vizb-motion-enter">
-        <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
+        <span className="font-mono text-sm uppercase tracking-widest text-[color:var(--neon-text2)]">
           Command center · {region}
         </span>
         <h1
           id="command-center-heading"
-          className="neon-gradient-text mt-2 text-balance font-serif text-2xl font-bold md:text-3xl"
+          className="neon-gradient-text mt-2 text-balance font-serif text-3xl font-bold md:text-4xl"
         >
           {isFirstRun ? "Welcome to ViBE" : "What's the move?"}
         </h1>
         {!isFirstRun && displayName !== "there" ? (
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--neon-a)]">
+          <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-[color:var(--neon-a)]">
             {displayName}
           </p>
         ) : null}
-        <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-[color:var(--neon-text1)]">
+        <p className="mt-2 max-w-lg text-base leading-relaxed text-[color:var(--neon-text1)]">
           {subtext}
         </p>
       </header>

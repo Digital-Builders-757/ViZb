@@ -7,6 +7,7 @@ import { Calendar, CalendarDayButton } from "@/components/ui/calendar"
 import type { DashboardCalendarEvent } from "@/lib/events/dashboard-calendar"
 import { dateFromDayKey, shiftCalKey } from "@/lib/events/dashboard-calendar"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 function easternPickerDayKey(d: Date): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -21,6 +22,12 @@ function easternPickerDayKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
+const plannerDayButtonClassName = cn(
+  "planner-day-cell focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]",
+  "mx-auto aspect-square w-full max-w-[2.75rem] min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 p-0 leading-none",
+  "[&>span]:opacity-100",
+)
+
 function DashboardCalendarDayButtonInner({
   eventsByDay,
   ...props
@@ -33,14 +40,11 @@ function DashboardCalendarDayButtonInner({
   return (
     <CalendarDayButton
       {...props}
-      className={
-        (props.className ? props.className + " " : "") +
-        "focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]"
-      }
+      className={cn(plannerDayButtonClassName, props.className)}
     >
-      <span className="text-[0.85rem] font-medium tabular-nums">{day.date.getDate()}</span>
+      <span className="planner-day-cell-date text-sm font-medium tabular-nums">{day.date.getDate()}</span>
       {count > 0 ? (
-        <span className="flex min-h-[0.5rem] items-center justify-center gap-0.5" aria-hidden>
+        <span className="flex min-h-[0.375rem] items-center justify-center gap-0.5" aria-hidden>
           {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
             <span
               key={i}
@@ -48,7 +52,9 @@ function DashboardCalendarDayButtonInner({
             />
           ))}
           {count > 3 ? (
-            <span className="pl-0.5 text-[8px] font-bold leading-none text-[color:var(--neon-b)]">+</span>
+            <span className="planner-day-cell-more pl-0.5 text-[10px] font-bold leading-none text-[color:var(--neon-b)]">
+              +
+            </span>
           ) : null}
         </span>
       ) : null}
@@ -113,7 +119,7 @@ export function DashboardCalendarMonth({
         </div>
       </div>
 
-      <div className="flex min-w-0 justify-center sm:justify-start">
+      <div className="dashboard-planner-calendar flex min-w-0 justify-center sm:justify-start">
         <Calendar
           key={calKey}
           mode="single"
@@ -123,15 +129,23 @@ export function DashboardCalendarMonth({
           onSelect={(d) => {
             if (d) onSelectDay(easternPickerDayKey(d))
           }}
+          formatters={{
+            formatWeekdayName: (date) =>
+              date.toLocaleDateString("en-US", { weekday: "short" }),
+          }}
           components={{
             DayButton: dayButtonComponent,
           }}
-          className="w-full max-w-full rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-2 backdrop-blur [--cell-size:2.25rem] md:max-w-[min(100%,20rem)] md:[--cell-size:2.5rem]"
+          className="w-full max-w-full rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-2 backdrop-blur sm:p-3 md:max-w-[min(100%,22rem)]"
           classNames={{
             root: "w-full",
             nav: "hidden",
-            day: "text-[color:var(--neon-text0)]",
-            weekday: "text-[color:var(--neon-text2)]",
+            month_grid: "w-full table-fixed border-collapse",
+            weekdays: "rdp-weekdays",
+            weekday:
+              "w-[14.285714%] py-2 text-center font-mono text-xs uppercase tracking-[0.12em] text-[color:var(--neon-text2)] select-none sm:text-sm sm:tracking-wide",
+            week: "rdp-week",
+            day: "relative w-[14.285714%] p-1 text-center align-middle text-[color:var(--neon-text0)]",
             outside: "text-[color:var(--neon-text2)]/50",
             today: "bg-[color:var(--neon-a)]/15 text-[color:var(--neon-text0)]",
             button_next: "border-[color:var(--neon-hairline)] text-[color:var(--neon-text0)]",
