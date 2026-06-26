@@ -63,7 +63,7 @@ describe("normalizeTicketmasterEvent", () => {
     expect(normalized.source_attribution).toBe("Ticketmaster")
     expect(normalized.image_url).toBe("https://images.example.com/jazz-16x9.jpg")
     expect(normalized.external_ticket_url).toBe("https://www.ticketmaster.com/event/G5vYZbY1A4X9A")
-    expect(normalized.categories).toContain("Jazz")
+    expect(normalized.categories).toEqual(["social", "music", "concert"])
     expect(normalized.source_status).toBe("onsale")
   })
 
