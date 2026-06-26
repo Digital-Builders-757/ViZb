@@ -50,11 +50,11 @@ export function StatCard({
         </span>
 
         <div className="min-w-0">
-          <span className="block text-[10px] font-mono uppercase tracking-widest text-[color:var(--neon-text2)] md:text-xs">
+          <span className="block text-xs font-mono uppercase tracking-widest text-[color:var(--neon-text2)] md:text-sm">
             {label}
           </span>
           {hint ? (
-            <p className="mt-1 text-xs leading-relaxed text-[color:var(--neon-text1)] md:text-sm">{hint}</p>
+            <p className="mt-1 text-sm leading-relaxed text-[color:var(--neon-text1)] md:text-base">{hint}</p>
           ) : null}
         </div>
       </div>

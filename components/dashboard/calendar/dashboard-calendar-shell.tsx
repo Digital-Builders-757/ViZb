@@ -113,7 +113,7 @@ export function DashboardCalendarShell({
   const panelContent =
     events.length === 0 ? (
       <div className="rounded-xl border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
-        <p className="text-sm text-[color:var(--neon-text1)]">
+        <p className="text-base text-[color:var(--neon-text1)]">
           No published events with a start date this month yet.
         </p>
         <NeonLink href="/events" className="mt-4 inline-flex" shape="xl">
@@ -147,13 +147,13 @@ export function DashboardCalendarShell({
     <GlassCard className="max-w-full overflow-x-hidden p-0">
       <div className="flex flex-col gap-4 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="min-w-0">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-sm">
             Town calendar
           </span>
-          <h2 className="mt-1 font-serif text-lg font-bold text-[color:var(--neon-text0)] md:text-xl">
+          <h2 className="mt-1 font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl">
             Planner
           </h2>
-          <p className="mt-1 text-sm text-[color:var(--neon-text2)]">
+          <p className="mt-1 text-base text-[color:var(--neon-text2)]">
             Scan the month, plan the week, or browse what&apos;s next (EST dates).
           </p>
         </div>
@@ -172,7 +172,7 @@ export function DashboardCalendarShell({
               aria-controls="dashboard-calendar-panel"
               id={`cal-tab-${id}`}
               className={cn(
-                "rounded-lg px-3 py-2 font-mono text-xs uppercase tracking-wide transition-[background,box-shadow,color]",
+                "rounded-lg px-3 py-2 font-mono text-sm uppercase tracking-wide transition-[background,box-shadow,color] sm:text-base",
                 view === id
                   ? "border border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] bg-[color:var(--neon-a)]/20 text-[color:var(--neon-text0)] shadow-[0_0_16px_rgba(0,209,255,0.14)]"
                   : "border border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:bg-[color:var(--neon-surface)]/25 hover:text-[color:var(--neon-text0)]",

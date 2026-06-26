@@ -39,7 +39,7 @@ export function DashboardCalendarWeek({
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+        <p className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-sm">
           Week · {formatWeekStripRangeLabel(weekKeys[0], weekKeys[6])}
         </p>
         <div className="flex items-center gap-1">
@@ -62,7 +62,7 @@ export function DashboardCalendarWeek({
         </div>
       </div>
 
-      <div className="grid min-w-0 grid-cols-7 gap-1 sm:gap-2">
+      <div className="grid min-w-0 grid-cols-7 gap-2">
         {weekKeys.map((dayKey) => {
           const { dow, dom } = dayColumnLabel(dayKey)
           const events = [...(eventsByDay.get(dayKey) ?? [])].sort(
@@ -76,7 +76,7 @@ export function DashboardCalendarWeek({
             <div
               key={dayKey}
               className={cn(
-                "flex min-w-0 flex-col gap-1.5 rounded-xl border p-1.5 sm:p-2",
+                "flex min-w-0 flex-col gap-1 rounded-xl border p-1 sm:gap-1.5 sm:p-2",
                 isSelected
                   ? "border-[color:color-mix(in_srgb,var(--neon-a)_50%,var(--neon-hairline))] bg-[color:var(--neon-surface)]/35 shadow-[0_0_20px_rgba(0,209,255,0.12)]"
                   : "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18",
@@ -86,19 +86,26 @@ export function DashboardCalendarWeek({
                 type="button"
                 onClick={() => onSelectDay(dayKey)}
                 className={cn(
-                  "rounded-lg px-1 py-1 text-left transition-[box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]",
+                  "w-full rounded-lg px-0.5 py-1 text-center transition-[box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)] sm:px-1 sm:text-left",
                   "hover:shadow-[0_0_12px_rgba(0,209,255,0.08)]",
                 )}
                 aria-pressed={isSelected}
                 aria-label={`Select ${dow} ${dom}`}
               >
-                <span className="block font-mono text-[9px] uppercase tracking-wide text-[color:var(--neon-text2)]">
+                <span className="block font-mono text-xs uppercase tracking-[0.12em] text-[color:var(--neon-text2)] sm:text-sm sm:tracking-wide">
                   {dow}
                 </span>
-                <span className="block font-serif text-sm font-bold text-[color:var(--neon-text0)]">{dom}</span>
+                <span className="block font-serif text-base font-bold text-[color:var(--neon-text0)] sm:text-lg">
+                  {dom}
+                </span>
+                {events.length > 0 ? (
+                  <span className="mt-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--neon-a)]/15 px-1.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-[color:var(--neon-a)] sm:hidden">
+                    {events.length}
+                  </span>
+                ) : null}
               </button>
 
-              <div className="flex min-w-0 flex-col gap-1">
+              <div className="hidden min-w-0 flex-col gap-1 sm:flex">
                 {visible.map((e) => (
                   <button
                     key={e.id}
@@ -107,10 +114,10 @@ export function DashboardCalendarWeek({
                       onSelectDay(dayKey)
                       onSelectEvent(e.id)
                     }}
-                    className="min-w-0 rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/40 px-1.5 py-1 text-left text-[10px] leading-snug text-[color:var(--neon-text0)] backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] hover:shadow-[0_0_12px_rgb(0_209_255/0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] sm:text-xs"
+                    className="min-w-0 rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/40 px-1.5 py-1 text-left text-xs leading-snug text-[color:var(--neon-text0)] backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] hover:shadow-[0_0_12px_rgb(0_209_255/0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)]"
                   >
                     <span className="line-clamp-2 font-medium">{e.title}</span>
-                    <span className="mt-0.5 block font-mono text-[9px] text-[color:var(--neon-a)]">
+                    <span className="mt-0.5 block font-mono text-[10px] text-[color:var(--neon-a)]">
                       {formatDashboardEventTimeShort(e.starts_at, e.ends_at)}
                     </span>
                   </button>
@@ -119,7 +126,7 @@ export function DashboardCalendarWeek({
                 {rest > 0 ? (
                   <button
                     type="button"
-                    className="rounded-lg px-1 py-1 text-center font-mono text-[9px] font-semibold text-[color:var(--neon-b)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-b)]"
+                    className="rounded-lg px-1 py-1 text-center font-mono text-[10px] font-semibold text-[color:var(--neon-b)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-b)]"
                     onClick={() => {
                       onSelectDay(dayKey)
                       const next = events[MAX_VISIBLE]
