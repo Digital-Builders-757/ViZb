@@ -32,7 +32,7 @@ export function WaitlistSection() {
   }
 
   return (
-    <section id="waitlist" className="relative overflow-hidden px-4 py-20 sm:px-8 md:py-28">
+    <section id="waitlist" className="relative overflow-hidden px-5 py-16 sm:px-8 md:py-24">
       <OceanDivider variant="soft" density="sparse" withLine className="relative z-[2]" />
 
       <div
@@ -46,14 +46,14 @@ export function WaitlistSection() {
 
       <div className="relative mx-auto max-w-[1200px]">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
+          <span className="font-mono text-xs uppercase tracking-normal text-[color:var(--neon-a)]">
             Stay connected
           </span>
           <h2 className="mt-4 text-balance font-serif text-4xl font-bold leading-[0.95] text-[color:var(--neon-text0)] sm:text-5xl md:text-6xl">
             Get the <span className="neon-gradient-text">drop</span>
           </h2>
-          <p className="mt-7 max-w-prose mx-auto text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-            New events. Pop-ups. Collaborations. No spam. Just the good stuff.
+          <p className="mx-auto mt-7 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
+            New events, pop-ups, collaborations, and culture notes from the local current.
           </p>
 
           {submitted ? (
@@ -89,7 +89,7 @@ export function WaitlistSection() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Subscribing…
+                    Subscribing...
                   </>
                 ) : (
                   "Subscribe"
@@ -98,7 +98,7 @@ export function WaitlistSection() {
             </form>
           )}
 
-          <p className="mt-6 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
+          <p className="mt-6 font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-text2)]">
             No spam. Ever.
           </p>
         </div>

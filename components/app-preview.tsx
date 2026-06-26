@@ -4,7 +4,6 @@ import Image from "next/image"
 
 import { FullLogoImage } from "@/components/brand/full-logo-image"
 
-// VIZB app mockup with ocean neon styling
 // Event data using real ViBE imagery
 const mockEvents = [
   {
@@ -35,7 +34,7 @@ const mockEvents = [
 
 export function AppPreview() {
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-8 md:py-28">
+    <section className="relative overflow-hidden px-5 py-16 sm:px-8 md:py-24">
       {/* Ocean gradient background */}
       <div className="absolute inset-0 -z-20">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[color:var(--neon-a)]/5 to-transparent" />
@@ -44,31 +43,30 @@ export function AppPreview() {
 
       <div className="mx-auto max-w-[1200px]">
         <div className="grid items-center gap-12 md:grid-cols-2 md:gap-16">
-          {/* Content */}
           <div>
-            <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[color:var(--neon-a)]">
+            <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-normal text-[color:var(--neon-a)]">
               <span className="h-px w-8 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)]" />
-              Built for the scene
+              Your night, synced
             </span>
             <h2 className="mt-4 text-balance font-serif text-4xl font-bold leading-[0.95] text-[color:var(--neon-text0)] sm:text-5xl md:text-6xl">
-              The <span className="neon-gradient-text">VIZB</span> app
+              The <span className="neon-gradient-text">vibe</span> in your pocket
             </h2>
             <p className="mt-7 max-w-prose text-base leading-relaxed text-[color:var(--neon-text1)] sm:text-lg">
-              Save events, grab tickets, and move from discovery to checkout without losing the scene.
+              Save the maybes, lock in the must-go nights, and get back to the night without
+              digging through group chats.
             </p>
 
-            {/* Feature list - with animated neon lines */}
             <div className="mt-10 space-y-4">
               {[
-                "Discover local events",
-                "Save events to your timeline",
-                "Buy tickets faster",
+                "Local signal",
+                "My Vibes",
+                "Fast tickets",
               ].map((feature, i) => (
                 <div key={i} className="group flex items-center gap-4">
                   <span
                     className="h-px w-10 bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] shadow-[0_0_10px_rgba(0,209,255,0.25)] motion-safe:transition-all motion-safe:duration-500 motion-reduce:transition-none group-hover:w-14 group-hover:shadow-[0_0_16px_rgba(0,209,255,0.35)]"
                   />
-                  <span className="font-mono text-[11px] uppercase tracking-widest text-[color:var(--neon-text0)] motion-safe:transition-colors motion-safe:duration-300 motion-reduce:transition-none group-hover:text-[color:var(--neon-a)]">
+                  <span className="font-mono text-[11px] uppercase tracking-normal text-[color:var(--neon-text0)] motion-safe:transition-colors motion-safe:duration-300 motion-reduce:transition-none group-hover:text-[color:var(--neon-a)]">
                     {feature}
                   </span>
                 </div>
@@ -76,7 +74,6 @@ export function AppPreview() {
             </div>
           </div>
 
-          {/* App mockup - Ocean neon style */}
           <div className="relative">
             {/* Animated water ripples behind phone */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10">
@@ -124,7 +121,7 @@ export function AppPreview() {
                         />
                         <div className="absolute inset-0 rounded bg-[color:var(--neon-a)]/20 blur-sm animate-pulse" />
                       </div>
-                      <span className="text-lg font-bold text-[color:var(--neon-text0)] tracking-tight">Events</span>
+                      <span className="text-lg font-bold tracking-normal text-[color:var(--neon-text0)]">Events</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <svg className="w-5 h-5 text-[color:var(--neon-text2)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -177,7 +174,9 @@ export function AppPreview() {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span className="text-[10px] text-[color:var(--neon-a)] font-medium">{event.time}</span>
-                            <span className="text-[10px] text-[color:var(--neon-text2)] ml-1">• {event.attendees} going</span>
+                            <span className="ml-1 text-[10px] text-[color:var(--neon-text2)]">
+                              - {event.attendees} going
+                            </span>
                           </div>
                         </div>
 
@@ -227,10 +226,7 @@ export function AppPreview() {
               </div>
             </div>
 
-            {/* Decorative glows - ocean colors */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-[color:var(--neon-a)]/15 rounded-full blur-[120px] -z-10" />
-            <div className="absolute top-1/4 left-1/4 w-[200px] h-[200px] bg-[color:var(--neon-b)]/20 rounded-full blur-[80px] -z-10 animate-pulse" />
-            <div className="absolute bottom-1/4 right-1/4 w-[150px] h-[150px] bg-[color:var(--neon-a)]/15 rounded-full blur-[60px] -z-10 animate-pulse" style={{ animationDelay: "1s" }} />
+            <div className="absolute inset-[-16%] -z-10 bg-[linear-gradient(130deg,rgba(0,209,255,0.14),transparent_42%,rgba(157,77,255,0.12)_72%,transparent)] blur-3xl" />
             
             {/* Decorative elements with gradient borders */}
             <div className="absolute -top-4 -left-4 w-20 h-20 border-2 border-transparent bg-gradient-to-br from-[color:var(--neon-a)]/60 to-[color:var(--neon-b)]/40 bg-clip-border" style={{ border: "2px solid transparent", backgroundImage: "linear-gradient(var(--neon-bg0), var(--neon-bg0)), linear-gradient(135deg, var(--neon-a), var(--neon-b))", backgroundOrigin: "border-box", backgroundClip: "padding-box, border-box" }} />

@@ -22,7 +22,7 @@ export function WaterHeadline({ eyebrow, accent }: WaterHeadlineProps) {
       </svg>
       <h1
         aria-label={label}
-        className="home-water-headline mb-8 text-5xl font-black uppercase leading-[0.9] sm:text-6xl md:text-7xl lg:text-[7rem]"
+        className="home-water-headline mb-6 text-5xl font-black uppercase leading-[0.92] sm:text-6xl md:text-7xl lg:text-[7rem]"
       >
         <span aria-hidden="true" className="block text-[color:var(--neon-text0)]">
           {eyebrow}

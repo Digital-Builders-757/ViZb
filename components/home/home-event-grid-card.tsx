@@ -61,9 +61,9 @@ export function HomeEventGridCard({ event }: { event: ListingEvent }) {
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="home-redesign-glass-card group flex h-full flex-col overflow-hidden rounded-2xl"
+      className="home-redesign-glass-card group flex h-full flex-col overflow-hidden rounded-xl"
     >
-      <div className="relative h-56 w-full overflow-hidden bg-[#1a1c26]">
+      <div className="relative h-52 w-full overflow-hidden bg-[#1a1c26] sm:h-56">
         {event.flyer_url ? (
           <Image
             src={event.flyer_url}
@@ -83,7 +83,7 @@ export function HomeEventGridCard({ event }: { event: ListingEvent }) {
         <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0f1016] via-transparent to-transparent" />
         <div className="absolute left-4 top-4 z-20 flex gap-2">
           <span
-            className={`${categoryPillClass(primaryCategory)} rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-widest backdrop-blur`}
+            className={`${categoryPillClass(primaryCategory)} rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-normal backdrop-blur`}
           >
             {categoryLabel}
           </span>
@@ -94,25 +94,25 @@ export function HomeEventGridCard({ event }: { event: ListingEvent }) {
         </div>
       </div>
 
-      <div className="flex flex-grow flex-col p-6">
-        <h3 className="mb-3 text-xl font-bold text-[color:var(--neon-text0)] transition-colors group-hover:text-[color:var(--neon-a)]">
+      <div className="flex flex-grow flex-col p-5 sm:p-6">
+        <h3 className="mb-3 line-clamp-2 text-xl font-bold leading-tight text-[color:var(--neon-text0)] transition-colors group-hover:text-[color:var(--neon-a)]">
           {event.title}
         </h3>
         <div className="mb-6 flex-grow space-y-2">
-          <div className="flex items-center gap-2 text-sm text-[color:var(--neon-text2)]">
+          <div className="flex items-start gap-2 text-sm leading-relaxed text-[color:var(--neon-text2)]">
             <MapPin className="h-4 w-4 shrink-0" />
             <span className="line-clamp-2">{location}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-[color:var(--neon-text2)]">
+          <div className="flex items-start gap-2 text-sm leading-relaxed text-[color:var(--neon-text2)]">
             <Clock className="h-4 w-4 shrink-0" />
-            <span>{timeRange}</span>
+            <span className="line-clamp-2">{timeRange}</span>
           </div>
         </div>
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-[color:var(--neon-hairline)]/55 pt-4">
+        <div className="mt-auto flex flex-col gap-3 border-t border-[color:var(--neon-hairline)]/55 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="min-w-0 text-base font-bold text-[color:var(--neon-text0)]">
             {priceLabel ?? "See details"}
           </span>
-          <span className="shrink-0 rounded-lg border border-[color:var(--neon-a)]/35 bg-[color:var(--neon-a)]/10 px-4 py-2 text-sm font-bold text-[color:var(--neon-a)] transition-all group-hover:bg-[color:var(--neon-a)] group-hover:text-[color:var(--neon-bg0)]">
+          <span className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[color:var(--neon-a)]/35 bg-[color:var(--neon-a)]/10 px-4 py-2 text-center text-sm font-bold text-[color:var(--neon-a)] transition-all group-hover:bg-[color:var(--neon-a)] group-hover:text-[color:var(--neon-bg0)]">
             {ctaLabel(priceLabel)}
           </span>
         </div>
