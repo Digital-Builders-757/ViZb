@@ -25,7 +25,7 @@ export function RecommendedEventsSection({ forYou }: { forYou: ForYouFeed }) {
 
       <p className="max-w-2xl text-[15px] leading-relaxed text-[color:var(--neon-text2)]">
         {!forYou.hasSignals
-          ? "Set your cities and categories for sharper picks — showing popular upcoming events for now."
+          ? "Set your cities and categories for sharper picks. Showing popular upcoming events for now."
           : forYou.usedFallback
             ? "Staff picks and soon events while we learn your taste."
             : "From your preferences, saves, and RSVPs."}

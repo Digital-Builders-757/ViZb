@@ -77,7 +77,7 @@ export function PlannerEventRow({
             analyticsContext={{ source: "dashboard_planner" }}
           />
           <a
-            href={`mailto:?subject=${encodeURIComponent(`Pull up to ${title}`)}&body=${encodeURIComponent(`I'm thinking about this — join me?\n\n${eventUrl}`)}`}
+            href={`mailto:?subject=${encodeURIComponent(`Pull up to ${title}`)}&body=${encodeURIComponent(`I'm thinking about this. Join me?\n\n${eventUrl}`)}`}
             className="inline-flex min-h-10 items-center rounded-none border border-[color:var(--neon-hairline)] px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] hover:border-[color:var(--neon-a)]/40 hover:text-[color:var(--neon-text0)]"
           >
             Invite friend

@@ -43,7 +43,7 @@ export default async function DashboardLayout({
       <MobileHeader profile={profile} organizations={organizations} notifications={notifications} />
       <DashboardSidebar profile={profile} organizations={organizations} notifications={notifications} />
       <main className="min-h-[100dvh] md:ml-64">
-        <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">{children}</div>
+        <div className="mx-auto max-w-[1400px] px-4 pt-3 pb-6 md:px-8 md:pt-4 md:pb-8">{children}</div>
       </main>
     </AppShell>
   )
