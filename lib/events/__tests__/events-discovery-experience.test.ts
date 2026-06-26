@@ -34,9 +34,9 @@ describe("listing event display", () => {
     expect(getListingTicketStatus([{ price_cents: 500, sales_starts_at: null, sales_ends_at: null }])).toBe("paid")
   })
 
-  it("does not treat community Free listing as ViZb ticketing", () => {
+  it("does not show price label or ViZb ticketing for community listings", () => {
     const communityOpts = { isCommunity: true as const }
-    expect(getListingEventPriceLabel([], communityOpts)).toBe("Free listing")
+    expect(getListingEventPriceLabel([], communityOpts)).toBeNull()
     expect(listingOffersVizbTickets([], communityOpts)).toBe(false)
     expect(
       listingOffersVizbTickets(
