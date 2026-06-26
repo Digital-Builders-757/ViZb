@@ -48,7 +48,7 @@ export function DashboardCommandCenter({
 
   return (
     <section aria-labelledby="command-center-heading" className="space-y-6">
-      <header className="vizb-control-room-header rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 py-5 backdrop-blur md:px-6 vizb-motion-enter">
+      <header className="vizb-control-room-header rounded-none border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/22 px-4 pt-3 pb-5 backdrop-blur md:px-6 md:pt-4 md:pb-5 vizb-motion-enter">
         <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)]">
           Command center · {region}
         </span>

@@ -68,7 +68,7 @@ export function PlannerSection({
         <DashboardEmptyState
           kicker="No plans yet"
           title="Nothing locked in yet"
-          description="RSVP or save events from the timeline — they'll land here as your personal command map."
+          description="RSVP or save events from the timeline. They'll land here as your personal command map."
         >
           <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
             Browse events
@@ -103,7 +103,7 @@ export function PlannerSection({
           ) : null}
 
           <p className="font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)]">
-            Waitlisted events — not available yet. Save or RSVP to track moves here.
+            Waitlisted events. Not available yet. Save or RSVP to track moves here.
           </p>
         </div>
       )}
