@@ -12,24 +12,14 @@ import type { ListingEvent } from "@/lib/events/listing-event"
 import { getListingEventPriceLabel } from "@/lib/events/listing-event"
 
 const CATEGORY_PILL_CLASS: Record<string, string> = {
-<<<<<<< HEAD
-  party: "bg-[#9d00ff]",
-  music: "bg-[#ff007f]",
-  concert: "bg-[#ff007f]",
-  networking: "bg-[#00e5ff]",
-  workshop: "bg-[#00e5ff]",
-  social: "bg-[#9d00ff]",
-  open_mic: "bg-yellow-500",
-  other: "bg-[#00e5ff]",
-=======
   party: "border-[color:var(--neon-c)]/45 bg-[color:var(--neon-c)]/18 text-[color:var(--neon-text0)]",
+  music: "border-[color:var(--neon-c)]/45 bg-[color:var(--neon-c)]/18 text-[color:var(--neon-text0)]",
   concert: "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/18 text-[color:var(--neon-text0)]",
   networking: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
   workshop: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
   social: "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/18 text-[color:var(--neon-text0)]",
   open_mic: "border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/60 text-[color:var(--neon-text0)]",
   other: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
->>>>>>> origin/develop
 }
 
 function categoryPillClass(category: string): string {
