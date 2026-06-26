@@ -117,7 +117,6 @@ function classificationText(event: TicketmasterEvent): {
 export function mapTicketmasterCategories(event: TicketmasterEvent): EventCategoryValue[] {
   const title = normalizeText(event.name)
   const classification = classificationText(event)
-  const searchable = `${title} ${classification.taxonomy}`.trim()
   const tags = new Set<EventCategoryValue>()
 
   const isOpenMic = title.includes("open mic") || title.includes("open-mic")
@@ -131,11 +130,7 @@ export function mapTicketmasterCategories(event: TicketmasterEvent): EventCatego
     includesAny(classification.taxonomy, MUSIC_TAXONOMY_TERMS) ||
     includesAny(title, MUSIC_TITLE_TERMS)
 
-  const isExplicitConcert =
-    title.includes("concert") ||
-    title.includes("in concert") ||
-    title.includes("tour") ||
-    title.includes("live music")
+  const isExplicitConcert = title.includes("concert") || title.includes("live music")
 
   if (isParty) tags.add("party")
   if (isWorkshop) tags.add("workshop")
@@ -146,7 +141,7 @@ export function mapTicketmasterCategories(event: TicketmasterEvent): EventCatego
 
   // Ticketmaster's Music segment overwhelmingly represents live performances.
   // Keep special formats (party, workshop, networking, open mic) from being mislabeled
-  // as concerts unless the title explicitly says concert/tour/live music.
+  // as concerts unless the title explicitly says concert/live music.
   if (
     isExplicitConcert ||
     (isMusic && !isParty && !isWorkshop && !isNetworking && !isOpenMic)
@@ -157,7 +152,6 @@ export function mapTicketmasterCategories(event: TicketmasterEvent): EventCatego
   // Family is a Ticketmaster segment and maps best to ViZb's broad social category.
   if (classification.segments.includes("family")) tags.add("social")
 
-  if (tags.size === 0 && searchable) tags.add("other")
   if (tags.size === 0) tags.add("other")
 
   return EVENT_CATEGORY_VALUES.filter((category) => tags.has(category))
