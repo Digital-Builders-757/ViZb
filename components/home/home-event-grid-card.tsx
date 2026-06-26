@@ -10,6 +10,7 @@ import { getListingEventPriceLabel } from "@/lib/events/listing-event"
 
 const CATEGORY_PILL_CLASS: Record<string, string> = {
   party: "bg-[#9d00ff]",
+  music: "bg-[#ff007f]",
   concert: "bg-[#ff007f]",
   networking: "bg-[#00e5ff]",
   workshop: "bg-[#00e5ff]",
