@@ -22,6 +22,7 @@ const CATEGORY_MICROCOPY: Record<EventCategoryValue, string> = {
   party: "Culture, music, nightlife, and celebration.",
   networking: "Meet people building, hosting, creating, and moving Virginia forward.",
   social: "Low-pressure hangs, community mixers, and real-world connection.",
+  music: "Live music, DJs, performances, and sounds worth showing up for.",
   concert: "Live music, performances, and crowd energy.",
   open_mic: "Artists, poets, comics, and creators taking the mic.",
   other: "Unexpected experiences worth leaving the house for.",

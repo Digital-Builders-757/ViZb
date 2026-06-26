@@ -1,10 +1,11 @@
-/** Allowed event category values — keep in sync with DB constraint (`events_categories_check`; see `supabase/migrations/20260417202850_add_open_mic_event_category.sql` and `scripts/020_event_categories_array.sql`). */
+/** Allowed event category values — keep in sync with DB constraint (`events_categories_check`). */
 
 export const EVENT_CATEGORY_VALUES = [
   "party",
   "workshop",
   "networking",
   "social",
+  "music",
   "concert",
   "other",
   "open_mic",
@@ -17,6 +18,7 @@ const ALLOWED_SET = new Set<string>(EVENT_CATEGORY_VALUES)
 /** Checkbox options for organizer create/edit forms (single source of truth). */
 export const EVENT_CATEGORY_OPTIONS: { value: EventCategoryValue; label: string }[] = [
   { value: "party", label: "Party" },
+  { value: "music", label: "Music" },
   { value: "concert", label: "Concert" },
   { value: "workshop", label: "Workshop" },
   { value: "networking", label: "Networking" },
@@ -46,8 +48,34 @@ export function parseCategoriesFromFormData(formData: FormData): string[] | null
   return unique
 }
 
-/** Normalize API/JSON shapes to a clean string array. */
+/**
+ * Normalize arbitrary API/JSON string arrays without applying the event taxonomy.
+ * This helper is also used for free-form member vibe tags, so keep it generic.
+ */
 export function normalizeCategories(value: unknown): string[] {
   if (!Array.isArray(value)) return []
-  return [...new Set(value.filter((x): x is string => typeof x === "string" && x.length > 0))]
+  return [
+    ...new Set(
+      value.filter(
+        (item): item is string => typeof item === "string" && item.length > 0,
+      ),
+    ),
+  ]
+}
+
+/** Normalize external values to valid ViZb category slugs. */
+export function normalizeValidEventCategories(value: unknown): EventCategoryValue[] {
+  return normalizeCategories(value)
+    .map((item) => item.toLowerCase().trim())
+    .filter((item): item is EventCategoryValue => isValidEventCategory(item))
+    .filter((item, index, categories) => categories.indexOf(item) === index)
+}
+
+/**
+ * Database-safe normalization for `events.categories`.
+ * The DB requires at least one allowed value, so unknown external values fall back to `other`.
+ */
+export function normalizeCategoriesForPersistence(value: unknown): EventCategoryValue[] {
+  const normalized = normalizeValidEventCategories(value)
+  return normalized.length > 0 ? normalized : ["other"]
 }

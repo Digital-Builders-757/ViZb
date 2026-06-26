@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { slugify } from "@/lib/utils"
 import { EVENT_KIND_COMMUNITY } from "@/lib/events/event-kind"
-import { normalizeCategories } from "@/lib/events/categories"
+import { normalizeCategoriesForPersistence } from "@/lib/events/categories"
 import { fetchPlatformOrganization } from "@/lib/orgs/platform-org"
 import type { CandidateReviewRow } from "@/lib/imports/candidate-review"
 import { canPublishCandidate } from "@/lib/imports/candidate-review"
@@ -73,7 +73,7 @@ export async function publishCandidateToEvent(
 
   const now = new Date().toISOString()
   const slug = await buildUniqueSlug(admin, platformOrg.id, candidate.title)
-  const categories = normalizeCategories(candidate.categories)
+  const categories = normalizeCategoriesForPersistence(candidate.categories)
 
   const { data: existingBySource } = await admin
     .from("events")

@@ -13,6 +13,7 @@ import { getListingEventPriceLabel } from "@/lib/events/listing-event"
 
 const CATEGORY_PILL_CLASS: Record<string, string> = {
   party: "border-[color:var(--neon-c)]/45 bg-[color:var(--neon-c)]/18 text-[color:var(--neon-text0)]",
+  music: "border-[color:var(--neon-c)]/45 bg-[color:var(--neon-c)]/18 text-[color:var(--neon-text0)]",
   concert: "border-[color:var(--neon-b)]/45 bg-[color:var(--neon-b)]/18 text-[color:var(--neon-text0)]",
   networking: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
   workshop: "border-[color:var(--neon-a)]/45 bg-[color:var(--neon-a)]/16 text-[color:var(--neon-a)]",
