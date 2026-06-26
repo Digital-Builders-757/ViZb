@@ -325,7 +325,7 @@ export default async function EventsExplorePage({
     return eventsListingQuery({ ...listingOptsBase, ...overrides })
   }
 
-  // ET timezone formatter for date grouping (Virginia audience)
+  // Eastern timezone formatter for date grouping (Virginia audience)
   const etDateFormatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/New_York",
     year: "numeric",
@@ -333,7 +333,7 @@ export default async function EventsExplorePage({
     day: "2-digit",
   })
 
-  // Group upcoming by ET date
+  // Group upcoming by Eastern date
   const grouped: Record<string, FlatEvent[]> = {}
   for (const event of flatUpcoming) {
     const dateKey = etDateFormatter.format(new Date(event.starts_at))

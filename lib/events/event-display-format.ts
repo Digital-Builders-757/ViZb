@@ -1,7 +1,10 @@
 /** Pure display helpers — safe for Client Components (no server Supabase imports). */
 
 import { normalizeCategories } from "@/lib/events/categories"
-import { EVENT_DISPLAY_TIMEZONE } from "@/lib/events/eastern-datetime"
+import {
+  EVENT_DISPLAY_TIMEZONE,
+  EVENT_DISPLAY_TIMEZONE_LABEL,
+} from "@/lib/events/eastern-datetime"
 
 /** Cap category chips for compact/medium surfaces; pair with `formatCategoryLabel` when rendering. */
 export function sliceCategoriesForDisplay(
@@ -59,11 +62,11 @@ export function formatDashboardEventTimeShort(startsAt: string, endsAt: string |
   return `${start} – ${end}`
 }
 
-/** Single line: date/window + Eastern times with ET suffix. */
+/** Single line: date/window + Eastern times with product timezone label. */
 export function formatDashboardEventEtDetailLines(startsAt: string, endsAt: string | null): string {
   const dateLine = formatDashboardEventWhen(startsAt, endsAt)
   const times = formatDashboardEventTimeShort(startsAt, endsAt)
-  return `${dateLine} · ${times} ET`
+  return `${dateLine} · ${times} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
 }
 
 /** Public event detail — long weekday date in Eastern. */
@@ -86,14 +89,35 @@ export function formatEventTime(iso: string): string {
   }).format(new Date(iso))
 }
 
-/** Public event detail — date + time range with ET suffix. */
+export function formatEventTimeWithZone(iso: string): string {
+  return `${formatEventTime(iso)} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
+}
+
+export function formatEventTimeRangeWithZone(startsAt: string, endsAt: string | null): string {
+  const startTime = formatEventTime(startsAt)
+  if (!endsAt) return `${startTime} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
+  const endTime = formatEventTime(endsAt)
+  if (startTime === endTime) return `${startTime} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
+  return `${startTime} - ${endTime} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
+}
+
+export function formatEventStartLabelWithZone(iso: string): string {
+  const dateTime = new Intl.DateTimeFormat("en-US", {
+    timeZone: EVENT_DISPLAY_TIMEZONE,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(iso))
+  return `${dateTime} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
+}
+
+/** Public event detail — date + time range with product timezone label. */
 export function formatEventDateTimeDetail(startsAt: string, endsAt: string | null): string {
   const dateLine = formatEventDateLong(startsAt)
-  const startTime = formatEventTime(startsAt)
-  if (!endsAt) return `${dateLine} · ${startTime} ET`
-  const endTime = formatEventTime(endsAt)
-  if (startTime === endTime) return `${dateLine} · ${startTime} ET`
-  return `${dateLine} · ${startTime} – ${endTime} ET`
+  return `${dateLine} · ${formatEventTimeRangeWithZone(startsAt, endsAt)}`
 }
 
 /** Compact Eastern datetime for ticket cards and lists. */
@@ -106,4 +130,8 @@ export function formatEventDateTimeCompact(iso: string): string {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(iso))
+}
+
+export function formatEventDateTimeCompactWithZone(iso: string): string {
+  return `${formatEventDateTimeCompact(iso)} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
 }

@@ -32,7 +32,7 @@ export function TimelineSectionIntro({
             </p>
           ) : (
             <p className="mt-3 text-sm text-[color:var(--neon-text1)]">
-              Sorted {sortMode === "city" ? "by city, then time" : "by start time"} · Eastern · scroll date chapters
+              Sorted {sortMode === "city" ? "by city, then time" : "by start time"} · EST · scroll date chapters
               below
             </p>
           )}

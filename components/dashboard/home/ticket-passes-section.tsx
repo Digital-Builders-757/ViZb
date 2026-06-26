@@ -8,10 +8,10 @@ import { NeonLink } from "@/components/ui/neon-link"
 import { SectionTitle } from "@/components/ui/section-title"
 import { DashboardEmptyState } from "@/components/dashboard/home/dashboard-empty-state"
 
-import { formatEventDateTimeCompact } from "@/lib/events/event-display-format"
+import { formatEventDateTimeCompactWithZone } from "@/lib/events/event-display-format"
 
 function formatTicketWhen(iso: string) {
-  return `${formatEventDateTimeCompact(iso)} ET`
+  return formatEventDateTimeCompactWithZone(iso)
 }
 
 export interface TicketPassesSectionProps {

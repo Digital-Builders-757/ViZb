@@ -57,7 +57,7 @@ export function matchesTonight(startsAtIso: string, now: Date): boolean {
   return easternDateKey(startsAtIso) === easternDateKey(now)
 }
 
-/** Fri ≥ 5pm ET, Saturday, or Sunday. */
+/** Friday at/after 5pm Eastern, Saturday, or Sunday. */
 export function matchesWeekend(startsAtIso: string, _now: Date): boolean {
   const { weekday, hour } = easternWeekdayAndHour(startsAtIso)
   const w = weekday.toLowerCase()
