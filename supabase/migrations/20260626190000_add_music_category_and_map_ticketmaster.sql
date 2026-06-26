@@ -48,7 +48,7 @@ flags AS (
     search_text ~ '(workshop|master ?class|boot ?camp|training|seminar)' AS is_workshop,
     search_text ~ '(networking|business mixer|network mixer|career fair|job fair|professional mixer|business conference|business summit)' AS is_networking,
     search_text ~ '(after ?party|day party|club night|nightclub|party)' AS is_party,
-    search_text ~ '(meet ?up|community gathering|social gathering|festival|family event)' AS is_social,
+    search_text ~ '(meet ?up|community gathering|social gathering|festival|family)' AS is_social,
     search_text ~ '(^|[^a-z0-9])(music|rock|pop|jazz|blues|country|hip[- ]?hop|rap|r&b|rnb|soul|reggae|latin|electronic|metal|folk|classical|gospel|alternative|indie|punk)([^a-z0-9]|$)' AS is_music,
     search_text ~ '(concert|in concert|live music)' AS is_explicit_concert
   FROM ticketmaster_source
