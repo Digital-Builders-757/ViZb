@@ -48,16 +48,27 @@ export function parseCategoriesFromFormData(formData: FormData): string[] | null
   return unique
 }
 
-/** Normalize API/JSON shapes to valid ViZb category slugs. */
-export function normalizeCategories(value: unknown): EventCategoryValue[] {
+/**
+ * Normalize arbitrary API/JSON string arrays without applying the event taxonomy.
+ * This helper is also used for free-form member vibe tags, so keep it generic.
+ */
+export function normalizeCategories(value: unknown): string[] {
   if (!Array.isArray(value)) return []
+  return [
+    ...new Set(
+      value.filter(
+        (item): item is string => typeof item === "string" && item.length > 0,
+      ),
+    ),
+  ]
+}
 
-  const normalized = value
-    .filter((item): item is string => typeof item === "string")
+/** Normalize external values to valid ViZb category slugs. */
+export function normalizeValidEventCategories(value: unknown): EventCategoryValue[] {
+  return normalizeCategories(value)
     .map((item) => item.toLowerCase().trim())
     .filter((item): item is EventCategoryValue => isValidEventCategory(item))
-
-  return [...new Set(normalized)]
+    .filter((item, index, categories) => categories.indexOf(item) === index)
 }
 
 /**
@@ -65,6 +76,6 @@ export function normalizeCategories(value: unknown): EventCategoryValue[] {
  * The DB requires at least one allowed value, so unknown external values fall back to `other`.
  */
 export function normalizeCategoriesForPersistence(value: unknown): EventCategoryValue[] {
-  const normalized = normalizeCategories(value)
+  const normalized = normalizeValidEventCategories(value)
   return normalized.length > 0 ? normalized : ["other"]
 }
