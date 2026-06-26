@@ -2,6 +2,9 @@
 -- instead of Eastern (America/New_York) wall time.
 -- Imported events (source IS NOT NULL) already have correct UTC instants — excluded.
 
+ALTER TABLE public.ticket_types
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+
 UPDATE public.events
 SET
   starts_at = ((starts_at AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'),
