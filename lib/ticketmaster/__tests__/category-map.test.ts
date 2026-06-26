@@ -3,7 +3,7 @@ import { mapTicketmasterCategories } from "@/lib/ticketmaster/category-map"
 import type { TicketmasterEvent } from "@/lib/ticketmaster/types"
 
 function event(input: Partial<TicketmasterEvent>): TicketmasterEvent {
-  return { id: input.id ?? "tm-test", ...input }
+  return { ...input, id: input.id ?? "tm-test" }
 }
 
 describe("mapTicketmasterCategories", () => {
@@ -41,7 +41,9 @@ describe("mapTicketmasterCategories", () => {
       mapTicketmasterCategories(
         event({
           name: "R&B Rooftop Day Party",
-          classifications: [{ segment: { name: "Music" }, genre: { name: "R&B" } }],
+          classifications: [
+            { segment: { name: "Music" }, genre: { name: "R&B" } },
+          ],
         }),
       ),
     ).toEqual(["party", "music"])
@@ -69,12 +71,25 @@ describe("mapTicketmasterCategories", () => {
     ).toEqual(["social"])
   })
 
+  it("does not mistake a non-music tour for a concert", () => {
+    expect(
+      mapTicketmasterCategories(
+        event({
+          name: "Historic Home Tour",
+          classifications: [{ segment: { name: "Miscellaneous" } }],
+        }),
+      ),
+    ).toEqual(["other"])
+  })
+
   it("falls back to other for unsupported Ticketmaster segments", () => {
     expect(
       mapTicketmasterCategories(
         event({
           name: "Hockey Night",
-          classifications: [{ segment: { name: "Sports" }, genre: { name: "Hockey" } }],
+          classifications: [
+            { segment: { name: "Sports" }, genre: { name: "Hockey" } },
+          ],
         }),
       ),
     ).toEqual(["other"])
