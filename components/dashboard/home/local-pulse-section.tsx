@@ -58,7 +58,7 @@ export function LocalPulseSection({
             Quiet week in {region}
           </p>
           <p className="mt-2 text-sm text-[color:var(--neon-text1)]">
-            Check back soon — or open the full timeline for everything published.
+            Check back soon, or open the full timeline for everything published.
           </p>
           <NeonLink href="/events" className="mt-4 inline-flex" shape="xl">
             Open full timeline

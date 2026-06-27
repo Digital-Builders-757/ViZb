@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { Clock3, MapPin } from "lucide-react"
 import type { DashboardCalendarEvent } from "@/lib/events/dashboard-calendar"
 import { agendaDayKeysFromToday } from "@/lib/events/dashboard-calendar"
 import { formatDashboardEventTimeShort } from "@/lib/events/event-display-format"
@@ -49,8 +50,8 @@ export function DashboardCalendarAgenda({
 
   if (groups.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
-        <p className="text-sm text-[color:var(--neon-text1)]">
+      <div className="rounded-lg border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
+        <p className="text-sm leading-relaxed text-[color:var(--neon-text1)]">
           No published events in the next 30 days.
         </p>
       </div>
@@ -60,7 +61,7 @@ export function DashboardCalendarAgenda({
   return (
     <div className="flex min-w-0 flex-col gap-6" role="list">
       {groups.map(({ dayKey, events }) => (
-        <div key={dayKey} className="min-w-0 space-y-2" role="listitem">
+        <div key={dayKey} className="min-w-0 space-y-2.5" role="listitem">
           <h3
             className={cn(
               "border-b border-[color:var(--neon-hairline)] pb-2 font-serif text-base font-bold text-[color:var(--neon-text0)]",
@@ -69,26 +70,34 @@ export function DashboardCalendarAgenda({
           >
             {formatAgendaDayHeading(dayKey)}
           </h3>
-          <ul className="flex min-w-0 flex-col gap-2">
+          <ul className="flex min-w-0 flex-col gap-2.5">
             {events.map((e) => (
               <li key={e.id} className="min-w-0">
                 <button
                   type="button"
-                  className="w-full min-w-0 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-3 py-3 text-left backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] hover:shadow-[0_0_16px_rgb(0_209_255/0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)] sm:px-4"
+                  className="planner-tide-row grid w-full min-w-0 gap-3 rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-3 py-3 text-left backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] hover:shadow-[0_0_16px_rgb(0_209_255/0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)] sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:px-4"
                   onClick={() => {
                     onSelectDay(dayKey)
                     onSelectEvent(e.id)
                   }}
                 >
-                  <p className="break-words font-semibold text-[color:var(--neon-text0)]">{e.title}</p>
-                  <p className="mt-1 font-mono text-xs text-[color:var(--neon-a)]">
+                  <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--neon-a)]/30 bg-[color:var(--neon-a)]/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-a)] sm:w-full sm:justify-center">
+                    <Clock3 className="h-3.5 w-3.5" aria-hidden />
                     {formatDashboardEventTimeShort(e.starts_at, e.ends_at)}
-                  </p>
-                  <p className="mt-1 break-words text-sm text-[color:var(--neon-text1)]">
-                    {e.city}
-                    {e.venue_name ? ` · ${e.venue_name}` : ""}
-                  </p>
-                  <DashboardCategoryChips eventId={e.id} categories={e.categories} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold leading-snug text-[color:var(--neon-text0)]">
+                      {e.title}
+                    </p>
+                    <p className="mt-2 flex min-w-0 items-start gap-2 break-words text-sm leading-relaxed text-[color:var(--neon-text1)]">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--neon-b)]" aria-hidden />
+                      <span>
+                        {e.city}
+                        {e.venue_name ? ` - ${e.venue_name}` : ""}
+                      </span>
+                    </p>
+                    <DashboardCategoryChips eventId={e.id} categories={e.categories} />
+                  </div>
                 </button>
               </li>
             ))}

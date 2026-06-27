@@ -21,14 +21,14 @@ export function DashboardCategoryChips({
       {visible.map((c, i) => (
         <span
           key={`${eventId}-${c}-${i}`}
-          className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-2.5 py-0.5 font-mono text-[10px] font-medium text-[color:var(--neon-text1)] shadow-[0_0_12px_rgba(0,209,255,0.06)]"
+          className="inline-flex rounded-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-2.5 py-0.5 font-mono text-[10px] font-medium tracking-normal text-[color:var(--neon-text1)] shadow-[0_0_12px_rgba(0,209,255,0.06)]"
         >
           {formatCategoryLabel(c)}
         </span>
       ))}
       {extraCount > 0 ? (
         <span
-          className="font-mono text-[10px] text-[color:var(--neon-text2)]"
+          className="font-mono text-[10px] tracking-normal text-[color:var(--neon-text2)]"
           aria-label={`${extraCount} more categories`}
         >
           +{extraCount} more

@@ -1,4 +1,4 @@
-/** Pure display helpers — safe for Client Components (no server Supabase imports). */
+/** Pure display helpers - safe for Client Components (no server Supabase imports). */
 
 import { normalizeCategories } from "@/lib/events/categories"
 import {
@@ -29,7 +29,7 @@ export function formatDashboardEventWhen(startsAt: string, endsAt: string | null
   if (!endsAt) return startLabel
   const endLabel = df.format(new Date(endsAt))
   if (startLabel === endLabel) return startLabel
-  return `${startLabel} – ${endLabel}`
+  return `${startLabel} - ${endLabel}`
 }
 
 const CATEGORY_LABEL_OVERRIDES: Record<string, string> = {
@@ -45,7 +45,7 @@ export function formatCategoryLabel(category: string): string {
 
 export function formatCategoryLabels(categories: string[] | null | undefined): string {
   if (!categories || categories.length === 0) return "Event"
-  return categories.map((c) => formatCategoryLabel(c)).join(" · ")
+  return categories.map((c) => formatCategoryLabel(c)).join(" - ")
 }
 
 /** Compact Eastern time (and range) for dashboard day rows. */
@@ -59,17 +59,17 @@ export function formatDashboardEventTimeShort(startsAt: string, endsAt: string |
   if (!endsAt) return start
   const end = tf.format(new Date(endsAt))
   if (start === end) return start
-  return `${start} – ${end}`
+  return `${start} - ${end}`
 }
 
 /** Single line: date/window + Eastern times with product timezone label. */
 export function formatDashboardEventEtDetailLines(startsAt: string, endsAt: string | null): string {
   const dateLine = formatDashboardEventWhen(startsAt, endsAt)
   const times = formatDashboardEventTimeShort(startsAt, endsAt)
-  return `${dateLine} · ${times} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
+  return `${dateLine} - ${times} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
 }
 
-/** Public event detail — long weekday date in Eastern. */
+/** Public event detail - long weekday date in Eastern. */
 export function formatEventDateLong(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: EVENT_DISPLAY_TIMEZONE,
@@ -80,7 +80,7 @@ export function formatEventDateLong(iso: string): string {
   }).format(new Date(iso))
 }
 
-/** Public event detail — clock time in Eastern. */
+/** Public event detail - clock time in Eastern. */
 export function formatEventTime(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: EVENT_DISPLAY_TIMEZONE,
@@ -114,10 +114,10 @@ export function formatEventStartLabelWithZone(iso: string): string {
   return `${dateTime} ${EVENT_DISPLAY_TIMEZONE_LABEL}`
 }
 
-/** Public event detail — date + time range with product timezone label. */
+/** Public event detail - date + time range with product timezone label. */
 export function formatEventDateTimeDetail(startsAt: string, endsAt: string | null): string {
   const dateLine = formatEventDateLong(startsAt)
-  return `${dateLine} · ${formatEventTimeRangeWithZone(startsAt, endsAt)}`
+  return `${dateLine} - ${formatEventTimeRangeWithZone(startsAt, endsAt)}`
 }
 
 /** Compact Eastern datetime for ticket cards and lists. */

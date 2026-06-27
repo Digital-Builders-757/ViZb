@@ -45,7 +45,7 @@ export function TicketPassesSection({
         <DashboardEmptyState
           kicker="No tickets yet"
           title="Find your next move"
-          description="RSVP or buy on an event page — your pass shows up here with check-in ready when doors open."
+          description="RSVP or buy on an event page. Your pass shows up here with check-in ready when doors open."
         >
           <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
             Browse events

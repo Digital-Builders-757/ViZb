@@ -36,7 +36,7 @@ export function SavedNotDecidedSection({
         <DashboardEmptyState
           kicker="Clear runway"
           title="Nothing on your maybe list"
-          description="Save events from the timeline when something catches your eye — they'll show here until you lock it in."
+          description="Save events from the timeline when something catches your eye. They'll show here until you lock it in."
         >
           <NeonLink href="/events" fullWidth className="sm:w-auto" shape="xl">
             Explore events
@@ -69,7 +69,7 @@ export function SavedNotDecidedSection({
                         Lock it in
                       </Link>
                       <a
-                        href={`mailto:?subject=${encodeURIComponent(`This could be our move — ${ev.title}`)}&body=${encodeURIComponent(eventUrl)}`}
+                        href={`mailto:?subject=${encodeURIComponent(`This could be our move: ${ev.title}`)}&body=${encodeURIComponent(eventUrl)}`}
                         className="inline-flex min-h-10 items-center rounded-none border border-[color:var(--neon-hairline)] px-4 font-mono text-[10px] uppercase tracking-widest text-[color:var(--neon-text2)] hover:text-[color:var(--neon-text0)]"
                       >
                         Invite someone

@@ -70,7 +70,7 @@ export function VibeProfileSection({
           </p>
           {interestLabels.length === 0 && cityLabels.length === 0 ? (
             <p className="mt-3 text-sm text-[color:var(--neon-text1)]">
-              No preferences set yet. Tell us what you&apos;re into — music, food, nightlife, workshops, and more.
+              No preferences set yet. Tell us what you&apos;re into: music, food, nightlife, workshops, and more.
             </p>
           ) : (
             <div className="mt-4 flex flex-wrap gap-2">

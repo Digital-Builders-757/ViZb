@@ -41,7 +41,7 @@ export default async function DashboardPage({
   const firstRunHint = !profile?.display_name
     ? "You're in. Set up your profile to get the most out of ViBE."
     : needsPreferenceOnboarding
-      ? "Almost there — tell us your cities and categories so we can personalize your command center."
+      ? "Almost there. Tell us your cities and categories so we can personalize your command center."
       : null
 
   return (
