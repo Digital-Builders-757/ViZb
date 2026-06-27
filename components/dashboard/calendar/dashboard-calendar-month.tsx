@@ -22,9 +22,19 @@ function easternPickerDayKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
+function monthDayLabel(dayKey: string): string {
+  const [y, m, d] = dayKey.split("-").map(Number)
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(y, m - 1, d))
+}
+
 const plannerDayButtonClassName = cn(
   "planner-day-cell focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]",
-  "mx-auto aspect-square w-full max-w-[3rem] min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg p-0 leading-none sm:max-w-[3.45rem]",
+  "relative isolate h-full w-full max-w-none cursor-pointer flex-col items-center justify-center gap-0.5 overflow-hidden rounded-lg p-0 leading-none transition-[background,border-color,box-shadow,color]",
+  "hover:bg-[color:var(--neon-surface)]/45 hover:shadow-[0_0_18px_rgba(0,209,255,0.12)] active:bg-[color:var(--neon-a)]/18",
   "[&>span]:opacity-100",
 )
 
@@ -37,9 +47,15 @@ function DashboardCalendarDayButtonInner({
   const { day } = props
   const key = easternPickerDayKey(day.date)
   const count = eventsByDay.get(key)?.length ?? 0
+  const ariaLabel =
+    count > 0
+      ? `Select ${monthDayLabel(key)}, ${count} event${count === 1 ? "" : "s"}`
+      : `Select ${monthDayLabel(key)}, no events`
+
   return (
     <CalendarDayButton
       {...props}
+      aria-label={ariaLabel}
       className={cn(plannerDayButtonClassName, props.className)}
     >
       <span className="planner-day-cell-date text-sm font-medium tabular-nums">{day.date.getDate()}</span>
@@ -89,6 +105,7 @@ export function DashboardCalendarMonth({
   const activeDays = eventsByDay.size
 
   const selectedDate = useMemo(() => dateFromDayKey(selectedDayKey), [selectedDayKey])
+  const selectedEventCount = eventsByDay.get(selectedDayKey)?.length ?? 0
 
   const dayButtonComponent = useMemo(
     () =>
@@ -129,6 +146,23 @@ export function DashboardCalendarMonth({
           >
             <ChevronRight className="h-4 w-4" />
           </Link>
+        </div>
+      </div>
+
+      <div className="planner-tide-row rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-3 py-3 backdrop-blur sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <p className="font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-text2)]">
+            Selected day
+          </p>
+          <p className="mt-1 font-serif text-lg font-bold leading-tight text-[color:var(--neon-text0)]">
+            {monthDayLabel(selectedDayKey)}
+          </p>
+        </div>
+        <div className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-[color:var(--neon-a)]/35 bg-[color:var(--neon-a)]/12 px-3 font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-a)] sm:mt-0">
+          <span className="text-base font-bold leading-none">{selectedEventCount}</span>
+          <span>
+            move{selectedEventCount === 1 ? "" : "s"}
+          </span>
         </div>
       </div>
 
