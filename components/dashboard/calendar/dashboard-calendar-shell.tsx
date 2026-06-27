@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { CalendarDays, LayoutGrid, ListChecks, Rows3, Sparkles } from "lucide-react"
 import type { DashboardCalendarEvent } from "@/lib/events/dashboard-calendar"
 import {
   agendaDayKeysFromToday,
@@ -107,12 +108,13 @@ export function DashboardCalendarShell({
   )
 
   const savedSet = useMemo(() => new Set(savedEventIds), [savedEventIds])
+  const activeDayCount = eventsByDay.size
 
   const isSavedLive = (id: string) => (id in savedOverrides ? savedOverrides[id] : savedSet.has(id))
 
   const panelContent =
     events.length === 0 ? (
-      <div className="rounded-xl border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
+      <div className="rounded-lg border border-dashed border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/18 px-4 py-8 text-center backdrop-blur">
         <p className="text-base text-[color:var(--neon-text1)]">
           No published events with a start date this month yet.
         </p>
@@ -137,60 +139,90 @@ export function DashboardCalendarShell({
       />
     )
 
-  const viewButtons: { id: DashboardCalendarView; label: string }[] = [
-    { id: "month", label: "Month" },
-    { id: "week", label: "Week" },
-    { id: "agenda", label: "Agenda" },
+  const viewButtons = [
+    { id: "month" as const, label: "Month", icon: LayoutGrid },
+    { id: "week" as const, label: "Week", icon: Rows3 },
+    { id: "agenda" as const, label: "Agenda", icon: ListChecks },
   ]
 
   return (
-    <GlassCard className="max-w-full overflow-x-hidden p-0">
-      <div className="flex flex-col gap-4 border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-        <div className="min-w-0">
-          <span className="font-mono text-xs uppercase tracking-widest text-[color:var(--neon-text2)] sm:text-sm">
-            Town calendar
-          </span>
-          <h2 className="mt-1 font-serif text-xl font-bold text-[color:var(--neon-text0)] md:text-2xl">
-            Planner
-          </h2>
-          <p className="mt-1 text-base text-[color:var(--neon-text2)]">
-            Scan the month, plan the week, or browse what&apos;s next (EST dates).
-          </p>
+    <GlassCard className="planner-tide-panel max-w-full overflow-hidden rounded-lg p-0">
+      <div className="relative border-b border-[color:var(--neon-hairline)] bg-[color:var(--neon-bg1)]/30 px-4 py-5 sm:px-5 lg:px-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-normal text-[color:var(--neon-text2)] sm:text-sm">
+              <CalendarDays className="h-4 w-4 text-[color:var(--neon-a)]" aria-hidden />
+              Town calendar - Eastern dates
+            </span>
+            <h2 className="mt-2 font-serif text-2xl font-bold leading-tight text-[color:var(--neon-text0)] md:text-3xl">
+              Planner
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--neon-text1)] sm:text-base">
+              Scan the month, compare the week, and open the details before you pick the move.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[25rem]">
+            {[
+              { label: "Month moves", value: events.length },
+              { label: "Active days", value: activeDayCount },
+              { label: "Saved", value: savedEventIds.length },
+            ].map(({ label, value }) => (
+              <div
+                key={label}
+                className="rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/24 px-3 py-2.5"
+              >
+                <p className="font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-text2)]">
+                  {label}
+                </p>
+                <p className="mt-0.5 font-serif text-xl font-bold text-[color:var(--neon-text0)]">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div
-          role="tablist"
-          aria-label="Calendar view"
-          className="flex shrink-0 flex-wrap gap-1 rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-1 backdrop-blur"
-        >
-          {viewButtons.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={view === id}
-              aria-controls="dashboard-calendar-panel"
-              id={`cal-tab-${id}`}
-              className={cn(
-                "rounded-lg px-3 py-2 font-mono text-sm uppercase tracking-wide transition-[background,box-shadow,color] sm:text-base",
-                view === id
-                  ? "border border-[color:color-mix(in_srgb,var(--neon-a)_40%,var(--neon-hairline))] bg-[color:var(--neon-a)]/20 text-[color:var(--neon-text0)] shadow-[0_0_16px_rgba(0,209,255,0.14)]"
-                  : "border border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:bg-[color:var(--neon-surface)]/25 hover:text-[color:var(--neon-text0)]",
-              )}
-              onClick={() => changeView(id)}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="inline-flex items-center gap-2 text-sm text-[color:var(--neon-text2)]">
+            <Sparkles className="h-4 w-4 text-[color:var(--neon-b)]" aria-hidden />
+            {selectedEvents.length} event{selectedEvents.length === 1 ? "" : "s"} on the selected day
+          </p>
+          <div
+            role="tablist"
+            aria-label="Calendar view"
+            className="grid shrink-0 grid-cols-3 gap-1 rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-1 backdrop-blur"
+          >
+            {viewButtons.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={view === id}
+                aria-controls="dashboard-calendar-panel"
+                id={`cal-tab-${id}`}
+                className={cn(
+                  "inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-3 font-mono text-xs uppercase tracking-normal transition-[background,border-color,box-shadow,color]",
+                  view === id
+                    ? "border-[color:color-mix(in_srgb,var(--neon-a)_44%,var(--neon-hairline))] bg-[color:var(--neon-a)]/18 text-[color:var(--neon-text0)] shadow-[0_0_16px_rgba(0,209,255,0.14)]"
+                    : "border-transparent text-[color:var(--neon-text2)] hover:border-[color:var(--neon-hairline)] hover:bg-[color:var(--neon-surface)]/25 hover:text-[color:var(--neon-text0)]",
+                )}
+                onClick={() => changeView(id)}
+              >
+                <Icon className="h-4 w-4" aria-hidden />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col lg:grid lg:min-h-[420px] lg:grid-cols-[minmax(0,1fr)_min(22rem,36vw)] lg:gap-0">
+      <div className="flex min-w-0 flex-col lg:grid lg:min-h-[480px] lg:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)] lg:gap-0">
         <div
           id="dashboard-calendar-panel"
           role="tabpanel"
           aria-labelledby={`cal-tab-${view}`}
-          className="min-w-0 border-[color:var(--neon-hairline)] p-4 sm:p-5 lg:border-r"
+          className="min-w-0 border-[color:var(--neon-hairline)] p-3 sm:p-5 lg:border-r lg:p-6"
         >
           {view === "month" ? (
             <DashboardCalendarMonth
@@ -221,7 +253,7 @@ export function DashboardCalendarShell({
         </div>
 
         <aside
-          className="hidden min-h-0 min-w-0 flex-col p-4 sm:p-5 lg:flex lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
+          className="hidden min-h-0 min-w-0 flex-col bg-[color:var(--neon-bg1)]/18 p-4 sm:p-5 lg:flex lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
           aria-label="Event details"
         >
           {panelContent}

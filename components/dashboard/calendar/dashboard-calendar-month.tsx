@@ -24,7 +24,7 @@ function easternPickerDayKey(d: Date): string {
 
 const plannerDayButtonClassName = cn(
   "planner-day-cell focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-[color:var(--neon-a)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--neon-bg0)]",
-  "mx-auto aspect-square w-full max-w-[2.75rem] min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 p-0 leading-none",
+  "mx-auto aspect-square w-full max-w-[3rem] min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg p-0 leading-none sm:max-w-[3.45rem]",
   "[&>span]:opacity-100",
 )
 
@@ -82,6 +82,11 @@ export function DashboardCalendarMonth({
   const monthDate = useMemo(() => new Date(year, monthIndex, 1), [year, monthIndex])
   const prevKey = shiftCalKey(year, monthIndex, -1)
   const nextKey = shiftCalKey(year, monthIndex, 1)
+  const monthLabel = useMemo(
+    () => new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(monthDate),
+    [monthDate],
+  )
+  const activeDays = eventsByDay.size
 
   const selectedDate = useMemo(() => dateFromDayKey(selectedDayKey), [selectedDayKey])
 
@@ -94,24 +99,32 @@ export function DashboardCalendarMonth({
   )
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-text2)]">
+            Month view
+          </p>
+          <h3 className="mt-1 font-serif text-xl font-bold leading-tight text-[color:var(--neon-text0)] sm:text-2xl">
+            {monthLabel}
+          </h3>
+        </div>
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href={`/dashboard?cal=${prevKey}`}
             scroll={false}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 text-[color:var(--neon-text0)] backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_45%,var(--neon-hairline))] hover:shadow-[0_0_18px_rgb(0_209_255/0.12)]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 text-[color:var(--neon-text0)] backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_45%,var(--neon-hairline))] hover:shadow-[0_0_18px_rgb(0_209_255/0.12)]"
             aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
           </Link>
-          <span className="min-w-[9rem] rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30 px-3 py-2 text-center font-mono text-xs text-[color:var(--neon-text1)] backdrop-blur">
-            {calKey}
+          <span className="min-w-[8rem] rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/30 px-3 py-2 text-center font-mono text-xs text-[color:var(--neon-text1)] backdrop-blur">
+            {activeDays} active day{activeDays === 1 ? "" : "s"}
           </span>
           <Link
             href={`/dashboard?cal=${nextKey}`}
             scroll={false}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 text-[color:var(--neon-text0)] backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_45%,var(--neon-hairline))] hover:shadow-[0_0_18px_rgb(0_209_255/0.12)]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 text-[color:var(--neon-text0)] backdrop-blur transition-[border-color,box-shadow] hover:border-[color:color-mix(in_srgb,var(--neon-a)_45%,var(--neon-hairline))] hover:shadow-[0_0_18px_rgb(0_209_255/0.12)]"
             aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
@@ -136,14 +149,14 @@ export function DashboardCalendarMonth({
           components={{
             DayButton: dayButtonComponent,
           }}
-          className="w-full max-w-full rounded-xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-2 backdrop-blur sm:p-3 md:max-w-[min(100%,22rem)]"
+          className="w-full max-w-full rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/25 p-2 backdrop-blur sm:p-3 md:max-w-[min(100%,30rem)]"
           classNames={{
             root: "w-full",
             nav: "hidden",
             month_grid: "w-full table-fixed border-collapse",
             weekdays: "rdp-weekdays",
             weekday:
-              "w-[14.285714%] py-2 text-center font-mono text-xs uppercase tracking-[0.12em] text-[color:var(--neon-text2)] select-none sm:text-sm sm:tracking-wide",
+              "w-[14.285714%] py-2 text-center font-mono text-xs uppercase tracking-normal text-[color:var(--neon-text2)] select-none sm:text-sm",
             week: "rdp-week",
             day: "relative w-[14.285714%] p-1 text-center align-middle text-[color:var(--neon-text0)]",
             outside: "text-[color:var(--neon-text2)]/50",

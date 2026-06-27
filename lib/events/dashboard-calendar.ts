@@ -1,4 +1,4 @@
-/** URL params, Eastern date keys, and row typing — safe for Client Components (no server imports). */
+/** URL params, Eastern date keys, and row typing - safe for Client Components (no server imports). */
 
 export interface DashboardCalendarEvent {
   id: string
@@ -47,7 +47,7 @@ export function shiftCalKey(year: number, monthIndex: number, deltaMonths: numbe
   return formatCalKey(d.getFullYear(), d.getMonth())
 }
 
-/** Eastern (America/New_York) calendar date for an instant — used for “what’s on in town” month grid. */
+/** Eastern (America/New_York) calendar date for an instant - used for the town calendar month grid. */
 export function easternDateKey(iso: string): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/New_York",
@@ -87,7 +87,7 @@ export function dateFromDayKey(dayKey: string): Date {
 
 /**
  * Default selected day: today if it has events (current Eastern month); else next event day in-month;
- * else first of month. Past Eastern months → first of month; future → first day with an event.
+ * else first of month. Past Eastern months -> first of month; future -> first day with an event.
  */
 export function defaultSelectedDayKey(
   year: number,
@@ -116,7 +116,7 @@ export function defaultSelectedDayKey(
   return firstOfMonth
 }
 
-/** e.g. "Apr 6–12" or "Apr 28 – May 4" for a Sunday–Saturday strip. */
+/** e.g. "Apr 6-12" or "Apr 28 - May 4" for a Sunday-Saturday strip. */
 export function formatWeekStripRangeLabel(startDayKey: string, endDayKey: string): string {
   const [y1, m1, d1] = startDayKey.split("-").map(Number)
   const [y2, m2, d2] = endDayKey.split("-").map(Number)
@@ -125,11 +125,11 @@ export function formatWeekStripRangeLabel(startDayKey: string, endDayKey: string
   const sameMonth = y1 === y2 && m1 === m2
   const mo = new Intl.DateTimeFormat("en-US", { month: "short" })
   const dm = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" })
-  if (sameMonth) return `${mo.format(a)} ${d1}–${d2}`
-  return `${dm.format(a)} – ${dm.format(b)}`
+  if (sameMonth) return `${mo.format(a)} ${d1}-${d2}`
+  return `${dm.format(a)} - ${dm.format(b)}`
 }
 
-/** Panel title like "Mon, Apr 7 + 3 events". */
+/** Panel title like "Mon, Apr 7 - 3 events". */
 export function formatDashboardDayPanelHeading(dayKey: string, eventCount: number): string {
   const [ys, ms, ds] = dayKey.split("-").map(Number)
   const date = new Date(ys, ms - 1, ds)
@@ -138,7 +138,7 @@ export function formatDashboardDayPanelHeading(dayKey: string, eventCount: numbe
     month: "short",
     day: "numeric",
   }).format(date)
-  return `${label} + ${eventCount} event${eventCount === 1 ? "" : "s"}`
+  return `${label} - ${eventCount} event${eventCount === 1 ? "" : "s"}`
 }
 
 /** Calendar day keys for the Sunday-start week containing `anchorDayKey`. */
