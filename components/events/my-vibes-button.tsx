@@ -137,7 +137,7 @@ export function MyVibesButton({
         )}
         aria-hidden
       />
-      {isPending ? (saved ? "Removing…" : "Saving…") : saved ? "Saved to My Vibes" : "My Vibes"}
+      {isPending ? (saved ? "Removing..." : "Saving...") : saved ? "Saved to My Vibes" : "My Vibes"}
     </button>
   )
 }

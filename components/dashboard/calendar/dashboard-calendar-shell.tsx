@@ -95,6 +95,10 @@ export function DashboardCalendarShell({
     setDetailSheetOpen(false)
   }
 
+  function setEventSaved(eventId: string, nextSaved: boolean) {
+    setSavedOverrides((prev) => ({ ...prev, [eventId]: nextSaved }))
+  }
+
   const selectedEvents = useMemo(() => {
     const list = eventsByDay.get(selectedDayKey) ?? []
     return [...list].sort(
@@ -127,15 +131,15 @@ export function DashboardCalendarShell({
         event={selectedEvent}
         onBack={clearEvent}
         initialSaved={isSavedLive(selectedEvent.id)}
-        onSavedChange={(next) =>
-          setSavedOverrides((prev) => ({ ...prev, [selectedEvent.id]: next }))
-        }
+        onSavedChange={(next) => setEventSaved(selectedEvent.id, next)}
       />
     ) : (
       <DashboardCalendarDayPanel
         dayKey={selectedDayKey}
         events={selectedEvents}
         onSelectEvent={selectEvent}
+        isSavedEvent={isSavedLive}
+        onSavedChange={setEventSaved}
       />
     )
 
@@ -248,6 +252,8 @@ export function DashboardCalendarShell({
               selectedDayKey={selectedDayKey}
               onSelectDay={selectDay}
               onSelectEvent={selectEvent}
+              isSavedEvent={isSavedLive}
+              onSavedChange={setEventSaved}
             />
           ) : null}
         </div>
@@ -268,6 +274,8 @@ export function DashboardCalendarShell({
             dayKey={selectedDayKey}
             events={selectedEvents}
             onSelectEvent={selectEvent}
+            isSavedEvent={isSavedLive}
+            onSavedChange={setEventSaved}
           />
         </div>
       ) : null}
@@ -289,9 +297,7 @@ export function DashboardCalendarShell({
               event={selectedEvent}
               onBack={clearEvent}
               initialSaved={isSavedLive(selectedEvent.id)}
-              onSavedChange={(next) =>
-                setSavedOverrides((prev) => ({ ...prev, [selectedEvent.id]: next }))
-              }
+              onSavedChange={(next) => setEventSaved(selectedEvent.id, next)}
             />
           ) : null}
         </SheetContent>
