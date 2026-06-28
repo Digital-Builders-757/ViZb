@@ -2,7 +2,9 @@
 
 **Purpose:** Single export package for redesign collaboration on **public marketing and discovery** surfaces. Not a rebrand — refine the existing **underwater neon glass editorial** world.
 
-**Last updated:** June 2, 2026
+**Last updated:** June 28, 2026
+
+> **Current-state note:** This handoff remains useful for visual language, but the live homepage was rebuilt after the original June 2 package. For exact ownership, use [ARCHITECTURE_SOURCE_OF_TRUTH.md](ARCHITECTURE_SOURCE_OF_TRUTH.md) and [REPO_MAP.md](REPO_MAP.md).
 
 ---
 
@@ -92,7 +94,7 @@ From [`app/globals.css`](../app/globals.css) `:root`:
 
 | Route | Primary files |
 |-------|----------------|
-| `/` | `app/page.tsx`, `components/hero-section.tsx`, `marquee-section`, `editorial-grid`, `events-section`, `app-preview`, `waitlist-section` |
+| `/` | `app/page.tsx`, `components/home/home-redesign-hero.tsx`, `components/home/home-events-grid.tsx`, `components/home/home-experience-flow.tsx`, `components/app-preview.tsx`, `components/waitlist-section.tsx` |
 | `/events` | `app/events/page.tsx`, `components/events/event-timeline-card.tsx` |
 | `/events/[slug]` | `app/events/[slug]/page.tsx` |
 | `/p` | `app/p/page.tsx`, `components/posts/post-card.tsx` |
@@ -100,7 +102,7 @@ From [`app/globals.css`](../app/globals.css) `:root`:
 | `/advertise` | `app/advertise/page.tsx`, `components/advertise/advertise-contact-form.tsx` |
 | `/lineup/[eventSlug]` | `app/lineup/[eventSlug]/page.tsx` |
 
-**Homepage section order:** Navbar → Hero → Marquee → EditorialGrid → Events → LatestPosts → AppPreview → Waitlist → Footer (`OceanDivider` between major bands).
+**Homepage section order:** Navbar -> redesigned hero -> event grid -> experience flow -> app preview -> waitlist -> footer (`OceanDivider` between major bands).
 
 ---
 

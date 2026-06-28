@@ -2,6 +2,8 @@
 
 Purpose: reduce re-prompting. This file contains **pre-scoped work orders** that can be executed by Cursor one-by-one, each as its own PR into `develop`.
 
+> **Current-state note (June 28, 2026):** These packs are historical design work orders. Several concepts have shipped into the live homepage redesign. When reusing a pack, map homepage work to `app/page.tsx` and `components/home/*`; do not revive retired root marketing sections unless `app/page.tsx` imports them again.
+
 Operating rules
 - One work order per PR.
 - Branch naming: `polish/ocean-pack-XX-<short-name>`.
@@ -37,9 +39,9 @@ North Star aesthetic
 **Files**
 - `components/ui/ocean-divider.tsx`
 - `app/globals.css`
-- `components/hero-section.tsx`
-- `components/events-section.tsx`
-- `components/editorial-grid.tsx`
+- `components/home/home-redesign-hero.tsx`
+- `components/home/home-events-grid.tsx`
+- `components/home/home-experience-flow.tsx`
 - `components/waitlist-section.tsx`
 
 **QA**
@@ -113,8 +115,8 @@ North Star aesthetic
 
 **Files**
 - `components/ui/water-frame.tsx`
-- `components/hero-section.tsx`
-- `components/editorial-grid.tsx`
+- `components/home/home-redesign-hero.tsx`
+- `components/home/home-experience-flow.tsx`
 - `components/events/event-timeline-card.tsx`
 
 **QA**
@@ -220,7 +222,7 @@ North Star aesthetic
 
 **Files**
 - `components/ui/ambient-fog.tsx`
-- `components/hero-section.tsx` or `app/page.tsx`
+- `components/home/home-redesign-hero.tsx` or `app/page.tsx`
 - `app/events/page.tsx`
 
 **QA**

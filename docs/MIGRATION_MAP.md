@@ -1,6 +1,6 @@
 # Documentation migration map
 
-**Last updated:** June 8, 2026
+**Last updated:** June 28, 2026
 
 For each major existing doc: **keep**, **merge**, **rewrite**, **archive**, or **delete**. Do not delete without a pointer from [README.md](./README.md) or [DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md).
 
@@ -21,8 +21,9 @@ For each major existing doc: **keep**, **merge**, **rewrite**, **archive**, or *
 | `docs/DECISIONS.md` | **NEW** | Captures implicit ADRs |
 | `docs/DOCS_AUDIT_2026.md` | **NEW** | Audit record |
 | `docs/MIGRATION_MAP.md` | **NEW** | This file |
+| `docs/DOCUMENTATION_CONSOLIDATION_2026_06_28.md` | **NEW** | Current vs historical docs map after the June 28 drift pass |
 
-**June 8 status:** Core docs, entry points, Layer 2 contract statuses, and Layer 3 journey statuses were refreshed against code. Archive moves and destructive cleanup remain recommendations, not executed changes.
+**June 28 status:** Core docs and entry points were refreshed again for the home redesign, dashboard planner/My Vibes work, import cron routes, organizer payout routes, and documentation consolidation. Archive moves and destructive cleanup remain recommendations, not executed changes.
 
 ---
 
@@ -48,7 +49,7 @@ For each major existing doc: **keep**, **merge**, **rewrite**, **archive**, or *
 | Path | Action | Notes |
 |------|--------|-------|
 | `ARCHITECTURE_CONSTITUTION.md` | **KEEP** | Short laws; still accurate |
-| `ARCHITECTURE_SOURCE_OF_TRUTH.md` | **KEEP** | Extend with May routes when touched |
+| `ARCHITECTURE_SOURCE_OF_TRUTH.md` | **KEEP** | Refreshed Jun 28 for home redesign, imports, payouts, and newer actions |
 | `BRAND_CONSTITUTION.md` | **KEEP** | Align typography line |
 | `BRAND_SYSTEM.md` | **REWRITE** | Reconcile radius: glass vs zero-radius |
 | `EVENTS_SOURCE_OF_TRUTH.md` | **REWRITE** | Add `event_kind`, staff pick, listing reports |

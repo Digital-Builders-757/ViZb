@@ -5,6 +5,8 @@ Execution companion: `docs/ROADMAP_RUNNER.md`.
 Related baseline: `docs/work-orders/local-events-work-order.md`.
 Events contract: `docs/contracts/events.md`.
 
+> **Historical work order:** This file preserves the implementation prompt used when the community flyer flow was scoped. If homepage component references conflict with [../ARCHITECTURE_SOURCE_OF_TRUTH.md](../ARCHITECTURE_SOURCE_OF_TRUTH.md), use the architecture doc and live imports.
+
 ## Goal
 Ship a true end-to-end flyer upload workflow for **community / local events** created from the **staff admin dashboard**, so admins can attach a flyer during the creation flow and have that flyer appear across the public event feed and event detail surfaces used by members.
 
@@ -47,9 +49,8 @@ The outcome should be: **admin can create a community event and attach a flyer i
 - Event flyer upload/remove already exists in `uploadEventFlyer` / `removeEventFlyer` in `app/actions/event.ts`
 - Event flyer validation constants already exist in `lib/events/flyer-upload-constraints.ts`
 - Admin event detail page already exposes `FlyerUploadForm` in `app/(dashboard)/admin/events/[id]/page.tsx`
-- Public surfaces already render `flyer_url` in:
-  - `components/events-section.tsx`
-  - `components/hero-section.tsx`
+- Public surfaces render `flyer_url` through current event discovery/detail components, including:
+  - `components/home/home-events-grid.tsx`
   - `app/events/page.tsx`
   - `app/events/[slug]/page.tsx`
 

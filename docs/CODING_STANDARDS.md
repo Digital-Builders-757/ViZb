@@ -1,6 +1,6 @@
 # ViBE -- Coding Standards & Style Guide
 
-**Last Updated:** February 5, 2026
+**Last Updated:** June 28, 2026
 **Applies to:** All code in the ViBE events platform repository
 
 This document defines the coding conventions, patterns, and anti-patterns for the ViBE project. Both human developers and AI agents must follow these rules. Violations should be caught in code review.
@@ -42,7 +42,7 @@ This document defines the coding conventions, patterns, and anti-patterns for th
 | Storage | Supabase Storage | -- |
 | Payments | Stripe Checkout + Webhooks | -- |
 | Hosting | Vercel | -- |
-| 3D | Three.js (hero only) | Dynamically imported |
+| Browser-only visuals | Three.js / charting only when needed | Dynamic client wrapper |
 | Analytics | Vercel Analytics | -- |
 
 ---
@@ -71,11 +71,12 @@ This document defines the coding conventions, patterns, and anti-patterns for th
 │   ├── ui/                     # shadcn/ui primitives (do not edit directly)
 │   ├── navbar.tsx              # Global navigation
 │   ├── footer.tsx              # Global footer
-│   ├── hero-section.tsx        # Landing hero
-│   ├── three-background.tsx    # Three.js particle background (client)
-│   ├── three-background-wrapper.tsx  # Dynamic import wrapper (client)
-│   ├── editorial-grid.tsx      # About/editorial section
-│   ├── events-section.tsx      # Event preview cards
+│   ├── home/                   # Canonical homepage sections
+│   │   ├── home-redesign-hero.tsx
+│   │   ├── home-events-grid.tsx
+│   │   └── home-experience-flow.tsx
+│   ├── events/                 # Discovery cards, timelines, quick preview
+│   ├── dashboard/              # Member, organizer, admin dashboard UI
 │   ├── app-preview.tsx         # Mobile app mockup
 │   ├── waitlist-section.tsx    # Waitlist signup form (client)
 │   ├── marquee-section.tsx     # Scrolling text
@@ -138,8 +139,8 @@ const user = data as User // AVOID unless you've validated the shape
 
 | Entity | Convention | Example |
 |--------|-----------|---------|
-| Components | PascalCase | `EventCard`, `HeroSection` |
-| Files (components) | kebab-case | `event-card.tsx`, `hero-section.tsx` |
+| Components | PascalCase | `EventCard`, `HomeRedesignHero` |
+| Files (components) | kebab-case | `event-card.tsx`, `home-redesign-hero.tsx` |
 | Files (utilities) | kebab-case | `auth-helpers.ts` |
 | Functions | camelCase | `requireAuth`, `createEvent` |
 | Server Actions | camelCase, verb-first | `subscribeToWaitlist`, `createOrder` |
@@ -251,7 +252,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
 
 ### Dynamic Imports for Heavy Dependencies
 
-Heavy client libraries (Three.js, chart libraries, etc.) must be dynamically imported with server-side rendering disabled. The dynamic import must live in a `"use client"` wrapper component. See `components/three-background-wrapper.tsx` for the canonical example.
+Heavy client libraries (Three.js, chart libraries, maps, etc.) must be dynamically imported with server-side rendering disabled. The dynamic import must live in a `"use client"` wrapper component. Keep the wrapper next to the feature that owns it, and keep the server page importing only the wrapper.
 
 **Pattern:** Create a `"use client"` file that calls `next/dynamic` with the SSR option set to `false` and a loading fallback. Export a wrapper component. Import that wrapper (not the raw component) from any Server Component that needs it.
 
@@ -279,16 +280,16 @@ Split large page files into smaller, focused components:
 ```typescript
 // BAD: 500-line page.tsx with everything inline
 // GOOD: page.tsx orchestrates smaller components
-import { HeroSection } from "@/components/hero-section"
-import { EventsSection } from "@/components/events-section"
-import { EditorialGrid } from "@/components/editorial-grid"
+import { HomeRedesignHero } from "@/components/home/home-redesign-hero"
+import { HomeEventsGrid } from "@/components/home/home-events-grid"
+import { HomeExperienceFlow } from "@/components/home/home-experience-flow"
 
 export default function HomePage() {
   return (
     <main>
-      <HeroSection />
-      <EventsSection />
-      <EditorialGrid />
+      <HomeRedesignHero />
+      <HomeEventsGrid />
+      <HomeExperienceFlow />
     </main>
   )
 }

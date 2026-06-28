@@ -4,6 +4,8 @@
 >
 > An events discovery and ticketing platform targeting the Virginia/DMV creative community. Attendees browse events and buy tickets, organizers create events and check in guests at the door, and admins moderate the platform. Think Eventbrite with a streetwear editorial aesthetic.
 
+> **Current-state note (June 28, 2026):** This file is a dated roadmap and evidence log. Use [docs/README.md](./README.md), [docs/DOCUMENTATION_CONSOLIDATION_2026_06_28.md](./DOCUMENTATION_CONSOLIDATION_2026_06_28.md), [docs/ARCHITECTURE_SOURCE_OF_TRUTH.md](./ARCHITECTURE_SOURCE_OF_TRUTH.md), and [docs/REPO_MAP.md](./REPO_MAP.md) for current component ownership, homepage structure, and shipped capability status.
+
 ---
 
 ## Current Status: MVP Shipped -- Paid Ticketing Live, Polish Ongoing

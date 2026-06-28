@@ -124,7 +124,7 @@ Use `prefers-reduced-motion: reduce` overrides in CSS—not JS detection alone.
 | LCP (mobile) | < 2.5s | Hero image or static backdrop first |
 | CLS | < 0.1 | Reserved flyer aspect ratio |
 | `/events` first visit | No WebGL | Static caustic CSS |
-| Hero WebGL (`/`) | Lazy + pause hidden tab | `three-background.tsx` caps DPR |
+| Hero WebGL (`/`) | Optional only; lazy + pause hidden tab if reintroduced | Use a feature-owned dynamic client wrapper and cap DPR |
 | JS per route | Avoid new heavy deps | CSS-first atmosphere |
 
 ---
@@ -188,4 +188,4 @@ Score each route **0–2** per row (0 = fail, 1 = partial, 2 = pass). **Ship thr
 ## 12. Open questions
 
 - **Photography library:** Curate approved real-photo overlays (#172).  
-- **Three.js scope:** Homepage only vs selective hero routes—default homepage only until perf budget passes.
+- **Three.js scope:** Optional homepage-only enhancement; CSS-first atmosphere remains default until perf budget passes.

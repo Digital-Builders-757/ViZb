@@ -4,6 +4,8 @@
 **Date:** June 10, 2026  
 **Issues:** #135–#148 (closed June 10, 2026)
 
+> **Historical audit:** File lists and component names below reflect the June 10 polish branch. For the live homepage structure, use [../ARCHITECTURE_SOURCE_OF_TRUTH.md](../ARCHITECTURE_SOURCE_OF_TRUTH.md) and [../REPO_MAP.md](../REPO_MAP.md).
+
 ## What was reviewed
 
 - Homepage: hero, timeline, footer
