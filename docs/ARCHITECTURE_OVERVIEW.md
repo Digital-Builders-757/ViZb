@@ -1,6 +1,6 @@
 # Architecture overview
 
-**Last updated:** June 8, 2026  
+**Last updated:** June 28, 2026
 **Read time:** ~5 minutes  
 **For depth:** [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)
 
@@ -10,7 +10,7 @@
 
 Events discovery + ticketing for the DMV creative scene. Next.js 16 monolith on Vercel, data and auth on hosted Supabase.
 
-**Shipped surfaces:** public event feed, RSVP + paid tickets, ticket wallet, door check-in, organizer dashboard, staff admin, posts feed, open-mic lineup, community event listings.
+**Shipped surfaces:** public event feed, redesigned home page, RSVP + paid tickets, ticket wallet, door check-in, organizer dashboard, organizer payouts, staff admin, posts feed, local event imports, open-mic lineup, My Vibes reminders, and community event listings.
 
 ---
 
@@ -91,6 +91,8 @@ There is **no** root `middleware.ts` — session logic lives in **`proxy.ts`**.
 | Posts | `admin-posts.ts`, `posts-admin.ts` | `/p`, `/admin/posts` |
 | Admin | `admin-users.ts`, `event-trust.ts` | `/admin` |
 | Stripe | `api/stripe/webhook` | (webhook only) |
+| Imports | `event-import.ts`, `candidate-import.ts` | `/admin/events/imports`, `/api/cron/*-import` |
+| Payouts | `admin-payments.ts`, `organizer-stripe-connect.ts` | `/admin/payments`, `/organizer/[slug]/payments` |
 
 Full map: [REPO_MAP.md](./REPO_MAP.md) and [ARCHITECTURE_SOURCE_OF_TRUTH.md](./ARCHITECTURE_SOURCE_OF_TRUTH.md).
 

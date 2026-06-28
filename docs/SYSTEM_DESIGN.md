@@ -1,6 +1,6 @@
 # ViZb — System design
 
-**Last updated:** June 8, 2026  
+**Last updated:** June 28, 2026
 **Audience:** Engineers, architects, AI agents, operators
 
 ---
@@ -61,7 +61,10 @@
 | **Lineup** | Open-mic board | `app/actions/lineup.ts` | `event_lineup_entries` |
 | **Community listings** | External RSVP events | `event_kind` in `event.ts` | `events.event_kind`, `external_rsvp_url` |
 | **My Vibes** | Saved events | `app/actions/vibes.ts` | `event_saves` |
-| **Notifications** | In-app bell | `app/actions/notifications.ts` | `user_notifications` |
+| **Notifications** | In-app bell + saved-event reminders | `app/actions/notifications.ts`, `app/api/cron/event-reminders` | `user_notifications`, `event_saves` |
+| **Follows/preferences** | Dashboard personalization | `app/actions/follows.ts`, `member-preferences.ts` | `member_follows`, `member_preferences` |
+| **Event ingestion** | Eventbrite/Ticketmaster candidates | `app/actions/event-import.ts`, `candidate-import.ts`, `app/api/cron/*-import`, `lib/imports/**` | `event_import_*` tables |
+| **Organizer payouts** | Payout readiness and release | `app/actions/admin-payments.ts`, `organizer-stripe-connect.ts`, `app/api/cron/release-payouts` | `organizer_payouts`, `organizer_stripe_accounts` |
 | **Host onboarding** | Apply + admin review | `host-application.ts` | `host_applications` |
 | **Marketing** | Waitlist, advertise | `subscribe.ts`, `advertise-contact.ts` | `subscribers` |
 
@@ -215,11 +218,20 @@ Staff/org editors create drafts. Submit for review. Staff publishes or rejects. 
 | Method | Path | Purpose |
 |--------|------|---------|
 | POST | `/api/stripe/webhook` | Payment fulfillment |
+| POST | `/api/stripe/checkout/[eventId]` | Event ticket Checkout route |
 | POST | `/api/checkin/scan` | QR check-in |
 | POST | `/api/events/[slug]/view` | View counter beacon |
 | GET | `/api/calendar/ics` | ICS export |
 | GET | `/api/tickets/pass/apple` | Apple Wallet `.pkpass` |
 | GET | `/api/tickets/pass/google` | Google Wallet save JWT |
+| GET | `/api/cron/event-reminders` | My Vibes event reminders |
+| GET | `/api/cron/eventbrite-import` | Scheduled Eventbrite import |
+| GET | `/api/cron/ticketmaster-import` | Scheduled Ticketmaster import |
+| GET | `/api/cron/release-payouts` | Organizer payout release job |
+| GET | `/api/admin/imports/sources` | Staff import source list |
+| GET | `/api/admin/imports/sources/[sourceKey]/health` | Staff import source health |
+| POST | `/api/admin/imports/eventbrite/run` | Staff-triggered Eventbrite import |
+| POST | `/api/admin/imports/ticketmaster/run` | Staff-triggered Ticketmaster import |
 
 All other mutations: **Server Actions** in `app/actions/`.
 
@@ -240,7 +252,7 @@ All other mutations: **Server Actions** in `app/actions/`.
 - **Branching:** Features → `develop`; release `develop` → `main` (merge commit only)
 - **CI:** `npm run ci` + `npm run test:e2e` on PRs (`.github/workflows/pr-ci.yml`)
 - **DB:** Hosted Supabase; apply migrations before shipping schema-dependent code
-- **No cron jobs** — async work is Stripe webhooks + DB triggers
+- **Async/background work:** Stripe webhooks, DB triggers, Vercel cron route handlers for reminders/imports/payout release, and trusted staff import triggers.
 
 ---
 
@@ -271,7 +283,7 @@ See [DECISIONS.md](./DECISIONS.md) for ADR-style detail. Summary:
 | `env.local` (no dot) ignored | Must use `.env.local` |
 | Missing `supabase/seed.sql` | `db reset` seed step fails if config references it |
 | `admin_list_users` RPC not versioned in repo SQL | Confirm remote DB or add a migration before relying on admin user list recovery |
-| Stripe webhook lacks unit/integration coverage | Manual smoke + Stripe dashboard checks remain required |
+| Stripe webhook runtime confidence | Unit coverage exists, but live Stripe dashboard/webhook smoke remains required before launch sign-off |
 | v0.app lineage | UI may originate from v0; architecture truth is in-repo |
 
 ---

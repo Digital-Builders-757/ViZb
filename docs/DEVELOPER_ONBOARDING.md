@@ -24,7 +24,7 @@ ViBE is an events discovery and ticketing platform for the Virginia/DMV creative
 
 ---
 
-## Current State (February 2026)
+## Historical Snapshot (February 2026)
 
 **What exists today:**
 - Full marketing landing page (Next.js 16, Tailwind v4, Three.js hero)
@@ -63,13 +63,13 @@ In this order:
 
 Everything is a Server Component unless it needs `useState`, `useEffect`, or event handlers. This is the single most important performance decision in the codebase. When you need interactivity, extract only the interactive piece into a Client Component.
 
-**Current Client Components (and why):**
-- `three-background.tsx` -- Three.js needs browser APIs
-- `three-background-wrapper.tsx` -- Dynamic import with SSR disabled
-- `waitlist-section.tsx` -- Form with state and handlers
-- `navbar.tsx` -- Mobile menu toggle (candidate for extraction)
+**Common Client Components (and why):**
+- `components/waitlist-section.tsx` -- Form state and handlers
+- `components/navbar.tsx` -- Mobile menu toggle
+- `components/dashboard/**` interactive panels -- planner, menus, filters, local state
+- Feature-owned wrappers for browser-only libraries -- dynamic import with SSR disabled
 
-Everything else is a Server Component.
+Everything else should start as a Server Component.
 
 ### 2. Two Supabase Clients, No More
 
@@ -111,8 +111,10 @@ components/
   ui/                 -- shadcn/ui (DO NOT EDIT)
   navbar.tsx          -- Global nav
   footer.tsx          -- Global footer
-  hero-section.tsx    -- Hero with Three.js background
-  [other sections]    -- Landing page sections
+  home/               -- Canonical homepage sections
+  events/             -- Discovery and event detail UI
+  dashboard/          -- Member, organizer, admin surfaces
+  [other sections]    -- Public page sections
 
 lib/
   utils.ts            -- cn() helper
@@ -142,7 +144,7 @@ docs/
 ### Pitfall 2: Disabling SSR in a Server Component
 
 **Symptom:** Build error about SSR option not being allowed in server components.
-**Fix:** Create a separate `"use client"` wrapper component that does the dynamic import with SSR disabled, then import that wrapper from your Server Component. See `three-background-wrapper.tsx` for the pattern.
+**Fix:** Create a separate `"use client"` wrapper component that does the dynamic import with SSR disabled, then import that wrapper from your Server Component. Keep the wrapper beside the feature that owns the browser-only dependency.
 
 ### Pitfall 3: Fetching Data in useEffect
 

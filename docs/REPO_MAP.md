@@ -1,6 +1,6 @@
 # Repository map
 
-**Last updated:** June 8, 2026  
+**Last updated:** June 28, 2026
 **Purpose:** Find code fast. For ownership laws, see [ARCHITECTURE_SOURCE_OF_TRUTH.md](./ARCHITECTURE_SOURCE_OF_TRUTH.md).
 
 ---
@@ -68,7 +68,7 @@ Shared layout: `app/(dashboard)/layout.tsx` — sidebar, notifications bell, org
 | Tickets | `/tickets`, `/tickets/[ticketId]`, `/dashboard/tickets/...` (aliases) |
 | Host apply | `/host/apply` |
 | Organizer | `/organizer/new`, `/organizer/[slug]`, `.../events/new`, `.../events/[eventSlug]`, `.../check-in` |
-| Staff admin | `/admin`, `/admin/events/*`, `/admin/posts/*`, `/admin/event-listing-reports` |
+| Staff admin | `/admin`, `/admin/events/*`, `/admin/events/imports/*`, `/admin/posts/*`, `/admin/event-listing-reports`, `/admin/payments/*`, `/admin/diagnostics/*` |
 
 ### Invites
 
@@ -81,11 +81,20 @@ Shared layout: `app/(dashboard)/layout.tsx` — sidebar, notifications bell, org
 | Path | File |
 |------|------|
 | `POST /api/stripe/webhook` | `app/api/stripe/webhook/route.ts` |
+| `POST /api/stripe/checkout/[eventId]` | `app/api/stripe/checkout/[eventId]/route.ts` |
 | `POST /api/checkin/scan` | `app/api/checkin/scan/route.ts` |
 | `POST /api/events/[slug]/view` | `app/api/events/[slug]/view/route.ts` |
 | `GET /api/calendar/ics` | `app/api/calendar/ics/route.ts` |
 | `GET /api/tickets/pass/apple` | `app/api/tickets/pass/apple/route.ts` |
 | `GET /api/tickets/pass/google` | `app/api/tickets/pass/google/route.ts` |
+| `GET /api/cron/event-reminders` | `app/api/cron/event-reminders/route.ts` |
+| `GET /api/cron/eventbrite-import` | `app/api/cron/eventbrite-import/route.ts` |
+| `GET /api/cron/ticketmaster-import` | `app/api/cron/ticketmaster-import/route.ts` |
+| `GET /api/cron/release-payouts` | `app/api/cron/release-payouts/route.ts` |
+| `GET /api/admin/imports/sources` | `app/api/admin/imports/sources/route.ts` |
+| `GET /api/admin/imports/sources/[sourceKey]/health` | `app/api/admin/imports/sources/[sourceKey]/health/route.ts` |
+| `POST /api/admin/imports/eventbrite/run` | `app/api/admin/imports/eventbrite/run/route.ts` |
+| `POST /api/admin/imports/ticketmaster/run` | `app/api/admin/imports/ticketmaster/run/route.ts` |
 
 ### Server Actions — `app/actions/`
 
@@ -93,9 +102,12 @@ Shared layout: `app/(dashboard)/layout.tsx` — sidebar, notifications bell, org
 |------|--------|
 | `event.ts` | Event CRUD, flyer, review, archive, duplicate |
 | `event-trust.ts` | Staff pick, listing reports |
+| `event-import.ts`, `candidate-import.ts` | Source import runs and candidate review |
+| `event-recap.ts` | Link event recaps to posts |
 | `registrations.ts` | RSVP, cancel |
 | `ticket-types.ts` | Tier CRUD (organizer) |
 | `ticket-checkout.ts` | Stripe Checkout session |
+| `admin-payments.ts`, `organizer-stripe-connect.ts` | Admin payment ops, payout release readiness, Connect onboarding |
 | `checkin.ts`, `undo-checkin.ts` | Admin check-in |
 | `organizer-checkin.ts`, `organizer-undo-checkin.ts` | Door check-in |
 | `organization.ts` | Org create (admin) |
@@ -107,6 +119,8 @@ Shared layout: `app/(dashboard)/layout.tsx` — sidebar, notifications bell, org
 | `posts-admin.ts` | Post archive/delete |
 | `lineup.ts` | Open-mic lineup CRUD |
 | `notifications.ts` | Mark read, staff seed |
+| `member-preferences.ts`, `follows.ts` | Member preferences and followed organizers |
+| `sentry-diagnostics.ts` | Staff Sentry diagnostics |
 | `profile.ts` | Display name |
 | `vibes.ts` | Save/remove events |
 | `subscribe.ts` | Waitlist |
@@ -188,12 +202,12 @@ Tests: `app/actions/__tests__/`
 | `components/events/` | RSVP CTA, share, My Vibes, view beacon |
 | `components/organizer/` | Event forms, check-in scanner, lineup, ticket tiers |
 | `components/admin/` | Review queue, posts editor, user table |
-| `components/dashboard/` | Sidebar, calendar, ticket wallet |
+| `components/dashboard/` | Sidebar, home dashboard modules, calendar/planner, ticket wallet |
 | `components/posts/` | Latest posts section |
 | `components/auth/` | Sign-up success panel |
 | `components/brand/` | Logo, header marks |
 
-Root-level: `navbar.tsx`, `footer.tsx`, `hero-section.tsx`, `three-background*.tsx`, etc.
+Homepage: `components/home/*` plus `components/app-preview.tsx`, `waitlist-section.tsx`, `navbar.tsx`, and `footer.tsx`. Legacy root marketing components (`hero-section.tsx`, `three-background*.tsx`, `marquee-section.tsx`, etc.) are not the canonical `/` composition unless `app/page.tsx` imports them.
 
 ---
 
@@ -227,6 +241,12 @@ Timestamped files applied via `supabase db push`. Notable:
 - `20260505163945` — `event_kind`, external RSVP
 - `20260505184652` — staff pick, listing reports
 
+- `20260611201910` / `20260611202407` / `20260611213000` - member preferences and notification dedupe
+- `20260611214000` / `20260611215000` / `20260611216000` - recaps, follows, save-count insights
+- `20260616130259` through `20260616170000` - Stripe webhook hardening, pricing, organizer accounts, payouts
+- `20260617120000` through `20260622193458` - Eventbrite and multi-source ingestion foundation
+- `20260625003500` / `20260626120000` / `20260626190000` - Eastern-time repair, signup phone/referral, Ticketmaster music mapping
+
 Placeholder history: `20260208035848`, `20260208035906` (prod SQL unknown).
 
 ---
@@ -236,6 +256,7 @@ Placeholder history: `20260208035848`, `20260208035906` (prod SQL unknown).
 | Entry | Purpose |
 |-------|---------|
 | [README.md](./README.md) | Front door |
+| [DOCUMENTATION_CONSOLIDATION_2026_06_28.md](./DOCUMENTATION_CONSOLIDATION_2026_06_28.md) | Current vs historical docs map |
 | [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) | Full architecture |
 | [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md) | Short orientation |
 | [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | This guide's sibling — how to work |

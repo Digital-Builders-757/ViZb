@@ -1,6 +1,6 @@
 # ViBE — Architecture Source of Truth
 
-**Last Updated:** April 20, 2026
+**Last Updated:** June 28, 2026
 
 This document defines the **canonical module ownership** and **wiring laws** for the ViBE events platform. It answers the question: _"Where does this logic live, and who owns it?"_
 
@@ -32,15 +32,20 @@ Domain logic is split across **`app/actions/*.ts`** (one file per area). Represe
 | RSVP / registrations | `app/actions/registrations.ts` | `rsvpToEvent()`, `cancelRsvp()`, … |
 | Ticket types | `app/actions/ticket-types.ts` | `createEventTicketType()`, … |
 | Paid checkout | `app/actions/ticket-checkout.ts` | `createTicketCheckoutSession()` |
+| Admin payments / payouts | `app/actions/admin-payments.ts`, `organizer-stripe-connect.ts` | Payment admin queries/actions, Connect onboarding |
 | Check-in (door) | `app/actions/checkin.ts`, `organizer-checkin.ts`, `undo-checkin.ts`, `organizer-undo-checkin.ts` | Registration check-in / undo |
 | Organizations & invites | `app/actions/organization.ts`, `invite.ts` | Org create, invites, claim |
 | Profile | `app/actions/profile.ts` | Display name updates |
+| Member preferences / follows | `app/actions/member-preferences.ts`, `follows.ts` | Dashboard preferences, followed organizers |
 | Open mic lineup | `app/actions/lineup.ts` | Lineup CRUD, ordering, status |
+| Event recaps | `app/actions/event-recap.ts` | Attach post-event recap links |
+| Event imports | `app/actions/event-import.ts`, `candidate-import.ts` | Source run controls and candidate review |
 | Posts (admin — editor media) | `app/actions/admin-posts.ts` | Cover/body image uploads to Storage; remove orphaned objects |
 | Posts (admin — moderation) | `app/actions/posts-admin.ts` | Archive / delete posts |
 | Admin utilities | `app/actions/admin-users.ts`, `admin-registrations.ts` | Staff-only operations |
 | Host applications | `app/actions/host-application.ts` | Submit / review applications |
 | Notifications | `app/actions/notifications.ts` | Mark read, staff seed |
+| Observability | `app/actions/sentry-diagnostics.ts` | Staff-only Sentry diagnostics |
 | Advertising leads | `app/actions/advertise-contact.ts` | Contact form submit |
 | My Vibes | `app/actions/vibes.ts` | Save / remove saved events |
 
@@ -77,23 +82,24 @@ If TypeScript types, documentation, or application code disagree with the databa
 
 ## Canonical Module Map
 
-### Landing Page (live)
+### Home page and public shell (live)
 
 | Component | File | Owner | Client? |
 |-----------|------|-------|---------|
 | Page orchestrator | `app/page.tsx` | Homepage | Server |
 | Root layout | `app/layout.tsx` | Global | Server |
 | Navigation | `components/navbar.tsx` | Global | Client (mobile toggle) |
-| Hero | `components/hero-section.tsx` | Homepage | Server |
-| 3D Background | `components/three-background.tsx` | Homepage | Client (Three.js) |
-| 3D Wrapper | `components/three-background-wrapper.tsx` | Homepage | Client (dynamic import) |
-| Marquee | `components/marquee-section.tsx` | Homepage | Server |
-| Editorial grid | `components/editorial-grid.tsx` | Homepage | Server |
-| Culture section | `components/culture-section.tsx` | Homepage | Server |
-| Events preview | `components/events-section.tsx` | Homepage | Server |
+| Redesign hero | `components/home/home-redesign-hero.tsx` | Homepage | Server |
+| Homepage event rail/grid | `components/home/home-events-grid.tsx` | Homepage/events | Server |
+| Homepage experience flow | `components/home/home-experience-flow.tsx` | Homepage | Server |
+| Homepage event data | `lib/events/homepage-events.ts` | Events | Server utility |
+| Shared app shell | `components/ui/app-shell.tsx` | Global UI | Server |
+| Ocean divider | `components/ui/ocean-divider.tsx` | Global UI | Server |
 | App mockup | `components/app-preview.tsx` | Homepage | Server |
 | Waitlist form | `components/waitlist-section.tsx` | Waitlist | Client (form) |
 | Footer | `components/footer.tsx` | Global | Server |
+
+Legacy marketing components such as `components/hero-section.tsx`, `three-background*.tsx`, `marquee-section.tsx`, `editorial-grid.tsx`, and `culture-section.tsx` may still be used by `/about`, archived redesign docs, or future experiments. They are no longer the canonical `/` composition unless `app/page.tsx` imports them again.
 
 ### Authentication (live)
 
@@ -115,6 +121,8 @@ If TypeScript types, documentation, or application code disagree with the databa
 | Public detail | `app/events/[slug]/page.tsx` | Events |
 | Event actions | `app/actions/event.ts` | Events |
 | Flyer storage | Supabase Storage (`event-flyers` bucket) | Events |
+| Event imports | `app/actions/event-import.ts`, `candidate-import.ts`; `lib/imports/**`, `lib/eventbrite/**`, `lib/ticketmaster/**` | Event ingestion |
+| Import admin routes | `app/(dashboard)/admin/events/imports/**` | Staff admin |
 
 ### Posts & lineup (live)
 
@@ -132,8 +140,10 @@ If TypeScript types, documentation, or application code disagree with the databa
 | Member tickets | `app/(dashboard)/dashboard/tickets/**`, `app/(dashboard)/tickets/**` | Tickets |
 | RSVP / cancel | `app/actions/registrations.ts` | Tickets |
 | Ticket types | `app/actions/ticket-types.ts` | Organizer |
-| Stripe checkout session | `app/api/stripe/**` (e.g. create checkout) | Payments |
+| Stripe checkout session | `app/actions/ticket-checkout.ts`, `app/api/stripe/checkout/[eventId]/route.ts` | Payments |
 | Stripe webhook | `app/api/stripe/webhook/route.ts` | Payments |
+| Admin payment ops | `app/actions/admin-payments.ts`, `app/(dashboard)/admin/payments/**` | Staff admin / payments |
+| Organizer Connect and payouts | `app/actions/organizer-stripe-connect.ts`, `app/(dashboard)/organizer/[slug]/payments/page.tsx`, `app/api/cron/release-payouts/route.ts` | Payments |
 | Wallet / QR helpers | `lib/tickets/**` | Tickets |
 
 ### Organizer (live)
@@ -145,6 +155,7 @@ If TypeScript types, documentation, or application code disagree with the databa
 | New event | `app/(dashboard)/organizer/[slug]/events/new/page.tsx` | Organizer |
 | Door check-in | `app/(dashboard)/organizer/[slug]/events/[eventSlug]/check-in/page.tsx` | Organizer |
 | Org / invite actions | `app/actions/organization.ts`, `invite.ts` | Organizer |
+| Event recaps and insights | `app/actions/event-recap.ts`, `lib/organizer/event-insights.ts` | Organizer |
 
 ### Admin (live)
 
@@ -153,6 +164,8 @@ If TypeScript types, documentation, or application code disagree with the databa
 | Admin home | `app/(dashboard)/admin/page.tsx` | Staff admin |
 | Event review surface | `app/(dashboard)/admin/events/[id]/page.tsx` | Staff admin |
 | User admin actions | `app/actions/admin-users.ts` | Staff admin |
+| Import queue/review | `app/(dashboard)/admin/events/imports/**`, `app/actions/candidate-import.ts` | Staff admin |
+| Sentry diagnostics | `app/(dashboard)/admin/diagnostics/sentry/page.tsx`, `app/actions/sentry-diagnostics.ts` | Staff admin / observability |
 
 ---
 

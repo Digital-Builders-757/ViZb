@@ -1,6 +1,6 @@
 # ViBE — Documentation spine (**ViBE Operating Doctrine**)
 
-**Last Updated:** June 10, 2026
+**Last Updated:** June 28, 2026
 
 > **Start here instead:** [`docs/README.md`](./README.md) — June 2026 documentation front door with links to [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md), [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md), [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md), [REPO_MAP.md](./REPO_MAP.md), [OPERATIONS.md](./OPERATIONS.md), and [DECISIONS.md](./DECISIONS.md).
 
@@ -24,6 +24,7 @@ Single entry point for the **events + community + brand** platform (repo **ViZb*
 | [roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md](./roadmaps/LOCAL_EVENT_INGESTION_ROADMAP.md) | Local event ingestion delivery roadmap |
 | [contracts/event-ingestion.md](./contracts/event-ingestion.md) | Candidate schema, adapter contract, geography, RLS (#266, #268) |
 | [DECISIONS.md](./DECISIONS.md) | Architectural decision log |
+| [DOCUMENTATION_CONSOLIDATION_2026_06_28.md](./DOCUMENTATION_CONSOLIDATION_2026_06_28.md) | Current vs historical docs map after the June 28 drift pass |
 | [DOCS_AUDIT_2026.md](./DOCS_AUDIT_2026.md) | Documentation audit summary |
 | [payment-system-audit.md](./payment-system-audit.md) | **Payment / ticketing master map** — Stripe, fees, schema, Connect gaps |
 | [vizb-payments-pricing-and-payouts.md](./vizb-payments-pricing-and-payouts.md) | **Internal company record** — pricing, checkout, Connect payouts, refunds, admin ops (June 2026) |
