@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
@@ -36,6 +36,7 @@ export default function SignUpPage() {
   }>({})
   const [validationBanner, setValidationBanner] = useState<{ title: string; message: string } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
   const router = useRouter()
 
   // Generate bubbles for background animation
@@ -45,6 +46,11 @@ export default function SignUpPage() {
     delay: (i * 2.3 % 1) * 5,
     duration: 8 + (i * 4.7 % 1) * 6,
   })), [])
+
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => setHydrated(true))
+    return () => cancelAnimationFrame(frameId)
+  }, [])
 
   function clearServerIssue() {
     setAuthIssue(null)
@@ -236,6 +242,8 @@ export default function SignUpPage() {
           {/* Form with glass card */}
           <form
             onSubmit={handleSignUp}
+            data-testid="auth-form"
+            data-auth-ready={hydrated ? "true" : "false"}
             className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
           >
             <div className="min-h-0 space-y-4">
@@ -384,7 +392,7 @@ export default function SignUpPage() {
               ) : null}
             </div>
 
-            <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
+            <NeonButton type="submit" disabled={!hydrated || loading} fullWidth shape="pill" className="min-h-11">
               {loading ? "Creating account..." : "Create Account"}
             </NeonButton>
           </form>
