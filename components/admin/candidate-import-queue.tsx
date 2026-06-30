@@ -108,7 +108,13 @@ export function CandidateImportQueue({
                   Last imported
                 </th>
                 <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Last seen
+                </th>
+                <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                   Source ID
+                </th>
+                <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Run
                 </th>
                 <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                   Detail
@@ -118,7 +124,7 @@ export function CandidateImportQueue({
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-muted-foreground">
+                  <td colSpan={12} className="px-4 py-10 text-center text-muted-foreground">
                     Queue empty for current filters.
                   </td>
                 </tr>
@@ -171,8 +177,14 @@ export function CandidateImportQueue({
                       <td className="px-4 py-3 align-top font-mono text-xs text-muted-foreground">
                         {formatDateTime(row.last_imported_at)}
                       </td>
+                      <td className="px-4 py-3 align-top font-mono text-xs text-muted-foreground">
+                        {formatDateTime(row.last_seen_at)}
+                      </td>
                       <td className="max-w-[120px] truncate px-4 py-3 align-top font-mono text-[10px] text-muted-foreground">
                         {row.source_event_id}
+                      </td>
+                      <td className="max-w-[120px] truncate px-4 py-3 align-top font-mono text-[10px] text-muted-foreground">
+                        {row.last_import_run_id ?? "-"}
                       </td>
                       <td className="px-4 py-3 align-top">
                         <NeonLink href={`/admin/events/imports/candidates/${row.id}`} variant="secondary" size="sm">

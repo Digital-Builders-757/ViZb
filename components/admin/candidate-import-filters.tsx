@@ -11,13 +11,16 @@ import {
 } from "@/lib/events/eastern-datetime"
 import { NeonButton } from "@/components/ui/neon-button"
 import type { CandidateQueueFilters } from "@/lib/admin/candidate-queue-params"
+import type { CandidateSourceOption } from "@/lib/admin/load-candidate-queue"
 
 export function CandidateImportFilters({
   filters,
   cities,
+  sources,
 }: {
   filters: CandidateQueueFilters
   cities: string[]
+  sources: CandidateSourceOption[]
 }) {
   const router = useRouter()
 
@@ -26,6 +29,8 @@ export function CandidateImportFilters({
     const source = String(formData.get("source") ?? "").trim()
     const reviewStatus = String(formData.get("reviewStatus") ?? "").trim()
     const duplicateStatus = String(formData.get("duplicateStatus") ?? "").trim()
+    const freshness = String(formData.get("freshness") ?? "").trim()
+    const runId = String(formData.get("runId") ?? "").trim()
     const city = String(formData.get("city") ?? "").trim()
     const startsFrom = String(formData.get("startsFrom") ?? "").trim()
     const startsTo = String(formData.get("startsTo") ?? "").trim()
@@ -33,6 +38,8 @@ export function CandidateImportFilters({
     if (source) params.set("source", source)
     if (reviewStatus) params.set("reviewStatus", reviewStatus)
     if (duplicateStatus) params.set("duplicateStatus", duplicateStatus)
+    if (freshness) params.set("freshness", freshness)
+    if (runId) params.set("runId", runId)
     if (city) params.set("city", city)
     if (startsFrom) {
       const iso = parseEasternDatetimeLocalToIso(startsFrom)
@@ -70,8 +77,11 @@ export function CandidateImportFilters({
           className="w-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-3 py-2 text-sm"
         >
           <option value="">All sources</option>
-          <option value="ticketmaster">Ticketmaster</option>
-          <option value="eventbrite">Eventbrite</option>
+          {sources.map((source) => (
+            <option key={source.source_key} value={source.source_key}>
+              {source.display_name}
+            </option>
+          ))}
         </select>
       </label>
 
@@ -121,6 +131,29 @@ export function CandidateImportFilters({
             <option key={city} value={city} />
           ))}
         </datalist>
+      </label>
+
+      <label className="space-y-1 text-sm">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Freshness</span>
+        <select
+          name="freshness"
+          defaultValue={filters.freshness ?? ""}
+          className="w-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-3 py-2 text-sm"
+        >
+          <option value="">All</option>
+          <option value="recent">Seen recently</option>
+          <option value="stale">Stale</option>
+        </select>
+      </label>
+
+      <label className="space-y-1 text-sm">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Run ID</span>
+        <input
+          name="runId"
+          defaultValue={filters.runId ?? ""}
+          placeholder="Import run UUID"
+          className="w-full border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/40 px-3 py-2 text-sm"
+        />
       </label>
 
       <label className="space-y-1 text-sm">

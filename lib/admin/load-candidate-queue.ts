@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { getStaleThresholdMs } from "@/lib/imports/geography/freshness"
 import {
   type CandidateQueueFilters,
   CANDIDATE_QUEUE_DEFAULT_PAGE_SIZE,
@@ -17,7 +18,9 @@ export type CandidateQueueRow = {
   categories: string[]
   review_status: string
   duplicate_status: string
+  last_seen_at: string
   last_imported_at: string
+  last_import_run_id: string | null
 }
 
 export type CandidateQueueResult = {
@@ -29,8 +32,13 @@ export type CandidateQueueResult = {
   error: string | null
 }
 
+export type CandidateSourceOption = {
+  source_key: string
+  display_name: string
+}
+
 const QUEUE_SELECT =
-  "id, source_key, source_event_id, title, starts_at, venue_name, city, categories, review_status, duplicate_status, last_imported_at"
+  "id, source_key, source_event_id, title, starts_at, venue_name, city, categories, review_status, duplicate_status, last_seen_at, last_imported_at, last_import_run_id"
 
 export { parseCandidateQueueParams, type CandidateQueueFilters, type CandidateQueueSearchParams }
 
@@ -55,6 +63,15 @@ export async function loadCandidateQueue(
   }
   if (filters.duplicateStatus) {
     query = query.eq("duplicate_status", filters.duplicateStatus)
+  }
+  if (filters.runId) {
+    query = query.eq("last_import_run_id", filters.runId)
+  }
+  if (filters.freshness) {
+    const threshold = new Date(getStaleThresholdMs()).toISOString()
+    query = filters.freshness === "stale"
+      ? query.lt("last_seen_at", threshold)
+      : query.gte("last_seen_at", threshold)
   }
   if (filters.city) {
     query = query.ilike("city", `%${filters.city}%`)
@@ -85,6 +102,27 @@ export async function loadCandidateQueue(
     page: filters.page,
     pageSize: filters.pageSize,
     filters,
+    error: null,
+  }
+}
+
+export async function loadCandidateSourceOptions(
+  supabase: SupabaseClient,
+): Promise<{ sources: CandidateSourceOption[]; error: string | null }> {
+  const { data, error } = await supabase
+    .from("event_sources")
+    .select("source_key, display_name")
+    .order("source_key")
+
+  if (error) {
+    return { sources: [], error: error.message }
+  }
+
+  return {
+    sources: ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
+      source_key: String(row.source_key),
+      display_name: String(row.display_name),
+    })),
     error: null,
   }
 }

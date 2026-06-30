@@ -16,10 +16,7 @@ export async function loadSourceHealthPanel(): Promise<SourceHealthPanelResult> 
   try {
     const admin = createServiceRoleClient()
     const sources = await listEventSourcesWithReadiness(admin)
-    const registered = sources.filter((source) =>
-      ["ticketmaster", "eventbrite"].includes(source.source_key),
-    )
-    return { sources: registered, serviceRoleConfigured: true, error: null }
+    return { sources, serviceRoleConfigured: true, error: null }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to load source health."
     return { sources: [], serviceRoleConfigured: true, error: message }

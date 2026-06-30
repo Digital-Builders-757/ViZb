@@ -14,6 +14,7 @@ import { NeonLink } from "@/components/ui/neon-link"
 import {
   loadCandidateQueue,
   loadCandidateQueueCities,
+  loadCandidateSourceOptions,
   type CandidateQueueSearchParams,
 } from "@/lib/admin/load-candidate-queue"
 import { loadImportRunHistory } from "@/lib/admin/load-import-runs"
@@ -38,10 +39,11 @@ export default async function AdminEventImportsPage({
   const sp = withDefaultReviewStatus(rawParams)
   const runPage = rawParams.runPage
 
-  const [candidateQueue, legacyQueue, citiesResult, importRuns, sourceHealth] = await Promise.all([
+  const [candidateQueue, legacyQueue, citiesResult, sourceOptions, importRuns, sourceHealth] = await Promise.all([
     loadCandidateQueue(supabase, sp),
     fetchImportedEventQueue(),
     loadCandidateQueueCities(supabase),
+    loadCandidateSourceOptions(supabase),
     loadImportRunHistory(supabase, {
       source: sp.source,
       page: runPage,
@@ -96,11 +98,18 @@ export default async function AdminEventImportsPage({
 
       <section className="space-y-4">
         <Suspense fallback={<p className="text-sm text-muted-foreground">Loading source tabs…</p>}>
-          <CandidateImportSourceTabs filters={candidateQueue.filters} />
+          <CandidateImportSourceTabs filters={candidateQueue.filters} sources={sourceOptions.sources} />
         </Suspense>
 
         <GlassCard className="p-4">
-          <CandidateImportFilters filters={candidateQueue.filters} cities={citiesResult.cities} />
+          <CandidateImportFilters
+            filters={candidateQueue.filters}
+            cities={citiesResult.cities}
+            sources={sourceOptions.sources}
+          />
+          {sourceOptions.error ? (
+            <p className="mt-3 text-sm text-destructive">Failed to load source filters: {sourceOptions.error}</p>
+          ) : null}
         </GlassCard>
 
         {candidateQueue.error ? (

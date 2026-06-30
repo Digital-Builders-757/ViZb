@@ -3,17 +3,22 @@
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { buildCandidateQueueQueryString, type CandidateQueueFilters } from "@/lib/admin/candidate-queue-params"
+import type { CandidateSourceOption } from "@/lib/admin/load-candidate-queue"
 
-const SOURCE_TABS = [
-  { key: undefined, label: "All" },
-  { key: "ticketmaster", label: "Ticketmaster" },
-  { key: "eventbrite", label: "Eventbrite" },
-] as const
-
-export function CandidateImportSourceTabs({ filters }: { filters: CandidateQueueFilters }) {
+export function CandidateImportSourceTabs({
+  filters,
+  sources,
+}: {
+  filters: CandidateQueueFilters
+  sources: CandidateSourceOption[]
+}) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const activeSource = searchParams.get("source") ?? undefined
+  const tabs = [
+    { key: undefined, label: "All" },
+    ...sources.map((source) => ({ key: source.source_key, label: source.display_name })),
+  ]
 
   function hrefForSource(sourceKey: string | undefined): string {
     const qs = buildCandidateQueueQueryString(filters, {
@@ -25,11 +30,11 @@ export function CandidateImportSourceTabs({ filters }: { filters: CandidateQueue
 
   return (
     <div className="flex flex-wrap gap-2">
-      {SOURCE_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = (tab.key ?? undefined) === (activeSource || undefined)
         return (
           <Link
-            key={tab.label}
+            key={tab.key ?? "all"}
             href={hrefForSource(tab.key)}
             className={`inline-flex min-h-9 items-center border px-3 font-mono text-[10px] uppercase tracking-widest transition-colors ${
               isActive
