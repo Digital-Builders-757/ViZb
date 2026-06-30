@@ -1,6 +1,6 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { ArrowRight, Bookmark, CalendarPlus, CheckCircle2, Sparkles } from "lucide-react"
+import { ArrowRight, Bookmark, CheckCircle2, Sparkles } from "lucide-react"
 import type { MyVibesEventRow } from "@/lib/events/my-vibes-queries"
 import type { MemberHomeTicketPreview } from "@/lib/dashboard/member-home-data"
 import { SectionTitle } from "@/components/ui/section-title"
@@ -71,20 +71,13 @@ export function PlannerSection({
 
   return (
     <Wrapper {...wrapperProps}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
         <div id="planner-heading">
           <SectionTitle kicker="Your night board" title="Locked in and worth watching" />
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--neon-text1)]">
             Keep the tickets, saves, invites, and maybes in one clean place before the night moves.
           </p>
         </div>
-        <a
-          href="/api/calendar/ics?myVibes=1"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/35 px-4 font-mono text-[10px] uppercase tracking-normal text-[color:var(--neon-text0)] transition-colors hover:border-[color:var(--neon-a)]/45 hover:bg-[color:var(--neon-surface)]/55"
-        >
-          <CalendarPlus className="h-4 w-4 text-[color:var(--neon-a)]" aria-hidden />
-          Sync My Vibes
-        </a>
       </div>
 
       {!hasContent ? (
