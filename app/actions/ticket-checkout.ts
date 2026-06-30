@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { requireAuth } from "@/lib/auth-helpers"
 import { assertEventAcceptsPublicRegistration } from "@/lib/events/event-schedule"
+import { assertNativeTicketingAllowed } from "@/lib/events/native-ticketing-guard"
 import {
   assertStripeLineItemsMatchBuyerTotal,
   buildTicketCheckoutLineItems,
@@ -121,12 +122,17 @@ export async function createTicketCheckoutSession(
 
   const { data: eventRow, error: evErr } = await supabase
     .from("events")
-    .select("id, status, slug, title, rsvp_capacity, starts_at, ends_at, created_by")
+    .select("id, status, slug, title, rsvp_capacity, starts_at, ends_at, created_by, event_kind, source, import_status, external_rsvp_url")
     .eq("id", eventId)
     .maybeSingle()
 
   if (evErr || !eventRow || eventRow.status !== "published") {
     return { error: "This event is not available for purchase." }
+  }
+
+  const nativeTicketing = assertNativeTicketingAllowed(eventRow)
+  if (!nativeTicketing.ok) {
+    return { error: nativeTicketing.error }
   }
 
   const endedCheck = assertEventAcceptsPublicRegistration(

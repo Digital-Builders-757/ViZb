@@ -5,6 +5,7 @@ import { requireOrgMember } from "@/lib/auth-helpers"
 import { revalidatePublicEventDiscoveryPaths } from "@/lib/events/revalidate-public-discovery"
 import { revalidatePath } from "next/cache"
 import { parseEasternDatetimeLocalToIso } from "@/lib/events/eastern-datetime"
+import { assertNativeTicketingAllowed } from "@/lib/events/native-ticketing-guard"
 import { parseUsdStringToCents } from "@/lib/money/usd"
 import {
   DEFAULT_PAID_TIER_NAME,
@@ -30,7 +31,7 @@ function parseOptionalIso(formData: FormData, key: string): string | null {
 async function loadEventForOrg(supabase: SupabaseClient, orgId: string, eventId: string) {
   const { data, error } = await supabase
     .from("events")
-    .select("id, org_id, slug, created_by")
+    .select("id, org_id, slug, created_by, event_kind, source, import_status, external_rsvp_url")
     .eq("id", eventId)
     .eq("org_id", orgId)
     .maybeSingle()
@@ -179,6 +180,8 @@ export async function updateEventTicketType(formData: FormData) {
 
   const ev = await loadEventForOrg(supabase, org.id, eventId)
   if (!ev) return { error: "Event not found." }
+  const nativeTicketing = assertNativeTicketingAllowed(ev)
+  if (!nativeTicketing.ok) return { error: nativeTicketing.error }
 
   const { data: existingType, error: loadTypeErr } = await supabase
     .from("ticket_types")
@@ -278,6 +281,8 @@ export async function deleteEventTicketType(formData: FormData) {
 
   const ev = await loadEventForOrg(supabase, org.id, eventId)
   if (!ev) return { error: "Event not found." }
+  const nativeTicketing = assertNativeTicketingAllowed(ev)
+  if (!nativeTicketing.ok) return { error: nativeTicketing.error }
 
   const { data: row } = await supabase
     .from("ticket_types")
@@ -324,6 +329,8 @@ export async function upsertEventPaidTicketTier(formData: FormData) {
 
   const ev = await loadEventForOrg(supabase, org.id, eventId)
   if (!ev) return { error: "Event not found." }
+  const nativeTicketing = assertNativeTicketingAllowed(ev)
+  if (!nativeTicketing.ok) return { error: nativeTicketing.error }
 
   const seedErr = await ensureDefaultRsvpTier(supabase, eventId)
   if (seedErr) return { error: seedErr }
