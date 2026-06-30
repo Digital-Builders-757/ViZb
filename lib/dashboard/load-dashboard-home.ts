@@ -13,24 +13,12 @@ import { fetchPostEventRecapPrompts } from "@/lib/events/post-event-recap-prompt
 import { getDashboardUpcomingEventPreviews } from "@/lib/events/upcoming-preview"
 import { fetchMemberPreferences } from "@/lib/member/load-preferences"
 import {
-  hasMeaningfulMemberPreferences,
   needsMemberPreferenceOnboarding,
   type MemberPreferencesSnapshot,
 } from "@/lib/member/preferences"
 import { MEMBER_HOME_CITY_OPTIONS } from "@/lib/member/home-cities"
+import { calculateProfileCompletion } from "@/lib/profile/profile-completion"
 import { getPublicSiteOrigin } from "@/lib/public-site-url"
-
-function computeProfileCompletion(
-  displayName: string | null | undefined,
-  prefs: MemberPreferencesSnapshot,
-): { pct: number; label: string } {
-  let pct = 0
-  if (displayName?.trim()) pct += 50
-  if (hasMeaningfulMemberPreferences(prefs)) pct += 50
-  if (pct >= 100) return { pct: 100, label: "Profile complete" }
-  if (pct >= 50) return { pct, label: "Almost tuned in" }
-  return { pct, label: "Set up your vibe" }
-}
 
 function buildInviteMailto(plan: MemberHomeTicketPreview): string {
   const eventUrl = `${getPublicSiteOrigin()}/events/${plan.slug}`
@@ -142,7 +130,7 @@ export function computePulseDigest(
 export async function loadDashboardHome(
   supabase: SupabaseClient,
   userId: string,
-  profile: { display_name?: string | null },
+  profile: { display_name?: string | null; avatar_url?: string | null },
 ): Promise<DashboardHomeBundle> {
   const memberPreferences = await fetchMemberPreferences(supabase, userId)
   const needsPrefs = needsMemberPreferenceOnboarding(memberPreferences)
@@ -160,13 +148,17 @@ export async function loadDashboardHome(
   const ticketEventIds = new Set(rsvp.upcomingEventIds)
   const savedNotDecided = savedUpcoming.filter((e) => !ticketEventIds.has(e.id))
 
-  const profileCompletion = computeProfileCompletion(profile.display_name, memberPreferences)
+  const profileCompletion = calculateProfileCompletion(
+    { display_name: profile.display_name, avatar_url: profile.avatar_url },
+    memberPreferences,
+  )
   const stats: DashboardHomeStats = {
     upcomingPlans: rsvp.upcomingCount,
     savedEvents: savedUpcoming.length,
     ticketsPasses: rsvp.upcomingCount,
     profileCompletionPct: profileCompletion.pct,
     profileCompletionLabel: profileCompletion.label,
+    profileCompletionMissingFields: profileCompletion.missingFields,
   }
 
   const nextMove = resolveNextMove(

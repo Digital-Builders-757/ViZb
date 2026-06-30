@@ -8,6 +8,7 @@ import { Home, User, Calendar, Settings, LogOut, Shield, Building2, PlusCircle, 
 
 import { HeaderBrandMarkLink } from "@/components/brand/header-brand-mark"
 import { NotificationsMenu } from "@/components/dashboard/notifications-menu"
+import { UserAvatar } from "@/components/dashboard/user-avatar"
 import type { DashboardNotificationFeed } from "@/lib/notifications/dashboard-queries"
 
 interface SidebarProps {
@@ -177,11 +178,12 @@ export function DashboardSidebar({ profile, organizations = [], notifications }:
       {/* Bottom -- user info + sign out */}
       <div className="border-t border-[color:var(--neon-hairline)] p-4">
         <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[color:var(--neon-a)]/40 to-[color:var(--neon-b)]/40 ring-2 ring-[color:var(--neon-a)]/35">
-            <span className="text-xs font-bold text-[color:var(--neon-text0)]">
-              {(profile?.display_name || "U")[0].toUpperCase()}
-            </span>
-          </div>
+          <UserAvatar
+            avatarUrl={profile?.avatar_url}
+            displayName={profile?.display_name}
+            fallbackText="User"
+            className="h-8 w-8"
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-[color:var(--neon-text0)]">
               {profile?.display_name || "User"}

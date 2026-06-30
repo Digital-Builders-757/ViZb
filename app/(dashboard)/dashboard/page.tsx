@@ -99,6 +99,7 @@ export default async function DashboardPage({
         preferences={home.memberPreferences}
         profileCompletionPct={home.stats.profileCompletionPct}
         profileCompletionLabel={home.stats.profileCompletionLabel}
+        profileCompletionMissingFields={home.stats.profileCompletionMissingFields}
       />
 
       <TicketPassesSection

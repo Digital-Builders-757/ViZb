@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { HeaderBrandMarkLink } from "@/components/brand/header-brand-mark"
 import { NotificationsMenu } from "@/components/dashboard/notifications-menu"
+import { UserAvatar } from "@/components/dashboard/user-avatar"
 import type { DashboardNotificationFeed } from "@/lib/notifications/dashboard-queries"
 
 interface MobileHeaderProps {
@@ -86,11 +87,12 @@ export function MobileHeader({ profile, organizations = [], notifications }: Mob
             >
             <SheetHeader className="border-b border-[color:var(--neon-hairline)] px-4 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center bg-gradient-to-br from-[color:var(--neon-a)]/30 to-[color:var(--neon-b)]/30 ring-2 ring-[color:var(--neon-a)]/35">
-                  <span className="text-xs font-bold text-[color:var(--neon-text0)]">
-                    {(profile?.display_name || "U")[0].toUpperCase()}
-                  </span>
-                </div>
+                <UserAvatar
+                  avatarUrl={profile?.avatar_url}
+                  displayName={profile?.display_name}
+                  fallbackText="User"
+                  className="h-9 w-9"
+                />
                 <div className="min-w-0 flex-1">
                   <SheetTitle className="truncate text-sm font-medium text-[color:var(--neon-text0)]">
                     {profile?.display_name || "User"}
