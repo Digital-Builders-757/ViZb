@@ -66,6 +66,27 @@ Run this after a release or before a high-traffic event. Use a **staff admin** a
 
 ---
 
+## Paid ticketing and payout launch pass
+
+Run this in Stripe test mode before closing payment launch work. Keep the Stripe Dashboard open for webhook delivery, Checkout, PaymentIntent, refund/dispute, account, and transfer records.
+
+| Step | Route / Surface | Verify |
+|------|------------------|--------|
+| 1 | Supabase migrations | Latest migrations are applied; `organizer_stripe_accounts`, `organizer_payouts`, order fee/payout fields, and `webhook_logs` exist. |
+| 2 | Vercel env | `NEXT_PUBLIC_SITE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, and `CRON_SECRET` are present for the environment under test. |
+| 3 | `/admin/diagnostics/stripe` | Env checks pass and expected webhook URL matches the Stripe endpoint hostname. |
+| 4 | Stripe webhook endpoint | Endpoint points to `POST /api/stripe/webhook` and subscribes to checkout, payment intent, refund, dispute, and `account.updated` events. |
+| 5 | `/organizer/[slug]/payments` | Test organizer completes Stripe Connect Express onboarding; ViZB receives `account.updated`; organizer becomes payout-ready. |
+| 6 | Organizer event setup | Paid tier creation is blocked before payout readiness, then succeeds after readiness; public event shows buyer price breakdown. |
+| 7 | Stripe Checkout | Buyer completes a test card purchase; order records Checkout Session, PaymentIntent, buyer total, ViZB fee, processing fee, and organizer payout. |
+| 8 | Webhook fulfillment | `checkout.session.completed` or `payment_intent.succeeded` mints the ticket; buyer sees the ticket in `/tickets`; no duplicate ticket on webhook replay. |
+| 9 | Admin payments | `/admin/payments`, `/admin/payments/payouts`, and `/admin/payments/orders/[id]` show the order, fee breakdown, refund/dispute state, payout ledger, and Stripe references. |
+| 10 | Payout release | After eligibility, run `/api/cron/release-payouts` or staff release; Stripe transfer is created and payout/order status becomes released. |
+| 11 | Blocked cases | Paid checkout is blocked before Connect readiness; refund, dispute, and manual hold states block payout release with visible admin reasons. |
+| 12 | Launch note | Record the tested hostname, commit SHA, Stripe mode, test event slug, order id, payout id, and any follow-up bugs in the release or GitHub issue. |
+
+---
+
 ## Regression quick pass
 
 - `/admin` loads without blank screen when Supabase is configured.

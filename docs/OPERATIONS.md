@@ -15,7 +15,7 @@ Runtime assumptions, deploy flow, integrations, background work, and troubleshoo
 | Database | Hosted Supabase Postgres 17 — not bundled with the app |
 | Auth | Supabase Auth cookie session; refreshed on every matched request via `proxy.ts` |
 | Static assets | `public/` + Supabase Storage public URLs |
-| No background workers | Hourly Vercel cron **`/api/cron/event-reminders`** (requires **`CRON_SECRET`** + service role) |
+| No background workers | Hourly Vercel cron **`/api/cron/event-reminders`** and **`/api/cron/release-payouts`** (requires **`CRON_SECRET`** + service role) |
 | Async payments | Stripe webhooks only — never trust client redirect |
 | Inventory | DB triggers recalculate `ticket_types.quantity_sold` |
 
@@ -117,6 +117,7 @@ Canonical template: `.env.example`. Set per environment in Vercel dashboard or `
 |---------|-----------|
 | Paid checkout | `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` |
 | Webhook fulfillment | `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Payout release cron | `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY` |
 | Platform service fee (optional) | `TICKET_PLATFORM_FEE_PERCENT`, `TICKET_PLATFORM_FEE_FIXED_CENTS` |
 | Door scanner | `TICKET_QR_SECRET` |
 | Admin user delete | `SUPABASE_SERVICE_ROLE_KEY` |
@@ -203,7 +204,7 @@ Troubleshooting table: `docs/troubleshooting/COMMON_ERRORS_QUICK_REFERENCE.md`.
 ### Stripe webhook setup
 
 1. Dashboard or CLI: point webhook to `https://<domain>/api/stripe/webhook`
-2. Events: `checkout.session.completed`, `payment_intent.payment_failed`, `checkout.session.expired`
+2. Events: `checkout.session.completed`, `payment_intent.succeeded`, `payment_intent.payment_failed`, `checkout.session.expired`, `charge.refunded`, `refund.updated`, `charge.dispute.created`, `charge.dispute.closed`, `account.updated`
 3. Set `STRIPE_WEBHOOK_SECRET` on Vercel
 4. Ensure `20260606000500` migration applied (RPC `fulfill_stripe_ticket_order`)
 
@@ -231,9 +232,9 @@ Webhook uses **service role** — missing key returns 503.
 | Stripe webhook | Order fulfillment, ticket mint, path revalidation |
 | DB triggers | `quantity_sold` recalc, `updated_at`, review field guards |
 | View beacon | `POST /api/events/[slug]/view` → RPC increment (fire-and-forget) |
-| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role); **`GET /api/cron/eventbrite-import`** every 6h when **`EVENTBRITE_IMPORT_ENABLED=true`** (#259); **`GET /api/cron/ticketmaster-import`** every 6h when **`TICKETMASTER_IMPORT_ENABLED=true`** (#267) |
+| Vercel cron | **`GET /api/cron/event-reminders`** hourly — My Vibes in-app + email reminders (Bearer **`CRON_SECRET`**, service role); **`GET /api/cron/release-payouts`** hourly — eligible organizer Connect payout releases; **`GET /api/cron/eventbrite-import`** every 6h when **`EVENTBRITE_IMPORT_ENABLED=true`** (#259); **`GET /api/cron/ticketmaster-import`** every 6h when **`TICKETMASTER_IMPORT_ENABLED=true`** (#267) |
 
-Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders`. Eventbrite: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/eventbrite-import` — see [`docs/imports/eventbrite.md`](./imports/eventbrite.md) (remain disabled: `EVENTBRITE_IMPORT_ENABLED=false`).
+Set **`CRON_SECRET`** in Vercel; enable cron via **`vercel.json`**. Manual tests: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/event-reminders` and `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/release-payouts`. Eventbrite: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/eventbrite-import` — see [`docs/imports/eventbrite.md`](./imports/eventbrite.md) (remain disabled: `EVENTBRITE_IMPORT_ENABLED=false`).
 
 ### Multi-source ingestion (#266)
 
