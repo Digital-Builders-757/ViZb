@@ -390,6 +390,17 @@ Likely matches should be shown to staff with match evidence. Do not silently mer
 - Keep a reversible merge trail where practical.
 - Do not let lower-confidence source updates overwrite verified organizer content.
 
+### Current duplicate implementation
+
+After each candidate insert/update, `lib/imports/candidate-repository.ts` calls `detectCandidateDuplicates()` from
+`lib/imports/candidate-duplicate-detection.ts`. The detector compares nearby native events and candidates, marks
+exact/likely duplicate status, stores match evidence, and links only exact native event matches through
+`canonical_event_id`. Likely matches remain unresolved until staff reviews them.
+
+Staff merge behavior: merge marks the candidate `merged`, keeps provenance on the candidate record, and writes a
+`merge` audit entry. Undo returns the candidate to `pending_review`, clears the canonical link, resets duplicate status,
+and writes an `undo` audit entry. Neither action edits organizer-owned canonical content automatically.
+
 ## Publishing policy
 
 No automated source may publish directly during the MVP.

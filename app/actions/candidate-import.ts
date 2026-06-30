@@ -63,7 +63,7 @@ export async function reviewCandidateAction(input: {
     return { error: plan.error }
   }
 
-  if (input.action === "link" && input.canonicalEventId) {
+  if ((input.action === "link" || input.action === "merge") && input.canonicalEventId) {
     const { data: eventRow } = await supabase
       .from("events")
       .select("id")

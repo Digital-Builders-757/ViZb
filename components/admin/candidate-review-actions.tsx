@@ -30,6 +30,7 @@ export function CandidateReviewActions({
   const [message, setMessage] = useState<string | null>(null)
   const notesRef = useRef<HTMLTextAreaElement>(null)
   const linkIdRef = useRef<HTMLInputElement>(null)
+  const mergeIdRef = useRef<HTMLInputElement>(null)
   const publishCheck = canPublishCandidate(candidate)
 
   async function runAction(
@@ -218,6 +219,70 @@ export function CandidateReviewActions({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              type="button"
+              disabled={pending || candidate.review_status === "approved_listing"}
+              className="min-h-9 border border-amber-500/40 px-4 font-mono text-[10px] uppercase tracking-widest disabled:opacity-50"
+            >
+              Merge
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-serif text-foreground">Merge into canonical event</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground text-sm">
+                Marks this candidate as merged and preserves its source provenance in the candidate audit trail.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <input
+              ref={mergeIdRef}
+              defaultValue={candidate.canonical_event_id ?? ""}
+              placeholder="Canonical event UUID"
+              className="w-full border border-border bg-background p-2 font-mono text-sm"
+            />
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() =>
+                  runAction("merge", {
+                    canonicalEventId: mergeIdRef.current?.value?.trim(),
+                  })
+                }
+              >
+                Merge
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {candidate.review_status === "merged" ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                disabled={pending}
+                className="min-h-9 border border-border px-4 font-mono text-[10px] uppercase tracking-widest disabled:opacity-50"
+              >
+                Undo merge
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-card border-border">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-serif text-foreground">Undo merge?</AlertDialogTitle>
+                <AlertDialogDescription className="text-muted-foreground text-sm">
+                  Returns this candidate to pending review and clears the duplicate link.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => runAction("undo")}>Undo</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : null}
       </div>
 
       {candidate.canonical_event_id && canonicalEventSlug ? (

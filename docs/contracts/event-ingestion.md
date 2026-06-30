@@ -1,6 +1,6 @@
 # Contract: event ingestion (#266)
 
-**Status:** Foundation + geography + Ticketmaster adapter shipped (#266, #268, #267)  
+**Status:** Foundation + geography + Ticketmaster adapter shipped (#266, #268, #267); duplicate detection foundation partial (#269)  
 **Epic:** #265  
 **Architecture:** `docs/imports/LOCAL_EVENT_INGESTION.md`  
 **Code:** `lib/imports/*`, `lib/imports/geography/*`, `lib/eventbrite/adapter.ts`, `lib/ticketmaster/*`
@@ -9,6 +9,7 @@
 
 - Source adapters may create or update **`event_candidates`** only.
 - Source adapters must **not** publish `events`, create ticket types, assign organizer ownership, approve candidates, or merge duplicates.
+- Import-time duplicate detection may mark `duplicate_status` and attach evidence, but it must not merge or publish candidates automatically.
 - Disabled sources fail closed (env flag and/or `event_sources.enabled_in_db`).
 - Source credentials are server-only; never `NEXT_PUBLIC_*`.
 - Candidate writes use the **service role**; staff reads use RLS (`is_staff_admin()`).
@@ -47,6 +48,12 @@ source_key + source_event_id
 - `exact` — same source identity or confirmed link (#269)
 - `likely` — scored match requiring staff action (#269)
 
+Current duplicate implementation:
+
+- `exact` means same source identity, exact source URL, or a conservative native/candidate match.
+- `likely` means a scored cross-source match requiring staff action.
+- `duplicate_match_evidence` stores the detector version, checked timestamp, match kind (`candidate` or `event`), score, reason, and signals such as title/time/venue/city matches.
+
 ## Adapter contract
 
 ```ts
@@ -75,6 +82,8 @@ Register implementations in `lib/imports/adapters/registry.ts`.
 7. Fetch pages → normalize → `upsertCandidate`
 8. Finish run + update source health
 
+After each candidate insert/update, `upsertCandidate` runs conservative duplicate detection against nearby candidates and canonical events. Exact native event matches set `canonical_event_id`; likely matches only set evidence and block publishing until staff resolves the duplicate state.
+
 ## Discovery geography (#268)
 
 - **Launch market:** Hampton Roads — 8 cities in `lib/imports/geography/hampton-roads.ts`
@@ -97,6 +106,15 @@ Pure logic in `lib/imports/candidate-upsert.ts` (`buildCandidateUpsertPlan`):
 - **`rejected` / `suppressed` unchanged hash** → skip
 - **`rejected` / `suppressed` changed hash** → reset to `pending_review` (unless active suppression window)
 - **`pending_review` / `needs_changes`** → refresh normalized fields
+
+## Duplicate Merge And Undo Rules (#269)
+
+- Candidate duplicate detection distinguishes `exact` from `likely`; neither status publishes or merges automatically.
+- Staff may link a candidate to a canonical event without changing review status.
+- Staff may merge a candidate into a canonical event, which sets `review_status = merged`, `duplicate_status = exact`, and records a `merge` audit action.
+- Staff may undo a merge, which restores `review_status = pending_review`, clears the canonical link, sets `duplicate_status = none`, and records an `undo` audit action.
+- A native canonical event remains the canonical record when the duplicate detector finds an exact native event match.
+- Source payload, source IDs, raw provenance, and candidate review history remain on `event_candidates` / `event_candidate_reviews`.
 
 ## RLS
 
