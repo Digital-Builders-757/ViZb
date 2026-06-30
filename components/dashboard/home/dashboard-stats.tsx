@@ -1,10 +1,10 @@
-import { Calendar, Heart, Ticket, UserCircle } from "lucide-react"
+import { Calendar, Heart, Ticket } from "lucide-react"
 import type { DashboardHomeStats } from "@/lib/dashboard/dashboard-home-types"
 import { StatCard } from "@/components/ui/stat-card"
 
 export function DashboardStats({ stats }: { stats: DashboardHomeStats }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
       <StatCard
         icon={Calendar}
         label="Upcoming plans"
@@ -27,14 +27,6 @@ export function DashboardStats({ stats }: { stats: DashboardHomeStats }) {
         value={stats.ticketsPasses}
         hint="Active passes"
         accent="c"
-        className="rounded-none"
-      />
-      <StatCard
-        icon={UserCircle}
-        label="Profile"
-        value={`${stats.profileCompletionPct}%`}
-        hint={stats.profileCompletionLabel}
-        accent="a"
         className="rounded-none"
       />
     </div>
