@@ -45,6 +45,16 @@ export default async function DashboardPage({
     : needsPreferenceOnboarding
       ? "Almost there. Tell us your cities and categories so we can personalize your command center."
       : null
+  const firstRunCtaHref = !profile?.display_name
+    ? "/profile"
+    : needsPreferenceOnboarding
+      ? "#first-run-preferences"
+      : null
+  const firstRunCtaLabel = !profile?.display_name
+    ? "Complete profile"
+    : needsPreferenceOnboarding
+      ? "Choose cities & categories"
+      : null
 
   return (
     <div className="max-w-full space-y-10 overflow-x-hidden md:space-y-12">
@@ -53,6 +63,8 @@ export default async function DashboardPage({
         region={region}
         isFirstRun={isFirstRun}
         firstRunHint={firstRunHint}
+        firstRunCtaHref={firstRunCtaHref}
+        firstRunCtaLabel={firstRunCtaLabel}
         stats={home.stats}
         nextMove={home.nextMove}
       />

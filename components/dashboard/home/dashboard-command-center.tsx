@@ -7,6 +7,8 @@ export interface DashboardCommandCenterProps {
   region: string
   isFirstRun: boolean
   firstRunHint: string | null
+  firstRunCtaHref?: string | null
+  firstRunCtaLabel?: string | null
   stats: DashboardHomeStats
   nextMove: DashboardNextMove
 }
@@ -16,6 +18,8 @@ export function DashboardCommandCenter({
   region,
   isFirstRun,
   firstRunHint,
+  firstRunCtaHref,
+  firstRunCtaLabel,
   stats,
   nextMove,
 }: DashboardCommandCenterProps) {
@@ -45,6 +49,14 @@ export function DashboardCommandCenter({
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-[color:var(--neon-text1)]">
           {subtext}
         </p>
+        {firstRunHint && firstRunCtaHref && firstRunCtaLabel ? (
+          <a
+            href={firstRunCtaHref}
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] px-5 font-mono text-[10px] font-bold uppercase tracking-normal text-[color:var(--neon-bg0)] shadow-[var(--vibe-neon-glow-subtle)] transition-[transform,box-shadow] hover:shadow-[var(--vibe-neon-glow)] active:scale-[0.99]"
+          >
+            {firstRunCtaLabel}
+          </a>
+        ) : null}
       </header>
 
       <MyNextMoveCard nextMove={nextMove} />
