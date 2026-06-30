@@ -51,20 +51,32 @@ export function CandidateDuplicatePanel({ candidate }: { candidate: CandidateRev
 
       {matches.length > 0 ? (
         <ul className="mt-3 space-y-2">
-          {matches.map((match) => (
-            <li key={match.candidateId} className="text-sm text-muted-foreground">
-              <Link
-                href={`/admin/events/imports/candidates/${match.candidateId}`}
-                className="font-medium text-foreground underline-offset-4 hover:underline"
-              >
-                {match.title}
-              </Link>
-              <span className="ml-2 font-mono text-[10px] uppercase tracking-widest">
-                {match.sourceKey} · {match.city ?? "unknown city"}
-              </span>
-              {match.reason ? <span className="block text-xs">{match.reason}</span> : null}
-            </li>
-          ))}
+          {matches.map((match) => {
+            const href =
+              match.kind === "event" && match.eventId
+                ? `/admin/events/${match.eventId}`
+                : `/admin/events/imports/candidates/${match.candidateId}`
+
+            return (
+              <li key={`${match.kind}-${match.candidateId || match.eventId}`} className="text-sm text-muted-foreground">
+                <Link href={href} className="font-medium text-foreground underline-offset-4 hover:underline">
+                  {match.title}
+                </Link>
+                <span className="ml-2 font-mono text-[10px] uppercase tracking-widest">
+                  {match.kind === "event" ? "native event" : match.sourceKey} - {match.city ?? "unknown city"}
+                </span>
+                {match.score != null || match.status ? (
+                  <span className="ml-2 font-mono text-[10px] uppercase tracking-widest text-amber-200">
+                    {match.status ?? "match"} {match.score != null ? `${match.score}%` : ""}
+                  </span>
+                ) : null}
+                {match.reason ? <span className="block text-xs">{match.reason}</span> : null}
+                {match.signals && match.signals.length > 0 ? (
+                  <span className="block text-[11px]">{match.signals.join(", ")}</span>
+                ) : null}
+              </li>
+            )
+          })}
         </ul>
       ) : (
         <p className="mt-3 text-sm text-muted-foreground">

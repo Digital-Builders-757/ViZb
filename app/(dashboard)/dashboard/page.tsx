@@ -7,7 +7,9 @@ import { getPublicSiteOrigin } from "@/lib/public-site-url"
 import { parseDashboardCalendarMonth } from "@/lib/events/dashboard-calendar"
 import { getPublishedEventsForDashboardMonth } from "@/lib/events/dashboard-calendar-queries"
 import { fetchMySavedEventIds } from "@/lib/events/my-vibes-queries"
+import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
 import { DashboardCommandCenter } from "@/components/dashboard/home/dashboard-command-center"
+import { PlannerSection } from "@/components/dashboard/home/planner-section"
 import { TicketPassesSection } from "@/components/dashboard/home/ticket-passes-section"
 import { SavedNotDecidedSection } from "@/components/dashboard/home/saved-not-decided-section"
 import { VibeProfileSection } from "@/components/dashboard/home/vibe-profile-section"
@@ -43,6 +45,16 @@ export default async function DashboardPage({
     : needsPreferenceOnboarding
       ? "Almost there. Tell us your cities and categories so we can personalize your command center."
       : null
+  const firstRunCtaHref = !profile?.display_name
+    ? "/profile"
+    : needsPreferenceOnboarding
+      ? "#first-run-preferences"
+      : null
+  const firstRunCtaLabel = !profile?.display_name
+    ? "Complete profile"
+    : needsPreferenceOnboarding
+      ? "Choose cities & categories"
+      : null
 
   return (
     <div className="max-w-full space-y-10 overflow-x-hidden md:space-y-12">
@@ -51,17 +63,10 @@ export default async function DashboardPage({
         region={region}
         isFirstRun={isFirstRun}
         firstRunHint={firstRunHint}
+        firstRunCtaHref={firstRunCtaHref}
+        firstRunCtaLabel={firstRunCtaLabel}
         stats={home.stats}
         nextMove={home.nextMove}
-        upcomingPlans={home.upcomingPlans}
-        savedUpcoming={home.savedUpcoming}
-        ticketEventIds={home.rsvp.upcomingEventIds}
-        siteOrigin={siteOrigin}
-        calendarYear={year}
-        calendarMonthIndex={monthIndex}
-        calendarKey={calKey}
-        calendarEvents={calendarEvents}
-        savedEventIds={myVibesSavedIds}
       />
 
       {isFirstRun && !profile?.display_name ? (
@@ -90,6 +95,13 @@ export default async function DashboardPage({
         </section>
       ) : null}
 
+      <VibeProfileSection
+        preferences={home.memberPreferences}
+        profileCompletionPct={home.stats.profileCompletionPct}
+        profileCompletionLabel={home.stats.profileCompletionLabel}
+        profileCompletionMissingFields={home.stats.profileCompletionMissingFields}
+      />
+
       <TicketPassesSection
         loadError={home.rsvp.loadError}
         upcomingPreviews={home.rsvp.upcomingPreviews}
@@ -100,11 +112,27 @@ export default async function DashboardPage({
 
       <SavedNotDecidedSection events={home.savedNotDecided} siteOrigin={siteOrigin} />
 
-      <VibeProfileSection
-        preferences={home.memberPreferences}
-        profileCompletionPct={home.stats.profileCompletionPct}
-        profileCompletionLabel={home.stats.profileCompletionLabel}
+      <PlannerSection
+        upcomingPlans={home.upcomingPlans}
+        savedUpcoming={home.savedUpcoming}
+        ticketEventIds={home.rsvp.upcomingEventIds}
+        siteOrigin={siteOrigin}
+        variant="embedded"
       />
+
+      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
+        <h2 id="dash-calendar-heading" className="sr-only">
+          Town calendar planner
+        </h2>
+        <DashboardCalendarShell
+          key={calKey}
+          year={year}
+          monthIndex={monthIndex}
+          calKey={calKey}
+          events={calendarEvents}
+          savedEventIds={myVibesSavedIds}
+        />
+      </section>
 
       <PostEventRecapPromptsSection prompts={home.recapPrompts} />
 

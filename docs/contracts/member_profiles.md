@@ -1,7 +1,7 @@
 # Contract: member profiles
 
 **Status:** MVP  
-**SQL:** `scripts/004_create_profiles.sql`, `scripts/006_rls_security_fixes.sql`, `scripts/007_column_privileges_hardening.sql`, `scripts/010a_add_enum_values.sql`, `scripts/010b_invite_system.sql`, `supabase/migrations/20260607193500_posts_mvp_base.sql`  
+**SQL:** `scripts/004_create_profiles.sql`, `scripts/006_rls_security_fixes.sql`, `scripts/007_column_privileges_hardening.sql`, `scripts/010a_add_enum_values.sql`, `scripts/010b_invite_system.sql`, `supabase/migrations/20260607193500_posts_mvp_base.sql`, `supabase/migrations/20260630171827_profile_avatars_storage.sql`  
 **Code:** `app/(dashboard)/profile/page.tsx`, `components/dashboard/profile-form.tsx`, `app/actions/profile.ts`, `lib/auth-helpers.ts`
 
 ## Purpose
@@ -40,3 +40,7 @@
 Culture preferences live in **`member_preferences`** (see **`20260611201910_member_preferences.sql`**): home cities, categories, reminder channel toggles, onboarding timestamp. Edited on **`/profile`** and first-run **`/dashboard`**.
 
 Contract: **`docs/contracts/member_profiles.md`** (profile identity) + preference fields in **`lib/member/preferences.ts`**.
+
+## Avatar storage
+
+Profile pictures are stored in the public Supabase Storage bucket **`avatars`**. Object paths must start with the authenticated user's id (`{user_id}/{filename}`), and storage policies allow public reads plus user-owned insert/update/delete only. Application code updates only the current user's `profiles.avatar_url` through `app/actions/profile.ts`.

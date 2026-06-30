@@ -26,6 +26,7 @@ export type DashboardHomeStats = {
   ticketsPasses: number
   profileCompletionPct: number
   profileCompletionLabel: string
+  profileCompletionMissingFields: string[]
 }
 
 export type DashboardHomeBundle = {

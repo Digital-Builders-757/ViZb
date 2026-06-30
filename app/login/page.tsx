@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [authIssue, setAuthIssue] = useState<MappedAuthError | null>(null)
   const [loading, setLoading] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = getSafeRedirectPath(searchParams.get("redirect"))
@@ -34,6 +35,11 @@ export default function LoginPage() {
     delay: (i * 3.1 % 1) * 6,
     duration: 10 + (i * 5.3 % 1) * 5,
   })), [])
+
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => setHydrated(true))
+    return () => cancelAnimationFrame(frameId)
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -161,6 +167,8 @@ export default function LoginPage() {
           {/* Form with glass card */}
           <form
             onSubmit={handleLogin}
+            data-testid="auth-form"
+            data-auth-ready={hydrated ? "true" : "false"}
             className="mt-10 space-y-5 rounded-2xl border border-[color:var(--neon-hairline)] bg-[color:var(--neon-surface)]/20 p-6 shadow-[var(--vibe-neon-glow-subtle)] backdrop-blur-md"
           >
             <div className="space-y-4">
@@ -243,7 +251,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <NeonButton type="submit" disabled={loading} fullWidth shape="pill" className="min-h-11">
+            <NeonButton type="submit" disabled={!hydrated || loading} fullWidth shape="pill" className="min-h-11">
               {loading ? "Signing in..." : "Sign In"}
             </NeonButton>
           </form>

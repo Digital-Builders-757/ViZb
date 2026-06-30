@@ -21,10 +21,12 @@ export function VibeProfileSection({
   preferences,
   profileCompletionPct,
   profileCompletionLabel,
+  profileCompletionMissingFields,
 }: {
   preferences: MemberPreferencesSnapshot
   profileCompletionPct: number
   profileCompletionLabel: string
+  profileCompletionMissingFields: string[]
 }) {
   const cityLabels = preferences.homeCities
     .map((c) => MEMBER_HOME_CITY_OPTIONS.find((o) => o.value === c)?.label)
@@ -59,6 +61,15 @@ export function VibeProfileSection({
               style={{ width: `${profileCompletionPct}%` }}
             />
           </div>
+          {profileCompletionMissingFields.length > 0 ? (
+            <p className="mt-3 text-xs leading-relaxed text-[color:var(--neon-text2)]">
+              Finish: {profileCompletionMissingFields.join(", ")}
+            </p>
+          ) : (
+            <p className="mt-3 text-xs leading-relaxed text-[color:var(--neon-a)]">
+              Everything needed for your member profile is in place.
+            </p>
+          )}
           <NeonLink href="/profile#culture-preferences" className="mt-5 inline-flex" shape="xl">
             Tune your vibe
           </NeonLink>

@@ -71,6 +71,39 @@ describe("buildCandidateReviewPlan", () => {
     expect(plan.ok).toBe(false)
   })
 
+  it("merges into a canonical event and records duplicate state", () => {
+    const plan = buildCandidateReviewPlan(baseCandidate(), {
+      action: "merge",
+      canonicalEventId: "11111111-1111-4111-8111-111111111111",
+      notes: "same source record",
+    })
+    expect(plan.ok).toBe(true)
+    if (plan.ok) {
+      expect(plan.newReviewStatus).toBe("merged")
+      expect(plan.newDuplicateStatus).toBe("exact")
+      expect(plan.auditAction).toBe("merge")
+      expect(plan.patch.canonical_event_id).toBe("11111111-1111-4111-8111-111111111111")
+    }
+  })
+
+  it("undoes a merge back to pending review", () => {
+    const plan = buildCandidateReviewPlan(
+      baseCandidate({
+        review_status: "merged",
+        duplicate_status: "exact",
+        canonical_event_id: "11111111-1111-4111-8111-111111111111",
+      }),
+      { action: "undo", notes: "wrong match" },
+    )
+    expect(plan.ok).toBe(true)
+    if (plan.ok) {
+      expect(plan.newReviewStatus).toBe("pending_review")
+      expect(plan.newDuplicateStatus).toBe("none")
+      expect(plan.auditAction).toBe("undo")
+      expect(plan.patch.canonical_event_id).toBeNull()
+    }
+  })
+
   it("blocks reject on approved listing", () => {
     const plan = buildCandidateReviewPlan(
       baseCandidate({ review_status: "approved_listing" }),

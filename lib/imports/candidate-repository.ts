@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { buildCandidateUpsertPlan } from "@/lib/imports/candidate-upsert"
+import {
+  detectCandidateDuplicates,
+  type CandidateDuplicateComparable,
+  type EventDuplicateComparable,
+} from "@/lib/imports/candidate-duplicate-detection"
 import type { ExistingCandidateRow, NormalizedEventCandidate } from "@/lib/imports/types"
 
 export type CandidateUpsertOutcome =
@@ -68,6 +73,8 @@ export async function upsertCandidate(
       metadata: { import_run_id: importRunId, outcome: "created" },
     })
 
+    await applyCandidateDuplicateDetection(admin, data.id as string, candidate, importRunId, null)
+
     return { action: "created", candidateId: data.id as string }
   }
 
@@ -89,7 +96,115 @@ export async function upsertCandidate(
     metadata: { import_run_id: importRunId, outcome: "updated" },
   })
 
+  await applyCandidateDuplicateDetection(admin, plan.id, candidate, importRunId, existing)
+
   return { action: "updated", candidateId: plan.id }
+}
+
+function duplicateSearchWindow(startsAt: string): { start: string; end: string } | null {
+  const parsed = Date.parse(startsAt)
+  if (!Number.isFinite(parsed)) return null
+  const radiusMs = 36 * 60 * 60 * 1000
+  return {
+    start: new Date(parsed - radiusMs).toISOString(),
+    end: new Date(parsed + radiusMs).toISOString(),
+  }
+}
+
+async function loadDuplicateDetectionInputs(
+  admin: SupabaseClient,
+  candidateId: string,
+  candidate: NormalizedEventCandidate,
+): Promise<{ candidates: CandidateDuplicateComparable[]; events: EventDuplicateComparable[] }> {
+  const window = duplicateSearchWindow(candidate.starts_at)
+  if (!window) return { candidates: [], events: [] }
+
+  const { data: candidateRows } = await admin
+    .from("event_candidates")
+    .select(
+      "id, source_key, source_event_id, source_url, external_ticket_url, title, starts_at, venue_name, city, organizer_hints, canonical_event_id",
+    )
+    .neq("id", candidateId)
+    .gte("starts_at", window.start)
+    .lte("starts_at", window.end)
+    .limit(50)
+
+  const { data: eventRows } = await admin
+    .from("events")
+    .select("id, title, starts_at, venue_name, city, source, source_event_id, source_url, external_rsvp_url")
+    .gte("starts_at", window.start)
+    .lte("starts_at", window.end)
+    .limit(50)
+
+  return {
+    candidates: ((candidateRows ?? []) as Array<Record<string, unknown>>).map((row) => ({
+      id: String(row.id),
+      source_key: String(row.source_key),
+      source_event_id: String(row.source_event_id),
+      source_url: (row.source_url as string | null) ?? null,
+      external_ticket_url: (row.external_ticket_url as string | null) ?? null,
+      title: String(row.title),
+      starts_at: String(row.starts_at),
+      venue_name: (row.venue_name as string | null) ?? null,
+      city: (row.city as string | null) ?? null,
+      organizer_hints: (row.organizer_hints as Record<string, unknown> | null) ?? {},
+      canonical_event_id: (row.canonical_event_id as string | null) ?? null,
+    })),
+    events: ((eventRows ?? []) as Array<Record<string, unknown>>).map((row) => ({
+      id: String(row.id),
+      title: String(row.title),
+      starts_at: String(row.starts_at),
+      venue_name: (row.venue_name as string | null) ?? null,
+      city: (row.city as string | null) ?? null,
+      source: (row.source as string | null) ?? null,
+      source_event_id: (row.source_event_id as string | null) ?? null,
+      source_url: (row.source_url as string | null) ?? null,
+      external_rsvp_url: (row.external_rsvp_url as string | null) ?? null,
+    })),
+  }
+}
+
+async function applyCandidateDuplicateDetection(
+  admin: SupabaseClient,
+  candidateId: string,
+  candidate: NormalizedEventCandidate,
+  importRunId: string | null,
+  existing: ExistingCandidateRow | null,
+): Promise<void> {
+  const inputs = await loadDuplicateDetectionInputs(admin, candidateId, candidate)
+  const detection = detectCandidateDuplicates(candidate, inputs)
+
+  if (detection.status === "none") return
+
+  const patch: Record<string, unknown> = {
+    duplicate_status: detection.status,
+    duplicate_match_evidence: detection.evidence,
+    updated_at: new Date().toISOString(),
+  }
+
+  if (detection.status === "exact" && detection.canonicalEventId) {
+    patch.canonical_event_id = detection.canonicalEventId
+  }
+
+  const { error } = await admin.from("event_candidates").update(patch).eq("id", candidateId)
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  await recordCandidateReview(admin, {
+    candidateId,
+    action: "system_import",
+    previousReviewStatus: existing?.review_status ?? "pending_review",
+    newReviewStatus: existing?.review_status ?? "pending_review",
+    metadata: {
+      import_run_id: importRunId,
+      outcome: "duplicate_detected",
+      previous_duplicate_status: existing?.duplicate_status ?? "none",
+      new_duplicate_status: detection.status,
+      canonical_event_id: detection.canonicalEventId,
+      evidence: detection.evidence,
+    },
+  })
 }
 
 export async function recordCandidateReview(

@@ -2,11 +2,16 @@ import type { CandidateDuplicateStatus, CandidateReviewStatus } from "@/lib/impo
 
 export const CANDIDATE_QUEUE_DEFAULT_PAGE_SIZE = 25
 export const CANDIDATE_QUEUE_MAX_PAGE_SIZE = 100
+export const CANDIDATE_QUEUE_FRESHNESS_FILTERS = ["recent", "stale"] as const
+
+export type CandidateQueueFreshnessFilter = (typeof CANDIDATE_QUEUE_FRESHNESS_FILTERS)[number]
 
 export type CandidateQueueFilters = {
   sourceKey?: string
   reviewStatus?: CandidateReviewStatus
   duplicateStatus?: CandidateDuplicateStatus
+  freshness?: CandidateQueueFreshnessFilter
+  runId?: string
   city?: string
   startsFrom?: string
   startsTo?: string
@@ -18,6 +23,8 @@ export type CandidateQueueSearchParams = {
   source?: string
   reviewStatus?: string
   duplicateStatus?: string
+  freshness?: string
+  runId?: string
   city?: string
   startsFrom?: string
   startsTo?: string
@@ -31,6 +38,11 @@ function parsePositiveInt(value: string | undefined, fallback: number, max: numb
   return Math.min(parsed, max)
 }
 
+function parseFreshness(value: string | undefined): CandidateQueueFreshnessFilter | undefined {
+  const normalized = value?.trim()
+  return normalized === "recent" || normalized === "stale" ? normalized : undefined
+}
+
 export function parseCandidateQueueParams(
   searchParams: CandidateQueueSearchParams = {},
 ): CandidateQueueFilters {
@@ -40,6 +52,8 @@ export function parseCandidateQueueParams(
     duplicateStatus: (searchParams.duplicateStatus?.trim() || undefined) as
       | CandidateDuplicateStatus
       | undefined,
+    freshness: parseFreshness(searchParams.freshness),
+    runId: searchParams.runId?.trim() || undefined,
     city: searchParams.city?.trim() || undefined,
     startsFrom: searchParams.startsFrom?.trim() || undefined,
     startsTo: searchParams.startsTo?.trim() || undefined,
@@ -61,6 +75,8 @@ export function buildCandidateQueueQueryString(
   if (merged.sourceKey) params.set("source", merged.sourceKey)
   if (merged.reviewStatus) params.set("reviewStatus", merged.reviewStatus)
   if (merged.duplicateStatus) params.set("duplicateStatus", merged.duplicateStatus)
+  if (merged.freshness) params.set("freshness", merged.freshness)
+  if (merged.runId) params.set("runId", merged.runId)
   if (merged.city) params.set("city", merged.city)
   if (merged.startsFrom) params.set("startsFrom", merged.startsFrom)
   if (merged.startsTo) params.set("startsTo", merged.startsTo)

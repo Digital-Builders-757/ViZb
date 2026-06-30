@@ -41,6 +41,8 @@ export type CandidateReviewAction =
   | "mark_likely_duplicate"
   | "dismiss_duplicate"
   | "link"
+  | "merge"
+  | "undo"
   | "publish"
 
 export type CandidateReviewInput = {
@@ -178,6 +180,58 @@ export function buildCandidateReviewPlan(
         },
         auditAction: "link",
         newReviewStatus: previousReviewStatus,
+      }
+    }
+    case "merge": {
+      const canonicalEventId = input.canonicalEventId?.trim()
+      if (!canonicalEventId) {
+        return { ok: false, error: "Canonical event ID is required." }
+      }
+      if (!/^[0-9a-f-]{36}$/i.test(canonicalEventId)) {
+        return { ok: false, error: "Invalid canonical event ID." }
+      }
+      if (candidate.review_status === "approved_listing") {
+        return { ok: false, error: "Approved listings cannot be merged." }
+      }
+      return {
+        ok: true,
+        patch: {
+          review_status: "merged",
+          duplicate_status: "exact",
+          canonical_event_id: canonicalEventId,
+          duplicate_match_evidence: {
+            ...(candidate.duplicate_match_evidence ?? {}),
+            merged_by_staff: true,
+            merged_at: new Date().toISOString(),
+            merge_notes: notes,
+          },
+          updated_at: new Date().toISOString(),
+        },
+        auditAction: "merge",
+        newReviewStatus: "merged",
+        newDuplicateStatus: "exact",
+      }
+    }
+    case "undo": {
+      if (candidate.review_status !== "merged") {
+        return { ok: false, error: "Only merged candidates can be undone." }
+      }
+      return {
+        ok: true,
+        patch: {
+          review_status: "pending_review",
+          duplicate_status: "none",
+          canonical_event_id: null,
+          duplicate_match_evidence: {
+            ...(candidate.duplicate_match_evidence ?? {}),
+            merge_undone_at: new Date().toISOString(),
+            undo_notes: notes,
+          },
+          updated_at: new Date().toISOString(),
+        },
+        auditAction: "undo",
+        newReviewStatus: "pending_review",
+        newDuplicateStatus: "none",
       }
     }
     case "publish": {

@@ -1,26 +1,16 @@
 import type { DashboardHomeStats, DashboardNextMove } from "@/lib/dashboard/dashboard-home-types"
-import type { DashboardCalendarEvent } from "@/lib/events/dashboard-calendar"
-import { DashboardCalendarShell } from "@/components/dashboard/calendar/dashboard-calendar-shell"
 import { DashboardStats } from "@/components/dashboard/home/dashboard-stats"
 import { MyNextMoveCard } from "@/components/dashboard/home/my-next-move-card"
-import { PlannerSection, type PlannerSectionProps } from "@/components/dashboard/home/planner-section"
 
 export interface DashboardCommandCenterProps {
   displayName: string
   region: string
   isFirstRun: boolean
   firstRunHint: string | null
+  firstRunCtaHref?: string | null
+  firstRunCtaLabel?: string | null
   stats: DashboardHomeStats
   nextMove: DashboardNextMove
-  upcomingPlans: PlannerSectionProps["upcomingPlans"]
-  savedUpcoming: PlannerSectionProps["savedUpcoming"]
-  ticketEventIds: PlannerSectionProps["ticketEventIds"]
-  siteOrigin: PlannerSectionProps["siteOrigin"]
-  calendarYear: number
-  calendarMonthIndex: number
-  calendarKey: string
-  calendarEvents: DashboardCalendarEvent[]
-  savedEventIds: string[]
 }
 
 export function DashboardCommandCenter({
@@ -28,17 +18,10 @@ export function DashboardCommandCenter({
   region,
   isFirstRun,
   firstRunHint,
+  firstRunCtaHref,
+  firstRunCtaLabel,
   stats,
   nextMove,
-  upcomingPlans,
-  savedUpcoming,
-  ticketEventIds,
-  siteOrigin,
-  calendarYear,
-  calendarMonthIndex,
-  calendarKey,
-  calendarEvents,
-  savedEventIds,
 }: DashboardCommandCenterProps) {
   const subtext = firstRunHint
     ? firstRunHint
@@ -66,29 +49,15 @@ export function DashboardCommandCenter({
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-[color:var(--neon-text1)]">
           {subtext}
         </p>
+        {firstRunHint && firstRunCtaHref && firstRunCtaLabel ? (
+          <a
+            href={firstRunCtaHref}
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-gradient-to-r from-[color:var(--neon-a)] to-[color:var(--neon-b)] px-5 font-mono text-[10px] font-bold uppercase tracking-normal text-[color:var(--neon-bg0)] shadow-[var(--vibe-neon-glow-subtle)] transition-[transform,box-shadow] hover:shadow-[var(--vibe-neon-glow)] active:scale-[0.99]"
+          >
+            {firstRunCtaLabel}
+          </a>
+        ) : null}
       </header>
-
-      <PlannerSection
-        upcomingPlans={upcomingPlans}
-        savedUpcoming={savedUpcoming}
-        ticketEventIds={ticketEventIds}
-        siteOrigin={siteOrigin}
-        variant="embedded"
-      />
-
-      <section aria-labelledby="dash-calendar-heading" className="scroll-mt-24">
-        <h2 id="dash-calendar-heading" className="sr-only">
-          Town calendar planner
-        </h2>
-        <DashboardCalendarShell
-          key={calendarKey}
-          year={calendarYear}
-          monthIndex={calendarMonthIndex}
-          calKey={calendarKey}
-          events={calendarEvents}
-          savedEventIds={savedEventIds}
-        />
-      </section>
 
       <MyNextMoveCard nextMove={nextMove} />
 
