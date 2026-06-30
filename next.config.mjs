@@ -6,6 +6,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Playwright runs against 127.0.0.1; Next dev blocks cross-origin dev resources unless listed.
+  allowedDevOrigins: ["127.0.0.1"],
   // Flyer uploads use Server Actions with multipart bodies; default limit is 1MB.
   // Keep this above app max file size (5MB) plus multipart overhead — see lib/events/flyer-upload-constraints.ts.
   experimental: {

@@ -10,6 +10,10 @@ async function fillSignupForm(
   await page.getByLabel(/^phone/i).fill(opts.phone ?? "7575550123")
 }
 
+async function waitForAuthForm(page: import("@playwright/test").Page) {
+  await expect(page.getByTestId("auth-form")).toHaveAttribute("data-auth-ready", "true")
+}
+
 test.describe("Auth error UX (mocked Supabase)", () => {
   test("signup with existing email shows AuthAlert and sign-in action", async ({ page }) => {
     await page.route("**/auth/v1/signup**", async (route) => {
@@ -24,6 +28,7 @@ test.describe("Auth error UX (mocked Supabase)", () => {
     })
 
     await page.goto("/signup")
+    await waitForAuthForm(page)
     await fillSignupForm(page, { email: "taken@example.com", displayName: "Jordan" })
     await page.getByRole("button", { name: /create account/i }).click()
 
@@ -46,6 +51,7 @@ test.describe("Auth error UX (mocked Supabase)", () => {
     })
 
     await page.goto("/login")
+    await waitForAuthForm(page)
     await page.getByLabel(/^email$/i).fill("user@example.com")
     await page.getByLabel(/^password$/i).fill("wrong-pass")
     await page.getByRole("button", { name: /sign in/i }).click()
@@ -66,6 +72,7 @@ test.describe("Auth error UX (mocked Supabase)", () => {
     })
 
     await page.goto("/signup")
+    await waitForAuthForm(page)
     await fillSignupForm(page, { email: "new@example.com", displayName: "Alex" })
     await page.getByRole("button", { name: /create account/i }).click()
 
@@ -91,6 +98,7 @@ test.describe("Auth error screenshots", () => {
     })
 
     await page.goto("/signup")
+    await waitForAuthForm(page)
     await fillSignupForm(page, { email: "taken@example.com", displayName: "Jordan" })
     await page.getByRole("button", { name: /create account/i }).click()
     await expect(page.getByTestId("auth-alert")).toBeVisible()
@@ -100,6 +108,7 @@ test.describe("Auth error screenshots", () => {
     })
 
     await page.goto("/login")
+    await waitForAuthForm(page)
     await page.setViewportSize({ width: 390, height: 844 })
     await page.getByLabel(/^email$/i).fill("user@example.com")
     await page.getByLabel(/^password$/i).fill("bad")
